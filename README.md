@@ -31,13 +31,9 @@ Note: Ofc, there are mods to track this info, but they are all in-game, limited 
 
 ## Preview
 
-<div align="center">
-  <video src=".github/demo-live.mp4" controls width="100%" style="border-radius: 8px;"></video>
-  <p><i>Live gameplay event tracking in action.</i></p>
-</div>
+https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
+<p><i>Live gameplay event tracking in action.</i></p>
 
-### Dashboard Preview
-![TheCelesteTracker_Desktop_Beta_Screenshot](.github/beta_screenshot.png)
 *Current UI is subject to change during beta.*
 
 ## Tech Stack
