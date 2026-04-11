@@ -1,11 +1,17 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { listen } from '@tauri-apps/api/event';
-    import type { CelesteEvent } from '$lib/types/events';
+    import { LayoutPropsState } from '$lib/state.svelte';
     import '../app.css';
 
-    let { children } = $props();
+    let { children, data } = $props();
 
+    $effect(() => {
+        // Use data from load() for zero-flash initial paint
+        // Use state for dynamic mid-page updates
+        const activeClass = data?.bodyClassName || LayoutPropsState.bodyClass;
+        if (activeClass) {
+            document.body.className = activeClass;
+        }
+    });
 </script>
 
 {@render children()}
