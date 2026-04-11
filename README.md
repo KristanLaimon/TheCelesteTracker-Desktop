@@ -13,7 +13,7 @@
 
 **TheCelesteTracker** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
 
-***Still under development***
+> ***Still under development, not ready for usage***
 
 ## Why this exists?
 Celeste community uses **spreadsheets** for pretty much anything.  Achievements, map progress, lobby stats—all manual.
