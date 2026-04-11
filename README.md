@@ -1,87 +1,69 @@
 # TheCelesteTracker Desktop
 
-![TheCelesteTracker_Desktop_Banner](.github/banner.png)
+<div align="center">
+  <img src=".github/banner.png" alt="TheCelesteTracker_Desktop_Banner" width="100%">
 
-A modern, high-performance desktop companion for **Celeste** gameplay tracking. Built with **Tauri**, **Rust**, and **SvelteKit**.
+  ### **Stop tracking Celeste in Excel.**
+  *Auto-track runs, deaths, and progress with zero manual effort.*
 
+  [Features](#features) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Architecture](#architecture)
+</div>
+
+---
+
+**TheCelesteTracker** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
 
 ***Still under development***
 
-## Features
+## Why this exists?
+Celeste community uses **spreadsheets** for pretty much anything.  Achievements, map progress, lobby stats—all manual.
+**No more.** TheCelesteTracker aims to automates the "Excel grind" so you can focus on the "Celeste grind."
 
-- **Real-time Synchronization**: Automatically connects to the Celeste mod's WebSocket server.
-- **Auto-Port Scanning**: Scans ports `50500` through `50600` to find your running instance.
-- **Live Overlay**: Full-screen immersive mode triggered automatically when entering a level.
-- **Strongly Typed Events**: Handles `LevelStart`, `Death`, `Dash`, and `AreaComplete` events with Rust-backed precision.
-- **Zero-Flash Navigation**: Eager loading of layout properties for a seamless desktop experience.
+Note: Ofc, there are mods to track this info, but they are all in-game, limited by the interface and sometimes they have their own-learning-curve, making them kinda hard to use.
+
+## Key Features
+
+- **⚡ Real-time Sync**: Auto-connect to Everest WebSocket server.
+- **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
+- **🖥️ Live Overlay**: Immersive HUD triggers on level entry.
+- **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
+- **🛠️ Rust-Backed**: Type-safe event handling for 100% precision.
+
+## Preview
+
+<div align="center">
+  <video src=".github/demo-live.mp4" controls width="100%" style="border-radius: 8px;"></video>
+  <p><i>Live gameplay event tracking in action.</i></p>
+</div>
+
+### Dashboard Preview
+![TheCelesteTracker_Desktop_Beta_Screenshot](.github/beta_screenshot.png)
+*Current UI is subject to change during beta.*
 
 ## Tech Stack
-
-- **Backend**: [Rust](https://www.rust-lang.org/) + [Tauri v2](https://v2.tauri.app/)
-- **Frontend**: [SvelteKit](https://kit.svelte.dev/) + [Tailwind CSS](https://tailwindcss.com/)
-- **Async Runtime**: [Tokio](https://tokio.rs/)
-- **Communication**: [tokio-tungstenite](https://github.com/snapview/tokio-tungstenite) (WebSockets)
+- **Backend**: Rust + [Tauri v2](https://v2.tauri.app/)
+- **Frontend**: SvelteKit + Tailwind CSS
+- **Async**: Tokio (WebSockets)
 
 ## Getting Started
 
 ### Prerequisites
-
 - [Rust](https://www.rust-lang.org/tools/install)
-- [Node.js](https://nodejs.org/) (v18+)
-- [Bun](https://bun.sh/) (Recommended) or `npm`
-- **Celeste Mod**: Ensure you have the corresponding Celeste Tracker mod installed in Everest.
+- [Bun](https://bun.sh/) or Node.js
+- **Celeste Mod**: Install the Celeste Tracker mod in Everest.
 
 ### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/TheCelesteTracker_Desktop.git
-   cd TheCelesteTracker_Desktop
-   ```
-
-2. Install dependencies:
-   ```bash
-   bun install
-   ```
-
-3. Run in development mode:
-   ```bash
-   bun run tauri dev
-   ```
+```bash
+git clone https://github.com/yourusername/TheCelesteTracker_Desktop.git
+cd TheCelesteTracker_Desktop
+bun install
+bun run tauri dev
+```
 
 ## Architecture
-
-- `src-tauri/src/ws.rs`: Manages the WebSocket connection lifecycle and port scanning.
-- `src-tauri/src/events.rs`: Defines the strong types for Celeste gameplay events.
-- `src/lib/types/celeste_state.svelte.ts`: Global reactive state for the frontend using Svelte 5 Runes.
-- `src/routes/+layout.svelte`: Handles global event listeners and the Live Overlay UI.
-
-## Screenshots and usage
-
-## Main menú (Dashboard)
-
-![TheCelesteTracker_Desktop_Beta_Screenshto](.github/beta_screenshot.png)
-***Still under development, current GUI appearence subject to change***
-
-![demo](.github/demo-live.mp4)
-One of many features incoming. Gets stats in real time as you play and (not yet implemented) store them internally for global stats, add runs for your modded maps, and visualize all your playtime.
-
-Expected to add official support for **Celeste Skill Rating** maps and tracking!
-
-## Why this project exists?
-Normally the community organize all their achievements and stats using.... ***excel??***. 
-
-Works well, but not the ideal environment. The community (and myself) deserve a better way to track all the undocumented progress you make in mod maps, lobbies, and the well-known 'Celeste Skill Rating' maps lists.
-
-All in one place, lets stop feeding manually our excel sheets and start documenting all your celeste progress with automated tools!
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+- `src-tauri/src/ws.rs`: WebSocket lifecycle + port scanning.
+- `src-tauri/src/events.rs`: Strong types for gameplay events.
+- `src/lib/types/celeste_state.svelte.ts`: Reactive state via Svelte 5 Runes.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-*Created for the Celeste community.*
+MIT License. Created for the Celeste community.
