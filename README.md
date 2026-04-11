@@ -46,7 +46,7 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
 ### Prerequisites
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Bun](https://bun.sh/) or Node.js
-- **Celeste Mod**: Install the Celeste Tracker mod in Everest.
+- **Celeste Mod**: Install the Celeste Tracker mod in Everest. Not in gamebanana yet, must be installed from [its repo](https://github.com/KristanLaimon/TheCelesteTracker-Mod)
 
 ### Installation
 ```bash
