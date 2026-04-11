@@ -27,7 +27,7 @@ Note: Ofc, there are mods to track this info, but they are all in-game, limited 
 - **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
 - **🖥️ Live Overlay**: Immersive HUD triggers on level entry.
 - **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
-- **🛠️ Rust-Backed**: Type-safe event handling for 100% precision.
+- **🛠️ Rust-Backed**: Type-safe event handling.
 
 ## Preview
 
