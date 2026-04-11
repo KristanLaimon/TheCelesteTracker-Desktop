@@ -1,156 +1,208 @@
-<script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
-
-  let name = $state("");
-  let greetMsg = $state("");
-
-  async function greet(event: Event) {
-    event.preventDefault();
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    greetMsg = await invoke("greet", { name });
-  }
-</script>
-
-<main class="container">
-  <h1>Welcome to Tauri + Svelte</h1>
-
-  <div class="row">
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo vite" alt="Vite Logo" />
-    </a>
-    <a href="https://tauri.app" target="_blank">
-      <img src="/tauri.svg" class="logo tauri" alt="Tauri Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank">
-      <img src="/svelte.svg" class="logo svelte-kit" alt="SvelteKit Logo" />
-    </a>
-  </div>
-  <p>Click on the Tauri, Vite, and SvelteKit logos to learn more.</p>
-
-  <form class="row" onsubmit={greet}>
-    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
-    <button type="submit">Greet</button>
-  </form>
-  <p>{greetMsg}</p>
+<!-- Header -->
+<header class="fixed top-0 left-0 w-full h-16 bg-[var(--hub-bg)]/80 backdrop-blur-md border-b border-[var(--hub-outline)] flex justify-between items-center px-6 md:px-12 z-50">
+<div class="flex items-center gap-8">
+<span class="font-headline font-black text-xl text-[var(--hub-tertiary)] tracking-tight">Celeste Tracker</span>
+<nav class="hidden lg:flex gap-6">
+<a class="text-sm font-medium text-zinc-400 hover:text-[var(--hub-primary)] transition-colors" href="#">Global Stats</a>
+<a class="text-sm font-medium text-zinc-400 hover:text-[var(--hub-primary)] transition-colors" href="#">Resources</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 md:gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 text-zinc-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 text-zinc-400 hover:text-white transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 accent-bg rounded-full border border-zinc-950"></span>
+</button>
+</div>
+<div class="hidden sm:block h-8 w-px bg-[var(--hub-outline)]"></div>
+<button class="hidden sm:block px-4 py-1.5 bg-zinc-900 text-[var(--hub-secondary)] font-bold rounded-lg border border-[var(--hub-secondary)]/20 hover:bg-[var(--hub-secondary)]/10 transition-all text-xs">
+            Live Run
+        </button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-[var(--hub-primary)]/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYK0EMlyA798GWisNiQlYZcFP3m2AS9BZNIJjRLfyckeRC_dFUFaVvHiJ7Xs4B_bKxyhk-EMcVp87ewJNc5Y_qk65gcX4fBrXNcjNO-Oj_cdFlZppzTRt8rdwrZa-ji0-RJxRuTaH1eVPT2adAB5x8UvMuF8jSNd6dPs5HSxc1RQu48Ru0xyIGYmNOylkJP18GDQhAdUyt5YXyEW2rC2n9ssyCR6PbeMakj9ZnqaiJPOT43KNzzJkkMXXGtPdO7Lv7mdHnlKiCrZw"/>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-16 pb-20">
+<!-- Hero Section -->
+<section class="relative h-[300px] md:h-[350px] w-full overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img alt="Celeste Background" class="w-full h-full object-cover object-center opacity-30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo_qk9qmuxseYHknyFGDgEbZrE051CmZbXfWk8eGWfHXenynBXM1CoDu0JRLkvKg1ZwLayRntlmhMkKDPHYFYKtA7ZDXW5W7_YkCekwlTFa9yZO9sg0nvRIThSxXGYXgjk_OaOKPMY0klkJq-NTJVp9t7bzABbMbIrUBtm-yrn4CaYpoOd5_phjGuFvudMpYjfMt-ZB0OtAP5Q0wquxFKkSPgFXrTx8KbEKNrnjcOhXLb9SnVbXc_jOJCUIplzpyuvBUBZ3didR4Q"/>
+<div class="absolute inset-0 hero-gradient"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-[var(--hub-bg)] via-transparent to-transparent"></div>
+</div>
+<div class="relative z-10 h-full flex flex-col justify-end px-6 md:px-12 pb-12">
+<h1 class="text-4xl md:text-6xl font-headline font-bold text-white tracking-tighter mb-2">
+                Celeste <span class="text-[var(--hub-primary)] italic">Tracker</span>
+</h1>
+<p class="text-zinc-400 max-w-2xl text-base md:text-lg leading-relaxed">
+                Sculpt your own peaks. Manage your mountain progress, vanilla speedruns, and custom mod collections with surgical precision.
+            </p>
+</div>
+</section>
+<!-- Navigation Cards Grid -->
+<section class="px-6 md:px-12 -mt-6 relative z-20">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+<!-- Dashboard / Overview -->
+<a class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] p-6 rounded-2xl hover:border-[var(--hub-primary)]/50 transition-all group" href="#">
+<span class="material-symbols-outlined text-[var(--hub-primary)] text-3xl mb-4 block group-hover:scale-110 transition-transform">dashboard</span>
+<h3 class="font-headline font-bold text-white text-lg">Dashboard</h3>
+<p class="text-xs text-zinc-500 mt-1">Overall progress &amp; stats</p>
+</a>
+<!-- Vanilla Chapters -->
+<a class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] p-6 rounded-2xl hover:border-[var(--hub-secondary)]/50 transition-all group" href="#">
+<span class="material-symbols-outlined text-[var(--hub-secondary)] text-3xl mb-4 block group-hover:scale-110 transition-transform">mountain_flag</span>
+<h3 class="font-headline font-bold text-white text-lg">Vanilla Chapters</h3>
+<p class="text-xs text-zinc-500 mt-1">Classic climb tracking</p>
+</a>
+<!-- Modded Content -->
+<a class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] p-6 rounded-2xl hover:border-[var(--hub-tertiary)]/50 transition-all group" href="#">
+<span class="material-symbols-outlined text-[var(--hub-tertiary)] text-3xl mb-4 block group-hover:scale-110 transition-transform">extension</span>
+<h3 class="font-headline font-bold text-white text-lg">Modded Content</h3>
+<p class="text-xs text-zinc-500 mt-1">Everest &amp; custom maps</p>
+</a>
+<!-- CSR Roadmap -->
+<a class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] p-6 rounded-2xl hover:border-purple-400/50 transition-all group" href="#">
+<span class="material-symbols-outlined text-purple-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">leaderboard</span>
+<h3 class="font-headline font-bold text-white text-lg">CSR Roadmap</h3>
+<p class="text-xs text-zinc-500 mt-1">Global ranking goals</p>
+</a>
+<!-- Map Collections -->
+<a class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] p-6 rounded-2xl hover:border-orange-400/50 transition-all group" href="#">
+<span class="material-symbols-outlined text-orange-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">map</span>
+<h3 class="font-headline font-bold text-white text-lg">Collections</h3>
+<p class="text-xs text-zinc-500 mt-1">Organize your levels</p>
+</a>
+<!-- History -->
+<a class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] p-6 rounded-2xl hover:border-blue-400/50 transition-all group" href="#">
+<span class="material-symbols-outlined text-blue-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">history</span>
+<h3 class="font-headline font-bold text-white text-lg">Run History</h3>
+<p class="text-xs text-zinc-500 mt-1">Full archive of ascents</p>
+</a>
+</div>
+</section>
+<!-- Recent Run History Section -->
+<section class="px-6 md:px-12 mt-12">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg accent-bg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">timer</span>
+</div>
+<h2 class="text-2xl font-headline font-bold text-white">Recent Run History</h2>
+</div>
+<button class="text-sm font-medium text-[var(--hub-primary)] hover:underline transition-all">Export Data</button>
+</div>
+<div class="bg-[var(--hub-card-bg)] border border-[var(--hub-outline)] rounded-2xl overflow-hidden overflow-x-auto no-scrollbar">
+<table class="w-full text-left border-collapse min-w-[600px]">
+<thead>
+<tr class="border-b border-[var(--hub-outline)] bg-zinc-900/50">
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Level Name</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Type</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Clear Time</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Deaths</th>
+<th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[var(--hub-outline)]/50">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-[var(--hub-primary)]/10 flex items-center justify-center text-[var(--hub-primary)]">
+<span class="material-symbols-outlined text-lg">filter_hdr</span>
+</div>
+<span class="font-bold text-zinc-200">Forsaken City (A-Side)</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-[var(--hub-secondary)]/10 text-[var(--hub-secondary)] uppercase tracking-tighter">Vanilla</span>
+</td>
+<td class="px-6 py-4 font-mono text-zinc-400">00:01:24.452</td>
+<td class="px-6 py-4 text-zinc-400">0</td>
+<td class="px-6 py-4 text-right">
+<span class="text-green-400 font-bold text-sm">PB</span>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-[var(--hub-tertiary)]/10 flex items-center justify-center text-[var(--hub-tertiary)]">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+</div>
+<span class="font-bold text-zinc-200">Strawberry Jam - Beginner Heart</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-[var(--hub-primary)]/10 text-[var(--hub-primary)] uppercase tracking-tighter">Modded</span>
+</td>
+<td class="px-6 py-4 font-mono text-zinc-400">00:15:42.110</td>
+<td class="px-6 py-4 text-zinc-400">12</td>
+<td class="px-6 py-4 text-right">
+<span class="text-zinc-500 text-sm">Cleared</span>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-purple-400/10 flex items-center justify-center text-purple-400">
+<span class="material-symbols-outlined text-lg">diamond</span>
+</div>
+<span class="font-bold text-zinc-200">Mirror Temple (B-Side)</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-[var(--hub-secondary)]/10 text-[var(--hub-secondary)] uppercase tracking-tighter">Vanilla</span>
+</td>
+<td class="px-6 py-4 font-mono text-zinc-400">00:08:12.880</td>
+<td class="px-6 py-4 text-zinc-400">4</td>
+<td class="px-6 py-4 text-right">
+<span class="text-zinc-500 text-sm">Cleared</span>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-orange-400/10 flex items-center justify-center text-orange-400">
+<span class="material-symbols-outlined text-lg">landscape</span>
+</div>
+<span class="font-bold text-zinc-200">Summit - Chapter 7</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-bold bg-[var(--hub-secondary)]/10 text-[var(--hub-secondary)] uppercase tracking-tighter">Vanilla</span>
+</td>
+<td class="px-6 py-4 font-mono text-zinc-400">00:32:05.112</td>
+<td class="px-6 py-4 text-zinc-400">84</td>
+<td class="px-6 py-4 text-right">
+<span class="text-zinc-500 text-sm">Cleared</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </main>
-
-<style>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.svelte-kit:hover {
-  filter: drop-shadow(0 0 2em #ff3e00);
-}
-
-:root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-
-  color: #0f0f0f;
-  background-color: #f6f6f6;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-.container {
-  margin: 0;
-  padding-top: 10vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
-
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
-
-.row {
-  display: flex;
-  justify-content: center;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
-h1 {
-  text-align: center;
-}
-
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-button {
-  cursor: pointer;
-}
-
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-input,
-button {
-  outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
-  }
-}
-
-</style>
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full h-10 bg-zinc-950 border-t border-[var(--hub-outline)] flex items-center justify-between px-6 z-50">
+<div class="flex items-center gap-4 text-[11px] font-medium text-zinc-500">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[var(--hub-secondary)]"></span>
+<span class="hidden sm:inline">Everest Core: v1.3452.0-stable</span>
+<span class="sm:hidden">Everest Core</span>
+</div>
+<div class="h-3 w-px bg-[var(--hub-outline)]"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xs">terminal</span>
+<span>System Ready</span>
+</div>
+</div>
+<div class="flex items-center gap-4 md:gap-6 text-[11px] font-medium text-zinc-500">
+<span class="hover:text-[var(--hub-primary)] cursor-pointer transition-colors hidden md:inline">GitHub Repository</span>
+<span class="hover:text-[var(--hub-primary)] cursor-pointer transition-colors hidden md:inline">API Documentation</span>
+<div class="bg-zinc-900 px-2 py-0.5 rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-[10px]">wifi</span>
+<span class="hidden xs:inline">Synchronized</span>
+</div>
+</div>
+</footer>

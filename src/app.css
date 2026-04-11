@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --hub-primary: #ff788c;
+    --hub-primary-container: #520017;
+    --hub-secondary: #67d8d2;
+    --hub-tertiary: #ffc971;
+    --hub-bg: #131315;
+    --hub-surface: #18181b;
+    --hub-surface-high: #27272a;
+    --hub-outline: rgba(255, 255, 255, 0.08);
+    --hub-glass: rgba(24, 24, 27, 0.85);
+    --hub-hero-gradient: linear-gradient(to right, #131315 20%, transparent 100%);
+    --hub-card-bg: rgba(39, 39, 42, 0.4);
+    --hub-accent-gradient: linear-gradient(135deg, var(--hub-primary), #ff4d6d);
+    --hub-glass-filter: blur(16px);
+}
