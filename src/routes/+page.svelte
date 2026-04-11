@@ -74,7 +74,7 @@
         <button class="hidden sm:block px-4 py-1.5 bg-zinc-900 text-[var(--hub-secondary)] font-bold rounded-lg border border-[var(--hub-secondary)]/20 hover:bg-[var(--hub-secondary)]/10 transition-all text-xs">
             Live Run
         </button>
-        <img alt="User Avatar" class="w-8 h-8 rounded-full border border-[var(--hub-primary)]/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYK0EMlyA798GWisNiQlYZcFP3m2AS9BZNIJjRLfyckeRC_dFUFaVvHiJ7Xs4B_bKxyhk-EMcVp87ewJNc5Y_qk65gcX4fBrXNcjNO-Oj_cdFlZppzTRt8rdwrZa-ji0-RJxRuTaH1eVPT2adAB5x8UvMuF8jSNd6dPs5HSxc1RQu48Ru0xyIGYmNOylkJP18GDQhAdUyt5YXyEW2rC2n9ssyCR6PbeMakj9ZnqaiJPOT43KNzzJkkMXXGtPdO7Lv7mdHnlKiCrZw"/>
+        <div class="w-8 h-8 rounded-full border border-[var(--hub-primary)]/40 bg-[var(--hub-primary)]/10 flex items-center justify-center text-[var(--hub-primary)] text-[10px] font-bold">KT</div>
     </div>
 </header>
 
@@ -83,9 +83,9 @@
     <!-- Hero Section -->
     <section class="relative h-[300px] md:h-[350px] w-full overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <img alt="Celeste Background" class="w-full h-full object-cover object-center opacity-30" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo_qk9qmuxseYHknyFGDgEbZrE051CmZbXfWk8eGWfHXenynBXM1CoDu0JRLkvKg1ZwLayRntlmhMkKDPHYFYKtA7ZDXW5W7_YkCekwlTFa9yZO9sg0nvRIThSxXGYXgjk_OaOKPMY0klkJq-NTJVp9t7bzABbMbIrUBtm-yrn4CaYpoOd5_phjGuFvudMpYjfMt-ZB0OtAP5Q0wquxFKkSPgFXrTx8KbEKNrnjcOhXLb9SnVbXc_jOJCUIplzpyuvBUBZ3didR4Q"/>
-            <div class="absolute inset-0 hero-gradient"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-[var(--hub-bg)] via-transparent to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-br from-[#ff788c]/10 to-[#67d8d2]/10"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-[#131315] via-[#131315]/80 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#131315] via-transparent to-transparent"></div>
         </div>
         <div class="relative z-10 h-full flex flex-col justify-end px-6 md:px-12 pb-12">
             <h1 class="text-4xl md:text-6xl font-headline font-bold text-white tracking-tighter mb-2">
