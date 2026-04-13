@@ -30,5 +30,6 @@
 
 <Header/>
 {@render children()}
-<Footer/>
+<div style="height: 4rem;"></div>
+<Footer height="2.5rem"/>
 

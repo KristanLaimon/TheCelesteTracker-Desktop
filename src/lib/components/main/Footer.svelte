@@ -1,5 +1,12 @@
+<script lang="ts">
+  let { height = '2.5rem' } = $props();
+</script>
+
 <!-- Footer -->
-<footer class="fixed bottom-0 left-0 w-full h-10 bg-zinc-950 border-t border-(--hub-outline) flex items-center justify-between px-6 z-50">
+<footer
+  class="fixed bottom-0 left-0 w-full bg-zinc-950 border-t border-(--hub-outline) flex items-center justify-between px-6 z-50"
+  style="height: {height}"
+>
     <div class="flex items-center gap-4 text-[11px] font-medium text-zinc-500">
         <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-(--hub-secondary)"></span>
