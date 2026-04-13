@@ -1,5 +1,6 @@
 <script lang="ts">
     import { LayoutPropsState } from "../lib/state.svelte.js"
+    import Snow from "$lib/components/main/Snow.svelte";
     LayoutPropsState.bodyClass = "antialiased selection:bg-(--hub-primary) selection:text-white";
     LayoutPropsState.bodyId = "page-hub";
 </script>
@@ -51,7 +52,7 @@
     }
 </style>
 
-
+<Snow />
 
 <!-- Main Content -->
 <main>

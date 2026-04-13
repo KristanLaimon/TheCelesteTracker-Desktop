@@ -4,7 +4,7 @@
 
 <!-- Header -->
 <header
-  class="fixed top-0 left-0 w-full h-16 bg-(--hub-bg)/80 backdrop-blur-md border-b border-(--hub-outline) flex justify-between items-center px-6 md:px-12 z-50"
+  class="sticky top-0 left-0 w-full h-16 bg-(--hub-bg)/80 backdrop-blur-md border-b border-(--hub-outline) flex justify-between items-center px-6 md:px-12 z-50"
 >
   <div class="flex items-center">
     <img src={strawberry} alt="straw_berry" class="size-16" />
