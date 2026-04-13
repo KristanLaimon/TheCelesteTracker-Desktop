@@ -152,7 +152,7 @@
       class="flex flex-col gap-4 sm:gap-0 sm:divide-y sm:divide-[var(--mapscollection-outline)]"
     >
       <!-- Entry 1 -->
-      <div
+      <a href="/collections/campaign/chapter"
         class="bg-zinc-900/50 sm:bg-transparent border-none rounded-xl sm:rounded-none overflow-hidden group hover:bg-white/5 transition-colors"
       >
         <div
@@ -262,7 +262,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </a>
     </div>
   </section>
   <!-- Grid View Container -->

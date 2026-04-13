@@ -48,7 +48,7 @@
       <!-- Card Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Map Card 1 -->
-        <div
+        <a href="/collections/campaign"
           class="group relative bg-(--mapcollections-surface) border border-(--mapcollections-border) rounded-2xl overflow-hidden hover:border-(--mapcollections-primary)/50 transition-all duration-500 hover:shadow-[0_0_20px_-5px_var(--mapcollections-glow)]"
         >
           <div class="h-48 relative overflow-hidden">
@@ -72,7 +72,7 @@
             </div>
           </div>
           <div class="p-6">
-            <div class="flex justify-between items-start mb-6">
+            <div class="flex justify-between items-start mb-6 cursor-pointer">
               <div>
                 <h3
                   class="text-xl font-['Space_Grotesk'] font-bold text-white"
@@ -140,7 +140,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </a>
         <!-- Map Card 2 -->
         <div
           class="group relative bg-(--mapcollections-surface) border border-(--mapcollections-border) rounded-2xl overflow-hidden hover:border-zinc-500 transition-all duration-500"
