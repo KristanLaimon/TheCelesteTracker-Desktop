@@ -3,15 +3,16 @@
   class="fixed top-0 left-0 w-full h-16 bg-[var(--hub-bg)]/80 backdrop-blur-md border-b border-[var(--hub-outline)] flex justify-between items-center px-6 md:px-12 z-50"
 >
   <div class="flex items-center gap-8">
+    <enhanced:img src="../../assets/strawberry.gif"  />
     <span class="font-headline font-black text-xl text-[var(--hub-tertiary)] tracking-tight">Celeste Tracker</span>
-    <nav class="hidden lg:flex gap-6">
-      <a class="text-sm font-medium text-zinc-400 hover:text-[var(--hub-primary)] transition-colors" href="#"
+    <!-- <nav class="hidden lg:flex gap-6"> -->
+      <!-- <a class="text-sm font-medium text-zinc-400 hover:text-[var(--hub-primary)] transition-colors" href="#"
         >Global Stats</a
       >
       <a class="text-sm font-medium text-zinc-400 hover:text-[var(--hub-primary)] transition-colors" href="#"
         >Resources</a
-      >
-    </nav>
+      > -->
+    <!-- </nav> -->
   </div>
   <div class="flex items-center gap-4 md:gap-6">
     <div class="flex items-center gap-2">
