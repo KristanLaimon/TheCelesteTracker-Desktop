@@ -5,6 +5,7 @@
     import CelesteOverlay from '$lib/components/main/CelesteOverlay.svelte';
     import Header from '$lib/components/main/Header.svelte';
     import Footer from '$lib/components/main/Footer.svelte';
+    import Toaster from '$lib/components/main/Toaster.svelte';
     import '../app.css';
 
     let { children } = $props() as {children:Snippet<[]>};
@@ -19,9 +20,12 @@
 </style>
 
 <CelesteOverlay />
+<Toaster />
 
 <Header/>
 {@render children()}
 <div style="height: 4rem;"></div>
+<Footer height="2.5rem"/>
+
 <Footer height="2.5rem"/>
 

@@ -1,26 +1,29 @@
 pub mod events;
 pub mod ws;
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+use std::sync::Mutex;
+use crate::events::CelesteEvent;
+use crate::ws::WsState;
+
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!(
-        "Hello, {}! You've been greeted from Rust, kristan change!!!!",
-        name
-    )
+fn get_celeste_initial_state(state: tauri::State<'_, WsState>) -> Option<CelesteEvent> {
+    let cache = state.last_db_location.lock().unwrap();
+    cache.clone()
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-#[tokio::main]
 pub async fn run() {
     tauri::Builder::default()
+        .manage(WsState {
+            last_db_location: Mutex::new(None),
+        })
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let handle = app.handle().clone();
             ws::start_websocket_handler(handle);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![get_celeste_initial_state])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -5,6 +5,11 @@ use std::collections::HashMap;
 #[serde(tag = "Type")]
 #[allow(non_snake_case)]
 pub enum CelesteEvent {
+    DatabaseLocation {
+        Path: String,
+        EverestVersion: String,
+        ModVersion: String,
+    },
     LevelStart {
         AreaSid: String,
         RoomName: String,
