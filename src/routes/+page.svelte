@@ -1,9 +1,5 @@
 <script lang="ts">
-    import { LayoutPropsState } from "../lib/state.svelte.js"
     import Snow from "$lib/components/main/Snow.svelte";
-    import banner from "$lib/assets/banner_flag.png";
-    LayoutPropsState.bodyClass = "antialiased selection:bg-(--hub-primary) selection:text-white";
-    LayoutPropsState.bodyId = "page-hub";
 </script>
 
 <style>
@@ -29,27 +25,6 @@
 
     .font-headline {
         font-family: var(--hub-font-headline);
-    }
-
-    #page-hub .glass-panel {
-        background: var(--hub-glass);
-        backdrop-filter: var(--hub-glass-filter);
-    }
-    
-    #page-hub .hero-gradient {
-        background: var(--hub-hero-gradient);
-    }
-
-    #page-hub .accent-bg {
-        background: var(--hub-accent-gradient);
-    }
-
-    #page-hub .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-
-    #page-hub .no-scrollbar::-webkit-scrollbar {
-        display: none;
     }
 </style>
 
@@ -107,7 +82,7 @@
                 <p class="text-xs text-zinc-500 mt-1">Global ranking goals</p>
             </a>
             <!-- Map Collections -->
-            <a class="bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-orange-400/50 transition-all group" href="#">
+            <a class="bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-orange-400/50 transition-all group" href="/collections">
                 <span class="material-symbols-outlined text-orange-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">map</span>
                 <h3 class="font-headline font-bold text-white text-lg">Collections</h3>
                 <p class="text-xs text-zinc-500 mt-1">Organize your levels</p>
