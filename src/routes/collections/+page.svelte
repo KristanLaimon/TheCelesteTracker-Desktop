@@ -2,7 +2,7 @@
 </script>
 
 <main
-  class="bg-[var(--mapcollections-bg)] text-[var(--mapcollections-text)] font-['Manrope'] antialiased selection:bg-[var(--mapcollections-primary)] selection:text-white"
+  class="bg-(--mapcollections-bg) text-(--mapcollections-text) font-['Manrope'] antialiased selection:bg-(--mapcollections-primary) selection:text-white"
   id="page-mapcollections"
 >
   <!-- Main Content Area -->
@@ -10,7 +10,7 @@
     <main class="p-8 md:p-12 max-w-7xl mx-auto">
       <!-- Hero Header -->
       <div
-        class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 items-center gap-4"
+        class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 items-center "
       >
         <div>
           <h2
@@ -20,7 +20,7 @@
             Map Collections
           </h2>
           <p
-            class="text-[var(--mapcollections-text-muted)] font-medium"
+            class="text-(--mapcollections-text-muted) font-medium"
             style=""
           >
             Manage your personal tiers and community gauntlets.
@@ -32,13 +32,13 @@
             >search</span
           >
           <input
-            class="w-full bg-zinc-900 border border-[var(--mapcollections-border)] rounded-xl pl-12 pr-4 py-3 text-sm text-[var(--mapcollections-text)] placeholder-zinc-500 focus:ring-1 focus:ring-[var(--mapcollections-secondary)]/50 focus:border-[var(--mapcollections-secondary)]/50 transition-all outline-none"
+            class="w-full bg-zinc-900 border border-(--mapcollections-border) rounded-xl pl-12 pr-4 py-3 text-sm text-(--mapcollections-text) placeholder-zinc-500 focus:ring-1 focus:ring-(--mapcollections-secondary)/50 focus:border-(--mapcollections-secondary)/50 transition-all outline-none"
             placeholder="Search collections..."
             type="text"
           />
         </div>
         <button
-          class="flex items-center gap-2 bg-zinc-900 text-[var(--mapcollections-secondary)] px-6 py-3 rounded-xl border border-[var(--mapcollections-secondary)]/20 hover:bg-[var(--mapcollections-secondary)]/10 hover:border-[var(--mapcollections-secondary)]/50 transition-all font-['Space_Grotesk'] font-bold text-sm"
+          class="flex items-center gap-2 bg-zinc-900 text-(--mapcollections-secondary) px-6 py-3 rounded-xl border border-(--mapcollections-secondary)/20 hover:bg-(--mapcollections-secondary)/10 hover:border-(--mapcollections-secondary)/50 transition-all font-['Space_Grotesk'] font-bold text-sm"
           style=""
         >
           <span class="material-symbols-outlined" style="">add</span>
@@ -49,7 +49,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Map Card 1 -->
         <div
-          class="group relative bg-[var(--mapcollections-surface)] border border-[var(--mapcollections-border)] rounded-2xl overflow-hidden hover:border-[var(--mapcollections-primary)]/50 transition-all duration-500 hover:shadow-[0_0_20px_-5px_var(--mapcollections-glow)]"
+          class="group relative bg-(--mapcollections-surface) border border-(--mapcollections-border) rounded-2xl overflow-hidden hover:border-(--mapcollections-primary)/50 transition-all duration-500 hover:shadow-[0_0_20px_-5px_var(--mapcollections-glow)]"
         >
           <div class="h-48 relative overflow-hidden">
             <img
@@ -58,11 +58,11 @@
               style=""
             />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-[var(--mapcollections-surface)] via-transparent to-transparent"
+              class="absolute inset-0 bg-gradient-to-t from-(--mapcollections-surface) via-transparent to-transparent"
             ></div>
             <div class="absolute top-4 left-4 flex gap-2">
               <span
-                class="bg-[var(--mapcollections-primary)] text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest"
+                class="bg-(--mapcollections-primary) text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest"
                 style="">CLEAR</span
               >
               <span
@@ -81,11 +81,11 @@
                   Monochrome Peak
                 </h3>
                 <p
-                  class="text-xs text-[var(--mapcollections-text-muted)]"
+                  class="text-xs text-(--mapcollections-text-muted)"
                   style=""
                 >
                   by <span
-                    class="text-[var(--mapcollections-secondary)]"
+                    class="text-(--mapcollections-secondary)"
                     style="">EtherealGlitch</span
                   >
                 </p>
@@ -96,18 +96,18 @@
                   style="">Best Time</span
                 >
                 <span
-                  class="text-lg font-['Space_Grotesk'] font-black text-[var(--mapcollections-tertiary)]"
+                  class="text-lg font-['Space_Grotesk'] font-black text-(--mapcollections-tertiary)"
                   style="">04:12.83</span
                 >
               </div>
             </div>
             <div
-              class="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--mapcollections-border)]"
+              class="grid grid-cols-2 gap-4 pt-4 border-t border-(--mapcollections-border)"
             >
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-zinc-900 rounded-lg">
                   <span
-                    class="material-symbols-outlined text-[var(--mapcollections-primary)]"
+                    class="material-symbols-outlined text-(--mapcollections-primary)"
                     style="">skull</span
                   >
                 </div>
@@ -124,7 +124,7 @@
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-zinc-900 rounded-lg">
                   <span
-                    class="material-symbols-outlined text-[var(--mapcollections-secondary)]"
+                    class="material-symbols-outlined text-(--mapcollections-secondary)"
                     style="">bolt</span
                   >
                 </div>
@@ -143,7 +143,7 @@
         </div>
         <!-- Map Card 2 -->
         <div
-          class="group relative bg-[var(--mapcollections-surface)] border border-[var(--mapcollections-border)] rounded-2xl overflow-hidden hover:border-zinc-500 transition-all duration-500"
+          class="group relative bg-(--mapcollections-surface) border border-(--mapcollections-border) rounded-2xl overflow-hidden hover:border-zinc-500 transition-all duration-500"
         >
           <div class="h-48 relative overflow-hidden">
             <img
@@ -152,7 +152,7 @@
               style=""
             />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-[var(--mapcollections-surface)] via-transparent to-transparent"
+              class="absolute inset-0 bg-gradient-to-t from-(--mapcollections-surface) via-transparent to-transparent"
             ></div>
             <div class="absolute top-4 left-4 flex gap-2">
               <span
@@ -175,11 +175,11 @@
                   Shattered Skyline
                 </h3>
                 <p
-                  class="text-xs text-[var(--mapcollections-text-muted)]"
+                  class="text-xs text-(--mapcollections-text-muted)"
                   style=""
                 >
                   by <span
-                    class="text-[var(--mapcollections-secondary)]"
+                    class="text-(--mapcollections-secondary)"
                     style="">OshiroFan99</span
                   >
                 </p>
@@ -195,12 +195,12 @@
               </div>
             </div>
             <div
-              class="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--mapcollections-border)]"
+              class="grid grid-cols-2 gap-4 pt-4 border-t border-(--mapcollections-border)"
             >
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-zinc-900 rounded-lg">
                   <span
-                    class="material-symbols-outlined text-[var(--mapcollections-primary)]"
+                    class="material-symbols-outlined text-(--mapcollections-primary)"
                     style="">skull</span
                   >
                 </div>
@@ -217,7 +217,7 @@
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-zinc-900 rounded-lg">
                   <span
-                    class="material-symbols-outlined text-[var(--mapcollections-secondary)]"
+                    class="material-symbols-outlined text-(--mapcollections-secondary)"
                     style="">bolt</span
                   >
                 </div>
@@ -236,7 +236,7 @@
         </div>
         <!-- Map Card 3 -->
         <div
-          class="group relative bg-[var(--mapcollections-surface)] border border-[var(--mapcollections-border)] rounded-2xl overflow-hidden hover:border-[var(--mapcollections-primary)]/50 transition-all duration-500 hover:shadow-[0_0_20px_-5px_var(--mapcollections-glow)]"
+          class="group relative bg-(--mapcollections-surface) border border-(--mapcollections-border) rounded-2xl overflow-hidden hover:border-(--mapcollections-primary)/50 transition-all duration-500 hover:shadow-[0_0_20px_-5px_var(--mapcollections-glow)]"
         >
           <div class="h-48 relative overflow-hidden">
             <img
@@ -245,11 +245,11 @@
               style=""
             />
             <div
-              class="absolute inset-0 bg-gradient-to-t from-[var(--mapcollections-surface)] via-transparent to-transparent"
+              class="absolute inset-0 bg-gradient-to-t from-(--mapcollections-surface) via-transparent to-transparent"
             ></div>
             <div class="absolute top-4 left-4 flex gap-2">
               <span
-                class="bg-[var(--mapcollections-primary)] text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest"
+                class="bg-(--mapcollections-primary) text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest"
                 style="">CLEAR</span
               >
               <span
@@ -268,11 +268,11 @@
                   Golden Ridge
                 </h3>
                 <p
-                  class="text-xs text-[var(--mapcollections-text-muted)]"
+                  class="text-xs text-(--mapcollections-text-muted)"
                   style=""
                 >
                   by <span
-                    class="text-[var(--mapcollections-secondary)]"
+                    class="text-(--mapcollections-secondary)"
                     style="">MattMakesMaps</span
                   >
                 </p>
@@ -283,18 +283,18 @@
                   style="">Best Time</span
                 >
                 <span
-                  class="text-lg font-['Space_Grotesk'] font-black text-[var(--mapcollections-tertiary)]"
+                  class="text-lg font-['Space_Grotesk'] font-black text-(--mapcollections-tertiary)"
                   style="">12:55.10</span
                 >
               </div>
             </div>
             <div
-              class="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--mapcollections-border)]"
+              class="grid grid-cols-2 gap-4 pt-4 border-t border-(--mapcollections-border)"
             >
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-zinc-900 rounded-lg">
                   <span
-                    class="material-symbols-outlined text-[var(--mapcollections-primary)]"
+                    class="material-symbols-outlined text-(--mapcollections-primary)"
                     style="">skull</span
                   >
                 </div>
@@ -311,7 +311,7 @@
               <div class="flex items-center gap-3">
                 <div class="p-2 bg-zinc-900 rounded-lg">
                   <span
-                    class="material-symbols-outlined text-[var(--mapcollections-secondary)]"
+                    class="material-symbols-outlined text-(--mapcollections-secondary)"
                     style="">bolt</span
                   >
                 </div>
@@ -330,14 +330,14 @@
         </div>
         <!-- Add Map Card -->
         <button
-          class="group relative bg-zinc-900/40 border-2 border-dashed border-[var(--mapcollections-border)] rounded-2xl flex flex-col items-center justify-center p-8 text-center transition-all hover:border-[var(--mapcollections-primary)]/40 min-h-[400px]"
+          class="group relative bg-zinc-900/40 border-2 border-dashed border-(--mapcollections-border) rounded-2xl flex flex-col items-center justify-center p-8 text-center transition-all hover:border-(--mapcollections-primary)/40 min-h-[400px]"
           style=""
         >
           <div
             class="w-16 h-16 rounded-full bg-zinc-900 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
           >
             <span
-              class="material-symbols-outlined text-zinc-500 text-3xl group-hover:text-[var(--mapcollections-primary)] transition-colors"
+              class="material-symbols-outlined text-zinc-500 text-3xl group-hover:text-(--mapcollections-primary) transition-colors"
               style="">add_circle</span
             >
           </div>
@@ -351,7 +351,7 @@
             Start tracking a new chapter or community mod collection.
           </p>
           <div
-            class="px-8 py-2 bg-zinc-900 border border-[var(--mapcollections-border)] rounded-full text-sm font-bold group-hover:bg-[var(--mapcollections-primary)]/10 group-hover:text-[var(--mapcollections-primary)] group-hover:border-[var(--mapcollections-primary)]/30 transition-all"
+            class="px-8 py-2 bg-zinc-900 border border-(--mapcollections-border) rounded-full text-sm font-bold group-hover:bg-(--mapcollections-primary)/10 group-hover:text-(--mapcollections-primary) group-hover:border-(--mapcollections-primary)/30 transition-all"
             style=""
           >
             Add
