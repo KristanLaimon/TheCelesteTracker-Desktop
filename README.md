@@ -19,7 +19,7 @@
 Celeste community uses **spreadsheets** for pretty much anything.  Achievements, map progress, lobby stats—all manual.
 **No more.** TheCelesteTracker aims to automates the "Excel grind" so you can focus on the "Celeste grind."
 
-Note: Ofc, there are mods to track this info, but they are all in-game, limited by the interface and sometimes they have their own-learning-curve, making them kinda hard to use.
+Note: Ofc, there are mods to track this info, but theyi all in-game, limited by the interface and sometimes they have their own-learning-curve, making them kinda hard to use.
 
 ## Key Features
 
