@@ -1,6 +1,7 @@
 <script lang="ts">
     import { LayoutPropsState } from "../lib/state.svelte.js"
     import Snow from "$lib/components/main/Snow.svelte";
+    import banner from "$lib/assets/banner_flag.png";
     LayoutPropsState.bodyClass = "antialiased selection:bg-(--hub-primary) selection:text-white";
     LayoutPropsState.bodyId = "page-hub";
 </script>
@@ -57,17 +58,18 @@
 <!-- Main Content -->
 <main>
     <!-- Hero Section -->
-    <section class="relative h-[280px] w-full overflow-hidden">
-        <div class="absolute inset-0 z-0">
-            <div class="absolute inset-0 bg-gradient-to-br from-[#ff788c]/10 to-[#67d8d2]/10"></div>
+    <section class="relative w-full h-auto">
+        <div class="relative w-full z-0">
+            <enhanced:img src="$lib/assets/banner_flag.png" alt="Banner" class="w-auto h-80 block opacity-60 ml-auto" />
+            <div class="absolute inset-0 bg-gradient-to-br from-[#ff788c]/20 to-[#67d8d2]/20 mix-blend-overlay"></div>
             <div class="absolute inset-0 bg-gradient-to-r from-[#131315] via-[#131315]/80 to-transparent"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-[#131315] via-transparent to-transparent"></div>
         </div>
-        <div class="relative z-10 h-full flex flex-col justify-end px-6 md:px-12 pb-12">
-            <h1 class="text-4xl md:text-6xl font-headline font-bold text-white tracking-tighter mb-2">
+        <div class="absolute inset-0 z-10 flex flex-col justify-end px-6 md:px-12 pb-12 md:pb-24">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-headline font-bold text-white tracking-tighter mb-4">
                 Celeste <span class="text-(--hub-primary) italic">Tracker</span>
             </h1>
-            <p class="text-zinc-400 max-w-2xl text-base md:text-lg leading-relaxed">
+            <p class="text-zinc-400 max-w-3xl text-base md:text-xl leading-relaxed">
                 Sculpt your own peaks. Manage your mountain progress, vanilla speedruns, and custom mod collections with surgical precision.
             </p>
         </div>
