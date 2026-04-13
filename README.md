@@ -13,7 +13,7 @@
 
 **TheCelesteTracker** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
 
-***Still under development***
+> ***Still under development, not ready for usage***
 
 ## Why this exists?
 Celeste community uses **spreadsheets** for pretty much anything.  Achievements, map progress, lobby stats—all manual.
@@ -27,17 +27,13 @@ Note: Ofc, there are mods to track this info, but theyi all in-game, limited by 
 - **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
 - **🖥️ Live Overlay**: Immersive HUD triggers on level entry.
 - **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
-- **🛠️ Rust-Backed**: Type-safe event handling for 100% precision.
+- **🛠️ Rust-Backed**: Type-safe event handling.
 
 ## Preview
 
-<div align="center">
-  <video src=".github/demo-live.mp4" controls width="100%" style="border-radius: 8px;"></video>
-  <p><i>Live gameplay event tracking in action.</i></p>
-</div>
+https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
+<p><i>Live gameplay event tracking in action.</i></p>
 
-### Dashboard Preview
-![TheCelesteTracker_Desktop_Beta_Screenshot](.github/beta_screenshot.png)
 *Current UI is subject to change during beta.*
 
 ## Tech Stack
@@ -50,7 +46,7 @@ Note: Ofc, there are mods to track this info, but theyi all in-game, limited by 
 ### Prerequisites
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Bun](https://bun.sh/) or Node.js
-- **Celeste Mod**: Install the Celeste Tracker mod in Everest.
+- **Celeste Mod**: Install the Celeste Tracker mod in Everest. Not in gamebanana yet, must be installed from [its repo](https://github.com/KristanLaimon/TheCelesteTracker-Mod)
 
 ### Installation
 ```bash
