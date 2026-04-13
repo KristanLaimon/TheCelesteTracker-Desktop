@@ -1,9 +1,11 @@
 pub mod events;
 pub mod ws;
+pub mod db;
 
 use std::sync::Mutex;
 use crate::events::CelesteEvent;
 use crate::ws::WsState;
+use crate::db::{get_campaigns, get_chapters, get_runs};
 
 #[tauri::command]
 fn get_celeste_initial_state(state: tauri::State<'_, WsState>) -> Option<CelesteEvent> {
@@ -23,7 +25,12 @@ pub async fn run() {
             ws::start_websocket_handler(handle);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_celeste_initial_state])
+        .invoke_handler(tauri::generate_handler![
+            get_celeste_initial_state,
+            get_campaigns,
+            get_chapters,
+            get_runs
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

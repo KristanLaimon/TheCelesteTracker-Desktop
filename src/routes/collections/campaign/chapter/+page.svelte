@@ -1,106 +1,145 @@
 <script lang="ts">
-  import ChapterDeepDive from "./ChapterDeepDive.svelte";
+    import { page } from "$app/state";
+    import { invoke } from "@tauri-apps/api/core";
+    import type { Run } from "$lib/types/events";
+    import { celesteState } from "$lib/types/celeste_state.svelte";
+    import { formatChapterName, formatTime } from "$lib/utils";
+
+    let chapterId = $derived(Number(page.url.searchParams.get("id")));
+    let chapterSid = $derived(page.url.searchParams.get("sid") || "");
+    let chapterName = $derived(page.url.searchParams.get("name") || "");
+    let chapterMode = $derived(page.url.searchParams.get("mode"));
+
+    let runs = $state<Run[]>([]);
+    let loading = $state(true);
+    let error = $state<string | null>(null);
+
+    let stats = $derived({
+        bestTime: runs.filter(r => r.completion_time).sort((a, b) => a.time_ticks - b.time_ticks)[0],
+        leastDeaths: runs.filter(r => r.completion_time).sort((a, b) => a.deaths - b.deaths)[0],
+        totalRuns: runs.length,
+        hasGolden: runs.some(r => r.golden)
+    });
+
+    $effect(() => {
+        if ((celesteState.everestVersion || celesteState.isConnected) && chapterId) {
+            loadRuns();
+        }
+    });
+
+    async function loadRuns() {
+        try {
+            loading = true;
+            runs = await invoke<Run[]>("get_runs", { chapterId });
+        } catch (e) {
+            error = e as string;
+        } finally {
+            loading = false;
+        }
+    }
 </script>
 
-<div id="page-chapter-info" class="min-h-screen">
-  <div class="mx-auto max-w-7xl px-4 py-8 space-y-12 sm:px-8 lg:px-12">
-    <ChapterDeepDive />
-  </div>
-
-  <!-- Sticky Bottom Bar -->
-  <div
-    class="fixed bottom-4 right-4 z-30 flex flex-col items-end gap-4 sm:bottom-8 sm:right-12"
-  >
-    <div
-      class="glass-panel space-y-4 rounded-2xl border border-white/10 p-3 shadow-2xl sm:p-4"
-    >
-      <button
-        class="flex items-center gap-3 text-(--chapter-info-secondary) transition-colors hover:text-white"
-      >
-        <span class="material-symbols-outlined">share</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest sm:text-xs"
-          >Share Run</span
-        >
-      </button>
-      <div class="h-px bg-white/10"></div>
-      <button
-        class="flex items-center gap-3 text-zinc-400 transition-colors hover:text-white"
-      >
-        <span class="material-symbols-outlined">edit</span>
-        <span class="text-[10px] font-bold uppercase tracking-widest sm:text-xs"
-          >Edit Details</span
-        >
-      </button>
+<div class="p-8 md:p-12 space-y-8">
+    <div class="flex items-center gap-4">
+        <button onclick={() => history.back()} class="p-2 hover:bg-white/5 rounded-lg transition-colors text-zinc-400">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div>
+            <h1 class="text-4xl font-headline font-black text-white tracking-tighter">
+                {formatChapterName(chapterName, chapterSid)}
+            </h1>
+            <p class="text-zinc-400 font-mono tracking-widest uppercase text-sm">{chapterMode} • {chapterSid}</p>
+        </div>
     </div>
-    <button
-      class="flex h-14 w-14 items-center justify-center rounded-full bg-(--chapter-info-primary) text-white shadow-[0_12px_24px_rgba(255,120,140,0.3)] transition-all hover:scale-105 active:scale-95 sm:h-16 sm:w-16"
-    >
-      <span
-        class="material-symbols-outlined text-2xl sm:text-3xl"
-        style="font-variation-settings: 'FILL' 1;">play_arrow</span
-      >
-    </button>
-  </div>
+
+    {#if loading}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {#each Array(4) as _}
+                <div class="h-32 bg-zinc-900/50 animate-pulse rounded-2xl border border-white/5"></div>
+            {/each}
+        </div>
+    {:else if error}
+        <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-red-400">
+            {error}
+        </div>
+    {:else}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-zinc-900 p-8 rounded-2xl border border-white/5 space-y-2">
+                <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Personal Best</p>
+                <p class="text-4xl font-black text-white">
+                    {stats.bestTime ? formatTime(stats.bestTime.time_ticks) : "--:--:---"}
+                </p>
+            </div>
+            <div class="bg-zinc-900 p-8 rounded-2xl border border-white/5 space-y-2">
+                <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Least Deaths</p>
+                <p class="text-4xl font-black text-[#ff788c]">
+                    {stats.leastDeaths ? stats.leastDeaths.deaths : "--"}
+                </p>
+            </div>
+            <div class="bg-zinc-900 p-8 rounded-2xl border border-white/5 space-y-2">
+                <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Total Runs</p>
+                <p class="text-4xl font-black text-[#67d8d2]">{stats.totalRuns}</p>
+            </div>
+            <div class="bg-zinc-900 p-8 rounded-2xl border border-white/5 space-y-2">
+                <p class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Golden</p>
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined {stats.hasGolden ? 'text-yellow-500' : 'text-zinc-700'} text-4xl">workspace_premium</span>
+                    <p class="{stats.hasGolden ? 'text-yellow-500' : 'text-zinc-700'} font-bold">
+                        {stats.hasGolden ? 'COLLECTED' : 'LOCKED'}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-zinc-900 rounded-3xl border border-white/5 overflow-hidden">
+            <div class="p-6 border-b border-white/5">
+                <h2 class="text-xl font-headline font-bold text-white">Run History</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-zinc-500 text-xs font-bold uppercase tracking-widest border-b border-white/5">
+                            <th class="px-8 py-4">Date</th>
+                            <th class="px-8 py-4">Time</th>
+                            <th class="px-8 py-4">Deaths</th>
+                            <th class="px-8 py-4">Strawberries</th>
+                            <th class="px-8 py-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        {#each runs as run}
+                            <tr class="group hover:bg-white/5 transition-colors">
+                                <td class="px-8 py-4 text-zinc-400 text-sm">
+                                    {run.completion_time ? new Date(run.completion_time).toLocaleDateString() : 'In Progress'}
+                                </td>
+                                <td class="px-8 py-4 font-mono text-white">
+                                    {formatTime(run.time_ticks)}
+                                </td>
+                                <td class="px-8 py-4 text-[#ff788c] font-bold">
+                                    {run.deaths}
+                                </td>
+                                <td class="px-8 py-4 text-[#ffc971]">
+                                    🍓 {run.strawberries}
+                                </td>
+                                <td class="px-8 py-4">
+                                    {#if run.golden}
+                                        <span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded border border-yellow-500/20">GOLDEN</span>
+                                    {:else if run.completion_time}
+                                        <span class="px-2 py-1 bg-green-500/10 text-green-500 text-[10px] font-bold rounded border border-green-500/20">FINISHED</span>
+                                    {:else}
+                                        <span class="px-2 py-1 bg-zinc-500/10 text-zinc-500 text-[10px] font-bold rounded border border-zinc-500/20">ABANDONED</span>
+                                    {/if}
+                                </td>
+                            </tr>
+                        {/each}
+                    </tbody>
+                </table>
+                {#if runs.length === 0}
+                    <div class="p-12 text-center text-zinc-600">
+                        <p>No run history found for this chapter.</p>
+                    </div>
+                {/if}
+            </div>
+        </div>
+    {/if}
 </div>
-
-<style>
-  #page-chapter-info {
-    --chapter-info-primary: #ff788c;
-    --chapter-info-primary-container: #520017;
-    --chapter-info-secondary: #67d8d2;
-    --chapter-info-tertiary: #ffc971;
-    --chapter-info-bg: #131315;
-    --chapter-info-surface: #18181b;
-    --chapter-info-surface-high: #27272a;
-    --chapter-info-outline: rgba(255, 255, 255, 0.08);
-    --chapter-info-glass: rgba(24, 24, 27, 0.85);
-    --chapter-info-glass-filter: blur(12px);
-    --chapter-info-strawberry-glow: 0 0 40px rgba(255, 120, 140, 0.1);
-    --chapter-info-hero-gradient: linear-gradient(
-      to top,
-      #131315,
-      rgba(19, 19, 21, 0.4),
-      transparent
-    );
-    --chapter-info-hero-overlay: linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0.8),
-      transparent
-    );
-
-    /* Font Mappings */
-    --font-headline: "Space Grotesk", sans-serif;
-    --font-body: "Manrope", sans-serif;
-
-    background-color: var(--chapter-info-bg);
-    color: #f4f4f5;
-    font-family: var(--font-body);
-  }
-
-  :global(.glass-panel) {
-    background: var(--chapter-info-glass);
-    backdrop-filter: var(--chapter-info-glass-filter);
-  }
-
-  /* Peer-checked logic across component boundaries */
-  :global(#edit-description-toggle:checked ~ div > .peer-checked\:hidden) {
-    display: none !important;
-  }
-  :global(#edit-description-toggle:checked ~ .hidden.peer-checked\:block) {
-    display: block !important;
-  }
-  :global(#edit-opinion-toggle:checked ~ div > .peer-checked\:hidden) {
-    display: none !important;
-  }
-  :global(#edit-opinion-toggle:checked ~ .hidden.peer-checked\:block) {
-    display: block !important;
-  }
-
-  :global(.material-symbols-outlined) {
-    font-variation-settings:
-      "FILL" 0,
-      "wght" 400,
-      "GRAD" 0,
-      "opsz" 24;
-  }
-</style>
