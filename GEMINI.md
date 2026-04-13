@@ -10,3 +10,8 @@ Refer to `caveman` skill for exact style.
 # API Websocket to check
 
 check ./API.md
+
+
+# Database schenma
+
+check ./Database.md

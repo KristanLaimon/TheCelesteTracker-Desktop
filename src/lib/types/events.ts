@@ -12,6 +12,7 @@ export interface AreaStats {
 }
 
 export type CelesteEvent = 
+    | { Type: 'DatabaseLocation'; Path: string; EverestVersion: string; ModVersion: string }
     | { Type: 'LevelStart'; AreaSid: string; RoomName: string; Mode: string }
     | { Type: 'LevelInfo'; AreaSid: string; RoomName: string; Mode: string }
     | { Type: 'Death'; TotalDeaths: number; RoomDeaths: number; RoomName: string }

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { celesteState } from '$lib/types/celeste_state.svelte';
+
   let { height = '2.5rem' } = $props();
 </script>
 
@@ -9,22 +11,28 @@
 >
     <div class="flex items-center gap-4 text-[11px] font-medium text-zinc-500">
         <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-(--hub-secondary)"></span>
-            <span class="hidden sm:inline">Everest Core: v1.3452.0-stable</span>
-            <span class="sm:hidden">Everest Core</span>
+            <span class="w-2 h-2 rounded-full {celesteState.isConnected ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]'}"></span>
+            {#if celesteState.isConnected}
+                <span class="hidden sm:inline">Everest: {celesteState.everestVersion} | Mod: {celesteState.modVersion}</span>
+                <span class="sm:hidden">Everest Connected</span>
+            {:else}
+                <span class="hidden sm:inline">Waiting for Celeste Client...</span>
+                <span class="sm:hidden">Disconnected</span>
+            {/if}
         </div>
         <div class="h-3 w-px bg-(--hub-outline)"></div>
         <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined text-xs">terminal</span>
-            <span>System Ready</span>
+            <span class="material-symbols-outlined !text-[14px]">terminal</span>
+            <span>{celesteState.isConnected ? 'Client Linked' : 'System Ready'}</span>
         </div>
     </div>
     <div class="flex items-center gap-4 md:gap-6 text-[11px] font-medium text-zinc-500">
         <span class="hover:text-(--hub-primary) cursor-pointer transition-colors hidden md:inline">GitHub Repository</span>
         <span class="hover:text-(--hub-primary) cursor-pointer transition-colors hidden md:inline">API Documentation</span>
         <div class="bg-zinc-900 px-2 py-0.5 rounded flex items-center gap-2">
-            <span class="material-symbols-outlined text-[10px]">wifi</span>
-            <span class="hidden xs:inline">Synchronized</span>
+            <span class="material-symbols-outlined !text-[14px] {celesteState.isConnected ? 'text-green-500' : 'text-zinc-500'}">wifi</span>
+            <span class="hidden xs:inline">{celesteState.isConnected ? 'Synchronized' : 'Offline'}</span>
         </div>
     </div>
 </footer>
+

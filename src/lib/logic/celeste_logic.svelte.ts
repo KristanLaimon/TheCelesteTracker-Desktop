@@ -26,6 +26,10 @@ export function useCelesteLogic() {
             celesteState.currentEvent = payload;
 
             switch (payload.Type) {
+                case 'DatabaseLocation':
+                    celesteState.everestVersion = payload.EverestVersion;
+                    celesteState.modVersion = payload.ModVersion;
+                    break;
                 case 'LevelStart':
                 case 'LevelInfo':
                     celesteState.activeLevel = {
