@@ -21,12 +21,16 @@ function walk(dir) {
 }
 
 const files = walk(rootDir).filter(f => /\.(svelte|ts|js|css|html)$/.test(f));
-const pattern = /text-\[var\((--[\w-]+)\)\]/g;
+// Matches (bg|text|border|etc...)-[var(--name)] optionally followed by /opacity
+const pattern = /(bg|text|border|from|to|via|accent|outline|ring|fill|stroke)-\[var\((--[\w-]+)\)\](\/\d+)?/g;
 
 files.forEach(file => {
     const content = fs.readFileSync(file, 'utf8');
     if (pattern.test(content)) {
-        const newContent = content.replace(pattern, 'text-($1)');
+        // $1: prefix, $2: variable name, $3: optional /opacity
+        const newContent = content.replace(pattern, (match, prefix, variable, opacity) => {
+            return `${prefix}-(${variable})${opacity || ''}`;
+        });
         fs.writeFileSync(file, newContent, 'utf8');
         console.log(`Updated: ${path.relative(__dirname, file)}`);
     }
