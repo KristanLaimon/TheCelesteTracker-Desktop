@@ -20,5 +20,5 @@ This feature implements real-time sync with Celeste's Everest mod via WebSockets
 
 ## Testing
 - `backend-only`: `cargo test` in `src-tauri/`.
-- `frontend-only`: `npm run test` (or equivalent).
-- `integration-tests`: Activate `integration-test` mode via `INTEGRATION_TEST=true` env var (Principle VI).
+- `frontend-only`: `npm run test` (Vitest).
+- `integration-tests`: Run `npm run test:integration` (Playwright) with `INTEGRATION_TEST=true` env var (Principle VI).

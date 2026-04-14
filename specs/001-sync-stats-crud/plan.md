@@ -10,7 +10,7 @@ Implement a high-performance desktop companion for Celeste/Everest. Key componen
 
 **Language/Version**: Rust 1.75+, TypeScript 5.6+, Svelte 5  
 **Primary Dependencies**: Tauri v2, Tailwind CSS 4.0, Lucide Svelte, Tokio, Tungstenite  
-**Storage**: SQLite (`Saves/TheCelesteTracker.db`), `config.json` (Local)  
+**Storage**: SQLite (`path/to/**celeste_game_files**/Saves/TheCelesteTracker.db`), `config.json` (Local)  
 **Testing**: `backend-only` (cargo test), `frontend-only` (vitest/svelte-check), `integration-tests` (mode: `integration-test`)  
 **Target Platform**: Windows (Desktop App via Tauri)  
 **Project Type**: Desktop Application  

@@ -142,7 +142,7 @@ As a user, I want to customize the visual style and theme colors of the app to m
 - **FR-011**: System MUST identify "Lobby" structures in modded maps and group sub-levels under their respective parent `Campaign`.
 - **FR-012**: System MUST allow users to select ONE "Start Behavior" from: Main Menu, Last Session, Specific Page/Section, or Specific Campaign.
 - **FR-013**: App configuration MUST be stored in a `config.json` file located in the same directory as the application executable.
-- **FR-014**: System MUST provide theme customization options, allowing users to change primary colors and personalization styles.
+- **FR-014**: System MUST provide theme customization options, including primary color selection and personalization styles (font-size scaling, border-radius rounding, and spacing density).
 - **FR-015**: System MUST highlight the save slot currently active in Celeste while allowing independent browsing of other slots.
 
 ### Technical Constraints
@@ -175,7 +175,7 @@ As a user, I want to customize the visual style and theme colors of the app to m
 
 - **SC-001**: Initial sync of all statistics for a new save file completes in under 2 seconds.
 - **SC-002**: UI updates for gameplay events (Death/Dash) occur with <200ms latency.
-- **SC-003**: Users can identify their "Deadliest Room" for a chapter at a glance (single visual chart/list).
+- **SC-003**: Users can identify their "Deadliest Room" for a chapter at a glance via a sorted bar chart or death-density list.
 - **SC-004**: 100% of vanilla and modded chapters identified by the Everest mod are correctly mirrored in the companion app.
 - **SC-005**: Visual "Golden" reward state triggers immediately upon receipt of a `Golden: true` flag in `AreaComplete`.
 - **SC-006**: Multi-chapter mods (Lobbies) are successfully grouped into a single Campaign view with 0 manual intervention.

@@ -29,10 +29,10 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 **Purpose**: Core infrastructure for persistence and communication
 
-- [ ] T005 [P] Define `AppSettings` and `config.json` handler in `src-tauri/src/config.rs`
-- [ ] T006 Implement SQLite schema for `User`, `SaveData`, `Campaign`, `Chapter`, `Run`, and `RoomDeath` in `src-tauri/src/db.rs`
+- [ ] T005 [P] Implement `AppSettings` handler in `src-tauri/src/config.rs` with executable-relative directory resolution
+- [ ] T006 Implement SQLite schema for `User`, `SaveData`, `Campaign` (with parent link), `Chapter`, `Run`, and `RoomDeath` in `src-tauri/src/db.rs`
 - [ ] T007 [P] Initialize basic WebSocket listener shell in `src-tauri/src/ws.rs`
-- [ ] T008 [P] Define TypeScript types for all entities in `src/lib/types/entities.ts`
+- [ ] T008 [P] Define TypeScript types for all entities, including recursive `Campaign` nesting, in `src/lib/types/entities.ts`
 
 **Checkpoint**: Core data access and communication shells ready.
 
@@ -133,7 +133,9 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 - [ ] T033 [P] Audit all TS files for `any` types and Rust files for `unwrap()` (Quality Standards)
 - [ ] T034 [P] Verify overlay performance impact is <1ms (Principle III)
 - [ ] T035 Implement SQLite retry logic for database locks (EC-002) in `src-tauri/src/db.rs`
-- [ ] T036 [P] Create integration tests for `integration-test` mode in `tests/integration/`
+- [ ] T036 [P] Create integration tests (Playwright) for `integration-test` mode in `tests/integration/`
+- [ ] T037 [P] Benchmark initial sync time (<2s) and live update latency (<200ms) (SC-001, SC-002)
+- [ ] T038 [P] Verify app launch navigation time (<100ms) and theme application time (<50ms) (SC-008, SC-009)
 
 ---
 
