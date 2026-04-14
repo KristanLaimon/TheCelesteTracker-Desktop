@@ -40,6 +40,7 @@ Tracks vanilla Celeste and mods separately (LevelSets).
 | :--- | :--- | :--- |
 | `id` | INTEGER | PRIMARY KEY, AUTOINCREMENT |
 | `name` | TEXT | UNIQUE (e.g., "Celeste", "SpringCollab2020") |
+| `parent_campaign_id` | INTEGER | FOREIGN KEY (`Campaign.id`), used for nesting lobby maps |
 
 ### `SaveData_Campaign_has`
 Junction table for M:N relationship between save files and campaigns.

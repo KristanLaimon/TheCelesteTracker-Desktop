@@ -124,6 +124,10 @@ pub fn init_schema(conn: &Connection) -> Result<()> {
             FOREIGN KEY (run_id) REFERENCES Run(id)
         );
     ")?;
+
+    // Migration: Add parent_campaign_id if it doesn't exist
+    let _ = conn.execute("ALTER TABLE Campaign ADD COLUMN parent_campaign_id INTEGER", []);
+
     Ok(())
 }
 

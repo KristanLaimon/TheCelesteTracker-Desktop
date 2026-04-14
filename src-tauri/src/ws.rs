@@ -1,4 +1,6 @@
 use crate::events::CelesteEvent;
+use crate::db::init_schema;
+use rusqlite::Connection;
 use futures_util::StreamExt;
 use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, Manager};
@@ -34,6 +36,15 @@ pub fn start_websocket_handler(app_handle: AppHandle) {
                                                     let mut cache = state.last_db_location.lock().unwrap();
                                                     *cache = Some(event.clone());
                                                     println!("DB PATH SYNCED: {}", Path);
+
+                                                    // Initialize/Update schema
+                                                    if let Ok(conn) = Connection::open(Path) {
+                                                        if let Err(e) = init_schema(&conn) {
+                                                            println!("SCHEMA INIT ERROR: {}", e);
+                                                        } else {
+                                                            println!("SCHEMA INITIALIZED/UPDATED");
+                                                        }
+                                                    }
                                                 }
                                             }
                                             CelesteEvent::LevelStart { AreaSid, Mode, .. } => {

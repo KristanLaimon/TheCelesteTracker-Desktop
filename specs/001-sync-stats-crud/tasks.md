@@ -109,7 +109,7 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 ### Implementation for User Story 5
 
 - [ ] T027 [US5] Implement Lobby detection logic using chapter SID patterns in `src-tauri/src/db.rs`
-- [ ] T028 [US5] Update `Campaign` entity to support nesting in `src/lib/types/entities.ts`
+- [x] T028 [US5] Update Campaign entity to support nesting in src/lib/types/entities.ts
 - [ ] T029 [US5] Implement recursive campaign rendering in `src/lib/components/CampaignList.svelte`
 
 ---
