@@ -26,11 +26,15 @@ pub fn start_websocket_handler(app_handle: AppHandle) {
                                 let text = msg.to_text().unwrap();
                                 match serde_json::from_str::<CelesteEvent>(text) {
                                     Ok(event) => {
-                                        if let CelesteEvent::DatabaseLocation { .. } = &event {
-                                            if let Some(state) = app_handle.try_state::<WsState>() {
-                                                let mut cache = state.last_db_location.lock().unwrap();
-                                                *cache = Some(event.clone());
+                                        match &event {
+                                            CelesteEvent::DatabaseLocation { Path, .. } => {
+                                                if let Some(state) = app_handle.try_state::<WsState>() {
+                                                    let mut cache = state.last_db_location.lock().unwrap();
+                                                    *cache = Some(event.clone());
+                                                    println!("DB PATH SYNCED: {}", Path);
+                                                }
                                             }
+                                            _ => {}
                                         }
                                         let _ = app_handle.emit("celeste-event", event);
                                     }

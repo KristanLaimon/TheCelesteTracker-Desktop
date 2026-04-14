@@ -1,11 +1,13 @@
 pub mod events;
 pub mod ws;
 pub mod db;
+pub mod config;
 
 use std::sync::Mutex;
 use crate::events::CelesteEvent;
 use crate::ws::WsState;
-use crate::db::{get_campaigns, get_chapters, get_runs};
+use crate::db::{get_campaigns, get_chapters, get_runs, fetch_all_stats, save_completed_run};
+use crate::config::{get_settings, save_settings};
 
 #[tauri::command]
 fn get_celeste_initial_state(state: tauri::State<'_, WsState>) -> Option<CelesteEvent> {
@@ -29,7 +31,11 @@ pub async fn run() {
             get_celeste_initial_state,
             get_campaigns,
             get_chapters,
-            get_runs
+            get_runs,
+            get_settings,
+            save_settings,
+            fetch_all_stats,
+            save_completed_run
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

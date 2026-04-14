@@ -12,3 +12,7 @@ vite.config.ts.timestamp-*
 
 
 .gemini/
+dist/
+build/
+*.log
+.env*

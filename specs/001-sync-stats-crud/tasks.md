@@ -18,10 +18,10 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Configure `src-tauri/tauri.conf.json` with SQLite and WebSocket permissions
-- [ ] T003 [P] Initialize `src/lib/logic` and `src/lib/components` directories
-- [ ] T004 [P] Configure Tailwind CSS 4.0 in `src/app.css`
+- [x] T001 Create project structure per implementation plan
+- [x] T002 Configure `src-tauri/tauri.conf.json` with SQLite and WebSocket permissions
+- [x] T003 [P] Initialize `src/lib/logic` and `src/lib/components` directories
+- [x] T004 [P] Configure Tailwind CSS 4.0 in `src/app.css`
 
 ---
 
@@ -29,10 +29,10 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 **Purpose**: Core infrastructure for persistence and communication
 
-- [ ] T005 [P] Implement `AppSettings` handler in `src-tauri/src/config.rs` with executable-relative directory resolution
-- [ ] T006 Implement SQLite schema for `User`, `SaveData`, `Campaign` (with parent link), `Chapter`, `Run`, and `RoomDeath` in `src-tauri/src/db.rs`
-- [ ] T007 [P] Initialize basic WebSocket listener shell in `src-tauri/src/ws.rs`
-- [ ] T008 [P] Define TypeScript types for all entities, including recursive `Campaign` nesting, in `src/lib/types/entities.ts`
+- [x] T005 [P] Implement `AppSettings` handler in `src-tauri/src/config.rs` with executable-relative directory resolution
+- [x] T006 Implement SQLite schema for `User`, `SaveData`, `Campaign` (with parent link), `Chapter`, `Run`, and `RoomDeath` in `src-tauri/src/db.rs`
+- [x] T007 [P] Initialize basic WebSocket listener shell in `src-tauri/src/ws.rs`
+- [x] T008 [P] Define TypeScript types for all entities, including recursive `Campaign` nesting, in `src/lib/types/entities.ts`
 
 **Checkpoint**: Core data access and communication shells ready.
 
@@ -46,12 +46,12 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Rust unit test for `DatabaseLocation` event parsing in `src-tauri/src/events.rs`
-- [ ] T010 [US1] Implement `DatabaseLocation` handler to initialize SQLite connection in `src-tauri/src/ws.rs`
-- [ ] T011 [US1] Create background sync logic to fetch initial chapter stats in `src-tauri/src/db.rs`
-- [ ] T012 [P] [US1] Implement `fetch_all_stats` Tauri command in `src-tauri/src/lib.rs`
-- [ ] T013 [US1] Create `src/lib/logic/sync_store.svelte.ts` to manage initial data load
-- [ ] T014 [US1] Implement `src/lib/components/CampaignList.svelte` to display synced data
+- [x] T009 [P] [US1] Rust unit test for `DatabaseLocation` event parsing in `src-tauri/src/events.rs`
+- [x] T010 [US1] Implement `DatabaseLocation` handler to initialize SQLite connection in `src-tauri/src/ws.rs`
+- [x] T011 [US1] Create background sync logic to fetch initial chapter stats in `src-tauri/src/db.rs`
+- [x] T012 [P] [US1] Implement `fetch_all_stats` Tauri command in `src-tauri/src/lib.rs`
+- [x] T013 [US1] Create `src/lib/logic/sync_store.svelte.ts` to manage initial data load
+- [x] T014 [US1] Implement `src/lib/components/CampaignList.svelte` to display synced data
 
 **Checkpoint**: Initial sync functional and visible.
 
@@ -65,11 +65,11 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 ### Implementation for User Story 2
 
-- [ ] T015 [P] [US2] Rust unit tests for `Death`, `Dash`, and `AreaComplete` event parsing
-- [ ] T016 [US2] Implement live event dispatching from `src-tauri/src/ws.rs` to frontend via Tauri events
-- [ ] T017 [US2] Update `sync_store.svelte.ts` to process live events and update Run state reactivey
-- [ ] T018 [US2] Implement "Current Run" HUD component in `src/lib/components/LiveTracker.svelte`
-- [ ] T019 [US2] Add logic to persist `AreaComplete` results to SQLite in `src-tauri/src/db.rs`
+- [x] T015 [P] [US2] Rust unit tests for `Death`, `Dash`, and `AreaComplete` event parsing
+- [x] T016 [US2] Implement live event dispatching from `src-tauri/src/ws.rs` to frontend via Tauri events
+- [x] T017 [US2] Update `sync_store.svelte.ts` to process live events and update Run state reactivey
+- [x] T018 [US2] Implement "Current Run" HUD component in `src/lib/components/LiveTracker.svelte`
+- [x] T019 [US2] Add logic to persist `AreaComplete` results to SQLite in `src-tauri/src/db.rs`
 
 **Checkpoint**: Real-time tracking loop complete.
 
