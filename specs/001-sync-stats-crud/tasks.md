@@ -130,12 +130,12 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 **Purpose**: Performance optimization and robustness
 
-- [ ] T033 [P] Audit all TS files for `any` types and Rust files for `unwrap()` (Quality Standards)
-- [ ] T034 [P] Verify overlay performance impact is <1ms (Principle III)
-- [ ] T035 Implement SQLite retry logic for database locks (EC-002) in `src-tauri/src/db.rs`
-- [ ] T036 [P] Create integration tests (Playwright) for `integration-test` mode in `tests/integration/`
-- [ ] T037 [P] Benchmark initial sync time (<2s) and live update latency (<200ms) (SC-001, SC-002)
-- [ ] T038 [P] Verify app launch navigation time (<100ms) and theme application time (<50ms) (SC-008, SC-009)
+- [x] T033 [P] Audit all TS files for `any` types and Rust files for `unwrap()` (Quality Standards)
+- [x] T034 [P] Verify overlay performance impact is <1ms (Principle III)
+- [x] T035 Implement SQLite retry logic for database locks (EC-002) in `src-tauri/src/db.rs`
+- [x] T036 [P] Create integration tests (Playwright) for `integration-test` mode in `tests/integration/`
+- [x] T037 [P] Benchmark initial sync time (<2s) and live update latency (<200ms) (SC-001, SC-002)
+- [x] T038 [P] Verify app launch navigation time (<100ms) and theme application time (<50ms) (SC-008, SC-009)
 
 ---
 

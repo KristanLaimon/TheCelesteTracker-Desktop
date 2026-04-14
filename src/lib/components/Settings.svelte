@@ -3,16 +3,18 @@
   import { invoke } from "@tauri-apps/api/core";
   import { Settings, Palette, Play, Save, X, Monitor, Moon, Sun } from "lucide-svelte";
 
+  import type { AppSettings } from "../types/entities";
+
   let { onclose }: { onclose: () => void } = $props();
 
-  let start_behavior = $state("main-menu");
+  let start_behavior = $state<AppSettings['start_behavior']>("main-menu");
   let theme = $state("dark");
   let last_active_slot = $state(0);
   let isSaving = $state(false);
 
   onMount(async () => {
     try {
-      const config = await invoke<any>("get_settings");
+      const config = await invoke<AppSettings>("get_settings");
       start_behavior = config.start_behavior;
       theme = config.theme;
       last_active_slot = config.last_active_slot;

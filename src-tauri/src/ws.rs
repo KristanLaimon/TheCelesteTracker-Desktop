@@ -26,8 +26,7 @@ pub fn start_websocket_handler(app_handle: AppHandle) {
                     let (_, mut read) = ws_stream.split();
                     while let Some(message) = read.next().await {
                         if let Ok(msg) = message {
-                            if msg.is_text() {
-                                let text = msg.to_text().unwrap();
+                            if let Ok(text) = msg.to_text() {
                                 match serde_json::from_str::<CelesteEvent>(text) {
                                     Ok(event) => {
                                         match &event {

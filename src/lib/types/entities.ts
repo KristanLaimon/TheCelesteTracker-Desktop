@@ -57,6 +57,19 @@ export interface AppSettings {
   last_active_slot: number;
 }
 
+export interface AreaStats {
+  AreaSID: string;
+  Mode: string;
+  CompletionTime: string;
+  Screens: number;
+  TimeTicks: number;
+  Deaths: number;
+  DeathsPerScreen: Record<string, number>;
+  PersonalBestTime: number;
+  PersonalBestDeaths: number;
+  Golden: boolean;
+}
+
 export type CelesteEvent = 
   | { Type: 'DatabaseLocation'; Path: string; EverestVersion: string; ModVersion: string }
   | { Type: 'LevelStart'; AreaSid: string; RoomName: string; Mode: string }
@@ -64,4 +77,4 @@ export type CelesteEvent =
   | { Type: 'Death'; TotalDeaths: number; RoomDeaths: number; RoomName: string }
   | { Type: 'Dash'; TotalDashes: number }
   | { Type: 'MenuAction'; Action: string }
-  | { Type: 'AreaComplete'; Stats: any };
+  | { Type: 'AreaComplete'; Stats: AreaStats };

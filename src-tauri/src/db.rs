@@ -69,6 +69,13 @@ pub fn get_db_path(state: &WsState) -> Option<String> {
     None
 }
 
+pub fn get_conn(state: &WsState) -> Result<Connection, String> {
+    let path = get_db_path(state).ok_or("Database path not found")?;
+    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    conn.busy_timeout(std::time::Duration::from_millis(5000)).map_err(|e| e.to_string())?;
+    Ok(conn)
+}
+
 pub fn init_schema(conn: &Connection) -> Result<()> {
     conn.execute_batch("
         CREATE TABLE IF NOT EXISTS User (
@@ -133,8 +140,7 @@ pub fn init_schema(conn: &Connection) -> Result<()> {
 
 #[tauri::command]
 pub fn get_campaigns(state: tauri::State<'_, WsState>) -> Result<Vec<Campaign>, String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let conn = get_conn(&state)?;
 
     let mut stmt = conn.prepare("
         SELECT c.id, c.name, 
@@ -168,8 +174,7 @@ pub fn get_campaigns(state: tauri::State<'_, WsState>) -> Result<Vec<Campaign>, 
 
 #[tauri::command]
 pub fn get_chapters(state: tauri::State<'_, WsState>, campaign_id: i32) -> Result<Vec<Chapter>, String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let conn = get_conn(&state)?;
 
     let mut stmt = conn.prepare("
         SELECT ch.id, ch.campaign_id, ch.sid, ch.name, ch.mode,
@@ -205,8 +210,7 @@ pub fn get_chapters(state: tauri::State<'_, WsState>, campaign_id: i32) -> Resul
 
 #[tauri::command]
 pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec<Run>, String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let conn = get_conn(&state)?;
 
     let mut stmt = conn.prepare("SELECT id, save_id, chapter_id, completion_time, time_ticks, screens, deaths, strawberries, golden FROM Run WHERE chapter_id = ? ORDER BY id DESC").map_err(|e| e.to_string())?;
     let run_iter = stmt.query_map([chapter_id], |row| {
@@ -232,8 +236,7 @@ pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec
 
 #[tauri::command]
 pub fn get_room_deaths(state: tauri::State<'_, WsState>, run_id: i32) -> Result<Vec<RoomDeath>, String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let conn = get_conn(&state)?;
 
     let mut stmt = conn.prepare("SELECT id, run_id, room_name, deaths FROM RoomDeath WHERE run_id = ?").map_err(|e| e.to_string())?;
     let room_death_iter = stmt.query_map([run_id], |row| {
@@ -299,8 +302,7 @@ pub fn fetch_all_stats(state: tauri::State<'_, WsState>) -> Result<serde_json::V
 
 #[tauri::command]
 pub fn save_completed_run(state: tauri::State<'_, WsState>, stats: AreaStats, save_id: i32) -> Result<(), String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let mut conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let mut conn = get_conn(&state)?;
 
     let tx = conn.transaction().map_err(|e| e.to_string())?;
 
@@ -338,8 +340,7 @@ pub fn save_completed_run(state: tauri::State<'_, WsState>, stats: AreaStats, sa
 
 #[tauri::command]
 pub fn update_run(state: tauri::State<'_, WsState>, run_id: i32, deaths: i32, strawberries: i32) -> Result<(), String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let conn = get_conn(&state)?;
 
     // Inactive-only guard
     let (sid, mode): (String, String) = conn.query_row(
@@ -366,8 +367,7 @@ pub fn update_run(state: tauri::State<'_, WsState>, run_id: i32, deaths: i32, st
 
 #[tauri::command]
 pub fn delete_run(state: tauri::State<'_, WsState>, run_id: i32) -> Result<(), String> {
-    let path = get_db_path(&state).ok_or("Database path not found")?;
-    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+    let conn = get_conn(&state)?;
 
     // Inactive-only guard
     let (sid, mode): (String, String) = conn.query_row(
@@ -389,3 +389,4 @@ pub fn delete_run(state: tauri::State<'_, WsState>, run_id: i32) -> Result<(), S
 
     Ok(())
 }
+
