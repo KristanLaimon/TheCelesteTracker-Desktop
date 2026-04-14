@@ -78,6 +78,26 @@ img {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.celeste-dark {
+  --background: #0b0e14;
+  --foreground: #f0f4f8;
+  --card: #161b22;
+  --primary: #fb7185; /* Strawberry Red */
+  --secondary: #38bdf8; /* Sky Blue */
+  --accent: #facc15; /* Golden Berry */
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+.celeste-light {
+  --background: #f0f4f8;
+  --foreground: #0b0e14;
+  --card: #ffffff;
+  --primary: #e11d48;
+  --secondary: #0ea5e9;
+  --accent: #ca8a04;
+  --border: rgba(0, 0, 0, 0.1);
+}
+
 @theme inline {
   --font-sans: 'Inter Variable', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);

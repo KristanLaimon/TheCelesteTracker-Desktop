@@ -85,7 +85,7 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 - [x] T020 [P] [US3] Implement `update_run` and `delete_run` commands with "inactive-only" guard in `src-tauri/src/db.rs`
 - [x] T021 [US3] Create `src/lib/components/RunEditor.svelte` with CRUD interface
-- [ ] T022 [US3] Add validation logic to `sync_store.svelte.ts` to disable editing for the currently tracked run
+- [x] T022 [US3] Add validation logic to `sync_store.svelte.ts` to disable editing for the currently tracked run
 
 ---
 
@@ -95,10 +95,10 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 ### Implementation for User Story 4
 
-- [ ] T023 [P] [US4] Implement `RoomDeath` query logic in `src-tauri/src/db.rs`
-- [ ] T024 [US4] Create `src/lib/components/RoomHeatmap.svelte` to visualize death density
-- [ ] T025 [US4] Implement "Absolute Best Attempt" logic in `sync_store.svelte.ts`
-- [ ] T026 [US4] Add "Golden Theme" visual states to `ChapterView.svelte` using Tailwind transitions
+- [x] T023 [P] [US4] Implement `RoomDeath` query logic in `src-tauri/src/db.rs`
+- [x] T024 [US4] Create `src/lib/components/RoomHeatmap.svelte` to visualize death density
+- [x] T025 [US4] Implement "Absolute Best Attempt" logic in `sync_store.svelte.ts`
+- [x] T026 [US4] Add "Golden Theme" visual states to `ChapterView.svelte` using Tailwind transitions
 
 ---
 
@@ -108,9 +108,9 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 ### Implementation for User Story 5
 
-- [ ] T027 [US5] Implement Lobby detection logic using chapter SID patterns in `src-tauri/src/db.rs`
+- [x] T027 [US5] Implement Lobby detection logic using chapter SID patterns in `src-tauri/src/db.rs`
 - [x] T028 [US5] Update Campaign entity to support nesting in src/lib/types/entities.ts
-- [ ] T029 [US5] Implement recursive campaign rendering in `src/lib/components/CampaignList.svelte`
+- [x] T029 [US5] Implement recursive campaign rendering in `src/lib/components/CampaignList.svelte`
 
 ---
 
@@ -120,9 +120,9 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 ### Implementation for User Story 6 & 7
 
-- [ ] T030 [P] [US6] Implement start-up navigation logic in `src/routes/+layout.svelte` based on `config.json`
-- [ ] T031 [P] [US7] Create theme switching system using CSS variables and Tailwind 4.0 dark mode
-- [ ] T032 [US7] Add theme picker to `src/lib/components/Settings.svelte`
+- [x] T030 [P] [US6] Implement start-up navigation logic in `src/routes/+layout.svelte` based on `config.json`
+- [x] T031 [P] [US7] Create theme switching system using CSS variables and Tailwind 4.0 dark mode
+- [x] T032 [US7] Add theme picker to `src/lib/components/Settings.svelte`
 
 ---
 

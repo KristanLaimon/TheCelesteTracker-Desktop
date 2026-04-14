@@ -230,14 +230,62 @@ pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec
     Ok(runs)
 }
 
+#[tauri::command]
+pub fn get_room_deaths(state: tauri::State<'_, WsState>, run_id: i32) -> Result<Vec<RoomDeath>, String> {
+    let path = get_db_path(&state).ok_or("Database path not found")?;
+    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+
+    let mut stmt = conn.prepare("SELECT id, run_id, room_name, deaths FROM RoomDeath WHERE run_id = ?").map_err(|e| e.to_string())?;
+    let room_death_iter = stmt.query_map([run_id], |row| {
+        Ok(RoomDeath {
+            id: row.get(0)?,
+            run_id: row.get(1)?,
+            room_name: row.get(2)?,
+            deaths: row.get(3)?,
+        })
+    }).map_err(|e| e.to_string())?;
+
+    let mut room_deaths = Vec::new();
+    for rd in room_death_iter {
+        room_deaths.push(rd.map_err(|e| e.to_string())?);
+    }
+    Ok(room_deaths)
+}
+
 pub fn ensure_campaign(conn: &Connection, name: &str) -> Result<i32> {
     conn.execute("INSERT OR IGNORE INTO Campaign (name) VALUES (?)", [name])?;
     conn.query_row("SELECT id FROM Campaign WHERE name = ?", [name], |row| row.get(0))
 }
 
 pub fn ensure_chapter(conn: &Connection, campaign_id: i32, sid: &str, name: &str, mode: &str) -> Result<i32> {
-    conn.execute("INSERT OR IGNORE INTO Chapter (campaign_id, sid, name, mode) VALUES (?, ?, ?, ?)", 
-        params![campaign_id, sid, name, mode])?;
+    // Lobby detection logic: if SID has multiple levels, check if it's a sub-campaign (lobby)
+    // SID pattern usually: Author/ModName/LobbyName/MapName or Author/ModName/MapName
+    let parts: Vec<&str> = sid.split('/').collect();
+    if parts.len() >= 4 {
+        // Potential lobby pattern detected
+        let mod_name = parts[1];
+        let lobby_name = parts[2];
+        
+        // Ensure parent mod campaign exists
+        let parent_id = ensure_campaign(conn, mod_name)?;
+        
+        // Ensure lobby campaign exists as a child of the mod
+        let lobby_id = conn.query_row(
+            "INSERT INTO Campaign (name, parent_campaign_id) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET parent_campaign_id = excluded.parent_campaign_id RETURNING id",
+            params![lobby_name, Some(parent_id)],
+            |row| row.get(0)
+        ).or_else(|_| {
+            conn.query_row("SELECT id FROM Campaign WHERE name = ?", [lobby_name], |row| row.get(0))
+        })?;
+
+        // Link chapter to the lobby instead of the base campaign
+        conn.execute("INSERT OR IGNORE INTO Chapter (campaign_id, sid, name, mode) VALUES (?, ?, ?, ?)", 
+            params![lobby_id, sid, name, mode])?;
+    } else {
+        conn.execute("INSERT OR IGNORE INTO Chapter (campaign_id, sid, name, mode) VALUES (?, ?, ?, ?)", 
+            params![campaign_id, sid, name, mode])?;
+    }
+    
     conn.query_row("SELECT id FROM Chapter WHERE sid = ? AND mode = ?", [sid, mode], |row| row.get(0))
 }
 

@@ -6,7 +6,7 @@ pub mod config;
 use std::sync::Mutex;
 use crate::events::CelesteEvent;
 use crate::ws::WsState;
-use crate::db::{get_campaigns, get_chapters, get_runs, fetch_all_stats, save_completed_run, update_run, delete_run};
+use crate::db::{get_campaigns, get_chapters, get_runs, get_room_deaths, fetch_all_stats, save_completed_run, update_run, delete_run};
 use crate::config::{get_settings, save_settings};
 
 #[tauri::command]
@@ -34,6 +34,7 @@ pub async fn run() {
             get_campaigns,
             get_chapters,
             get_runs,
+            get_room_deaths,
             get_settings,
             save_settings,
             fetch_all_stats,

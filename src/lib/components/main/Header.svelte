@@ -1,5 +1,8 @@
 <script lang="ts">
   import strawberry from '$lib/assets/strawberry.gif';
+  import SettingsModal from '../Settings.svelte';
+  
+  let showSettings = $state(false);
 </script>
 
 <!-- Header -->
@@ -9,18 +12,13 @@
   <div class="flex items-center">
     <img src={strawberry} alt="straw_berry" class="size-16" />
     <span class="font-headline font-black text-xl text-(--hub-tertiary) tracking-tight">Celeste Tracker</span>
-    <!-- <nav class="hidden lg:flex gap-6"> -->
-      <!-- <a class="text-sm font-medium text-zinc-400 hover:text-(--hub-primary) transition-colors" href="#"
-        >Global Stats</a
-      >
-      <a class="text-sm font-medium text-zinc-400 hover:text-(--hub-primary) transition-colors" href="#"
-        >Resources</a
-      > -->
-    <!-- </nav> -->
   </div>
   <div class="flex items-center gap-4 md:gap-6">
     <div class="flex items-center gap-2">
-      <button class="p-2 text-zinc-400 hover:text-white transition-colors">
+      <button 
+        onclick={() => showSettings = true}
+        class="p-2 text-zinc-400 hover:text-white transition-colors"
+      >
         <span class="material-symbols-outlined">settings</span>
       </button>
       <button class="p-2 text-zinc-400 hover:text-white transition-colors relative">
@@ -36,3 +34,7 @@
     </div>
   </div>
 </header>
+
+{#if showSettings}
+  <SettingsModal onclose={() => showSettings = false} />
+{/if}

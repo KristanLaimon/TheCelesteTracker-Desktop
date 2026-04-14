@@ -9,6 +9,8 @@ class SyncStore {
   chapters = $state<Chapter[]>([]);
   runs = $state<Run[]>([]);
   activeSlot = $state<number | null>(null);
+  activeChapterSid = $state<string | null>(null);
+  activeMode = $state<string | null>(null);
   isWsConnected = $state(false);
   currentRun = $state<Run | null>(null);
 
@@ -46,6 +48,8 @@ class SyncStore {
         this.fetchCampaigns();
         break;
       case "LevelStart":
+        this.activeChapterSid = event.AreaSid;
+        this.activeMode = event.Mode;
         this.currentRun = {
           id: -1,
           save_id: this.activeSlot || 0,
@@ -64,11 +68,22 @@ class SyncStore {
         }
         break;
       case "AreaComplete":
+        this.activeChapterSid = null;
+        this.activeMode = null;
         this.currentRun = null;
         this.fetchCampaigns();
         break;
     }
   }
+
+  isChapterActive(sid: string, mode: string) {
+    return this.activeChapterSid === sid && this.activeMode === mode;
+  }
+
+  absoluteBestAttempt = $derived.by(() => {
+    if (this.runs.length === 0) return null;
+    return this.runs.reduce((prev, curr) => (prev.deaths < curr.deaths ? prev : curr));
+  });
 
   async fetchCampaigns() {
     try {
