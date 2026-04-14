@@ -1,6 +1,9 @@
 <script lang="ts">
   import { syncStore } from "$lib/logic/sync_store.svelte";
-  import { Trophy, ChevronRight, FolderOpen, Folder } from "lucide-svelte";
+  import Trophy from "~icons/material-symbols/trophy";
+  import ChevronRight from "~icons/material-symbols/chevron-right";
+  import FolderOpen from "~icons/material-symbols/folder-open";
+  import Folder from "~icons/material-symbols/folder";
   import type { Campaign } from "../types/entities";
 
   let rootCampaigns = $derived(syncStore.campaigns.filter(c => !c.parent_campaign_id));

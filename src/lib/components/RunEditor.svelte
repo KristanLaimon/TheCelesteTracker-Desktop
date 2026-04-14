@@ -1,7 +1,11 @@
 <script lang="ts">
   import { syncStore } from "$lib/logic/sync_store.svelte";
   import type { Run } from "../types/entities";
-  import { Ghost, Zap, Save, Trash2, X } from "lucide-svelte";
+  import Monitoring from "~icons/material-symbols/monitoring";
+  import Bolt from "~icons/material-symbols/bolt";
+  import Save from "~icons/material-symbols/save";
+  import Delete from "~icons/material-symbols/delete";
+  import Close from "~icons/material-symbols/close";
   import RoomHeatmap from "./RoomHeatmap.svelte";
 
   let { run, onclose }: { run: Run; onclose: () => void } = $props();
@@ -63,7 +67,7 @@
         onclick={onclose}
         class="p-2 hover:bg-accent rounded-full transition-colors"
       >
-        <X class="w-5 h-5" />
+        <Close class="w-5 h-5" />
       </button>
     </div>
 
@@ -76,7 +80,7 @@
             >Total Deaths</label
           >
           <div class="relative group">
-            <Ghost
+            <Monitoring
               class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"
             />
             <input
@@ -95,7 +99,7 @@
             >Strawberries</label
           >
           <div class="relative group">
-            <Zap
+            <Bolt
               class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors"
             />
             <input
@@ -119,7 +123,7 @@
         disabled={isSaving || isDeleting}
         class="flex-1 bg-destructive/10 hover:bg-destructive text-destructive hover:text-destructive-foreground py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
       >
-        <Trash2 class="w-5 h-5" />
+        <Delete class="w-5 h-5" />
         Delete
       </button>
       <button

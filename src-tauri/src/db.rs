@@ -257,7 +257,7 @@ pub fn get_room_deaths(state: tauri::State<'_, WsState>, run_id: i32) -> Result<
 
 pub fn ensure_campaign(conn: &Connection, name: &str) -> Result<i32> {
     conn.execute("INSERT OR IGNORE INTO Campaign (name) VALUES (?)", [name])?;
-    conn.query_row("SELECT id FROM Campaign WHERE name = ?", [name], |row| row.get(0))
+    conn.query_row("SELECT id FROM Campaign WHERE name = ?", [name], |row| row.get::<_, i32>(0))
 }
 
 pub fn ensure_chapter(conn: &Connection, campaign_id: i32, sid: &str, name: &str, mode: &str) -> Result<i32> {
@@ -273,7 +273,7 @@ pub fn ensure_chapter(conn: &Connection, campaign_id: i32, sid: &str, name: &str
         let parent_id = ensure_campaign(conn, mod_name)?;
         
         // Ensure lobby campaign exists as a child of the mod
-        let lobby_id = conn.query_row(
+        let lobby_id: i32 = conn.query_row(
             "INSERT INTO Campaign (name, parent_campaign_id) VALUES (?, ?) ON CONFLICT(name) DO UPDATE SET parent_campaign_id = excluded.parent_campaign_id RETURNING id",
             params![lobby_name, Some(parent_id)],
             |row| row.get(0)
@@ -289,7 +289,7 @@ pub fn ensure_chapter(conn: &Connection, campaign_id: i32, sid: &str, name: &str
             params![campaign_id, sid, name, mode])?;
     }
     
-    conn.query_row("SELECT id FROM Chapter WHERE sid = ? AND mode = ?", [sid, mode], |row| row.get(0))
+    conn.query_row("SELECT id FROM Chapter WHERE sid = ? AND mode = ?", [sid, mode], |row| row.get::<_, i32>(0))
 }
 
 #[tauri::command]

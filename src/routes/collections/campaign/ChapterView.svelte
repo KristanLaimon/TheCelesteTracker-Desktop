@@ -1,6 +1,10 @@
 <script lang="ts">
   import { syncStore } from "$lib/logic/sync_store.svelte";
-  import { Ghost, Zap, Timer, Star, Award, ChevronRight, Edit3, Check, Plus, List, LayoutGrid, Heart, CassetteTape } from "lucide-svelte";
+  import ChevronRight from "~icons/material-symbols/chevron-right";
+  import List from "~icons/material-symbols/list";
+  import LayoutGrid from "~icons/material-symbols/grid-view";
+  import Star from "~icons/material-symbols/star";
+  import Award from "~icons/material-symbols/rewarded-ads";
   import { page } from '$app/state';
 
   let campaignId = $derived(Number(page.params.campaign_id) || 1);

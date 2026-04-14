@@ -1,6 +1,9 @@
 <script lang="ts">
   import { syncStore } from "$lib/logic/sync_store.svelte";
-  import { Ghost, Zap, MapPin, Activity } from "lucide-svelte";
+  import Monitoring from "~icons/material-symbols/monitoring";
+  import Bolt from "~icons/material-symbols/bolt";
+  import Map from "~icons/material-symbols/map";
+  import Pulse from "~icons/material-symbols/show-chart";
 </script>
 
 {#if syncStore.currentRun}
@@ -13,13 +16,13 @@
         </div>
         <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/90">Active Session</h3>
       </div>
-      <Activity class="w-3.5 h-3.5 text-muted-foreground/40" />
+      <Pulse class="w-3.5 h-3.5 text-muted-foreground/40" />
     </div>
 
     <div class="grid grid-cols-2 gap-4">
       <div class="space-y-1 group">
         <div class="flex items-center gap-1.5 text-muted-foreground">
-          <Ghost class="w-3.5 h-3.5" />
+          <Monitoring class="w-3.5 h-3.5" />
           <span class="text-[10px] font-bold uppercase tracking-wider">Deaths</span>
         </div>
         <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none">
@@ -29,7 +32,7 @@
 
       <div class="space-y-1 group">
         <div class="flex items-center gap-1.5 text-muted-foreground">
-          <Zap class="w-3.5 h-3.5" />
+          <Bolt class="w-3.5 h-3.5" />
           <span class="text-[10px] font-bold uppercase tracking-wider">Dashes</span>
         </div>
         <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none">
@@ -40,7 +43,7 @@
 
     <div class="mt-6 pt-4 border-t border-border/50">
       <div class="flex items-center gap-2 text-muted-foreground/60">
-        <MapPin class="w-3 h-3" />
+        <Map class="w-3 h-3" />
         <span class="text-[9px] font-medium truncate uppercase tracking-tight">
           Monitoring {syncStore.isWsConnected ? 'WebSocket Stream' : 'Connection Lost'}
         </span>

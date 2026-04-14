@@ -1,7 +1,15 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { invoke } from "@tauri-apps/api/core";
-  import { Settings, Palette, Play, Save, X, Monitor, Moon, Sun } from "lucide-svelte";
+  
+  // unplugin-icons: individual imports from virtual namespace
+  import Settings from "~icons/lucide/settings";
+  import Palette from "~icons/lucide/palette";
+  import Play from "~icons/lucide/play";
+  import Save from "~icons/lucide/save";
+  import X from "~icons/lucide/x";
+  import Moon from "~icons/lucide/moon";
+  import Sun from "~icons/lucide/sun";
 
   import type { AppSettings } from "../types/entities";
 
@@ -13,6 +21,9 @@
   let isSaving = $state(false);
 
   onMount(async () => {
+    // @ts-ignore
+    if (!window.__TAURI_INTERNALS__) return;
+
     try {
       const config = await invoke<AppSettings>("get_settings");
       start_behavior = config.start_behavior;

@@ -1,6 +1,8 @@
 <script lang="ts">
   import strawberry from '$lib/assets/strawberry.gif';
   import SettingsModal from '../Settings.svelte';
+  import Settings from "~icons/material-symbols/settings";
+  import Notifications from "~icons/material-symbols/notifications";
   
   let showSettings = $state(false);
 </script>
@@ -19,11 +21,11 @@
         onclick={() => showSettings = true}
         class="p-2 text-zinc-400 hover:text-white transition-colors"
       >
-        <span class="material-symbols-outlined">settings</span>
+        <Settings class="w-5 h-5" />
       </button>
       <button class="p-2 text-zinc-400 hover:text-white transition-colors relative">
-        <span class="material-symbols-outlined">notifications</span>
-        <span class="absolute top-2.5 right-2.5 w-2 h-2 accent-bg rounded-full border border-zinc-950"></span>
+        <Notifications class="w-5 h-5" />
+        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border border-zinc-950"></span>
       </button>
     </div>
     <div class="hidden sm:block h-8 w-px bg-(--hub-outline)"></div>

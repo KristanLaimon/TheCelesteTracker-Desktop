@@ -44,6 +44,12 @@ export function useCelesteLogic() {
   };
 
   onMount(() => {
+    // @ts-ignore
+    if (!window.__TAURI_INTERNALS__) {
+      console.warn("Not running in Tauri. Skipping invoke/listen.");
+      return;
+    }
+
     // Check for cached initial state
     invoke<CelesteEvent | null>("get_celeste_initial_state").then((cached) => {
       if (cached) {

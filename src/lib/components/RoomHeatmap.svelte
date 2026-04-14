@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { invoke } from "@tauri-apps/api/core";
   import type { RoomDeath } from "../types/entities";
-  import { Ghost } from "lucide-svelte";
+  import Monitoring from "~icons/material-symbols/monitoring";
 
   let { runId }: { runId: number } = $props();
   let roomDeaths = $state<RoomDeath[]>([]);
@@ -48,7 +48,7 @@
     </div>
   {:else if roomDeaths.length === 0}
     <div class="py-12 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl opacity-50">
-      <Ghost class="w-8 h-8 mb-2" />
+      <Monitoring class="w-8 h-8 mb-2" />
       <p class="text-xs font-bold uppercase tracking-widest">No room data recorded</p>
     </div>
   {:else}

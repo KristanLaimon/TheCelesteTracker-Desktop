@@ -1,5 +1,13 @@
 <script lang="ts">
     import Snow from "$lib/components/main/Snow.svelte";
+    import Dashboard from "~icons/material-symbols/dashboard";
+    import MountainFlag from "~icons/material-symbols/mountain-flag";
+    import Extension from "~icons/material-symbols/extension";
+    import Leaderboard from "~icons/material-symbols/leaderboard";
+    import Map from "~icons/material-symbols/map";
+    import History from "~icons/material-symbols/history";
+    import Timer from "~icons/material-symbols/timer";
+    import FilterHdr from "~icons/material-symbols/filter-hdr";
 </script>
 
 <style>
@@ -53,43 +61,33 @@
     <!-- Navigation Cards Grid -->
     <section class="px-6 md:px-12 -mt-6 relative z-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <!-- Dashboard / Overview -->
-            <!-- <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-(--hub-primary)/50 transition-all group" href="#"> -->
             <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl transition-all group cursor-auto" href="#">
-                <span class="material-symbols-outlined text-(--hub-primary) text-3xl mb-4 block group-hover:scale-110 transition-transform">dashboard</span>
+                <Dashboard class="text-(--hub-primary) text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Dashboard</h3>
                 <p class="text-xs text-zinc-500 mt-1">Overall progress &amp; stats</p>
             </a>
-            <!-- Vanilla Chapters -->
-            <!-- <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-(--hub-secondary)/50 transition-all group" href="#"> -->
             <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl  transition-all group cursor-auto" href="#">
-                <span class="material-symbols-outlined text-(--hub-secondary) text-3xl mb-4 block group-hover:scale-110 transition-transform">mountain_flag</span>
+                <MountainFlag class="text-(--hub-secondary) text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Vanilla Chapters</h3>
                 <p class="text-xs text-zinc-500 mt-1">Classic climb tracking</p>
             </a>
-            <!-- Modded Content -->
-            <!-- <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-(--hub-tertiary)/50 transition-all group" href="#"> -->
             <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl  transition-all group cursor-auto" href="#">
-                <span class="material-symbols-outlined text-(--hub-tertiary) text-3xl mb-4 block group-hover:scale-110 transition-transform">extension</span>
+                <Extension class="text-(--hub-tertiary) text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Modded Content</h3>
                 <p class="text-xs text-zinc-500 mt-1">Everest &amp; custom maps</p>
             </a>
-            <!-- CSR Roadmap -->
-            <!-- <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-purple-400/50 transition-all group" href="#"> -->
             <a class="opacity-40 bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl transition-all group cursor-auto" href="#">
-                <span class="material-symbols-outlined text-purple-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">leaderboard</span>
+                <Leaderboard class="text-purple-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">CSR Roadmap</h3>
                 <p class="text-xs text-zinc-500 mt-1">Global ranking goals</p>
             </a>
-            <!-- Map Collections -->
             <a class="bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-orange-400/50 transition-all group" href="/collections">
-                <span class="material-symbols-outlined text-orange-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">map</span>
+                <Map class="text-orange-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Collections</h3>
                 <p class="text-xs text-zinc-500 mt-1">Organize your levels</p>
             </a>
-            <!-- History -->
             <a class="bg-(--hub-card-bg) border border-(--hub-outline) p-6 rounded-2xl hover:border-blue-400/50 transition-all group" href="#">
-                <span class="material-symbols-outlined text-blue-400 text-3xl mb-4 block group-hover:scale-110 transition-transform">history</span>
+                <History class="text-blue-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Run History</h3>
                 <p class="text-xs text-zinc-500 mt-1">Full archive of ascents</p>
             </a>
@@ -101,7 +99,7 @@
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg accent-bg flex items-center justify-center">
-                    <span class="material-symbols-outlined text-white text-xl">timer</span>
+                    <Timer class="text-white text-xl" />
                 </div>
                 <h2 class="text-2xl font-headline font-bold text-white">Recent Run History</h2>
             </div>
@@ -123,7 +121,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded bg-(--hub-primary)/10 flex items-center justify-center text-(--hub-primary)">
-                                    <span class="material-symbols-outlined text-lg">filter_hdr</span>
+                                    <FilterHdr class="text-lg" />
                                 </div>
                                 <span class="font-bold text-zinc-200">Forsaken City (A-Side)</span>
                             </div>
@@ -137,63 +135,8 @@
                             <span class="text-green-400 font-bold text-sm">PB</span>
                         </td>
                     </tr>
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded bg-(--hub-tertiary)/10 flex items-center justify-center text-(--hub-tertiary)">
-                                    <span class="material-symbols-outlined text-lg">auto_awesome</span>
-                                </div>
-                                <span class="font-bold text-zinc-200">Strawberry Jam - Beginner Heart</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold bg-(--hub-primary)/10 text-(--hub-primary) uppercase tracking-tighter">Modded</span>
-                        </td>
-                        <td class="px-6 py-4 font-mono text-zinc-400">00:15:42.110</td>
-                        <td class="px-6 py-4 text-zinc-400">12</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="text-zinc-500 text-sm">Cleared</span>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded bg-purple-400/10 flex items-center justify-center text-purple-400">
-                                    <span class="material-symbols-outlined text-lg">diamond</span>
-                                </div>
-                                <span class="font-bold text-zinc-200">Mirror Temple (B-Side)</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold bg-(--hub-secondary)/10 text-(--hub-secondary) uppercase tracking-tighter">Vanilla</span>
-                        </td>
-                        <td class="px-6 py-4 font-mono text-zinc-400">00:08:12.880</td>
-                        <td class="px-6 py-4 text-zinc-400">4</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="text-zinc-500 text-sm">Cleared</span>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded bg-orange-400/10 flex items-center justify-center text-orange-400">
-                                    <span class="material-symbols-outlined text-lg">landscape</span>
-                                </div>
-                                <span class="font-bold text-zinc-200">Summit - Chapter 7</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold bg-(--hub-secondary)/10 text-(--hub-secondary) uppercase tracking-tighter">Vanilla</span>
-                        </td>
-                        <td class="px-6 py-4 font-mono text-zinc-400">00:32:05.112</td>
-                        <td class="px-6 py-4 text-zinc-400">84</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="text-zinc-500 text-sm">Cleared</span>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
     </section>
 </main>
-

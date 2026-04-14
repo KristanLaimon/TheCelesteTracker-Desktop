@@ -1,5 +1,7 @@
 <script lang="ts">
   import { celesteState } from '$lib/types/celeste_state.svelte';
+  import Terminal from "~icons/material-symbols/terminal";
+  import Wifi from "~icons/material-symbols/wifi";
 
   let { height = '2.5rem' } = $props();
 </script>
@@ -22,7 +24,7 @@
         </div>
         <div class="h-3 w-px bg-(--hub-outline)"></div>
         <div class="flex items-center gap-2">
-            <span class="material-symbols-outlined !text-[14px]">terminal</span>
+            <Terminal class="w-3.5 h-3.5" />
             <span>{celesteState.isConnected ? 'Client Linked' : 'System Ready'}</span>
         </div>
     </div>
@@ -30,7 +32,7 @@
         <span class="hover:text-(--hub-primary) cursor-pointer transition-colors hidden md:inline">GitHub Repository</span>
         <span class="hover:text-(--hub-primary) cursor-pointer transition-colors hidden md:inline">API Documentation</span>
         <div class="bg-zinc-900 px-2 py-0.5 rounded flex items-center gap-2">
-            <span class="material-symbols-outlined !text-[14px] {celesteState.isConnected ? 'text-green-500' : 'text-zinc-500'}">wifi</span>
+            <Wifi class="w-3.5 h-3.5 {celesteState.isConnected ? 'text-green-500' : 'text-zinc-500'}" />
             <span class="hidden xs:inline">{celesteState.isConnected ? 'Synchronized' : 'Offline'}</span>
         </div>
     </div>
