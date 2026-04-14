@@ -110,6 +110,10 @@
 - **TC-002**: Core backend logic MUST be implemented in Rust (Principle II).
 - **TC-003**: UI MUST use Svelte 5 Runes for state and minimize FPS impact (Principle III).
 - **TC-004**: All feature data MUST remain local to the user's machine (Principle IV).
+- **TC-005**: All core logic MUST be covered by separate Rust and Svelte unit tests (Quality Standards).
+- **TC-006**: Implementation MUST support `backend-only`, `frontend-only`, and `integration-tests` execution modes (Principle VI).
+- **TC-007**: Features MUST NOT use external libraries for simple logic that can be implemented manually (Principle VII).
+- **TC-008**: All new files MUST be placed in appropriate subdirectories; project root MUST remain clean (Principle VIII).
 
 ## Success Criteria *(mandatory)*
 

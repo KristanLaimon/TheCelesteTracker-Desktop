@@ -35,8 +35,13 @@
 - [ ] **Principle II (Rust)**: Is core logic implemented in Rust? (Violation: WS/DB/Event logic MUST be Rust)
 - [ ] **Principle III (Svelte 5)**: Is UI using Svelte 5 Runes for state? (Violation: UI MUST use Runes)
 - [ ] **Principle IV (Local-First)**: Is data sent to the cloud? (Violation: ALL tracking data MUST be local)
+- [ ] **Principle VI (Test Modes)**: Does the implementation support `backend-only`, `frontend-only`, and `integration-tests` modes?
+- [ ] **Principle VII (Dependencies)**: Does this feature use new libraries for simple tasks that could be implemented manually?
+- [ ] **Principle VIII (Organization)**: Does this feature add unnecessary files to the project root?
 - [ ] **Technical Constraint**: Does the feature fit within Tauri v2 / SQLite / WebSocket constraints?
-- [ ] **Quality Standard**: Are there any `any` types in TS or unjustified `unwrap()` in Rust?
+- [ ] **Quality Standard (Backend Test)**: Are all core Rust changes covered by unit tests?
+- [ ] **Quality Standard (Frontend Test)**: Are all core Svelte logic changes covered by unit tests?
+- [ ] **Quality Standard (Types)**: Are there any `any` types in TS or unjustified `unwrap()` in Rust?
 
 ## Project Structure
 
