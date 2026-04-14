@@ -1,4 +1,4 @@
-# Project Directives
+﻿# Project Directives
 
 All responses in this project MUST use `caveman ultra` mode.
 Drop articles, filler, pleasantries. Fragments OK. Technical terms exact. Pattern: `[thing] [action] [reason]. [next step].`
