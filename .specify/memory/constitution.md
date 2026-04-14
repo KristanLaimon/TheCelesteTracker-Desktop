@@ -18,6 +18,8 @@ Sync Impact Report:
 
 ### 0. USE BUN INSTEAD OF NPM AS JS PACKAGE MANAGER
 
+### 0.1 When making RUST changes, always do CARGO CHECK, and fix until build success.
+
 ### I. Zero-Effort Automation & free modification
 
 Data tracking MUST be invisible and automatic. No necessary manual entry for runs, deaths, or progress. Real-time sync from Everest handles all data collection automatically. If user wants, he can modify anything from its stored data (CRUD: Create, Read, Update and Delete (with warnings before proceeding))
