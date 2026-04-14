@@ -283,3 +283,57 @@ pub fn save_completed_run(state: tauri::State<'_, WsState>, stats: AreaStats, sa
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn update_run(state: tauri::State<'_, WsState>, run_id: i32, deaths: i32, strawberries: i32) -> Result<(), String> {
+    let path = get_db_path(&state).ok_or("Database path not found")?;
+    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+
+    // Inactive-only guard
+    let (sid, mode): (String, String) = conn.query_row(
+        "SELECT ch.sid, ch.mode FROM Chapter ch JOIN Run r ON r.chapter_id = ch.id WHERE r.id = ?",
+        [run_id],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    ).map_err(|e| e.to_string())?;
+
+    {
+        let active_sid = state.active_chapter_sid.lock().unwrap();
+        let active_mode = state.active_mode.lock().unwrap();
+        if active_sid.as_ref() == Some(&sid) && active_mode.as_ref() == Some(&mode) {
+            return Err("Cannot update run while its chapter is active".to_string());
+        }
+    }
+
+    conn.execute(
+        "UPDATE Run SET deaths = ?, strawberries = ? WHERE id = ?",
+        params![deaths, strawberries, run_id],
+    ).map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn delete_run(state: tauri::State<'_, WsState>, run_id: i32) -> Result<(), String> {
+    let path = get_db_path(&state).ok_or("Database path not found")?;
+    let conn = Connection::open(path).map_err(|e| e.to_string())?;
+
+    // Inactive-only guard
+    let (sid, mode): (String, String) = conn.query_row(
+        "SELECT ch.sid, ch.mode FROM Chapter ch JOIN Run r ON r.chapter_id = ch.id WHERE r.id = ?",
+        [run_id],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    ).map_err(|e| e.to_string())?;
+
+    {
+        let active_sid = state.active_chapter_sid.lock().unwrap();
+        let active_mode = state.active_mode.lock().unwrap();
+        if active_sid.as_ref() == Some(&sid) && active_mode.as_ref() == Some(&mode) {
+            return Err("Cannot delete run while its chapter is active".to_string());
+        }
+    }
+
+    conn.execute("DELETE FROM Run WHERE id = ?", [run_id]).map_err(|e| e.to_string())?;
+    conn.execute("DELETE FROM RoomDeath WHERE run_id = ?", [run_id]).map_err(|e| e.to_string())?;
+
+    Ok(())
+}

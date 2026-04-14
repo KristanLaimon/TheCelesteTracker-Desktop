@@ -83,8 +83,8 @@ description: "Task list for Automated Progress Sync & Statistics CRUD"
 
 ### Implementation for User Story 3
 
-- [ ] T020 [P] [US3] Implement `update_run` and `delete_run` commands with "inactive-only" guard in `src-tauri/src/db.rs`
-- [ ] T021 [US3] Create `src/lib/components/RunEditor.svelte` with CRUD interface
+- [x] T020 [P] [US3] Implement `update_run` and `delete_run` commands with "inactive-only" guard in `src-tauri/src/db.rs`
+- [x] T021 [US3] Create `src/lib/components/RunEditor.svelte` with CRUD interface
 - [ ] T022 [US3] Add validation logic to `sync_store.svelte.ts` to disable editing for the currently tracked run
 
 ---

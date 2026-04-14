@@ -87,12 +87,32 @@ class SyncStore {
     }
   }
 
-  async fetchRuns(chapterId: number) {
+  async fetchRuns(chapter_id: number) {
     try {
-      this.runs = await invoke<Run[]>("get_runs", { chapterId });
-      this.activeChapterId = chapterId;
+      this.runs = await invoke<Run[]>("get_runs", { chapterId: chapter_id });
+      this.activeChapterId = chapter_id;
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  async updateRun(runId: number, deaths: number, strawberries: number) {
+    try {
+      await invoke("update_run", { runId, deaths, strawberries });
+      if (this.activeChapterId) await this.fetchRuns(this.activeChapterId);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
+  async deleteRun(runId: number) {
+    try {
+      await invoke("delete_run", { runId });
+      if (this.activeChapterId) await this.fetchRuns(this.activeChapterId);
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   }
 }

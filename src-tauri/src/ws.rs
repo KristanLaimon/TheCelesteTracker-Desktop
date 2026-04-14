@@ -7,6 +7,8 @@ use tokio_tungstenite::connect_async;
 
 pub struct WsState {
     pub last_db_location: Mutex<Option<CelesteEvent>>,
+    pub active_chapter_sid: Mutex<Option<String>>,
+    pub active_mode: Mutex<Option<String>>,
 }
 
 pub fn start_websocket_handler(app_handle: AppHandle) {
@@ -32,6 +34,22 @@ pub fn start_websocket_handler(app_handle: AppHandle) {
                                                     let mut cache = state.last_db_location.lock().unwrap();
                                                     *cache = Some(event.clone());
                                                     println!("DB PATH SYNCED: {}", Path);
+                                                }
+                                            }
+                                            CelesteEvent::LevelStart { AreaSid, Mode, .. } => {
+                                                if let Some(state) = app_handle.try_state::<WsState>() {
+                                                    let mut sid = state.active_chapter_sid.lock().unwrap();
+                                                    let mut mode = state.active_mode.lock().unwrap();
+                                                    *sid = Some(AreaSid.clone());
+                                                    *mode = Some(Mode.clone());
+                                                }
+                                            }
+                                            CelesteEvent::AreaComplete { .. } => {
+                                                if let Some(state) = app_handle.try_state::<WsState>() {
+                                                    let mut sid = state.active_chapter_sid.lock().unwrap();
+                                                    let mut mode = state.active_mode.lock().unwrap();
+                                                    *sid = None;
+                                                    *mode = None;
                                                 }
                                             }
                                             _ => {}
