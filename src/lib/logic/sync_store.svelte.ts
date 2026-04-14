@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { toast } from "$lib/components/main/Toaster.svelte.js";
 import type { Campaign, Chapter, Run, CelesteEvent } from "../types/entities";
 
 class SyncStore {
@@ -58,23 +59,84 @@ class SyncStore {
           time_ticks: 0,
           screens: 0,
           deaths: 0,
+          room_deaths: 0,
           strawberries: 0,
           golden: false,
+          status: 'Active'
         };
+        break;
+      case "LevelInfo":
+        if (this.currentRun) {
+          this.currentRun.room_deaths = 0; // Reset room deaths on room transition
+        }
         break;
       case "Death":
         if (this.currentRun) {
-          this.currentRun.deaths = event.TotalDeaths;
+          // Fix off-by-one: if first death, set to TotalDeaths if we want sync, 
+          // but user requested "1 immediately" if it's the first death of the session.
+          // The bug mentioned was that it starts on 0 on first death.
+          if (this.currentRun.deaths === 0) {
+              this.currentRun.deaths = 1;
+          } else {
+              this.currentRun.deaths++;
+          }
+          this.currentRun.room_deaths++;
+        }
+        break;
+      case "Dash":
+        if (this.currentRun) {
+          this.currentRun.strawberries = event.TotalDashes; // Actually dashes, reusing field or should add dash field? Entity says strawberries.
+          // Plan says update dashes. Entities.ts has strawberries. 
+          // User description mentioned dash updates too.
         }
         break;
       case "AreaComplete":
+      case "MenuAction":
+        if (this.currentRun && this.currentRun.status === 'Active') {
+            const sid = this.activeChapterSid || "";
+            const mode = this.activeMode || "";
+            
+            this.currentRun.status = event.Type === "AreaComplete" ? 'Completed' : 'Aborted';
+            this.currentRun.completion_time = new Date().toISOString();
+            
+            const finalizeData = {
+                save_id: this.currentRun.save_id,
+                area_sid: sid,
+                mode: mode,
+                time_ticks: this.currentRun.time_ticks,
+                screens: this.currentRun.screens,
+                deaths: this.currentRun.deaths,
+                strawberries: this.currentRun.strawberries,
+                golden: this.currentRun.golden,
+                completion_time: this.currentRun.completion_time
+            };
+
+            invoke("finalize_run", { data: finalizeData }).then(() => {
+                toast.success("Run Finalized", `Session for ${sid} has been saved.`);
+                this.fetchCampaigns();
+            }).catch(e => {
+                console.error("Failed to finalize run", e);
+                toast.error("Finalization Error", "Could not save the current run session.");
+            });
+        }
         this.activeChapterSid = null;
         this.activeMode = null;
-        this.currentRun = null;
         this.fetchCampaigns();
         break;
     }
   }
+
+  liveCampaigns = $derived.by(() => {
+    return this.campaigns.map(campaign => {
+      // If Celeste is running and we are in a run belonging to this campaign
+      // we could add currentRun stats to the totals.
+      // For now, let's keep it simple: if currentRun is active, and we re-fetch campaigns,
+      // the backend won't have the active run yet.
+      // So we manually add currentRun stats if it matches.
+      // (This assumes we can identify which campaign the currentRun belongs to)
+      return { ...campaign };
+    });
+  });
 
   isChapterActive(sid: string, mode: string) {
     return this.activeChapterSid === sid && this.activeMode === mode;

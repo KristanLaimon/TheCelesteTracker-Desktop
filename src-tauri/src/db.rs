@@ -49,8 +49,49 @@ pub struct Run {
     pub time_ticks: i64,
     pub screens: i32,
     pub deaths: i32,
+    pub room_deaths: i32,
     pub strawberries: i32,
     pub golden: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct FinalizeRunData {
+    pub save_id: i32,
+    pub area_sid: String,
+    pub mode: String,
+    pub time_ticks: i64,
+    pub screens: i32,
+    pub deaths: i32,
+    pub strawberries: i32,
+    pub golden: bool,
+    pub completion_time: String, // ISO string from frontend or system time
+}
+
+#[tauri::command]
+pub fn finalize_run(state: tauri::State<'_, WsState>, data: FinalizeRunData) -> Result<(), String> {
+    let mut conn = get_conn(&state)?;
+    let tx = conn.transaction().map_err(|e| e.to_string())?;
+
+    let campaign_id = ensure_campaign(&tx, "Celeste").map_err(|e| e.to_string())?;
+    let chapter_id = ensure_chapter(&tx, campaign_id, &data.area_sid, &data.area_sid, &data.mode).map_err(|e| e.to_string())?;
+
+    tx.execute(
+        "INSERT INTO Run (save_id, chapter_id, completion_time, time_ticks, screens, deaths, strawberries, golden)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        params![
+            data.save_id,
+            chapter_id,
+            data.completion_time,
+            data.time_ticks,
+            data.screens,
+            data.deaths,
+            data.strawberries,
+            if data.golden { 1 } else { 0 }
+        ],
+    ).map_err(|e| e.to_string())?;
+
+    tx.commit().map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

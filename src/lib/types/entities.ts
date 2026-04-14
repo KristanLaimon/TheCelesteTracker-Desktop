@@ -32,6 +32,8 @@ export interface Chapter {
   has_golden: boolean;
 }
 
+export type RunStatus = 'Active' | 'Completed' | 'Aborted';
+
 export interface Run {
   id: number;
   save_id: number;
@@ -40,8 +42,10 @@ export interface Run {
   time_ticks: number;
   screens: number;
   deaths: number;
+  room_deaths: number;
   strawberries: number;
   golden: boolean;
+  status: RunStatus;
 }
 
 export interface RoomDeath {

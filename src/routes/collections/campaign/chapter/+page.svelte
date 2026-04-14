@@ -3,6 +3,7 @@
     import { invoke } from "@tauri-apps/api/core";
     import type { Run } from "$lib/types/events";
     import { celesteState } from "$lib/types/celeste_state.svelte";
+    import { syncStore } from "$lib/logic/sync_store.svelte";
     import { formatChapterName, formatTime } from "$lib/utils";
 
     let chapterId = $derived(Number(page.url.searchParams.get("id")));
@@ -13,6 +14,17 @@
     let runs = $state<Run[]>([]);
     let loading = $state(true);
     let error = $state<string | null>(null);
+
+    let displayRuns = $derived.by(() => {
+        let allRuns = [...runs];
+        if (syncStore.currentRun && syncStore.isChapterActive(chapterSid, chapterMode || "")) {
+            // Check if already in list to avoid duplicates if backend updated
+            if (!allRuns.some(r => r.id === syncStore.currentRun?.id)) {
+                allRuns = [syncStore.currentRun, ...allRuns];
+            }
+        }
+        return allRuns;
+    });
 
     let stats = $derived({
         bestTime: runs.filter(r => r.completion_time).sort((a, b) => a.time_ticks - b.time_ticks)[0],
@@ -107,16 +119,21 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
-                        {#each runs as run}
-                            <tr class="group hover:bg-white/5 transition-colors">
+                        {#each displayRuns as run}
+                            <tr class="group hover:bg-white/5 transition-colors {run.status === 'Active' ? 'bg-(--hub-primary)/5 border-l-4 border-(--hub-primary)' : ''}">
                                 <td class="px-8 py-4 text-zinc-400 text-sm">
-                                    {run.completion_time ? new Date(run.completion_time).toLocaleDateString() : 'In Progress'}
+                                    {run.status === 'Active' ? 'NOW' : (run.completion_time ? new Date(run.completion_time).toLocaleDateString() : 'In Progress')}
                                 </td>
                                 <td class="px-8 py-4 font-mono text-white">
                                     {formatTime(run.time_ticks)}
                                 </td>
                                 <td class="px-8 py-4 text-[#ff788c] font-bold">
-                                    {run.deaths}
+                                    <div class="flex flex-col">
+                                        <span>{run.deaths}</span>
+                                        {#if run.status === 'Active'}
+                                            <span class="text-[10px] text-zinc-500 uppercase">Room: {run.room_deaths}</span>
+                                        {/if}
+                                    </div>
                                 </td>
                                 <td class="px-8 py-4 text-[#ffc971]">
                                     🍓 {run.strawberries}
@@ -124,6 +141,8 @@
                                 <td class="px-8 py-4">
                                     {#if run.golden}
                                         <span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded border border-yellow-500/20">GOLDEN</span>
+                                    {:else if run.status === 'Active'}
+                                        <span class="px-2 py-1 bg-(--hub-primary)/10 text-(--hub-primary) text-[10px] font-bold rounded border border-(--hub-primary)/20 animate-pulse">ACTIVE</span>
                                     {:else if run.completion_time}
                                         <span class="px-2 py-1 bg-green-500/10 text-green-500 text-[10px] font-bold rounded border border-green-500/20">FINISHED</span>
                                     {:else}

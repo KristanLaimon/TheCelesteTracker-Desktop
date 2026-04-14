@@ -6,10 +6,10 @@
   import Folder from "~icons/material-symbols/folder";
   import type { Campaign } from "../types/entities";
 
-  let rootCampaigns = $derived(syncStore.campaigns.filter(c => !c.parent_campaign_id));
+  let rootCampaigns = $derived(syncStore.liveCampaigns.filter(c => !c.parent_campaign_id));
 
   function getChildren(id: number) {
-    return syncStore.campaigns.filter(c => c.parent_campaign_id === id);
+    return syncStore.liveCampaigns.filter(c => c.parent_campaign_id === id);
   }
 
   function selectCampaign(id: number) {

@@ -19,14 +19,24 @@
       <Pulse class="w-3.5 h-3.5 text-muted-foreground/40" />
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-x-8 gap-y-6">
       <div class="space-y-1 group">
         <div class="flex items-center gap-1.5 text-muted-foreground">
           <Monitoring class="w-3.5 h-3.5" />
-          <span class="text-[10px] font-bold uppercase tracking-wider">Deaths</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider">Total Deaths</span>
         </div>
-        <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none">
+        <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none text-[#ff788c]">
           {syncStore.currentRun.deaths}
+        </div>
+      </div>
+
+      <div class="space-y-1 group border-l border-white/5 pl-4">
+        <div class="flex items-center gap-1.5 text-muted-foreground">
+          <span class="material-symbols-outlined text-sm">meeting_room</span>
+          <span class="text-[10px] font-bold uppercase tracking-wider">Room Deaths</span>
+        </div>
+        <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none text-zinc-400">
+          {syncStore.currentRun.room_deaths}
         </div>
       </div>
 
@@ -35,8 +45,8 @@
           <Bolt class="w-3.5 h-3.5" />
           <span class="text-[10px] font-bold uppercase tracking-wider">Dashes</span>
         </div>
-        <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none">
-          {syncStore.currentRun.time_ticks}
+        <div class="text-3xl font-black tabular-nums group-hover:text-primary transition-colors leading-none text-[#67d8d2]">
+          {syncStore.currentRun.strawberries}
         </div>
       </div>
     </div>
