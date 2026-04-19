@@ -24,7 +24,7 @@
   "devDependencies": {
     "@fontsource-variable/inter": "5.2.8",
     "@iconify-json/lucide": "1.2.102",
-    "@iconify-json/material-symbols": "1.2.66",
+    "@iconify-json/material-symbols": "^1.2.67",
     "@sveltejs/adapter-static": "3.0.10",
     "@sveltejs/enhanced-img": "0.10.4",
     "@sveltejs/kit": "2.57.1",

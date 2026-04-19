@@ -1,4 +1,4 @@
-import type { CelesteEvent } from './events';
+import type { CelesteEvent } from './entities';
 
 export const celesteState = $state({
     currentEvent: null as CelesteEvent | null,

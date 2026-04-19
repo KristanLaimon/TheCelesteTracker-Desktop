@@ -1,6 +1,6 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import type { Campaign } from "$lib/types/events";
+    import type { Campaign } from "$lib/types/entities";
     import { celesteState } from "$lib/types/celeste_state.svelte";
     import { formatTime } from "$lib/utils";
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { toast } from "./Toaster.svelte.ts";
+  import { toast } from "./Toaster.svelte.js";
   import { fly } from "svelte/transition";
   import { backOut } from "svelte/easing";
 

@@ -1,6 +1,6 @@
 import { toast } from "$lib/components/main/Toaster.svelte.js";
 import { celesteState } from "$lib/types/celeste_state.svelte";
-import type { CelesteEvent } from "$lib/types/events";
+import type { CelesteEvent } from "../types/entities";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
@@ -22,17 +22,8 @@ export function useCelesteLogic() {
           `Everest: ${payload.EverestVersion} | Mod: ${payload.ModVersion}`,
         );
         break;
-      case "LevelStart":
-      case "LevelInfo":
-        celesteState.activeLevel = {
-          AreaSid: payload.AreaSid,
-          RoomName: payload.RoomName,
-          Mode: payload.Mode,
-        };
-        break;
       case "Death":
         celesteState.stats.totalDeaths = payload.TotalDeaths;
-        celesteState.stats.roomDeaths = payload.RoomDeaths;
         break;
       case "Dash":
         celesteState.stats.totalDashes = payload.TotalDashes;

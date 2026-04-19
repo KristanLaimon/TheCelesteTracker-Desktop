@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from "$app/state";
     import { invoke } from "@tauri-apps/api/core";
-    import type { Run } from "$lib/types/events";
+    import type { Run } from "$lib/types/entities";
     import { celesteState } from "$lib/types/celeste_state.svelte";
     import { syncStore } from "$lib/logic/sync_store.svelte";
     import { formatChapterName, formatTime } from "$lib/utils";
