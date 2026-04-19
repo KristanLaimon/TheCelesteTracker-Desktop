@@ -80,7 +80,7 @@
         <div class="col-span-2 text-center">Golden</div>
       </div>
       
-      <div class="flex flex-col gap-4 sm:gap-0 sm:divide-y sm:divide-[var(--mapscollection-outline)]">
+      <div class="flex flex-col gap-4 sm:gap-0 sm:divide-y sm:divide-(--mapscollection-outline)">
         {#each chapters as chapter}
           <a href="/collections/campaign/chapter/{chapter.id}"
             class="bg-zinc-900/50 sm:bg-transparent border-none rounded-xl sm:rounded-none overflow-hidden group hover:bg-white/5 transition-all {chapter.has_golden ? 'border-l-4 border-yellow-500 bg-yellow-500/5' : ''}"

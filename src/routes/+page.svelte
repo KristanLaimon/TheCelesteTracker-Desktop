@@ -61,22 +61,22 @@
     <!-- Navigation Cards Grid -->
     <section class="px-6 md:px-12 -mt-6 relative z-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl transition-all group cursor-auto" href="#">
+            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl transition-all group cursor-auto" href="/">
                 <Dashboard class="text-hub-primary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Dashboard</h3>
                 <p class="text-xs text-zinc-500 mt-1">Overall progress &amp; stats</p>
             </a>
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl  transition-all group cursor-auto" href="#">
+            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl  transition-all group cursor-auto" href="/">
                 <MountainFlag class="text-hub-secondary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Vanilla Chapters</h3>
                 <p class="text-xs text-zinc-500 mt-1">Classic climb tracking</p>
             </a>
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl  transition-all group cursor-auto" href="#">
+            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl  transition-all group cursor-auto" href="/">
                 <Extension class="text-hub-tertiary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Modded Content</h3>
                 <p class="text-xs text-zinc-500 mt-1">Everest &amp; custom maps</p>
             </a>
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl transition-all group cursor-auto" href="#">
+            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl transition-all group cursor-auto" href="/">
                 <Leaderboard class="text-purple-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">CSR Roadmap</h3>
                 <p class="text-xs text-zinc-500 mt-1">Global ranking goals</p>
@@ -86,7 +86,7 @@
                 <h3 class="font-headline font-bold text-white text-lg">Collections</h3>
                 <p class="text-xs text-zinc-500 mt-1">Organize your levels</p>
             </a>
-            <a class="bg-hub-card-bg border border-hub-outline p-6 rounded-2xl hover:border-blue-400/50 transition-all group" href="#">
+            <a class="bg-hub-card-bg border border-hub-outline p-6 rounded-2xl hover:border-blue-400/50 transition-all group" href="/">
                 <History class="text-blue-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
                 <h3 class="font-headline font-bold text-white text-lg">Run History</h3>
                 <p class="text-xs text-zinc-500 mt-1">Full archive of ascents</p>
@@ -116,7 +116,7 @@
                         <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold text-right">Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[var(--hub-outline)]/50">
+                <tbody class="divide-y divide-(--hub-outline)/50">
                     <tr class="hover:bg-white/5 transition-colors group">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
