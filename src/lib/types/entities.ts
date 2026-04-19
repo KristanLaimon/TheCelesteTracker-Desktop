@@ -64,5 +64,9 @@ export type CelesteEvent =
   | { Type: 'Death'; TotalDeaths: number; Room: string }
   | { Type: 'Jump'; TotalJumps: number; RoomJumps: number }
   | { Type: 'Dash'; TotalDashes: number; RoomDashes: number }
-  | { Type: 'StrawberryGrabbed'; IsGolden: bool; Room: string }
-  | { Type: 'StrawberryCollected'; IsGolden: bool; IsGhost: bool; Room: string };
+  | { Type: 'StrawberryGrabbed'; IsGolden: boolean; Room: string }
+  | { Type: 'StrawberryCollected'; IsGolden: boolean; IsGhost: boolean; Room: string }
+  | { Type: 'LevelStart'; AreaSid: string; RoomName: string; Mode: string }
+  | { Type: 'LevelInfo'; AreaSid: string; RoomName: string; Mode: string }
+  | { Type: 'AreaComplete'; Stats: AreaStats }
+  | { Type: 'MenuAction'; Action: string };
