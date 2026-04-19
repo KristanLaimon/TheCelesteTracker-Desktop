@@ -16,28 +16,13 @@
     // Logic extracted to separate file
     useCelesteLogic();
 
-    let currentTheme = $state("dark");
-
     onMount(async () => {
         // @ts-ignore
         if (!window.__TAURI_INTERNALS__) return;
-
-        try {
-            const settings = await invoke<{ start_behavior: string, last_active_slot: number, theme: string }>("get_settings");
-            currentTheme = settings.theme;
-            
-            if (settings.start_behavior === "last-session") {
-                goto("/collections");
-            } else if (settings.start_behavior === "specific") {
-                goto("/collections");
-            }
-        } catch (e) {
-          console.error("Failed to load settings for navigation", e);
-        }
     });
 </script>
 
-<div class={currentTheme} style="min-height: 100vh; background-color: var(--background); color: var(--foreground);">
+<div class="dark" style="min-height: 100vh; background-color: var(--background); color: var(--foreground);">
   <Header />
   
   <div class="relative z-0">
