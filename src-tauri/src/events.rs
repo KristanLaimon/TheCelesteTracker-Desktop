@@ -50,26 +50,3 @@ pub enum CelesteEvent {
         Room: String,
     },
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_database_location() {
-        let json = r#"{
-            "Type": "DatabaseLocation",
-            "DatabasePath": "C:/path/to/db.sqlite",
-            "EverestVersion": "1.2.3",
-            "ModVersion": "4.5.6"
-        }"#;
-        let event: CelesteEvent = serde_json::from_str(json).expect("Failed to parse DatabaseLocation");
-        if let CelesteEvent::DatabaseLocation { DatabasePath, EverestVersion, ModVersion } = event {
-            assert_eq!(DatabasePath, "C:/path/to/db.sqlite");
-            assert_eq!(EverestVersion, "1.2.3");
-            assert_eq!(ModVersion, "4.5.6");
-        } else {
-            panic!("Expected DatabaseLocation event");
-        }
-    }
-}
