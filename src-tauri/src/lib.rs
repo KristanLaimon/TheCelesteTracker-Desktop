@@ -20,8 +20,6 @@ pub async fn run() {
     tauri::Builder::default()
         .manage(WsState {
             last_db_location: Mutex::new(None),
-            active_chapter_sid: Mutex::new(None),
-            active_mode: Mutex::new(None),
         })
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {

@@ -104,10 +104,15 @@ pub struct RoomDeath {
 
 pub fn get_db_path(state: &WsState) -> Option<String> {
     let cache = state.last_db_location.lock().unwrap();
-    if let Some(CelesteEvent::DatabaseLocation { Path, .. }) = &*cache {
-        return Some(Path.clone());
+    if let Some(event) = &*cache {
+        match event {
+            CelesteEvent::DatabaseLocation { DatabasePath, .. } => Some(DatabasePath.clone()),
+            CelesteEvent::ModStarted { DatabasePath, .. } => Some(DatabasePath.clone()),
+            _ => None,
+        }
+    } else {
+        None
     }
-    None
 }
 
 pub fn get_conn(state: &WsState) -> Result<Connection, String> {
@@ -263,6 +268,7 @@ pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec
             time_ticks: row.get(4)?,
             screens: row.get(5)?,
             deaths: row.get(6)?,
+            room_deaths: 0,
             strawberries: row.get(7)?,
             golden: row.get::<_, i32>(8)? == 1,
         })
@@ -383,21 +389,6 @@ pub fn save_completed_run(state: tauri::State<'_, WsState>, stats: AreaStats, sa
 pub fn update_run(state: tauri::State<'_, WsState>, run_id: i32, deaths: i32, strawberries: i32) -> Result<(), String> {
     let conn = get_conn(&state)?;
 
-    // Inactive-only guard
-    let (sid, mode): (String, String) = conn.query_row(
-        "SELECT ch.sid, ch.mode FROM Chapter ch JOIN Run r ON r.chapter_id = ch.id WHERE r.id = ?",
-        [run_id],
-        |row| Ok((row.get(0)?, row.get(1)?)),
-    ).map_err(|e| e.to_string())?;
-
-    {
-        let active_sid = state.active_chapter_sid.lock().unwrap();
-        let active_mode = state.active_mode.lock().unwrap();
-        if active_sid.as_ref() == Some(&sid) && active_mode.as_ref() == Some(&mode) {
-            return Err("Cannot update run while its chapter is active".to_string());
-        }
-    }
-
     conn.execute(
         "UPDATE Run SET deaths = ?, strawberries = ? WHERE id = ?",
         params![deaths, strawberries, run_id],
@@ -409,21 +400,6 @@ pub fn update_run(state: tauri::State<'_, WsState>, run_id: i32, deaths: i32, st
 #[tauri::command]
 pub fn delete_run(state: tauri::State<'_, WsState>, run_id: i32) -> Result<(), String> {
     let conn = get_conn(&state)?;
-
-    // Inactive-only guard
-    let (sid, mode): (String, String) = conn.query_row(
-        "SELECT ch.sid, ch.mode FROM Chapter ch JOIN Run r ON r.chapter_id = ch.id WHERE r.id = ?",
-        [run_id],
-        |row| Ok((row.get(0)?, row.get(1)?)),
-    ).map_err(|e| e.to_string())?;
-
-    {
-        let active_sid = state.active_chapter_sid.lock().unwrap();
-        let active_mode = state.active_mode.lock().unwrap();
-        if active_sid.as_ref() == Some(&sid) && active_mode.as_ref() == Some(&mode) {
-            return Err("Cannot delete run while its chapter is active".to_string());
-        }
-    }
 
     conn.execute("DELETE FROM Run WHERE id = ?", [run_id]).map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM RoomDeath WHERE run_id = ?", [run_id]).map_err(|e| e.to_string())?;

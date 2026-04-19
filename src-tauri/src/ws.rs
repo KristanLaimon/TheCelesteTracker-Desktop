@@ -10,8 +10,6 @@ use sysinfo::{ProcessRefreshKind, RefreshKind, System, ProcessesToUpdate};
 
 pub struct WsState {
     pub last_db_location: Mutex<Option<CelesteEvent>>,
-    pub active_chapter_sid: Mutex<Option<String>>,
-    pub active_mode: Mutex<Option<String>>,
 }
 
 fn is_celeste_running() -> bool {
@@ -60,36 +58,21 @@ pub fn start_websocket_handler(app_handle: AppHandle) {
                                 match serde_json::from_str::<CelesteEvent>(text) {
                                     Ok(event) => {
                                         match &event {
-                                            CelesteEvent::DatabaseLocation { Path, .. } => {
+                                            CelesteEvent::DatabaseLocation { DatabasePath, .. } | 
+                                            CelesteEvent::ModStarted { DatabasePath, .. } => {
                                                 if let Some(state) = app_handle.try_state::<WsState>() {
                                                     let mut cache = state.last_db_location.lock().unwrap();
                                                     *cache = Some(event.clone());
-                                                    println!("DB PATH SYNCED: {}", Path);
+                                                    println!("DB PATH SYNCED: {}", DatabasePath);
 
                                                     // Initialize/Update schema
-                                                    if let Ok(conn) = Connection::open(Path) {
+                                                    if let Ok(conn) = Connection::open(DatabasePath) {
                                                         if let Err(e) = init_schema(&conn) {
                                                             println!("SCHEMA INIT ERROR: {}", e);
                                                         } else {
                                                             println!("SCHEMA INITIALIZED/UPDATED");
                                                         }
                                                     }
-                                                }
-                                            }
-                                            CelesteEvent::LevelStart { AreaSid, Mode, .. } => {
-                                                if let Some(state) = app_handle.try_state::<WsState>() {
-                                                    let mut sid = state.active_chapter_sid.lock().unwrap();
-                                                    let mut mode = state.active_mode.lock().unwrap();
-                                                    *sid = Some(AreaSid.clone());
-                                                    *mode = Some(Mode.clone());
-                                                }
-                                            }
-                                            CelesteEvent::AreaComplete { .. } => {
-                                                if let Some(state) = app_handle.try_state::<WsState>() {
-                                                    let mut sid = state.active_chapter_sid.lock().unwrap();
-                                                    let mut mode = state.active_mode.lock().unwrap();
-                                                    *sid = None;
-                                                    *mode = None;
                                                 }
                                             }
                                             _ => {}

@@ -7,11 +7,9 @@ One word when one word enough.
 
 Refer to `caveman` skill for exact style.
 
-# API Websocket to check
+# Documentation from MOD
 
-check ./API.md
+READ ./documentation/WebSockets_Events.md
+READ ./Database_FullSchema.md
 
 
-# Database schenma
-
-check ./Database.md
