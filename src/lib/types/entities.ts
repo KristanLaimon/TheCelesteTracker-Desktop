@@ -1,15 +1,3 @@
-export interface User {
-  id: number;
-  name: string;
-}
-
-export interface SaveData {
-  id: number;
-  user_id: number;
-  slot_number: number;
-  file_name: string;
-}
-
 export interface Campaign {
   id: number;
   name: string;
@@ -55,12 +43,6 @@ export interface RoomDeath {
   deaths: number;
 }
 
-export interface AppSettings {
-  start_behavior: 'main-menu' | 'last-session' | 'specific';
-  theme: string;
-  last_active_slot: number;
-}
-
 export interface AreaStats {
   AreaSID: string;
   Mode: string;
@@ -69,16 +51,18 @@ export interface AreaStats {
   TimeTicks: number;
   Deaths: number;
   DeathsPerScreen: Record<string, number>;
-  PersonalBestTime: number;
-  PersonalBestDeaths: number;
   Golden: boolean;
 }
 
 export type CelesteEvent = 
-  | { Type: 'DatabaseLocation'; Path: string; EverestVersion: string; ModVersion: string }
-  | { Type: 'LevelStart'; AreaSid: string; RoomName: string; Mode: string }
-  | { Type: 'LevelInfo'; AreaSid: string; RoomName: string; Mode: string }
-  | { Type: 'Death'; TotalDeaths: number; RoomDeaths: number; RoomName: string }
-  | { Type: 'Dash'; TotalDashes: number }
-  | { Type: 'MenuAction'; Action: string }
-  | { Type: 'AreaComplete'; Stats: AreaStats };
+  | { Type: 'DatabaseLocation'; DatabasePath: string; EverestVersion: string; ModVersion: string }
+  | { Type: 'ModStarted'; DatabasePath: string; Timestamp: string }
+  | { Type: 'GameClosing'; IsClosing: boolean; Reason: string; Exception?: string }
+  | { Type: 'SessionStarted'; Session: any }
+  | { Type: 'RoomEntered'; Room: string; SessionId: string }
+  | { Type: 'SessionExited'; SessionId: string }
+  | { Type: 'Death'; TotalDeaths: number; Room: string }
+  | { Type: 'Jump'; TotalJumps: number; RoomJumps: number }
+  | { Type: 'Dash'; TotalDashes: number; RoomDashes: number }
+  | { Type: 'StrawberryGrabbed'; IsGolden: bool; Room: string }
+  | { Type: 'StrawberryCollected'; IsGolden: bool; IsGhost: bool; Room: string };

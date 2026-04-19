@@ -1,10 +1,6 @@
 <script lang="ts">
   import strawberry from '$lib/assets/strawberry.gif';
-  import SettingsModal from '../Settings.svelte';
-  import Settings from "~icons/material-symbols/settings";
   import Notifications from "~icons/material-symbols/notifications";
-  
-  let showSettings = $state(false);
 </script>
 
 <!-- Header -->
@@ -17,12 +13,6 @@
   </div>
   <div class="flex items-center gap-4 md:gap-6">
     <div class="flex items-center gap-2">
-      <button 
-        onclick={() => showSettings = true}
-        class="p-2 text-zinc-400 hover:text-white transition-colors"
-      >
-        <Settings class="w-5 h-5" />
-      </button>
       <button class="p-2 text-zinc-400 hover:text-white transition-colors relative">
         <Notifications class="w-5 h-5" />
         <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border border-zinc-950"></span>
@@ -36,7 +26,3 @@
     </div>
   </div>
 </header>
-
-{#if showSettings}
-  <SettingsModal onclose={() => showSettings = false} />
-{/if}

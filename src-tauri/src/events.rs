@@ -50,3 +50,16 @@ pub enum CelesteEvent {
         Room: String,
     },
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[allow(non_snake_case)]
+pub struct AreaStats {
+    pub AreaSID: String,
+    pub Mode: String,
+    pub CompletionTime: String,
+    pub Screens: u32,
+    pub TimeTicks: u64,
+    pub Deaths: u32,
+    pub DeathsPerScreen: std::collections::HashMap<String, u32>,
+    pub Golden: bool,
+}

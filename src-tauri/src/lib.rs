@@ -5,7 +5,9 @@ pub mod db;
 use std::sync::Mutex;
 use crate::events::CelesteEvent;
 use crate::ws::WsState;
-use crate::db::{get_campaigns, get_chapters, get_runs, get_room_deaths, fetch_all_stats, save_completed_run, update_run, delete_run, finalize_run};
+use crate::db::campaigns::{get_campaigns, fetch_all_stats};
+use crate::db::chapters::get_chapters;
+use crate::db::runs::{get_runs, get_room_deaths, save_completed_run, update_run, delete_run, finalize_run};
 
 #[tauri::command]
 fn get_celeste_initial_state(state: tauri::State<'_, WsState>) -> Option<CelesteEvent> {
