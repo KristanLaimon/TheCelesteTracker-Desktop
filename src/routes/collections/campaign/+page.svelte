@@ -81,16 +81,16 @@
             {#each chapters as chapter}
                 <a 
                     href="/collections/campaign/chapter?id={chapter.id}&sid={encodeURIComponent(chapter.sid)}&name={encodeURIComponent(chapter.name)}&mode={chapter.mode}"
-                    class="group flex flex-col p-6 bg-zinc-900 border border-white/5 rounded-xl hover:border-(--hub-primary)/40 transition-all gap-4"
+                    class="group flex flex-col p-6 bg-zinc-900 border border-white/5 rounded-xl hover:border-hub-primary/40 transition-all gap-4"
                 >
                     <div class="flex items-center justify-between">
                         <div class="space-y-1">
-                            <h3 class="text-lg font-bold text-white group-hover:text-(--hub-primary) transition-colors">
+                            <h3 class="text-lg font-bold text-white group-hover:text-hub-primary transition-colors">
                                 {formatChapterName(chapter.name, chapter.sid)}
                             </h3>
                             <p class="text-xs text-zinc-500 font-mono tracking-widest uppercase">{chapter.mode}</p>
                         </div>
-                        <span class="material-symbols-outlined text-zinc-700 group-hover:text-(--hub-primary) transition-colors">chevron_right</span>
+                        <span class="material-symbols-outlined text-zinc-700 group-hover:text-hub-primary transition-colors">chevron_right</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">

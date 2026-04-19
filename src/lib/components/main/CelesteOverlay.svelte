@@ -4,7 +4,7 @@
 
 {#if celesteState.activeLevel}
     <div class="fixed inset-0 z-[100] bg-[#131315] flex flex-col items-center justify-center p-12">
-        <div class="absolute inset-0 opacity-10 pointer-events-none bg-gradient-to-br from-[#ff788c]/20 to-[#67d8d2]/20">
+        <div class="absolute inset-0 opacity-10 pointer-events-none bg-linear-to-br from-[#ff788c]/20 to-[#67d8d2]/20">
         </div>
         
         <div class="relative z-10 text-center space-y-8 w-full max-w-4xl">

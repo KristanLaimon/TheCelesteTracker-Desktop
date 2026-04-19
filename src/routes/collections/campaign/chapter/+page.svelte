@@ -120,7 +120,7 @@
                     </thead>
                     <tbody class="divide-y divide-white/5">
                         {#each displayRuns as run}
-                            <tr class="group hover:bg-white/5 transition-colors {run.status === 'Active' ? 'bg-(--hub-primary)/5 border-l-4 border-(--hub-primary)' : ''}">
+                            <tr class="group hover:bg-white/5 transition-colors {run.status === 'Active' ? 'bg-hub-primary/5 border-l-4 border-hub-primary' : ''}">
                                 <td class="px-8 py-4 text-zinc-400 text-sm">
                                     {run.status === 'Active' ? 'NOW' : (run.completion_time ? new Date(run.completion_time).toLocaleDateString() : 'In Progress')}
                                 </td>
@@ -142,7 +142,7 @@
                                     {#if run.golden}
                                         <span class="px-2 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded border border-yellow-500/20">GOLDEN</span>
                                     {:else if run.status === 'Active'}
-                                        <span class="px-2 py-1 bg-(--hub-primary)/10 text-(--hub-primary) text-[10px] font-bold rounded border border-(--hub-primary)/20 animate-pulse">ACTIVE</span>
+                                        <span class="px-2 py-1 bg-hub-primary/10 text-hub-primary text-[10px] font-bold rounded border border-hub-primary/20 animate-pulse">ACTIVE</span>
                                     {:else if run.completion_time}
                                         <span class="px-2 py-1 bg-green-500/10 text-green-500 text-[10px] font-bold rounded border border-green-500/20">FINISHED</span>
                                     {:else}

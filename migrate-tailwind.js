@@ -21,17 +21,42 @@ function walk(dir) {
 }
 
 const files = walk(rootDir).filter(f => /\.(svelte|ts|js|css|html)$/.test(f));
-// Matches (bg|text|border|etc...)-[var(--name)] optionally followed by /opacity
-const pattern = /(bg|text|border|from|to|via|accent|outline|ring|fill|stroke)-\[var\((--[\w-]+)\)\](\/\d+)?/g;
+
+// Patterns to migrate
+const replacements = [
+    // 1. [var(--name)] -> (--name)
+    {
+        pattern: /(bg|text|border|from|to|via|accent|outline|ring|fill|stroke)-\[var\((--[\w-]+)\)\](\/\d+)?/g,
+        replace: (match, prefix, variable, opacity) => `${prefix}-(${variable})${opacity || ''}`
+    },
+    // 2. bg-gradient-to-(r|l|t|b|tr|tl|br|bl) -> bg-linear-to-$1
+    {
+        pattern: /bg-gradient-to-(r|l|t|b|tr|tl|br|bl)/g,
+        replace: 'bg-linear-to-$1'
+    },
+    // 3. (prefix)-(--hub-name) -> (prefix)-hub-name
+    {
+        pattern: /(bg|text|border|from|to|via|accent|outline|ring|fill|stroke)-\((--hub-[\w-]+)\)(\/\d+)?/g,
+        replace: (match, prefix, variable, opacity) => {
+            const cleanName = variable.replace('--', '');
+            return `${prefix}-${cleanName}${opacity || ''}`;
+        }
+    }
+];
 
 files.forEach(file => {
-    const content = fs.readFileSync(file, 'utf8');
-    if (pattern.test(content)) {
-        // $1: prefix, $2: variable name, $3: optional /opacity
-        const newContent = content.replace(pattern, (match, prefix, variable, opacity) => {
-            return `${prefix}-(${variable})${opacity || ''}`;
-        });
-        fs.writeFileSync(file, newContent, 'utf8');
+    let content = fs.readFileSync(file, 'utf8');
+    let changed = false;
+
+    replacements.forEach(r => {
+        if (r.pattern.test(content)) {
+            content = content.replace(r.pattern, r.replace);
+            changed = true;
+        }
+    });
+
+    if (changed) {
+        fs.writeFileSync(file, content, 'utf8');
         console.log(`Updated: ${path.relative(__dirname, file)}`);
     }
 });

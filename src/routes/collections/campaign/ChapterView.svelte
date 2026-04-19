@@ -135,7 +135,7 @@
           class="relative group overflow-hidden rounded-2xl bg-zinc-900 min-h-[200px] flex flex-col justify-end p-6 border transition-all {chapter.has_golden ? 'border-yellow-500/50 shadow-lg shadow-yellow-500/10' : 'border-(--mapscollection-outline)'}"
         >
           <div class="absolute inset-0 z-0">
-            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+            <div class="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent"></div>
           </div>
           
           <div class="relative z-10">

@@ -274,7 +274,7 @@
         class="z-10 mt-8 h-2 w-full overflow-hidden rounded-full bg-(--chapter-info-surface-high)"
       >
         <div
-          class="h-full w-full bg-gradient-to-r from-(--chapter-info-secondary) to-(--chapter-info-primary)"
+          class="h-full w-full bg-linear-to-r from-(--chapter-info-secondary) to-(--chapter-info-primary)"
         ></div>
       </div>
     </div>

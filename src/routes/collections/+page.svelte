@@ -51,14 +51,14 @@
             {#each campaigns as campaign}
                 <a 
                     href="/collections/campaign?id={campaign.id}&name={encodeURIComponent(campaign.name)}"
-                    class="group relative overflow-hidden bg-zinc-900 border border-white/5 p-8 rounded-2xl hover:border-(--hub-primary)/40 transition-all flex flex-col justify-between"
+                    class="group relative overflow-hidden bg-zinc-900 border border-white/5 p-8 rounded-2xl hover:border-hub-primary/40 transition-all flex flex-col justify-between"
                 >
-                    <div class="absolute inset-0 bg-gradient-to-br from-(--hub-primary)/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="absolute inset-0 bg-linear-to-br from-hub-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     <div class="relative z-10 space-y-4">
-                        <div class="size-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-(--hub-primary) transition-colors">
+                        <div class="size-12 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-hub-primary transition-colors">
                             <span class="material-symbols-outlined text-3xl">folder</span>
                         </div>
-                        <h2 class="text-2xl font-headline font-bold text-white group-hover:text-(--hub-primary) transition-colors">{campaign.name}</h2>
+                        <h2 class="text-2xl font-headline font-bold text-white group-hover:text-hub-primary transition-colors">{campaign.name}</h2>
                     </div>
                     
                     <div class="relative z-10 mt-8 grid grid-cols-2 gap-4 border-t border-white/5 pt-4">
