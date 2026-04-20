@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "dmsans";
+  src: url("/fonts/dmsans_variable.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "inter";
+  src: url("/fonts/inter_variable.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "labelleaurore";
+  src: url("/fonts/labelleaurore_regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "lato";
+  src: url("/fonts/lato_regular.ttf") format("truetype");
+}
+
+@theme {
+  --font-dmsans: "dmsans";
+  --font-inter: "inter";
+  --font-labelleaurore: "labelleaurore";
+  --font-lato: "lato";
+}
+
+@theme {
+  --color-hub-primary: #ff788c;
+  --color-hub-primary-container: #520017;
+  --color-hub-secondary: #67d8d2;
+  --color-hub-tertiary: #ffc971;
+  --color-hub-bg: #131315;
+  --color-hub-surface: #18181b;
+  --color-hub-surface-high: #27272a;
+  --color-hub-outline: rgba(255, 255, 255, 0.08);
+  --color-hub-glass: rgba(24, 24, 27, 0.85);
+  --color-hub-hero-gradient: linear-gradient(to right, #131315 20%, transparent 100%);
+  --color-hub-card-bg: rgba(39, 39, 42, 0.4);
+  --color-hub-accent-gradient: linear-gradient(135deg, var(--hub-primary), #ff4d6d);
+  --color-hub-glass-filter: blur(16px);
+
+  /* Fonts */
+  --hub-font-headline: "Space Grotesk", sans-serif;
+  --hub-font-body: "Manrope", sans-serif;
+}

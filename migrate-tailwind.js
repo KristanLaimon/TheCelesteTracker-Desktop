@@ -20,7 +20,7 @@ function walk(dir) {
     return results;
 }
 
-const files = walk(rootDir).filter(f => /\.(svelte|ts|js|css|html)$/.test(f));
+const files = walk(rootDir).filter(f => /\.(svelte|ts|js|css|html|astro)$/.test(f));
 
 // Patterns to migrate
 const replacements = [
