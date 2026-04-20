@@ -1,7 +1,10 @@
 <script lang="ts">
     import type { Component } from "svelte";
 
+    // == Components ==
     import Snow from "$lib/components/global/Snow.svelte";
+
+    // == Icons ==
     import Dashboard from "~icons/material-symbols/dashboard";
     import MountainFlag from "~icons/material-symbols/mountain-flag";
     import Extension from "~icons/material-symbols/extension";
