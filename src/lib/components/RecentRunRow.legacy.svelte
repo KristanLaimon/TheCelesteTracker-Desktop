@@ -1,8 +1,6 @@
 <script lang="ts">
     import FilterHdr from "~icons/material-symbols/filter-hdr";
-    import type { RecentRun } from "$lib/types/entities";
-
-    let { run }: { run: RecentRun } = $props();
+    let { run }: any = $props();
 </script>
 
 <tr class="hover:bg-white/5 transition-colors group">

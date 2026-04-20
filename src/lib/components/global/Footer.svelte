@@ -1,9 +1,14 @@
 <script lang="ts">
-  import { celesteState } from '$lib/types/celeste_state.svelte';
   import Terminal from "~icons/material-symbols/terminal";
   import Wifi from "~icons/material-symbols/wifi";
 
   let { height = '2.5rem' } = $props();
+
+  const celesteState = {
+    isConnected: false,
+    everestVersion: "not-connected",
+    modVersion:"0"
+  }
 </script>
 
 <!-- Footer -->

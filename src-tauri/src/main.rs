@@ -1,7 +1,8 @@
-// Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-#[tokio::main]
-async fn main() {
-    thecelestetracker_lib::run().await
+fn main() {
+    tauri::Builder::default()
+    .plugin(tauri_plugin_opener::init())
+    .invoke_handler(tauri::generate_handler![])
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");
 }
