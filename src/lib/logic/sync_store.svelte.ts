@@ -1,10 +1,22 @@
+import { toast } from "$lib/components/main/Toaster.svelte.js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { toast } from "$lib/components/main/Toaster.svelte.js";
-import type { Campaign, Chapter, Run, CelesteEvent } from "../types/entities";
+import type { Campaign, CelesteEvent, Chapter, Run } from "../types/entities";
+
+export interface RecentRun {
+  id: number;
+  chapter_name: string;
+  mode: string;
+  campaign_name: string;
+  completion_time: string | null;
+  deaths: number;
+  strawberries: number;
+  golden: boolean;
+}
 
 class SyncStore {
   campaigns = $state<Campaign[]>([]);
+  recentRuns = $state<RecentRun[]>([]);
   activeCampaignId = $state<number | null>(null);
   activeChapterId = $state<number | null>(null);
   chapters = $state<Chapter[]>([]);
@@ -24,6 +36,7 @@ class SyncStore {
     try {
       const data = await invoke<{ campaigns: Campaign[] }>("fetch_all_stats");
       this.campaigns = data.campaigns;
+      this.fetchRecentRuns();
     } catch (e) {
       console.error("Failed to fetch initial stats", e);
     }
@@ -47,6 +60,7 @@ class SyncStore {
       case "DatabaseLocation":
         // Trigger a re-fetch of everything when DB path is synced
         this.fetchCampaigns();
+        this.fetchRecentRuns();
         break;
       case "LevelStart":
         this.activeChapterSid = event.AreaSid;
@@ -62,7 +76,7 @@ class SyncStore {
           room_deaths: 0,
           strawberries: 0,
           golden: false,
-          status: 'Active'
+          status: "Active",
         };
         break;
       case "LevelInfo":
@@ -72,13 +86,10 @@ class SyncStore {
         break;
       case "Death":
         if (this.currentRun) {
-          // Fix off-by-one: if first death, set to TotalDeaths if we want sync, 
-          // but user requested "1 immediately" if it's the first death of the session.
-          // The bug mentioned was that it starts on 0 on first death.
           if (this.currentRun.deaths === 0) {
-              this.currentRun.deaths = 1;
+            this.currentRun.deaths = 1;
           } else {
-              this.currentRun.deaths++;
+            this.currentRun.deaths++;
           }
           this.currentRun.room_deaths++;
         }
@@ -86,48 +97,59 @@ class SyncStore {
       case "Dash":
         if (this.currentRun) {
           this.currentRun.strawberries = event.TotalDashes; // Actually dashes, reusing field or should add dash field? Entity says strawberries.
-          // Plan says update dashes. Entities.ts has strawberries. 
+          // Plan says update dashes. Entities.ts has strawberries.
           // User description mentioned dash updates too.
         }
         break;
       case "AreaComplete":
       case "MenuAction":
-        if (this.currentRun && this.currentRun.status === 'Active') {
-            const sid = this.activeChapterSid || "";
-            const mode = this.activeMode || "";
-            
-            this.currentRun.status = event.Type === "AreaComplete" ? 'Completed' : 'Aborted';
-            this.currentRun.completion_time = new Date().toISOString();
-            
-            const finalizeData = {
-                save_id: this.currentRun.save_id,
-                area_sid: sid,
-                mode: mode,
-                time_ticks: this.currentRun.time_ticks,
-                screens: this.currentRun.screens,
-                deaths: this.currentRun.deaths,
-                strawberries: this.currentRun.strawberries,
-                golden: this.currentRun.golden,
-                completion_time: this.currentRun.completion_time
-            };
+        if (this.currentRun && this.currentRun.status === "Active") {
+          const sid = this.activeChapterSid || "";
+          const mode = this.activeMode || "";
 
-            invoke("finalize_run", { data: finalizeData }).then(() => {
-                toast.success("Run Finalized", `Session for ${sid} has been saved.`);
-                this.fetchCampaigns();
-            }).catch(e => {
-                console.error("Failed to finalize run", e);
-                toast.error("Finalization Error", "Could not save the current run session.");
+          this.currentRun.status =
+            event.Type === "AreaComplete" ? "Completed" : "Aborted";
+          this.currentRun.completion_time = new Date().toISOString();
+
+          const finalizeData = {
+            save_id: this.currentRun.save_id,
+            area_sid: sid,
+            mode: mode,
+            time_ticks: this.currentRun.time_ticks,
+            screens: this.currentRun.screens,
+            deaths: this.currentRun.deaths,
+            strawberries: this.currentRun.strawberries,
+            golden: this.currentRun.golden,
+            completion_time: this.currentRun.completion_time,
+          };
+
+          invoke("finalize_run", { data: finalizeData })
+            .then(() => {
+              toast.success(
+                "Run Finalized",
+                `Session for ${sid} has been saved.`,
+              );
+              this.fetchCampaigns();
+              this.fetchRecentRuns();
+            })
+            .catch((e) => {
+              console.error("Failed to finalize run", e);
+              toast.error(
+                "Finalization Error",
+                "Could not save the current run session.",
+              );
             });
         }
         this.activeChapterSid = null;
         this.activeMode = null;
         this.fetchCampaigns();
+        this.fetchRecentRuns();
         break;
     }
   }
 
   liveCampaigns = $derived.by(() => {
-    return this.campaigns.map(campaign => {
+    return this.campaigns.map((campaign) => {
       // If Celeste is running and we are in a run belonging to this campaign
       // we could add currentRun stats to the totals.
       // For now, let's keep it simple: if currentRun is active, and we re-fetch campaigns,
@@ -144,12 +166,22 @@ class SyncStore {
 
   absoluteBestAttempt = $derived.by(() => {
     if (this.runs.length === 0) return null;
-    return this.runs.reduce((prev, curr) => (prev.deaths < curr.deaths ? prev : curr));
+    return this.runs.reduce((prev, curr) =>
+      prev.deaths < curr.deaths ? prev : curr,
+    );
   });
 
   async fetchCampaigns() {
     try {
       this.campaigns = await invoke<Campaign[]>("get_campaigns");
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async fetchRecentRuns() {
+    try {
+      this.recentRuns = await invoke<RecentRun[]>("get_recent_runs");
     } catch (e) {
       console.error(e);
     }
@@ -177,6 +209,7 @@ class SyncStore {
     try {
       await invoke("update_run", { runId, deaths, strawberries });
       if (this.activeChapterId) await this.fetchRuns(this.activeChapterId);
+      this.fetchRecentRuns();
     } catch (e) {
       console.error(e);
       throw e;
@@ -187,6 +220,7 @@ class SyncStore {
     try {
       await invoke("delete_run", { runId });
       if (this.activeChapterId) await this.fetchRuns(this.activeChapterId);
+      this.fetchRecentRuns();
     } catch (e) {
       console.error(e);
       throw e;

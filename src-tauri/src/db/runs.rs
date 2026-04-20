@@ -41,6 +41,49 @@ pub struct FinalizeRunData {
     pub completion_time: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RecentRun {
+    pub id: i32,
+    pub chapter_name: String,
+    pub mode: String,
+    pub campaign_name: String,
+    pub completion_time: Option<String>,
+    pub deaths: i32,
+    pub strawberries: i32,
+    pub golden: bool,
+}
+
+#[tauri::command]
+pub fn get_recent_runs(state: tauri::State<'_, WsState>) -> Result<Vec<RecentRun>, String> {
+    let conn = get_conn(&state)?;
+    let mut stmt = conn.prepare("
+        SELECT r.id, ch.name, ch.mode, c.campaign_name_id, r.completion_time, r.deaths, r.strawberries, r.golden 
+        FROM Run r
+        JOIN Chapter ch ON r.chapter_id = ch.id
+        JOIN Campaign c ON ch.campaign_id = c.id
+        ORDER BY r.id DESC
+        LIMIT 10
+    ").map_err(|e| e.to_string())?;
+
+    let iter = stmt
+        .query_map([], |row| {
+            Ok(RecentRun {
+                id: row.get(0)?,
+                chapter_name: row.get(1)?,
+                mode: row.get(2)?,
+                campaign_name: row.get(3)?,
+                completion_time: row.get(4)?,
+                deaths: row.get(5)?,
+                strawberries: row.get(6)?,
+                golden: row.get::<_, i32>(7)? == 1,
+            })
+        })
+        .map_err(|e| e.to_string())?;
+
+    iter.collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())
+}
+
 #[tauri::command]
 pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec<Run>, String> {
     let conn = get_conn(&state)?;

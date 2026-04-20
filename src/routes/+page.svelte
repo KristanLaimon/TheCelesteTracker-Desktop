@@ -8,6 +8,9 @@
     import History from "~icons/material-symbols/history";
     import Timer from "~icons/material-symbols/timer";
     import FilterHdr from "~icons/material-symbols/filter-hdr";
+    import { syncStore } from "$lib/logic/sync_store.svelte";
+    import RecentRunRow from "$lib/components/RecentRunRow.svelte";
+    import NavigationCard from "$lib/components/NavigationCard.svelte";
 </script>
 
 <style>
@@ -61,36 +64,43 @@
     <!-- Navigation Cards Grid -->
     <section class="px-6 md:px-12 -mt-6 relative z-20">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl transition-all group cursor-auto" href="/">
-                <Dashboard class="text-hub-primary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-                <h3 class="font-headline font-bold text-white text-lg">Dashboard</h3>
-                <p class="text-xs text-zinc-500 mt-1">Overall progress &amp; stats</p>
-            </a>
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl  transition-all group cursor-auto" href="/">
-                <MountainFlag class="text-hub-secondary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-                <h3 class="font-headline font-bold text-white text-lg">Vanilla Chapters</h3>
-                <p class="text-xs text-zinc-500 mt-1">Classic climb tracking</p>
-            </a>
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl  transition-all group cursor-auto" href="/">
-                <Extension class="text-hub-tertiary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-                <h3 class="font-headline font-bold text-white text-lg">Modded Content</h3>
-                <p class="text-xs text-zinc-500 mt-1">Everest &amp; custom maps</p>
-            </a>
-            <a class="opacity-40 bg-hub-card-bg border border-hub-outline p-6 rounded-2xl transition-all group cursor-auto" href="/">
-                <Leaderboard class="text-purple-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-                <h3 class="font-headline font-bold text-white text-lg">CSR Roadmap</h3>
-                <p class="text-xs text-zinc-500 mt-1">Global ranking goals</p>
-            </a>
-            <a class="bg-hub-card-bg border border-hub-outline p-6 rounded-2xl hover:border-orange-400/50 transition-all group" href="/collections">
-                <Map class="text-orange-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-                <h3 class="font-headline font-bold text-white text-lg">Collections</h3>
-                <p class="text-xs text-zinc-500 mt-1">Organize your levels</p>
-            </a>
-            <a class="bg-hub-card-bg border border-hub-outline p-6 rounded-2xl hover:border-blue-400/50 transition-all group" href="/">
-                <History class="text-blue-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-                <h3 class="font-headline font-bold text-white text-lg">Run History</h3>
-                <p class="text-xs text-zinc-500 mt-1">Full archive of ascents</p>
-            </a>
+            <NavigationCard 
+                icon={Dashboard} 
+                title="Dashboard" 
+                description="Overall progress & stats" 
+                disabled 
+            />
+            <NavigationCard 
+                icon={MountainFlag} 
+                title="Vanilla Chapters" 
+                description="Classic climb tracking" 
+                disabled 
+            />
+            <NavigationCard 
+                icon={Extension} 
+                title="Modded Content" 
+                description="Everest & custom maps" 
+                disabled 
+            />
+            <NavigationCard 
+                icon={Leaderboard} 
+                title="CSR Roadmap" 
+                description="Global ranking goals" 
+                disabled 
+            />
+            <NavigationCard 
+                href="/collections"
+                icon={Map} 
+                title="Collections" 
+                description="Organize your levels" 
+                hoverColor="orange"
+            />
+            <NavigationCard 
+                icon={History} 
+                title="Run History" 
+                description="Full archive of ascents" 
+                hoverColor="blue"
+            />
         </div>
     </section>
 
@@ -117,24 +127,14 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-(--hub-outline)/50">
-                    <tr class="hover:bg-white/5 transition-colors group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded bg-hub-primary/10 flex items-center justify-center text-hub-primary">
-                                    <FilterHdr class="text-lg" />
-                                </div>
-                                <span class="font-bold text-zinc-200">Forsaken City (A-Side)</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold bg-hub-secondary/10 text-hub-secondary uppercase tracking-tighter">Vanilla</span>
-                        </td>
-                        <td class="px-6 py-4 font-mono text-zinc-400">00:01:24.452</td>
-                        <td class="px-6 py-4 text-zinc-400">0</td>
-                        <td class="px-6 py-4 text-right">
-                            <span class="text-green-400 font-bold text-sm">PB</span>
-                        </td>
-                    </tr>
+                    {#each syncStore.recentRuns as run}
+                        <RecentRunRow {run} />
+                    {/each}
+                    {#if syncStore.recentRuns.length === 0}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-zinc-500 italic">No runs recorded yet.</td>
+                        </tr>
+                    {/if}
                 </tbody>
             </table>
         </div>

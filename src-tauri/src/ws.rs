@@ -31,8 +31,9 @@ pub fn start_websocket_handler(app_handle: AppHandle) {
                                                 if let Some(state) = app_handle.try_state::<WsState>() {
                                                     let mut cache = state.last_db_location.lock().unwrap();
                                                     *cache = Some(event.clone());
-                                                    // Schema is managed by the Celeste mod
-                                                    println!("DB PATH SYNCED: {}", DatabasePath);
+                                                    // Persist to JSON
+                                                    crate::db::persist_db_path(&app_handle, DatabasePath);
+                                                    println!("DB PATH SYNCED & PERSISTED: {}", DatabasePath);
                                                 }
                                             }
                                             _ => {}

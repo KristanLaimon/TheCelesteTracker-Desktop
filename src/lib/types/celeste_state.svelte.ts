@@ -1,14 +1,14 @@
-import type { CelesteEvent } from './entities';
+import type { CelesteState } from './celeste_state';
 
 export const celesteState = $state({
-    currentEvent: null as CelesteEvent | null,
+    currentEvent: null,
     isConnected: false,
     everestVersion: '',
     modVersion: '',
-    activeLevel: null as { AreaSid: string; RoomName: string; Mode: string } | null,
+    activeLevel: null,
     stats: {
         totalDeaths: 0,
         roomDeaths: 0,
         totalDashes: 0
     }
-});
+} satisfies CelesteState);
