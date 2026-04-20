@@ -1,46 +1,49 @@
 export interface Campaign {
   id: number;
-  name: string;
+  campaign_name_id: string;
   total_deaths: number;
   total_time: number;
   total_runs: number;
-  parent_campaign_id?: number;
-  sub_campaigns?: Campaign[]; // For recursive nesting
 }
 
 export interface Chapter {
-  id: number;
-  campaign_id: number;
   sid: string;
+  campaign_id: number;
   name: string;
-  mode: string;
+  side_id: string;
   total_deaths: number;
   total_time: number;
   total_runs: number;
-  has_golden: boolean;
 }
 
 export type RunStatus = 'Active' | 'Completed' | 'Aborted';
 
-export interface Run {
-  id: number;
-  save_id: number;
-  chapter_id: number;
-  completion_time: string | null;
-  time_ticks: number;
-  screens: number;
-  deaths: number;
-  room_deaths: number;
-  strawberries: number;
-  golden: boolean;
-  status: RunStatus;
+export interface GameSession {
+  id: string;
+  chapter_side_id: number;
+  date_time_start: string;
+  duration_ms: number;
+  is_goldenberry_attempt: boolean;
+  is_goldenberry_completed: boolean;
+  total_deaths: number;
+  status?: RunStatus;
 }
 
-export interface RoomDeath {
-  id: number;
-  run_id: number;
-  room_name: string;
+export interface RecentRun {
+  id: string;
+  chapter_name: string;
+  side_id: string;
+  campaign_name: string;
+  date_time_start: string;
   deaths: number;
+  golden: boolean;
+}
+
+export interface GameSessionRoomStats {
+  id: number;
+  gamesession_id: string;
+  room_name: string;
+  deaths_in_room: number;
 }
 
 export interface AreaStats {

@@ -41,6 +41,8 @@
 
 <Snow />
 
+
+
 <!-- Main Content -->
 <main>
     <!-- Hero Section -->
@@ -119,11 +121,11 @@
             <table class="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                     <tr class="border-b border-hub-outline bg-zinc-900/50">
-                        <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Level Name</th>
-                        <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Type</th>
-                        <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Clear Time</th>
-                        <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold">Deaths</th>
-                        <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold text-right">Status</th>
+                        {@render th("Level Name")}
+                        {@render th("Type")}
+                        {@render th("Clear Time")}
+                        {@render th("Deaths")}
+                        {@render th("Status", true)}
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-(--hub-outline)/50">
@@ -140,3 +142,9 @@
         </div>
     </section>
 </main>
+
+{#snippet th(label: string, alignRight = false)}
+    <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold {alignRight ? 'text-right' : ''}">
+        {label}
+    </th>
+{/snippet}

@@ -3,6 +3,8 @@ pub mod ws;
 pub mod db;
 
 use std::sync::Mutex;
+use tauri::Manager;
+
 use crate::events::CelesteEvent;
 use crate::ws::WsState;
 use crate::db::campaigns::{get_campaigns, fetch_all_stats};
@@ -26,7 +28,7 @@ pub async fn run() {
             let handle = app.handle().clone();
             
             // Try to load persisted DB path
-            if let Some(path) = crate::db::load_persisted_db_path(&handle) {
+            if let Some(path) = crate::db::config::load_persisted_db_path(&handle) {
                 if let Some(state) = handle.try_state::<WsState>() {
                     let mut cache = state.last_db_location.lock().unwrap();
                     *cache = Some(CelesteEvent::DatabaseLocation {

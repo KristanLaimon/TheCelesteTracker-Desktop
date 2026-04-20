@@ -2,26 +2,18 @@
   import { syncStore } from "$lib/logic/sync_store.svelte";
   import Trophy from "~icons/material-symbols/trophy";
   import ChevronRight from "~icons/material-symbols/chevron-right";
-  import FolderOpen from "~icons/material-symbols/folder-open";
   import Folder from "~icons/material-symbols/folder";
   import type { Campaign } from "../types/entities";
-
-  let rootCampaigns = $derived(syncStore.liveCampaigns.filter(c => !c.parent_campaign_id));
-
-  function getChildren(id: number) {
-    return syncStore.liveCampaigns.filter(c => c.parent_campaign_id === id);
-  }
 
   function selectCampaign(id: number) {
     syncStore.fetchChapters(id);
   }
 </script>
 
-{#snippet campaignItem(campaign: Campaign, depth = 0)}
-  {@const children = getChildren(campaign.id)}
+{#snippet campaignItem(campaign: Campaign)}
   {@const isActive = syncStore.activeCampaignId === campaign.id}
   
-  <li style="margin-left: {depth * 12}px">
+  <li>
     <button
       onclick={() => selectCampaign(campaign.id)}
       class="w-full text-left p-3 rounded-lg hover:bg-accent/50 transition-all group relative mb-1
@@ -30,14 +22,10 @@
       <div class="flex justify-between items-start">
         <div class="flex items-start gap-3">
           <div class="mt-0.5">
-            {#if children.length > 0}
-              <FolderOpen class="w-4 h-4 {isActive ? 'text-primary' : 'text-muted-foreground/60'}" />
-            {:else}
-              <Folder class="w-4 h-4 {isActive ? 'text-primary' : 'text-muted-foreground/40'}" />
-            {/if}
+            <Folder class="w-4 h-4 {isActive ? 'text-primary' : 'text-muted-foreground/40'}" />
           </div>
           <div class="space-y-1">
-            <span class="font-semibold block leading-none text-sm">{campaign.name}</span>
+            <span class="font-semibold block leading-none text-sm">{campaign.campaign_name_id}</span>
             <span class="text-[9px] uppercase tracking-wider text-muted-foreground font-black">
               {campaign.total_runs} Runs • {campaign.total_deaths} Deaths
             </span>
@@ -50,14 +38,6 @@
         <div class="absolute left-0 top-2 bottom-2 w-1 bg-primary rounded-full"></div>
       {/if}
     </button>
-
-    {#if children.length > 0}
-      <ul class="space-y-1 mt-1 border-l border-border/50 ml-2 pl-1">
-        {#each children as child (child.id)}
-          {@render campaignItem(child, depth + 1)}
-        {/each}
-      </ul>
-    {/if}
   </li>
 {/snippet}
 
@@ -74,7 +54,7 @@
     </div>
   {:else}
     <ul class="space-y-2">
-      {#each rootCampaigns as campaign (campaign.id)}
+      {#each syncStore.campaigns as campaign (campaign.id)}
         {@render campaignItem(campaign)}
       {/each}
     </ul>

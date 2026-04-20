@@ -82,12 +82,12 @@
       
       <div class="flex flex-col gap-4 sm:gap-0 sm:divide-y sm:divide-(--mapscollection-outline)">
         {#each chapters as chapter}
-          <a href="/collections/campaign/chapter/{chapter.id}"
-            class="bg-zinc-900/50 sm:bg-transparent border-none rounded-xl sm:rounded-none overflow-hidden group hover:bg-white/5 transition-all {chapter.has_golden ? 'border-l-4 border-yellow-500 bg-yellow-500/5' : ''}"
+          <a href="/collections/campaign/chapter/{encodeURIComponent(chapter.sid)}?side={chapter.side_id}"
+            class="bg-zinc-900/50 sm:bg-transparent border-none rounded-xl sm:rounded-none overflow-hidden group hover:bg-white/5 transition-all"
           >
             <div class="grid grid-cols-1 sm:grid-cols-12 items-center px-5 py-5 sm:px-6 sm:py-4">
               <div class="col-span-1 sm:col-span-4 flex items-center gap-3">
-                <div class="w-8 h-8 rounded flex items-center justify-center transition-transform group-hover:scale-110 {chapter.has_golden ? 'bg-yellow-500/20 text-yellow-500' : 'bg-primary/10 text-primary'}">
+                <div class="w-8 h-8 rounded flex items-center justify-center transition-transform group-hover:scale-110 bg-primary/10 text-primary">
                   <Star class="w-4 h-4" />
                 </div>
                 <div>
@@ -99,12 +99,12 @@
               <div class="col-span-1 sm:col-span-8 grid grid-cols-2 sm:grid-cols-8 gap-4 sm:gap-0 items-center">
                 <div class="sm:col-span-2">
                   <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tighter w-fit bg-secondary/10 text-secondary">
-                    {chapter.mode}
+                    {chapter.side_id}
                   </span>
                 </div>
                 
                 <div class="sm:col-span-2 sm:text-right">
-                  <span class="font-headline text-sm font-bold {chapter.has_golden ? 'text-yellow-500' : 'text-zinc-200'}">
+                  <span class="font-headline text-sm font-bold text-zinc-200">
                     {chapter.total_deaths}
                   </span>
                 </div>
@@ -116,11 +116,7 @@
                 </div>
 
                 <div class="sm:col-span-2 flex justify-center">
-                  {#if chapter.has_golden}
-                    <Award class="w-5 h-5 text-yellow-500 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" />
-                  {:else}
                     <div class="w-5 h-5 rounded-full border-2 border-dashed border-zinc-700"></div>
-                  {/if}
                 </div>
               </div>
             </div>
@@ -131,8 +127,8 @@
   {:else}
     <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {#each chapters as chapter}
-        <a href="/collections/campaign/chapter/{chapter.id}" 
-          class="relative group overflow-hidden rounded-2xl bg-zinc-900 min-h-[200px] flex flex-col justify-end p-6 border transition-all {chapter.has_golden ? 'border-yellow-500/50 shadow-lg shadow-yellow-500/10' : 'border-(--mapscollection-outline)'}"
+        <a href="/collections/campaign/chapter/{encodeURIComponent(chapter.sid)}?side={chapter.side_id}" 
+          class="relative group overflow-hidden rounded-2xl bg-zinc-900 min-h-[200px] flex flex-col justify-end p-6 border transition-all border-(--mapscollection-outline)"
         >
           <div class="absolute inset-0 z-0">
             <div class="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent"></div>
@@ -140,13 +136,9 @@
           
           <div class="relative z-10">
             <div class="flex justify-between items-start mb-2">
-              {#if chapter.has_golden}
-                <Award class="w-6 h-6 text-yellow-500" />
-              {:else}
-                <Star class="w-6 h-6 text-primary" />
-              {/if}
+              <Star class="w-6 h-6 text-primary" />
               <span class="text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-tighter bg-secondary/20 text-secondary">
-                {chapter.mode}
+                {chapter.side_id}
               </span>
             </div>
             
@@ -155,7 +147,7 @@
             <div class="grid grid-cols-2 gap-y-4 gap-x-6 border-t border-(--mapscollection-outline) pt-4">
               <div>
                 <p class="text-[9px] text-zinc-500 uppercase font-black tracking-widest">Deaths</p>
-                <p class="text-base font-headline font-bold {chapter.has_golden ? 'text-yellow-500' : 'text-white'}">
+                <p class="text-base font-headline font-bold text-white">
                   {chapter.total_deaths}
                 </p>
               </div>

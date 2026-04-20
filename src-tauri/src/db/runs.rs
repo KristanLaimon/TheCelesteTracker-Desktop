@@ -7,25 +7,22 @@ use rusqlite::{params, Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Run {
-    pub id: i32,
-    pub save_id: i32,
-    pub chapter_id: i32,
-    pub completion_time: Option<String>,
-    pub time_ticks: i64,
-    pub screens: i32,
-    pub deaths: i32,
-    pub room_deaths: i32,
-    pub strawberries: i32,
-    pub golden: bool,
+pub struct GameSession {
+    pub id: String,
+    pub chapter_side_id: i32,
+    pub date_time_start: String,
+    pub duration_ms: i64,
+    pub is_goldenberry_attempt: bool,
+    pub is_goldenberry_completed: bool,
+    pub total_deaths: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct RoomDeath {
+pub struct GameSessionRoomStats {
     pub id: i32,
-    pub run_id: i32,
+    pub gamesession_id: String,
     pub room_name: String,
-    pub deaths: i32,
+    pub deaths_in_room: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -33,23 +30,20 @@ pub struct FinalizeRunData {
     pub save_id: i32,
     pub area_sid: String,
     pub mode: String,
-    pub time_ticks: i64,
-    pub screens: i32,
+    pub duration_ms: i64,
     pub deaths: i32,
-    pub strawberries: i32,
     pub golden: bool,
     pub completion_time: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RecentRun {
-    pub id: i32,
+    pub id: String,
     pub chapter_name: String,
-    pub mode: String,
+    pub side_id: String,
     pub campaign_name: String,
-    pub completion_time: Option<String>,
+    pub date_time_start: String,
     pub deaths: i32,
-    pub strawberries: i32,
     pub golden: bool,
 }
 
@@ -57,11 +51,15 @@ pub struct RecentRun {
 pub fn get_recent_runs(state: tauri::State<'_, WsState>) -> Result<Vec<RecentRun>, String> {
     let conn = get_conn(&state)?;
     let mut stmt = conn.prepare("
-        SELECT r.id, ch.name, ch.mode, c.campaign_name_id, r.completion_time, r.deaths, r.strawberries, r.golden 
-        FROM Run r
-        JOIN Chapter ch ON r.chapter_id = ch.id
-        JOIN Campaign c ON ch.campaign_id = c.id
-        ORDER BY r.id DESC
+        SELECT gs.id, ch.name, cs.side_id, c.campaign_name_id, gs.date_time_start, 
+               IFNULL(SUM(stats.deaths_in_room), 0) as total_deaths, gs.is_goldenberry_completed 
+        FROM game_sessions gs
+        JOIN chapter_sides cs ON gs.chapter_side_id = cs.id
+        JOIN chapters ch ON cs.chapter_sid = ch.sid
+        JOIN campaigns c ON ch.campaign_id = c.id
+        LEFT JOIN game_session_chapter_room_stats stats ON stats.gamesession_id = gs.id
+        GROUP BY gs.id
+        ORDER BY gs.date_time_start DESC
         LIMIT 10
     ").map_err(|e| e.to_string())?;
 
@@ -70,12 +68,11 @@ pub fn get_recent_runs(state: tauri::State<'_, WsState>) -> Result<Vec<RecentRun
             Ok(RecentRun {
                 id: row.get(0)?,
                 chapter_name: row.get(1)?,
-                mode: row.get(2)?,
+                side_id: row.get(2)?,
                 campaign_name: row.get(3)?,
-                completion_time: row.get(4)?,
+                date_time_start: row.get(4)?,
                 deaths: row.get(5)?,
-                strawberries: row.get(6)?,
-                golden: row.get::<_, i32>(7)? == 1,
+                golden: row.get::<_, i32>(6)? == 1,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -85,26 +82,29 @@ pub fn get_recent_runs(state: tauri::State<'_, WsState>) -> Result<Vec<RecentRun
 }
 
 #[tauri::command]
-pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec<Run>, String> {
+pub fn get_runs(state: tauri::State<'_, WsState>, chapter_sid: String, side_id: String) -> Result<Vec<GameSession>, String> {
     let conn = get_conn(&state)?;
     let mut stmt = conn.prepare("
-        SELECT id, save_id, chapter_id, completion_time, time_ticks, screens, deaths, strawberries, golden 
-        FROM Run WHERE chapter_id = ? ORDER BY id DESC
+        SELECT gs.id, gs.chapter_side_id, gs.date_time_start, gs.duration_ms, gs.is_goldenberry_attempt, gs.is_goldenberry_completed,
+               IFNULL(SUM(stats.deaths_in_room), 0) as total_deaths
+        FROM game_sessions gs
+        JOIN chapter_sides cs ON gs.chapter_side_id = cs.id
+        LEFT JOIN game_session_chapter_room_stats stats ON stats.gamesession_id = gs.id
+        WHERE cs.chapter_sid = ? AND cs.side_id = ?
+        GROUP BY gs.id
+        ORDER BY gs.date_time_start DESC
     ").map_err(|e| e.to_string())?;
 
     let iter = stmt
-        .query_map([chapter_id], |row| {
-            Ok(Run {
+        .query_map([chapter_sid, side_id], |row| {
+            Ok(GameSession {
                 id: row.get(0)?,
-                save_id: row.get(1)?,
-                chapter_id: row.get(2)?,
-                completion_time: row.get(3)?,
-                time_ticks: row.get(4)?,
-                screens: row.get(5)?,
-                deaths: row.get(6)?,
-                room_deaths: 0,
-                strawberries: row.get(7)?,
-                golden: row.get::<_, i32>(8)? == 1,
+                chapter_side_id: row.get(1)?,
+                date_time_start: row.get(2)?,
+                duration_ms: row.get(3)?,
+                is_goldenberry_attempt: row.get::<_, i32>(4)? == 1,
+                is_goldenberry_completed: row.get::<_, i32>(5)? == 1,
+                total_deaths: row.get(6)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -116,19 +116,19 @@ pub fn get_runs(state: tauri::State<'_, WsState>, chapter_id: i32) -> Result<Vec
 #[tauri::command]
 pub fn get_room_deaths(
     state: tauri::State<'_, WsState>,
-    run_id: i32,
-) -> Result<Vec<RoomDeath>, String> {
+    gamesession_id: String,
+) -> Result<Vec<GameSessionRoomStats>, String> {
     let conn = get_conn(&state)?;
     let mut stmt = conn
-        .prepare("SELECT id, run_id, room_name, deaths FROM RoomDeath WHERE run_id = ?")
+        .prepare("SELECT id, gamesession_id, room_name, deaths_in_room FROM game_session_chapter_room_stats WHERE gamesession_id = ?")
         .map_err(|e| e.to_string())?;
     let iter = stmt
-        .query_map([run_id], |row| {
-            Ok(RoomDeath {
+        .query_map([gamesession_id], |row| {
+            Ok(GameSessionRoomStats {
                 id: row.get(0)?,
-                run_id: row.get(1)?,
+                gamesession_id: row.get(1)?,
                 room_name: row.get(2)?,
-                deaths: row.get(3)?,
+                deaths_in_room: row.get(3)?,
             })
         })
         .map_err(|e| e.to_string())?;
@@ -143,15 +143,23 @@ pub fn finalize_run(state: tauri::State<'_, WsState>, data: FinalizeRunData) -> 
     let tx = conn.transaction().map_err(|e| e.to_string())?;
 
     let campaign_id = ensure_campaign(&tx, "Celeste").map_err(|e| e.to_string())?;
-    let chapter_id = ensure_chapter(&tx, campaign_id, &data.area_sid, &data.area_sid, &data.mode)
+    let chapter_sid = ensure_chapter(&tx, campaign_id, &data.area_sid, &data.area_sid, &data.mode)
         .map_err(|e| e.to_string())?;
 
+    let chapter_side_id: i32 = tx.query_row(
+        "SELECT id FROM chapter_sides WHERE chapter_sid = ? AND side_id = ?",
+        params![chapter_sid, data.mode],
+        |row| row.get(0)
+    ).map_err(|e| e.to_string())?;
+
+    let session_id = uuid::Uuid::new_v4().to_string();
+
     tx.execute(
-        "INSERT INTO Run (save_id, chapter_id, completion_time, time_ticks, screens, deaths, strawberries, golden)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO game_sessions (id, chapter_side_id, date_time_start, duration_ms, is_goldenberry_attempt, is_goldenberry_completed)
+         VALUES (?, ?, ?, ?, ?, ?)",
         params![
-            data.save_id, chapter_id, data.completion_time, data.time_ticks,
-            data.screens, data.deaths, data.strawberries, data.golden as i32
+            session_id, chapter_side_id, data.completion_time, data.duration_ms,
+            data.golden as i32, 0
         ],
     ).map_err(|e| e.to_string())?;
 
@@ -168,7 +176,7 @@ pub fn save_completed_run(
     let tx = conn.transaction().map_err(|e| e.to_string())?;
 
     let campaign_id = ensure_campaign(&tx, "Celeste").map_err(|e| e.to_string())?;
-    let chapter_id = ensure_chapter(
+    let chapter_sid = ensure_chapter(
         &tx,
         campaign_id,
         &stats.AreaSID,
@@ -177,21 +185,27 @@ pub fn save_completed_run(
     )
     .map_err(|e| e.to_string())?;
 
+    let chapter_side_id: i32 = tx.query_row(
+        "SELECT id FROM chapter_sides WHERE chapter_sid = ? AND side_id = ?",
+        params![chapter_sid, stats.Mode],
+        |row| row.get(0)
+    ).map_err(|e| e.to_string())?;
+
+    let session_id = uuid::Uuid::new_v4().to_string();
+
     tx.execute(
-        "INSERT INTO Run (save_id, chapter_id, completion_time, time_ticks, screens, deaths, strawberries, golden)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO game_sessions (id, chapter_side_id, date_time_start, duration_ms, is_goldenberry_attempt, is_goldenberry_completed)
+         VALUES (?, ?, ?, ?, ?, ?)",
         params![
-            save_id, chapter_id, stats.CompletionTime, stats.TimeTicks as i64,
-            stats.Screens as i32, stats.Deaths as i32, 0, stats.Golden as i32
+            session_id, chapter_side_id, stats.CompletionTime, stats.TimeTicks as i64,
+            stats.Golden as i32, stats.Golden as i32
         ],
     ).map_err(|e| e.to_string())?;
 
-    let run_id = tx.last_insert_rowid();
-
     for (room, deaths) in stats.DeathsPerScreen {
         tx.execute(
-            "INSERT INTO RoomDeath (run_id, room_name, deaths) VALUES (?, ?, ?)",
-            params![run_id, room, deaths],
+            "INSERT INTO game_session_chapter_room_stats (gamesession_id, room_name, deaths_in_room) VALUES (?, ?, ?)",
+            params![session_id, room, deaths],
         )
         .map_err(|e| e.to_string())?;
     }
@@ -202,25 +216,27 @@ pub fn save_completed_run(
 #[tauri::command]
 pub fn update_run(
     state: tauri::State<'_, WsState>,
-    run_id: i32,
+    session_id: String,
+    room_name: String,
     deaths: i32,
-    strawberries: i32,
 ) -> Result<(), String> {
     let conn = get_conn(&state)?;
     conn.execute(
-        "UPDATE Run SET deaths = ?, strawberries = ? WHERE id = ?",
-        params![deaths, strawberries, run_id],
+        "INSERT INTO game_session_chapter_room_stats (gamesession_id, room_name, deaths_in_room) 
+         VALUES (?, ?, ?) 
+         ON CONFLICT(gamesession_id, room_name) DO UPDATE SET deaths_in_room = ?",
+        params![session_id, room_name, deaths, deaths],
     )
     .map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub fn delete_run(state: tauri::State<'_, WsState>, run_id: i32) -> Result<(), String> {
+pub fn delete_run(state: tauri::State<'_, WsState>, session_id: String) -> Result<(), String> {
     let conn = get_conn(&state)?;
-    conn.execute("DELETE FROM Run WHERE id = ?", [run_id])
+    conn.execute("DELETE FROM game_sessions WHERE id = ?", [session_id.clone()])
         .map_err(|e| e.to_string())?;
-    conn.execute("DELETE FROM RoomDeath WHERE run_id = ?", [run_id])
+    conn.execute("DELETE FROM game_session_chapter_room_stats WHERE gamesession_id = ?", [session_id])
         .map_err(|e| e.to_string())?;
     Ok(())
 }

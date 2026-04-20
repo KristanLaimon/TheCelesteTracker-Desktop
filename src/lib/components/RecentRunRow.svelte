@@ -1,6 +1,6 @@
 <script lang="ts">
     import FilterHdr from "~icons/material-symbols/filter-hdr";
-    import type { RecentRun } from "$lib/logic/sync_store.svelte";
+    import type { RecentRun } from "$lib/types/entities";
 
     let { run }: { run: RecentRun } = $props();
 </script>
@@ -11,7 +11,7 @@
             <div class="w-8 h-8 rounded bg-hub-primary/10 flex items-center justify-center text-hub-primary">
                 <FilterHdr class="text-lg" />
             </div>
-            <span class="font-bold text-zinc-200">{run.chapter_name} ({run.mode})</span>
+            <span class="font-bold text-zinc-200">{run.chapter_name} ({run.side_id})</span>
         </div>
     </td>
     <td class="px-6 py-4">
@@ -19,7 +19,7 @@
             {run.campaign_name === 'Celeste' ? 'Vanilla' : 'Modded'}
         </span>
     </td>
-    <td class="px-6 py-4 font-mono text-zinc-400">{run.completion_time || '--:--:--'}</td>
+    <td class="px-6 py-4 font-mono text-zinc-400">{run.date_time_start ? new Date(run.date_time_start).toLocaleTimeString() : '--:--:--'}</td>
     <td class="px-6 py-4 text-zinc-400">{run.deaths}</td>
     <td class="px-6 py-4 text-right">
         {#if run.golden}
