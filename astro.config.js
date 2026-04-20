@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 
 import svelte from "@astrojs/svelte";
+import Icons from "unplugin-icons/vite";
 
 // https://astro.build/config
 export default defineConfig({
@@ -10,8 +11,14 @@ export default defineConfig({
   outDir: "./dist",
 
   vite: {
-    //@ts-expect-error aaa
-    plugins: [tailwindcss()],
+    plugins: [
+      //@ts-expect-error aaa
+      tailwindcss(),
+      //@ts-expect-error aaa
+      Icons({
+        compiler: "astro",
+      }),
+    ],
     server: {
       warmup: {
         clientFiles: ["./src/pages/**/*.astro", "./src/layouts/**/*.astro", "./src/components/**/*.astro"],

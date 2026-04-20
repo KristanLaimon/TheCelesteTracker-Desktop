@@ -17,8 +17,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["unplugin-icons/types/astro"]
   },
+
   "include": ["src"],
   "exclude": ["**/src-tauri/**"]
 }

@@ -28,21 +28,21 @@
 }
 
 @theme {
-  --color-hub-primary: #ff788c;
-  --color-hub-primary-container: #520017;
-  --color-hub-secondary: #67d8d2;
-  --color-hub-tertiary: #ffc971;
-  --color-hub-bg: #131315;
-  --color-hub-surface: #18181b;
-  --color-hub-surface-high: #27272a;
-  --color-hub-outline: rgba(255, 255, 255, 0.08);
-  --color-hub-glass: rgba(24, 24, 27, 0.85);
-  --color-hub-hero-gradient: linear-gradient(to right, #131315 20%, transparent 100%);
-  --color-hub-card-bg: rgba(39, 39, 42, 0.4);
-  --color-hub-accent-gradient: linear-gradient(135deg, var(--hub-primary), #ff4d6d);
-  --color-hub-glass-filter: blur(16px);
+  --color-primary: #ff788c;
+  --color-primary-container: #520017;
+  --color-secondary: #67d8d2;
+  --color-tertiary: #ffc971;
+  --color-bg-base: #131315;
+  --color-surface: #18181b;
+  --color-surface-high: #27272a;
+  --color-outline-muted: rgba(255, 255, 255, 0.08);
+  --color-glass: rgba(24, 24, 27, 0.85);
+  --color-card-bg: rgba(39, 39, 42, 0.4);
 
-  /* Fonts */
-  --hub-font-headline: "Space Grotesk", sans-serif;
-  --hub-font-body: "Manrope", sans-serif;
+  --background-hero-gradient: linear-gradient(to right, #131315 20%, transparent 100%);
+  --background-accent-gradient: linear-gradient(135deg, #ff788c, #ff4d6d);
+  --blur-glass: 16px;
+
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Manrope", sans-serif;
 }
