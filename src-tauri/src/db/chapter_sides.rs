@@ -11,6 +11,7 @@ pub struct Model {
     pub side_id: String,
     pub berries_available: i64,
     pub berries_collected: i64,
+    pub heart_collected: i64,
     pub goldenstrawberry_achieved: i64,
     pub goldenwingstrawberry_achieved: i64,
 }

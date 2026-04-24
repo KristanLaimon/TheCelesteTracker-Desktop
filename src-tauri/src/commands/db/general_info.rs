@@ -76,12 +76,11 @@ pub async fn get_general_info(user_id: i64, slot_number: i64) -> Result<GeneralI
         .and_then(|r| r.total)
         .unwrap_or(0);
 
-    // c, d, f) Deaths, Dashes, Hearts
+    // c, d) Deaths, Dashes
     #[derive(FromQueryResult)]
     struct RoomStatsResult {
         deaths: Option<i64>,
         dashes: Option<i64>,
-        hearts: Option<i64>,
     }
     let room_stats = game_session_chapter_room_stats::Entity::find()
         .join(JoinType::InnerJoin, game_session_chapter_room_stats::Relation::GameSessions.def())
@@ -91,33 +90,34 @@ pub async fn get_general_info(user_id: i64, slot_number: i64) -> Result<GeneralI
         .select_only()
         .column_as(game_session_chapter_room_stats::Column::DeathsInRoom.sum(), "deaths")
         .column_as(game_session_chapter_room_stats::Column::DashesInRoom.sum(), "dashes")
-        .column_as(game_session_chapter_room_stats::Column::HeartsAchievedInRoom.sum(), "hearts")
         .into_model::<RoomStatsResult>()
         .one(db)
         .await
         .map_err(|e| e.to_string())?
-        .unwrap_or(RoomStatsResult { deaths: Some(0), dashes: Some(0), hearts: Some(0) });
+        .unwrap_or(RoomStatsResult { deaths: Some(0), dashes: Some(0) });
 
-    // e, g) Strawberries and Golden
+    // e, f, g) Strawberries, Hearts and Golden
     #[derive(FromQueryResult)]
-    struct BerryStatsResult {
+    struct ChapterSidesStatsResult {
         strawberries: Option<i64>,
+        hearts: Option<i64>,
         golden: Option<i64>,
         golden_wings: Option<i64>,
     }
-    let berry_stats = chapter_sides::Entity::find()
+    let chapter_sides_stats = chapter_sides::Entity::find()
         .join(JoinType::InnerJoin, chapter_sides::Relation::Chapters.def())
         .join(JoinType::InnerJoin, chapters::Relation::Campaigns.def())
         .filter(campaigns::Column::SaveDataId.eq(save_data_id))
         .select_only()
         .column_as(chapter_sides::Column::BerriesCollected.sum(), "strawberries")
+        .column_as(chapter_sides::Column::HeartCollected.sum(), "hearts")
         .column_as(chapter_sides::Column::GoldenstrawberryAchieved.sum(), "golden")
         .column_as(chapter_sides::Column::GoldenwingstrawberryAchieved.sum(), "golden_wings")
-        .into_model::<BerryStatsResult>()
+        .into_model::<ChapterSidesStatsResult>()
         .one(db)
         .await
         .map_err(|e| e.to_string())?
-        .unwrap_or(BerryStatsResult { strawberries: Some(0), golden: Some(0), golden_wings: Some(0) });
+        .unwrap_or(ChapterSidesStatsResult { strawberries: Some(0), hearts: Some(0), golden: Some(0), golden_wings: Some(0) });
 
     Ok(GeneralInfo {
         total_campaigns,
@@ -126,8 +126,8 @@ pub async fn get_general_info(user_id: i64, slot_number: i64) -> Result<GeneralI
         total_playtime: playtime,
         total_deaths: room_stats.deaths.unwrap_or(0),
         total_dashes: room_stats.dashes.unwrap_or(0),
-        total_strawberries: berry_stats.strawberries.unwrap_or(0),
-        total_hearts: room_stats.hearts.unwrap_or(0),
-        total_golden_strawberries: berry_stats.golden.unwrap_or(0) + berry_stats.golden_wings.unwrap_or(0),
+        total_strawberries: chapter_sides_stats.strawberries.unwrap_or(0),
+        total_hearts: chapter_sides_stats.hearts.unwrap_or(0),
+        total_golden_strawberries: chapter_sides_stats.golden.unwrap_or(0) + chapter_sides_stats.golden_wings.unwrap_or(0),
     })
 }
