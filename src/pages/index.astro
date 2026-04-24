@@ -3,6 +3,7 @@ import Layout from "../Layout.astro";
 import RecentRunsTable from "../components/index/RecentRunsTable.svelte";
 import GeneralInfoGrid from "../components/index/GeneralInfoGrid.svelte";
 import decalPhoto from "../assets/photo_celeste_decal.png";
+import farewellBanner from "../assets/bg_horizontal_farewell_banner.jpg";
 
 import HeaderBerry from "../components/global/HeaderBerry.astro";
 
@@ -75,21 +76,13 @@ import IconWifi from "~icons/material-symbols/wifi";
   <main class="pt-16 pb-20">
     <!-- Hero Section -->
     <section class="relative h-[300px] md:h-[400px] w-full overflow-hidden mountain-bg">
-      <!-- Mountain Animation -->
+      <!-- Background Image -->
       <div class="absolute inset-0 z-0">
-        <div
-          class="absolute bottom-0 left-0 w-[400%] h-[300px] flex items-end opacity-10 pointer-events-none"
-          style="animation: drift 120s linear infinite;"
-        >
-          {
-            Array.from({ length: 40 }).map(() => (
-              <>
-                <div class="peak bg-linear-to-t from-white/50 to-transparent w-[150px] md:w-[250px] h-[100px] md:h-[200px] -mx-4 md:-mx-8 blur-[2px]" />
-                <div class="peak bg-linear-to-t from-white/30 to-transparent w-[100px] md:w-[180px] h-[70px] md:h-[130px] -mx-4 md:-mx-8 blur-[1px]" />
-              </>
-            ))
-          }
-        </div>
+        <img 
+          src={farewellBanner.src} 
+          alt="Farewell Background" 
+          class="w-full h-full object-cover opacity-40"
+        />
         <div class="absolute inset-0 bg-hero-gradient"></div>
         <div class="absolute inset-0 bg-linear-to-t from-bg-base via-transparent to-transparent"></div>
       </div>

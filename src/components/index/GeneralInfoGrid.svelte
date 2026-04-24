@@ -10,6 +10,7 @@
     import iconFlag from "../../assets/interface_level_cleared_flag.png";
     import iconCassette from "../../assets/interface_cassete.png";
     import iconBird from "../../assets/interface_bird.png";
+    import iconGolden from "../../assets/interface_goldenstrawberry_icon.png";
 
     interface GeneralInfo {
         totalCampaigns: number;
@@ -120,7 +121,7 @@
 
         <!-- Goldens -->
         <div class="bg-card-bg/40 border border-outline-muted p-4 rounded-xl flex items-center gap-4">
-            <img src={iconStrawberry.src} alt="Goldens" class="w-8 h-8 object-contain brightness-[1.5] sepia-[1] saturate-[10] hue-rotate-[10deg]" />
+            <img src={iconGolden.src} alt="Goldens" class="w-8 h-8 object-contain opacity-80" />
             <div>
                 <p class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-0.5">Goldens</p>
                 <p class="text-xl font-headline font-bold text-orange-400">{stats.totalGoldenStrawberries}</p>
