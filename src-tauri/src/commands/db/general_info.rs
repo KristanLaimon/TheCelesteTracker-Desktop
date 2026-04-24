@@ -7,6 +7,8 @@ use serde::{Serialize, Deserialize};
 #[serde(rename_all = "camelCase")]
 pub struct GeneralInfo {
     pub total_campaigns: i64,
+    pub total_chapters: i64,
+    pub total_rooms: i64,
     pub total_playtime: i64,
     pub total_deaths: i64,
     pub total_dashes: i64,
@@ -31,6 +33,28 @@ pub async fn get_general_info(user_id: i64, slot_number: i64) -> Result<GeneralI
 
     // a) Total campaigns
     let total_campaigns = campaigns::Entity::find()
+        .filter(campaigns::Column::SaveDataId.eq(save_data_id))
+        .count(db)
+        .await
+        .map_err(|e| e.to_string())? as i64;
+
+    // Total Chapters Played (unique chapter_sid in GameSessions)
+    let total_chapters = game_sessions::Entity::find()
+        .join(JoinType::InnerJoin, game_sessions::Relation::Chapters.def())
+        .join(JoinType::InnerJoin, chapters::Relation::Campaigns.def())
+        .filter(campaigns::Column::SaveDataId.eq(save_data_id))
+        .select_only()
+        .column(game_sessions::Column::ChapterSid)
+        .distinct()
+        .count(db)
+        .await
+        .map_err(|e| e.to_string())? as i64;
+
+    // Total Rooms Played (unique gamesession_id + room_name in stats)
+    let total_rooms = game_session_chapter_room_stats::Entity::find()
+        .join(JoinType::InnerJoin, game_session_chapter_room_stats::Relation::GameSessions.def())
+        .join(JoinType::InnerJoin, game_sessions::Relation::Chapters.def())
+        .join(JoinType::InnerJoin, chapters::Relation::Campaigns.def())
         .filter(campaigns::Column::SaveDataId.eq(save_data_id))
         .count(db)
         .await
@@ -97,6 +121,8 @@ pub async fn get_general_info(user_id: i64, slot_number: i64) -> Result<GeneralI
 
     Ok(GeneralInfo {
         total_campaigns,
+        total_chapters,
+        total_rooms,
         total_playtime: playtime,
         total_deaths: room_stats.deaths.unwrap_or(0),
         total_dashes: room_stats.dashes.unwrap_or(0),
