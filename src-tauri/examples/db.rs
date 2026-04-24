@@ -11,7 +11,7 @@ async fn main() {
         .await
         .expect("Error initializing the database");
 
-    let res = runs_get_recent_ones().await.expect("strange error with db");
+    let res = runs_get_recent_ones(Some(10), None).await.expect("strange error with db");
 
     dbg!(res);
 }

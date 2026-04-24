@@ -1,7 +1,65 @@
-# Tauri + Vanilla TS
+# TheCelesteTracker Desktop
 
-This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.
+<div align="center">
+  <img src=".github/banner.png" alt="TheCelesteTracker_Desktop_Banner" width="100%">
 
-## Recommended IDE Setup
+  ### **Stop tracking Celeste in Excel.**
+  *Auto-track runs, deaths, and progress with zero manual effort.*
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+  [Features](#features) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Architecture](#architecture)
+</div>
+
+---
+
+**TheCelesteTracker** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
+
+> ***Still under development, not ready for usage***
+
+## Why this exists?
+Celeste community uses **spreadsheets** for pretty much anything.  Achievements, map progress, lobby stats—all manual.
+**No more.** TheCelesteTracker aims to automates the "Excel grind" so you can focus on the "Celeste grind."
+
+Note: Ofc, there are mods to track this info, but theyi all in-game, limited by the interface and sometimes they have their own-learning-curve, making them kinda hard to use.
+
+## Key Features
+
+- **⚡ Real-time Sync**: Auto-connect to Everest WebSocket server.
+- **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
+- **🖥️ Live Overlay**: Immersive HUD triggers on level entry.
+- **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
+- **🛠️ Rust-Backed**: Type-safe event handling.
+
+## Preview
+
+https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
+<p><i>Live gameplay event tracking in action.</i></p>
+
+*Current UI is subject to change during beta.*
+
+## Tech Stack
+- **Backend**: Rust + [Tauri v2](https://v2.tauri.app/)
+- **Frontend**: SvelteKit + Tailwind CSS
+- **Async**: Tokio (WebSockets)
+
+## Getting Started
+
+### Prerequisites
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Bun](https://bun.sh/) or Node.js
+- **Celeste Mod**: Install the Celeste Tracker mod in Everest. Not in gamebanana yet, must be installed from [its repo](https://github.com/KristanLaimon/TheCelesteTracker-Mod)
+
+### Installation
+```bash
+git clone https://github.com/yourusername/TheCelesteTracker_Desktop.git
+cd TheCelesteTracker_Desktop
+bun install
+bun run tauri dev
+```
+
+## Architecture
+- `src-tauri/src/ws.rs`: WebSocket lifecycle + port scanning.
+- `src-tauri/src/events.rs`: Strong types for gameplay events.
+- `src/lib/types/celeste_state.svelte.ts`: Reactive state via Svelte 5 Runes.
+
+## License
+MIT License. Created for the Celeste community.

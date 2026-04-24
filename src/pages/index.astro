@@ -1,6 +1,9 @@
 ---
 import Layout from "../Layout.astro";
 import RecentRunsTable from "../components/index/RecentRunsTable.svelte";
+import decalPhoto from "../assets/photo_celeste_decal.png";
+
+import HeaderBerry from "../components/global/HeaderBerry.astro";
 
 import IconSettings from "~icons/material-symbols/settings";
 import IconNotifications from "~icons/material-symbols/notifications";
@@ -14,17 +17,39 @@ import IconTerminal from "~icons/material-symbols/terminal";
 import IconWifi from "~icons/material-symbols/wifi";
 ---
 
-<Layout title="Main page!" bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body" bodyId="page-hub">
+<Layout
+  title="Main page!"
+  bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
+  bodyId="page-hub"
+>
+  <style>
+    @keyframes drift {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+    .mountain-bg {
+      background: linear-gradient(to bottom, #1a1a1e 0%, #131315 100%);
+    }
+    .peak {
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    }
+  </style>
+
   <!-- Header -->
   <header
     class="fixed top-0 left-0 w-full h-16 bg-bg-base/80 backdrop-blur-md border-b border-outline-muted flex justify-between items-center px-6 md:px-12 z-50"
   >
-    <div class="flex items-center gap-8">
-      <span class="font-headline font-black text-xl text-tertiary tracking-tight">Celeste Tracker</span>
-      <nav class="hidden lg:flex gap-6">
-        <a class="text-sm font-medium text-zinc-400 hover:text-primary transition-colors" href="#">Global Stats</a>
-        <a class="text-sm font-medium text-zinc-400 hover:text-primary transition-colors" href="#">Resources</a>
-      </nav>
+    <div class="flex items-center gap-4">
+      <HeaderBerry />
+      <span
+        class="font-headline font-black text-2xl text-white tracking-tighter uppercase italic bg-accent-gradient bg-clip-text text-transparent drop-shadow-sm"
+      >
+        Celeste Tracker
+      </span>
     </div>
     <div class="flex items-center gap-4 md:gap-6">
       <div class="flex items-center gap-2">
@@ -33,7 +58,8 @@ import IconWifi from "~icons/material-symbols/wifi";
         </button>
         <button class="p-2 text-zinc-400 hover:text-white transition-colors relative">
           <IconNotifications class="w-6 h-6" />
-          <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-accent-gradient rounded-full border border-zinc-950"></span>
+          <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-accent-gradient rounded-full border border-zinc-950"
+          ></span>
         </button>
       </div>
       <div class="hidden sm:block h-8 w-px bg-outline-muted"></div>
@@ -42,34 +68,49 @@ import IconWifi from "~icons/material-symbols/wifi";
       >
         Live Run
       </button>
-      <img
-        alt="User Avatar"
-        class="w-8 h-8 rounded-full border border-primary/40"
-        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYK0EMlyA798GWisNiQlYZcFP3m2AS9BZNIJjRLfyckeRC_dFUFaVvHiJ7Xs4B_bKxyhk-EMcVp87ewJNc5Y_qk65gcX4fBrXNcjNO-Oj_cdFlZppzTRt8rdwrZa-ji0-RJxRuTaH1eVPT2adAB5x8UvMuF8jSNd6dPs5HSxc1RQu48Ru0xyIGYmNOylkJP18GDQhAdUyt5YXyEW2rC2n9ssyCR6PbeMakj9ZnqaiJPOT43KNzzJkkMXXGtPdO7Lv7mdHnlKiCrZw"
-      />
     </div>
   </header>
   <!-- Main Content -->
   <main class="pt-16 pb-20">
     <!-- Hero Section -->
-    <section class="relative h-[300px] md:h-[350px] w-full overflow-hidden">
+    <section class="relative h-[300px] md:h-[400px] w-full overflow-hidden mountain-bg">
+      <!-- Mountain Animation -->
       <div class="absolute inset-0 z-0">
-        <img
-          alt="Celeste Background"
-          class="w-full h-full object-cover object-center opacity-30"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo_qk9qmuxseYHknyFGDgEbZrE051CmZbXfWk8eGWfHXenynBXM1CoDu0JRLkvKg1ZwLayRntlmhMkKDPHYFYKtA7ZDXW5W7_YkCekwlTFa9yZO9sg0nvRIThSxXGYXgjk_OaOKPMY0klkJq-NTJVp9t7bzABbMbIrUBtm-yrn4CaYpoOd5_phjGuFvudMpYjfMt-ZB0OtAP5Q0wquxFKkSPgFXrTx8KbEKNrnjcOhXLb9SnVbXc_jOJCUIplzpyuvBUBZ3didR4Q"
-        />
+        <div
+          class="absolute bottom-0 left-0 w-[400%] h-[300px] flex items-end opacity-10 pointer-events-none"
+          style="animation: drift 120s linear infinite;"
+        >
+          {
+            Array.from({ length: 40 }).map(() => (
+              <>
+                <div class="peak bg-linear-to-t from-white/50 to-transparent w-[150px] md:w-[250px] h-[100px] md:h-[200px] -mx-4 md:-mx-8 blur-[2px]" />
+                <div class="peak bg-linear-to-t from-white/30 to-transparent w-[100px] md:w-[180px] h-[70px] md:h-[130px] -mx-4 md:-mx-8 blur-[1px]" />
+              </>
+            ))
+          }
+        </div>
         <div class="absolute inset-0 bg-hero-gradient"></div>
         <div class="absolute inset-0 bg-linear-to-t from-bg-base via-transparent to-transparent"></div>
       </div>
-      <div class="relative z-10 h-full flex flex-col justify-end px-6 md:px-12 pb-12">
-        <h1 class="text-4xl md:text-6xl font-headline font-bold text-white tracking-tighter mb-2">
-          Celeste <span class="text-primary italic">Tracker</span>
-        </h1>
-        <p class="text-zinc-400 max-w-2xl text-base md:text-lg leading-relaxed">
-          Sculpt your own peaks. Manage your mountain progress, vanilla speedruns, and custom mod collections with
-          surgical precision.
-        </p>
+
+      <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-12">
+        <div class="pb-12 max-w-2xl">
+          <h1 class="text-5xl md:text-7xl font-headline font-bold text-white tracking-tighter mb-4">
+            Celeste <span class="text-primary italic">Tracker</span>
+          </h1>
+          <p class="text-zinc-400 text-lg md:text-xl leading-relaxed font-medium">
+            Your mountain progress and all the stats you need.
+          </p>
+        </div>
+
+        <div class="hidden lg:block relative group">
+          <div class="absolute inset-0 bg-primary/20 blur-3xl group-hover:bg-primary/30 transition-all"></div>
+          <img
+            alt="Celeste Decal"
+            class="relative w-[350px] drop-shadow-[0_0_30px_rgba(255,120,140,0.3)] group-hover:scale-105 transition-transform duration-700"
+            src={decalPhoto.src}
+          />
+        </div>
       </div>
     </section>
     <!-- Navigation Cards Grid -->

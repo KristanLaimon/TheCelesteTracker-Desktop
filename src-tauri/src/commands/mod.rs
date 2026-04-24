@@ -12,5 +12,6 @@ pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder
     builder.invoke_handler(tauri::generate_handler![
         init_db,
         db::runs::runs_get_recent_ones,
+        db::general_info::get_general_info,
     ])
 }
