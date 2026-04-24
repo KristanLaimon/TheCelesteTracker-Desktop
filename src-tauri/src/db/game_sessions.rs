@@ -52,6 +52,16 @@ impl Related<super::chapters::Entity> for Entity {
     }
 }
 
+impl Related<super::campaigns::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::chapters::Relation::Campaigns.def()
+    }
+
+    fn via() -> Option<RelationDef> {
+        Some(Relation::Chapters.def())
+    }
+}
+
 impl Related<super::game_session_chapter_room_stats::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::GameSessionChapterRoomStats.def()

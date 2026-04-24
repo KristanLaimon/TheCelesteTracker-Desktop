@@ -1,7 +1,7 @@
 ---
 import Layout from "../Layout.astro";
-import Table from "../components/index/Table.astro";
-import type { RunData } from "../components/index/RowRunInfo.astro";
+import RecentRunsTable from "../components/index/RecentRunsTable.svelte";
+import type { RunData } from "../components/index/RecentRunsTable.svelte";
 
 import IconSettings from "~icons/material-symbols/settings";
 import IconNotifications from "~icons/material-symbols/notifications";
@@ -11,51 +11,57 @@ import IconExtension from "~icons/material-symbols/extension";
 import IconLeaderboard from "~icons/material-symbols/leaderboard";
 import IconMap from "~icons/material-symbols/map";
 import IconHistory from "~icons/material-symbols/history";
-import IconTimer from "~icons/material-symbols/timer";
 import IconTerminal from "~icons/material-symbols/terminal";
 import IconWifi from "~icons/material-symbols/wifi";
 
-const tableHeaders = ["Level Name", "Side", "Type", "Clear Time", "Deaths", "Dashes", "Status"];
 const tableRows: RunData[] = [
   {
     levelName: "Forsaken City",
     levelSide: "SIDE A",
     type: "Vanilla",
+    attemptType: "Normal",
     clearTime: 84452,
     deaths: 0,
     dashes: 154,
+    berries: 20,
     status: "PB",
-    iconType: "vanilla",
+    iconPath: "",
   },
   {
     levelName: "Strawberry Jam - Beginner Heart",
     levelSide: "SIDE A",
     type: "Modded",
+    attemptType: "Normal",
     clearTime: 942110,
     deaths: 12,
     dashes: 452,
+    berries: 1,
     status: "Completed",
-    iconType: "modded",
+    iconPath: "",
   },
   {
     levelName: "Mirror Temple",
     levelSide: "SIDE B",
     type: "Vanilla",
+    attemptType: "Golden Attempt",
     clearTime: 492880,
     deaths: 0,
     dashes: 210,
+    berries: 1,
     status: "Goldenberry completed",
-    iconType: "temple",
+    iconPath: "",
   },
   {
     levelName: "Summit",
     levelSide: "SIDE A",
     type: "Vanilla",
+    attemptType: "Wings Golden",
     clearTime: 1925112,
     deaths: 84,
     dashes: 1240,
+    berries: 47,
     status: "Completed",
-    iconType: "summit",
+    iconPath: "",
   },
 ];
 ---
@@ -179,16 +185,7 @@ const tableRows: RunData[] = [
     </section>
     <!-- Recent Run History Section -->
     <section class="px-6 md:px-12 mt-12">
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-accent-gradient flex items-center justify-center">
-            <IconTimer class="text-white text-xl" />
-          </div>
-          <h2 class="text-2xl font-headline font-bold text-white">Recent Run History</h2>
-        </div>
-        <button class="text-sm font-medium text-primary hover:underline transition-all">Export Data</button>
-      </div>
-      <Table headers={tableHeaders} rows={tableRows} />
+      <RecentRunsTable rows={tableRows} client:load />
     </section>
   </main>
   <!-- Footer -->

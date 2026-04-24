@@ -16,7 +16,7 @@ export default defineConfig({
       tailwindcss(),
       //@ts-expect-error aaa
       Icons({
-        compiler: "astro",
+        compiler: "svelte",
       }),
     ],
     server: {

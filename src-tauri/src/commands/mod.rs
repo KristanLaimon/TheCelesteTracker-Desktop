@@ -11,5 +11,6 @@ pub async fn init_db(path: String) -> Result<(), String> {
 pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder<R> {
     builder.invoke_handler(tauri::generate_handler![
         init_db,
+        db::runs::runs_get_recent_ones,
     ])
 }

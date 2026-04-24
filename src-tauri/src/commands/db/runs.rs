@@ -1,36 +1,137 @@
+use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::Order;
+use sea_orm::QueryFilter;
 use sea_orm::QueryOrder;
 use sea_orm::QuerySelect;
 
 use crate::db::*;
 use crate::DB;
-use sea_orm::error::DbErr as OrmError;
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum CampaignType {
+    Vanilla,
+    Modded
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum AttemptType {
+    #[serde(rename = "Normal")]
+    Normal,
+    #[serde(rename = "Golden Attempt")]
+    GoldenAttempt,
+    #[serde(rename = "Wings Golden")]
+    WingsGolden,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum RunStatus {
+    Completed,
+    #[serde(rename = "Goldenberry completed")]
+    GoldenberryCompleted,
+    Attempted,
+    PB
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct RunData {
+    pub level_name: String,
+    pub level_side: String,
+    #[serde(rename = "type")]
+    pub campaign_type: CampaignType,
+    pub attempt_type: AttemptType,
+    pub clear_time: i64,
+    pub deaths: i64,
+    pub dashes: i64,
+    pub jumps: i64,
+    pub berries_achieved: i32,
+    pub status: RunStatus,
+    pub icon_path: String,
+}
 
 #[tauri::command]
-pub async fn runs_get_recent_ones() -> Result<(), OrmError> {
-    let a: Vec<(
+pub async fn runs_get_recent_ones() -> Result<Vec<RunData>, String> {
+
+    let query_result: Vec<(
         game_sessions::Model,
-        Option<chapter_sides::Model>,
         Option<chapters::Model>,
+        Option<campaigns::Model>,
     )> = game_sessions::Entity::find()
         .limit(8)
         .order_by(game_sessions::Column::DateTimeStart, Order::Desc)
-        .find_also_related(chapter_sides::Entity)
         .find_also_related(chapters::Entity)
+        .find_also_related(campaigns::Entity)
         .all(DB!())
         .await
-        .expect("Error trying to query game_sessions for some reason");
+        .map_err(|e| e.to_string())?;
 
-    for (session, side, chapter) in a {
-        println!("Session ID: {}", session.id);
-        if let Some(s) = side {
-            println!("  Side: {}", s.side_id);
+    let mut to_return: Vec<RunData> = Vec::with_capacity(query_result.len());
+
+    for (session, chapter, campaign) in query_result {
+        let attempt_type = if session.is_goldenberry_attempt == 1 {
+            AttemptType::GoldenAttempt
+        } else {
+            AttemptType::Normal
+        };
+
+
+        let campaign_type = if let Some(camp) = campaign {
+            if camp.campaign_name_id.to_lowercase().contains("celeste") {
+                CampaignType::Vanilla
+            } else {
+                CampaignType::Modded
+            }
+        } else {
+            CampaignType::Modded
+        };
+
+        let status = if session.is_goldenberry_completed == 1 {
+            RunStatus::GoldenberryCompleted
+        } else {
+            RunStatus::Completed
+        };
+
+        #[derive(sea_orm::FromQueryResult)]
+        struct RoomTotals {
+            total_deaths: i64,
+            total_dashes: i64,
+            total_jumps: i64,
+            total_strawberries_achieved: i32
         }
-        if let Some(c) = chapter {
-            println!("  Chapter: {:?}", c.name);
-        }
+
+        let totals = game_session_chapter_room_stats::Entity::find()
+            .filter(game_session_chapter_room_stats::Column::ChapterSid.eq(session.id))
+            .select_only()
+            .column_as(game_session_chapter_room_stats::Column::DeathsInRoom.sum(), "total_deaths")
+            .column_as(game_session_chapter_room_stats::Column::DashesInRoom.sum(), "total_dashes")
+            .column_as(game_session_chapter_room_stats::Column::JumpsInRoom.sum(), "total_jumps")
+            .column_as(game_session_chapter_room_stats::Column::StrawberriesAchievedInRoom.sum(), "total_strawberries_achieved")
+            .into_model::<RoomTotals>()
+            .one(DB!())
+            .await
+            .map_err(|e| e.to_string())?;
+
+        to_return.push(RunData {
+            level_name: chapter.and_then(|c| c.name).unwrap_or_else(|| "Unknown Chapter".to_string()),
+            level_side: match session.side_id.as_str() {
+                "SIDEA" => "SIDE A".to_string(),
+                "SIDEB" => "SIDE B".to_string(),
+                "SIDEC" => "SIDE C".to_string(),
+                _ => session.side_id.clone(),
+            },
+            campaign_type: campaign_type,
+            attempt_type: attempt_type,
+            clear_time: session.duration_ms,
+            deaths: totals.as_ref().map_or(0, |x| x.total_deaths),
+            dashes: totals.as_ref().map_or(0, |x| x.total_dashes),
+            jumps: totals.as_ref().map_or(0, |x| x.total_jumps),
+            berries_achieved: totals.as_ref().map_or(0, |x| x.total_strawberries_achieved),
+            status: status,
+            icon_path: "".to_string(),
+        });
     }
 
-    Ok(())
+    Ok(to_return)
 }
