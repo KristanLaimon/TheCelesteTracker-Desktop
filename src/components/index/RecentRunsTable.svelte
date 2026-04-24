@@ -28,6 +28,8 @@
   import logo10 from "../../assets/level_10_logo_core.png";
   import logo11 from "../../assets/level_11_logo_farewell_both_front_back.png";
 
+  import { saveStore } from "/src/lib/saveStore.svelte.ts";
+
   type RunData = {
     levelName: string;
     levelSide: string;
@@ -46,15 +48,22 @@
   let loading = $state(false);
   let hasMore = $state(true);
 
-  async function fetchRuns(limit: number, offset: number) {
+  async function fetchRuns(limit: number, offset: number, reset: boolean = false) {
     if (loading) return;
     loading = true;
     try {
       const newRows: RunData[] = await invoke("runs_get_recent_ones", { limit, offset });
       if (newRows.length < limit) {
         hasMore = false;
+      } else {
+        hasMore = true;
       }
-      rows = [...rows, ...newRows];
+      
+      if (reset) {
+        rows = newRows;
+      } else {
+        rows = [...rows, ...newRows];
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -62,8 +71,9 @@
     }
   }
 
-  onMount(() => {
-    fetchRuns(10, 0);
+  $effect(() => {
+    // Re-fetch when slot changes
+    fetchRuns(10, 0, true);
   });
 
   function loadMore() {

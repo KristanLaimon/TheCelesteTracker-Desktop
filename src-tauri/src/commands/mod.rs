@@ -13,5 +13,6 @@ pub fn register<R: tauri::Runtime>(builder: tauri::Builder<R>) -> tauri::Builder
         init_db,
         db::runs::runs_get_recent_ones,
         db::general_info::get_general_info,
+        db::save_slots::get_save_slots,
     ])
 }
