@@ -52,14 +52,18 @@ pub struct RunData {
 }
 
 #[tauri::command]
-pub async fn runs_get_recent_ones() -> Result<Vec<RunData>, String> {
+pub async fn runs_get_recent_ones(limit: Option<u64>, offset: Option<u64>) -> Result<Vec<RunData>, String> {
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(0);
+
     let query_result: Vec<(
         game_sessions::Model,
         Option<chapters::Model>,
     )> = game_sessions::Entity::find()
         .find_also_related(chapters::Entity)
         .order_by(game_sessions::Column::DateTimeStart, Order::Desc)
-        .limit(8)
+        .limit(limit)
+        .offset(offset)
         .all(DB!())
         .await
         .map_err(|e| e.to_string())?;

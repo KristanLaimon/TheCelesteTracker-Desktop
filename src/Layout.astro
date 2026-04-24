@@ -22,7 +22,7 @@ const { bodyClassNames = "", title, bodyId } = Astro.props;
     <title>{title}</title>
   </head>
   <!-- prettier-ignore -->
-  <body class={twMerge([ "bg-bg-base text-zinc-100 font-inter antialiased selection:bg-primary selection:text-white ", bodyClassNames, ])} id={bodyId} >
+  <body class={twMerge([ "bg-bg-base text-zinc-100 font-montserrat antialiased selection:bg-primary selection:text-white ", bodyClassNames, ])} id={bodyId} >
     <GlobalHeader />
     <slot />
     <GlobalFooter />

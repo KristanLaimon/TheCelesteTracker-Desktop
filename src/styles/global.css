@@ -1,6 +1,20 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: "montserrat";
+  src: url("/fonts/montserrat.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "silkscreen";
+  src: url("/fonts/silkscreen.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "dmsans";
   src: url("/fonts/dmsans_variable.ttf") format("truetype");
 }
@@ -25,6 +39,8 @@
   --font-inter: "inter";
   --font-labelleaurore: "labelleaurore";
   --font-lato: "lato";
+  --font-montserrat: "montserrat", sans-serif;
+  --font-silkscreen: "silkscreen", cursive;
 }
 
 @theme {
@@ -43,6 +59,7 @@
   --background-accent-gradient: linear-gradient(135deg, #ff788c, #ff4d6d);
   --blur-glass: 16px;
 
-  --font-headline: "Space Grotesk", sans-serif;
-  --font-body: "Manrope", sans-serif;
+  --font-headline: "montserrat", sans-serif;
+  --font-body: "montserrat", sans-serif;
+  --font-pixel: "silkscreen", cursive;
 }

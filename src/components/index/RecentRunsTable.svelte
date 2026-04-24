@@ -43,16 +43,32 @@
   };
 
   let rows: RunData[] = $state([]);
+  let loading = $state(false);
+  let hasMore = $state(true);
 
-  onMount(async () => {
-    console.log("On mount menu!!")
+  async function fetchRuns(limit: number, offset: number) {
+    if (loading) return;
+    loading = true;
     try {
-      rows = await invoke("runs_get_recent_ones");
-      console.log(rows);
+      const newRows: RunData[] = await invoke("runs_get_recent_ones", { limit, offset });
+      if (newRows.length < limit) {
+        hasMore = false;
+      }
+      rows = [...rows, ...newRows];
     } catch (e) {
       console.error(e);
+    } finally {
+      loading = false;
     }
+  }
+
+  onMount(() => {
+    fetchRuns(10, 0);
   });
+
+  function loadMore() {
+    fetchRuns(15, rows.length);
+  }
 
   const headers = ["Level Name", "Side", "Type", "Attempt", "Time", "Deaths", "Dashes", "Berries achieved", "Status"];
 
@@ -114,9 +130,27 @@
   const attemptTypeColors = {
     "Wings Golden": "bg-yellow-500/10 text-yellow-500",
     "Normal": "bg-zinc-800 text-zinc-400",
-    "Golden Attempt": "bg-red-500/10 text-red-500",
+    "Golden Attempt": "bg-yellow-500/10 text-yellow-500/80 border border-yellow-500/20",
   };
 </script>
+
+<style>
+  @keyframes golden-shine {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .status-goldenberry {
+    background: linear-gradient(
+      90deg, 
+      rgba(250, 204, 21, 0) 0%, 
+      rgba(250, 204, 21, 0.4) 50%, 
+      rgba(250, 204, 21, 0) 100%
+    );
+    background-size: 200% auto;
+    animation: golden-shine 3s linear infinite;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.8);
+  }
+</style>
 
 <div class="flex items-center justify-between mb-6">
   <div class="flex items-center gap-3">
@@ -133,7 +167,7 @@
     <thead>
       <tr class="border-b border-outline-muted bg-zinc-900/50">
         {#each headers as header, i}
-          <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold {i === headers.length - 1 ? 'text-right' : ''}">
+          <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold {i === 0 ? 'text-left' : 'text-center'}">
             {header}
           </th>
         {/each}
@@ -143,10 +177,11 @@
       {#each rows as row}
         {@const levelIcon = getLevelIcon(row)}
         {@const IconData = levelIcon ? null : (row.type === 'Vanilla' ? iconMap.vanilla : iconMap.modded)}
-        {@const isGolden = row.status === "Goldenberry completed"}
-        <tr class="hover:bg-white/5 transition-all group border-l-2 {isGolden ? 'border-l-yellow-400 bg-yellow-400/5 shadow-[inset_0_0_20px_rgba(250,204,21,0.05)]' : 'border-l-transparent'}">
+        {@const isGoldenCompleted = row.status === "Goldenberry completed"}
+        {@const isGoldenAttempt = row.attemptType === "Golden Attempt"}
+        <tr class="hover:bg-white/5 transition-all group border-l-2 {isGoldenCompleted ? 'border-l-yellow-400 bg-yellow-400/5 shadow-[inset_0_0_20px_rgba(250,204,21,0.05)]' : 'border-l-transparent'}">
           <td class="px-6 py-4">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 justify-start">
               <div class="w-8 h-8 rounded flex items-center justify-center {IconData ? IconData.bg : 'bg-zinc-800/50'} {IconData ? IconData.color : ''}">
                 {#if levelIcon}
                   <img src={levelIcon} alt="" class="w-7 h-7 object-contain" />
@@ -158,51 +193,82 @@
             </div>
           </td>
           <td class="px-6 py-4">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 justify-center">
               {#if heartIcons[row.levelSide]}
                 <img src={heartIcons[row.levelSide].src || heartIcons[row.levelSide]} alt="" class="w-4 h-4" />
               {/if}
-              <span class="text-[10px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 whitespace-nowrap">
+              <span class="text-[12px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 whitespace-nowrap">
                 {row.levelSide}
               </span>
             </div>
           </td>
-          <td class="px-6 py-4">
-            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter {row.type === 'Vanilla' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}">
+          <td class="px-6 py-4 text-center">
+            <span class="px-2 py-1 rounded text-[12px] font-bold uppercase tracking-tighter {row.type === 'Vanilla' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}">
               {row.type}
             </span>
           </td>
-          <td class="px-6 py-4">
-            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter {attemptTypeColors[row.attemptType]}">
+          <td class="px-6 py-4 text-center">
+            <span class="px-2 py-1 rounded text-[12px] font-bold uppercase tracking-tighter {attemptTypeColors[row.attemptType]}">
               {row.attemptType}
             </span>
           </td>
-          <td class="px-6 py-4 font-mono text-zinc-400">
-            <div class="flex items-center gap-2">
+          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
+            <div class="flex items-center gap-2 justify-center">
               <img src={timerIcon.src || timerIcon} alt="" class="w-4 h-4 opacity-50" />
               {formatTime(row.clearTime)}
             </div>
           </td>
-          <td class="px-6 py-4 text-zinc-400">
-            <div class="flex items-center gap-2">
-              <img src={(deathIcons[row.levelSide] || sideADeaths).src || (deathIcons[row.levelSide] || sideADeaths)} alt="" class="w-5 h-5" />
-              {row.deaths}
+          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
+            <div class="flex items-center gap-2 justify-center">
+              {#if isGoldenAttempt}
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" title="Golden Death"></div>
+              {:else}
+                <img src={(deathIcons[row.levelSide] || sideADeaths).src || (deathIcons[row.levelSide] || sideADeaths)} alt="" class="w-5 h-5" />
+                {row.deaths}
+              {/if}
             </div>
           </td>
-          <td class="px-6 py-4 text-zinc-400">{row.dashes}</td>
-          <td class="px-6 py-4 text-zinc-400">
-            <div class="flex items-center gap-2">
+          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">{row.dashes}</td>
+          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center w-24">
+            <div class="flex items-center gap-2 justify-center">
               <img src={strawberryIcon.src || strawberryIcon} alt="" class="w-5 h-5" />
               {row.berriesAchieved}
             </div>
           </td>
-          <td class="px-6 py-4 text-right">
-            <span class="font-bold text-sm {row.status === 'PB' ? 'text-green-400' : ''} {row.status === 'Goldenberry completed' ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]' : ''} {row.status === 'Completed' ? 'text-zinc-500' : ''} {row.status === 'Attempted' ? 'text-red-400/70' : ''}">
-              {row.status === "Goldenberry completed" ? "Goldenberry" : row.status}
+          <td class="px-6 py-4 text-center">
+            <span class="font-bold text-sm {row.status === 'PB' ? 'text-green-400' : ''} {isGoldenCompleted ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] status-goldenberry px-2 py-1 rounded' : ''} {row.status === 'Completed' ? 'text-zinc-500' : ''} {row.status === 'Attempted' ? 'text-red-400/70' : ''}">
+              {#if isGoldenCompleted}
+                Goldenberry
+              {:else if isGoldenAttempt && row.status === "Attempted"}
+                Golden Attempted
+              {:else}
+                {row.status}
+              {/if}
             </span>
           </td>
         </tr>
       {/each}
     </tbody>
   </table>
+
+  {#if hasMore}
+    <div class="p-4 border-t border-outline-muted flex justify-center">
+      <button 
+        onclick={loadMore} 
+        disabled={loading}
+        class="px-6 py-2 rounded-xl bg-surface-high border border-outline-muted text-sm font-bold text-zinc-400 hover:text-white hover:border-zinc-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+      >
+        {#if loading}
+          <div class="w-4 h-4 border-2 border-zinc-500 border-t-zinc-200 rounded-full animate-spin"></div>
+          Loading...
+        {:else}
+          Load More Recent Runs
+        {/if}
+      </button>
+    </div>
+  {:else if rows.length > 0}
+    <div class="p-4 border-t border-outline-muted text-center text-xs text-zinc-600 font-bold uppercase tracking-widest">
+      End of history
+    </div>
+  {/if}
 </div>
