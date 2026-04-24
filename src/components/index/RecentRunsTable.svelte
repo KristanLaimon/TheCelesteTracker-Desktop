@@ -1,24 +1,37 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { invoke } from "@tauri-apps/api/core";
   import IconTimer from "~icons/material-symbols/timer";
   import IconFilterHdr from "~icons/material-symbols/filter-hdr";
   import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
   import IconDiamond from "~icons/material-symbols/diamond";
   import IconLandscape from "~icons/material-symbols/landscape";
 
-  export type RunData = {
+  type RunData = {
     levelName: string;
-    levelSide: "SIDE A" | "SIDE B" | "SIDE C";
+    levelSide: string;
     type: "Vanilla" | "Modded";
     attemptType: "Wings Golden" | "Normal" | "Golden Attempt";
     clearTime: number; // In milliseconds
     deaths: number;
     dashes: number;
-    berries: number;
+    jumps: number;
+    berriesAchieved: number;
     status: "Completed" | "Goldenberry completed" | "Attempted" | "PB";
     iconPath: string;
   };
 
-  let { rows } = $props<{ rows: RunData[] }>();
+  let rows: RunData[] = $state([]);
+
+  onMount(async () => {
+    console.log("On mount menu!!")
+    try {
+      rows = await invoke("runs_get_recent_ones");
+      console.log(rows);
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
   const headers = ["Level Name", "Side", "Type", "Attempt", "Clear Time", "Deaths", "Dashes", "Berries", "Status"];
 
@@ -109,7 +122,7 @@
           <td class="px-6 py-4 text-zinc-400">
             <div class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.5)]"></span>
-              {row.berries}
+              {row.berriesAchieved}
             </div>
           </td>
           <td class="px-6 py-4 text-right">

@@ -53,29 +53,39 @@ pub struct RunData {
 
 #[tauri::command]
 pub async fn runs_get_recent_ones() -> Result<Vec<RunData>, String> {
-
     let query_result: Vec<(
         game_sessions::Model,
         Option<chapters::Model>,
-        Option<campaigns::Model>,
     )> = game_sessions::Entity::find()
-        .limit(8)
-        .order_by(game_sessions::Column::DateTimeStart, Order::Desc)
         .find_also_related(chapters::Entity)
-        .find_also_related(campaigns::Entity)
+        .order_by(game_sessions::Column::DateTimeStart, Order::Desc)
+        .limit(8)
+        .all(DB!())
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let campaign_ids: Vec<i64> = query_result.iter()
+        .filter_map(|(_, chapter)| chapter.as_ref().map(|c| c.campaign_id))
+        .collect();
+
+    let campaigns = campaigns::Entity::find()
+        .filter(campaigns::Column::Id.is_in(campaign_ids))
         .all(DB!())
         .await
         .map_err(|e| e.to_string())?;
 
     let mut to_return: Vec<RunData> = Vec::with_capacity(query_result.len());
 
-    for (session, chapter, campaign) in query_result {
+    for (session, chapter) in query_result {
         let attempt_type = if session.is_goldenberry_attempt == 1 {
             AttemptType::GoldenAttempt
         } else {
             AttemptType::Normal
         };
 
+        let campaign = chapter.as_ref().and_then(|c| {
+            campaigns.iter().find(|camp| camp.id == c.campaign_id)
+        });
 
         let campaign_type = if let Some(camp) = campaign {
             if camp.campaign_name_id.to_lowercase().contains("celeste") {
@@ -102,7 +112,7 @@ pub async fn runs_get_recent_ones() -> Result<Vec<RunData>, String> {
         }
 
         let totals = game_session_chapter_room_stats::Entity::find()
-            .filter(game_session_chapter_room_stats::Column::ChapterSid.eq(session.id))
+            .filter(game_session_chapter_room_stats::Column::GamesessionId.eq(session.id.clone()))
             .select_only()
             .column_as(game_session_chapter_room_stats::Column::DeathsInRoom.sum(), "total_deaths")
             .column_as(game_session_chapter_room_stats::Column::DashesInRoom.sum(), "total_dashes")

@@ -6,7 +6,9 @@ use crate::db::init_connection;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub async fn run() {
-    let db_path: String = String::from("sqlite://celestedb.db");
+    let db_path = String::from(
+        "sqlite://C:/Users/Kristan/Desktop/Celeste Modding/TheCelesteTracker_Desktop/celestedb.db",
+    );
     let _ = init_connection(db_path).await.expect("Error initializing the database");
 
     let builder = tauri::Builder::default()
