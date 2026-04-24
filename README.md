@@ -16,8 +16,8 @@
 > ***Still under development, not ready for usage***
 
 ## Why this exists?
-Celeste community uses **spreadsheets** for pretty much anything.  Achievements, map progress, lobby stats—all manual.
-**No more.** TheCelesteTracker aims to automates the "Excel grind" so you can focus on the "Celeste grind."
+The Celeste community uses **spreadsheets** for pretty much everything: achievements, map progress, lobby stats—all manual.
+**No more.** TheCelesteTracker aims to automate the "Excel grind" so you can focus on the "Celeste grind."
 
 <div align="center">
   <table style="width: 100%; border-collapse: collapse;">
@@ -28,17 +28,17 @@ Celeste community uses **spreadsheets** for pretty much anything.  Achievements,
     <tr>
       <td align="center">
         <img src=".github/old_excel_example.png" alt="Old Excel Example" width="100%">
-        <p><sub><i>This is my real excel that I use to track my celeste modding progress and vanilla</i></sub></p>
+        <p><sub><i>This is my real Excel that I use to track my Celeste modding and vanilla progress.</i></sub></p>
       </td>
       <td align="center">
         <img src=".github/beta2_screenshot.png" alt="Beta Screenshot" width="100%">
-        <p><sub><i>Automating with dedicated app including support for "Celeste Skill Rating" discord maps (Future feature I want to implement)</i></sub></p>
+        <p><sub><i>Automating with a dedicated app, including support for "Celeste Skill Rating" maps (planned feature).</i></sub></p>
       </td>
     </tr>
   </table>
 </div>
 
-Note: Ofc, there are mods to track this info, but theyi all in-game, limited by the interface and sometimes they have their own-learning-curve, making them kinda hard to use.
+Note: While there are mods to track this info, they are all in-game, limited by the interface, and sometimes have a learning curve that makes them hard to use.
 
 ## Key Features
 
@@ -61,29 +61,38 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
 *Current UI is subject to change during beta.*
 
 ## Tech Stack
-- **Backend**: Rust + [Tauri v2](https://v2.tauri.app/)
-- **Frontend**: SvelteKit + Tailwind CSS
-- **Async**: Tokio (WebSockets)
+- **Backend**: [Rust](https://www.rust-lang.org/) + [Tauri v2](https://v2.tauri.app/) (Desktop bridge & Performance)
+- **Frontend**: [Svelte 5](https://svelte.dev/) + [Tailwind CSS](https://tailwindcss.com/) (Reactive UI & Styling)
+- **Database**: [SQLite](https://sqlite.org/) (Local data persistence)
+- **Communication**: [Tokio](https://tokio.rs/) (Asynchronous WebSockets)
 
 ## Getting Started
 
 ### Prerequisites
-- [Rust](https://www.rust-lang.org/tools/install)
-- [Bun](https://bun.sh/) or Node.js
-- **Celeste Mod**: Install the Celeste Tracker mod in Everest. Not in gamebanana yet, must be installed from [its repo](https://github.com/KristanLaimon/TheCelesteTracker-Mod)
+- **Rust**: [Installation Guide](https://www.rust-lang.org/tools/install)
+- **Node.js/Bun**: [Bun](https://bun.sh/) is recommended for faster installs.
+- **Celeste Mod**: Install **TheCelesteTracker-Mod** in Everest. Currently available via [GitHub](https://github.com/KristanLaimon/TheCelesteTracker-Mod) (coming soon to GameBanana).
 
 ### Installation
-```bash
-git clone https://github.com/yourusername/TheCelesteTracker_Desktop.git
-cd TheCelesteTracker_Desktop
-bun install
-bun run tauri dev
-```
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/KristanLaimon/TheCelesteTracker_Desktop.git
+   cd TheCelesteTracker_Desktop
+   ```
+2. Install dependencies:
+   ```bash
+   bun install
+   ```
+3. Run in development mode:
+   ```bash
+   bun run tauri dev
+   ```
 
 ## Architecture
-- `src-tauri/src/ws.rs`: WebSocket lifecycle + port scanning.
-- `src-tauri/src/events.rs`: Strong types for gameplay events.
-- `src/lib/types/celeste_state.svelte.ts`: Reactive state via Svelte 5 Runes.
+- `src-tauri/src/ws.rs`: Manages WebSocket lifecycle and automated port scanning.
+- `src-tauri/src/events.rs`: Defines type-safe structures for gameplay events.
+- `src/lib/saveStore.svelte.ts`: Handles reactive application state using Svelte 5 Runes.
+- `src-tauri/src/db/`: SQL queries and database migrations.
 
 ## License
 MIT License. Created for the Celeste community.
