@@ -1,0 +1,39 @@
+---
+import IconSettings from "~icons/material-symbols/settings";
+import IconNotifications from "~icons/material-symbols/notifications";
+---
+
+<!-- Header -->
+<header
+  class="fixed top-0 left-0 w-full h-16 bg-bg-base/80 backdrop-blur-md border-b border-outline-muted flex justify-between items-center px-6 md:px-12 z-50"
+>
+  <div class="flex items-center gap-8">
+    <span class="font-headline font-black text-xl text-tertiary tracking-tight">Celeste Tracker</span>
+    <nav class="hidden lg:flex gap-6">
+      <a class="text-sm font-medium text-zinc-400 hover:text-primary transition-colors" href="#">Global Stats</a>
+      <a class="text-sm font-medium text-zinc-400 hover:text-primary transition-colors" href="#">Resources</a>
+    </nav>
+  </div>
+  <div class="flex items-center gap-4 md:gap-6">
+    <div class="flex items-center gap-2">
+      <button class="p-2 text-zinc-400 hover:text-white transition-colors">
+        <IconSettings class="w-6 h-6" />
+      </button>
+      <button class="p-2 text-zinc-400 hover:text-white transition-colors relative">
+        <IconNotifications class="w-6 h-6" />
+        <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-accent-gradient rounded-full border border-zinc-950"></span>
+      </button>
+    </div>
+    <div class="hidden sm:block h-8 w-px bg-outline-muted"></div>
+    <button
+      class="hidden sm:block px-4 py-1.5 bg-zinc-900 text-secondary font-bold rounded-lg border border-secondary/20 hover:bg-secondary/10 transition-all text-xs"
+    >
+      Live Run
+    </button>
+    <img
+      alt="User Avatar"
+      class="w-8 h-8 rounded-full border border-primary/40"
+      src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYK0EMlyA798GWisNiQlYZcFP3m2AS9BZNIJjRLfyckeRC_dFUFaVvHiJ7Xs4B_bKxyhk-EMcVp87ewJNc5Y_qk65gcX4fBrXNcjNO-Oj_cdFlZppzTRt8rdwrZa-ji0-RJxRuTaH1eVPT2adAB5x8UvMuF8jSNd6dPs5HSxc1RQu48Ru0xyIGYmNOylkJP18GDQhAdUyt5YXyEW2rC2n9ssyCR6PbeMakj9ZnqaiJPOT43KNzzJkkMXXGtPdO7Lv7mdHnlKiCrZw"
+    />
+  </div>
+</header>

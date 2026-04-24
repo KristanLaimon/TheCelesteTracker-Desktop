@@ -1,0 +1,97 @@
+---
+import IconFilterHdr from "~icons/material-symbols/filter-hdr";
+import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
+import IconDiamond from "~icons/material-symbols/diamond";
+import IconLandscape from "~icons/material-symbols/landscape";
+
+export type RunData = {
+  levelName: string;
+  levelSide: "SIDE A" | "SIDE B" | "SIDE C";
+  type: "Vanilla" | "Modded";
+  clearTime: number; // In milliseconds
+  deaths: number;
+  dashes: number;
+  status: "Completed" | "Goldenberry completed" | "Attempted" | "PB";
+  iconType: "vanilla" | "modded" | "temple" | "summit";
+};
+
+export type Props = {
+  data: RunData;
+};
+
+const { data } = Astro.props;
+
+/**
+ * Formats milliseconds into HH:MM:SS.mmm
+ */
+function formatTime(ms: number): string {
+  const milliseconds = Math.floor(ms % 1000);
+  const seconds = Math.floor((ms / 1000) % 60);
+  const minutes = Math.floor((ms / (1000 * 60)) % 60);
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+
+  const hStr = hours.toString().padStart(2, "0");
+  const mStr = minutes.toString().padStart(2, "0");
+  const sStr = seconds.toString().padStart(2, "0");
+  const msStr = milliseconds.toString().padStart(3, "0");
+
+  return `${hStr}:${mStr}:${sStr}.${msStr}`;
+}
+
+const iconMap = {
+  vanilla: { icon: IconFilterHdr, color: "text-primary", bg: "bg-primary/10" },
+  modded: { icon: IconAutoAwesome, color: "text-tertiary", bg: "bg-tertiary/10" },
+  temple: { icon: IconDiamond, color: "text-purple-400", bg: "bg-purple-400/10" },
+  summit: { icon: IconLandscape, color: "text-orange-400", bg: "bg-orange-400/10" },
+};
+
+const { icon: Icon, color, bg } = iconMap[data.iconType] || iconMap.vanilla;
+
+const isGolden = data.status === "Goldenberry completed";
+const formattedTime = formatTime(data.clearTime);
+---
+
+<tr
+  class:list={[
+    "hover:bg-white/5 transition-all group border-l-2",
+    isGolden
+      ? "border-l-yellow-400 bg-yellow-400/5 shadow-[inset_0_0_20px_rgba(250,204,21,0.05)]"
+      : "border-l-transparent",
+  ]}
+>
+  <td class="px-6 py-4">
+    <div class="flex items-center gap-3">
+      <div class={`w-8 h-8 rounded flex items-center justify-center ${bg} ${color}`}>
+        <Icon class="text-lg" />
+      </div>
+      <span class="font-bold text-zinc-200">{data.levelName}</span>
+    </div>
+  </td>
+  <td class="px-6 py-4">
+    <span class="text-[10px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700">
+      {data.levelSide}
+    </span>
+  </td>
+  <td class="px-6 py-4">
+    <span
+      class:list={[
+        "px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter",
+        data.type === "Vanilla" ? "bg-secondary/10 text-secondary" : "bg-primary/10 text-primary",
+      ]}>{data.type}</span
+    >
+  </td>
+  <td class="px-6 py-4 font-mono text-zinc-400">{formattedTime}</td>
+  <td class="px-6 py-4 text-zinc-400">{data.deaths}</td>
+  <td class="px-6 py-4 text-zinc-400">{data.dashes}</td>
+  <td class="px-6 py-4 text-right">
+    <span
+      class:list={[
+        "font-bold text-sm",
+        data.status === "PB" && "text-green-400",
+        data.status === "Goldenberry completed" && "text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]",
+        data.status === "Completed" && "text-zinc-500",
+        data.status === "Attempted" && "text-red-400/70",
+      ]}>{data.status === "Goldenberry completed" ? "Goldenberry" : data.status}</span
+    >
+  </td>
+</tr>

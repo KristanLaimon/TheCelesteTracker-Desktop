@@ -1,14 +1,19 @@
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
+pub mod db;
+pub mod commands;
+
+use crate::db::init_connection;
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-    tauri::Builder::default()
-        .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+pub async fn run() {
+    let db_path: String = String::from("sqlite://celestedb.db");
+    let _ = init_connection(db_path).await.expect("Error initializing the database");
+
+    let builder = tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init());
+
+    commands::register(builder)
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
 }

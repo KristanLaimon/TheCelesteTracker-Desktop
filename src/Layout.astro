@@ -1,6 +1,8 @@
 ---
 import { twMerge } from "tailwind-merge";
 import "./styles/global.css";
+import GlobalHeader from "./components/global/GlobalHeader.astro";
+import GlobalFooter from "./components/global/GlobalFooter.astro";
 
 export type Props = {
   title: string;
@@ -19,7 +21,10 @@ const { bodyClassNames = "", title, bodyId } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body class={twMerge(["", bodyClassNames])} id={bodyId}>
+  <!-- prettier-ignore -->
+  <body class={twMerge([ "bg-bg-base text-zinc-100 font-inter antialiased selection:bg-primary selection:text-white ", bodyClassNames, ])} id={bodyId} >
+    <GlobalHeader />
     <slot />
+    <GlobalFooter />
   </body>
 </html>
