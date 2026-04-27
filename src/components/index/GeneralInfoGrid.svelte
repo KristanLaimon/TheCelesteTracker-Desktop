@@ -1,8 +1,7 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
-    import { onMount } from "svelte";
-    
-    // Asset imports
+    import { saveStore } from "../../lib/saveStore.svelte.ts";
+
     import iconDeaths from "../../assets/interface_SIDEA_deaths_icon.png";
     import iconStrawberry from "../../assets/interface_strawberry_icon.png";
     import iconHeart from "../../assets/interface_SIDEA_heart.png";
@@ -12,9 +11,7 @@
     import iconBird from "../../assets/interface_bird.png";
     import iconGolden from "../../assets/interface_goldenstrawberry_icon.png";
 
-    import { saveStore } from "/src/lib/saveStore.svelte.ts";
-
-    interface GeneralInfo {
+    type GeneralInfo =  {
         totalCampaigns: number;
         totalChapters: number;
         totalRooms: number;
@@ -104,6 +101,7 @@
                 {#if activePopover === def.key}
                     <div 
                         role="dialog"
+                        tabindex="0"
                         aria-modal="false"
                         aria-label="{def.label} description"
                         class="absolute bottom-full left-0 mb-2 w-48 p-3 bg-zinc-900 border border-zinc-700 rounded-lg shadow-2xl z-50 text-[11px] leading-relaxed text-zinc-300"

@@ -1,4 +1,4 @@
 export const saveStore = $state({
-    selectedSlot: 1,
-    userId: 1
+  selectedSlot: 1,
+  userId: 1,
 });

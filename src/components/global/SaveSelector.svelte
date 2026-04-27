@@ -1,9 +1,9 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api/core";
     import { onMount } from "svelte";
-    import { saveStore } from "/src/lib/saveStore.svelte.ts";
+    import { saveStore } from "../../lib/saveStore.svelte.ts";
 
-    let slots: number[] = $state([1, 2, 3]);
+    let slots: number[] = $state([1]);
 
     onMount(async () => {
         try {
