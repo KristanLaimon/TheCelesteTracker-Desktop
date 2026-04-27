@@ -31,6 +31,12 @@
   - Deaths Column: If "Golden Attempt", show a pulsing red marker instead of a number.
 - **Tables:** Center all column content except the first (Chapter Name) which is left-aligned.
 
+## Database Schemas
+- **Base (Mod):** Created by Celeste mod. Basic stats.
+- **Full (Desktop):** Appended by app. Adds `Collections`, `CollectionCampaigns`. Extra metadata: `Campaigns.cover_img_path`, `Chapters.icon_img_path`.
+- **Constraint:** Never delete mod data. SQL append only.
+
 # Documentation Reference
 - READ `./documentation/WebSockets_Events.md`
-- READ `./Database_FullSchema.md`
+- READ `./documentation/Database_TheCelesteMod.md` (Base)
+- READ `./documentation/Database_TheCelesteDesktop.md` (Full)
