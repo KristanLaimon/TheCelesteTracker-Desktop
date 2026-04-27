@@ -109,94 +109,83 @@ Represents the difficulty mode of the chapter.
 
 ---
 
-## Tables
+erDiagram
+     Users ||--o{ SaveDatas : "has"
+     Users {
+         int id PK
+         string name
+     }
 
-### `Users`
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY, AUTOINCREMENT |
-| `name` | TEXT | UNIQUE, NOT NULL |
+     SaveDatas ||--o{ Campaigns : "contains"
+     SaveDatas {
+         int id PK
+         int user_id FK
+         int slot_number
+         string file_name
+     }
 
-### `ChapterSideTypes`
-Lookup table for side identifiers.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | CHAR(5) | PRIMARY KEY (`SIDEA`, `SIDEB`, `SIDEC`) |
+     Campaigns ||--o{ Chapters : "manages"
+     Campaigns {
+         int id PK
+         int save_data_id FK
+         string campaign_name_id
+     }
 
-### `SaveDatas`
-Links statistics to specific Celeste save slots.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY, AUTOINCREMENT |
-| `user_id` | INTEGER | FOREIGN KEY (`Users.id`) |
-| `slot_number` | INTEGER | Save slot (0, 1, 2, ...) |
-| `file_name` | TEXT | Name of the save file (e.g., "Madeline") |
+     Chapters ||--o{ ChapterSides : "has"
+     Chapters {
+         string sid PK
+         int campaign_id FK
+         string name
+     }
 
-### `Campaigns`
-Tracks vanilla Celeste and mods separately per save file.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY, AUTOINCREMENT |
-| `save_data_id` | INTEGER | FOREIGN KEY (`SaveDatas.id`) |
-| `campaign_name_id` | TEXT | LevelSet ID (e.g., "Celeste", "StrawberryJam2023") |
+     ChapterSideTypes ||--o{ ChapterSides : "type"
+     ChapterSideTypes {
+         string id PK "SIDEA, SIDEB, SIDEC"
+     }
 
-### `Chapters`
-Individual levels within a campaign.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `sid` | TEXT | **PRIMARY KEY**. Format: `{campaign_id}:{internal_sid}` |
-| `campaign_id` | INTEGER | FOREIGN KEY (`Campaigns.id`) |
-| `name` | TEXT | Display name |
+     ChapterSides ||--o{ ChapterSideRooms : "defines"
+     ChapterSides ||--o{ GameSessions : "tracks"
+     ChapterSides {
+         string chapter_sid PK, FK
+         string side_id PK, FK
+         int berries_available
+         int berries_collected
+         int goldenstrawberry_achieved
+         int goldenwingstrawberry_achieved
+     }
 
-### `ChapterSides`
-Tracks progress and berry counts for A, B, and C sides.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `chapter_sid` | TEXT | **PRIMARY KEY (Part 1)**, FOREIGN KEY (`Chapters.sid`) |
-| `side_id` | TEXT | **PRIMARY KEY (Part 2)**, FOREIGN KEY (`ChapterSideTypes.id`) |
-| `berries_available` | INTEGER | Total strawberries in this side |
-| `berries_collected` | INTEGER | Strawberries collected so far (Synced with SaveData) |
-| `heart_collected` | INTEGER | 1 if heart collected, else 0 |
-| `goldenstrawberry_achieved` | INTEGER | 1 if golden berry collected, else 0 |
-| `goldenwingstrawberry_achieved` | INTEGER | 1 if dashless golden berry collected, else 0 |
+     ChapterSideRooms ||--o{ GameSessionChapterRoomStats : "source"
+     ChapterSideRooms {
+         string chapter_sid PK, FK
+         string side_id PK, FK
+         string name PK
+         int order
+         int strawberries_available
+     }
 
-### `ChapterSideRooms`
-Metadata for rooms within a chapter side.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `chapter_sid` | TEXT | **PRIMARY KEY (Part 1)**, FOREIGN KEY (`ChapterSides.chapter_sid`) |
-| `side_id` | TEXT | **PRIMARY KEY (Part 2)**, FOREIGN KEY (`ChapterSides.side_id`) |
-| `name` | TEXT | **PRIMARY KEY (Part 3)**, Room ID (e.g., "a-00", "01-entry") |
-| `order` | INTEGER | Room order in the MapData |
-| `strawberries_available`| INTEGER | Number of berries inside this specific room |
+     GameSessions ||--o{ GameSessionChapterRoomStats : "logs"
+     GameSessions {
+         string id PK
+         string chapter_sid FK
+         string side_id FK
+         string date_time_start
+         int duration_ms
+         int is_goldenberry_attempt
+         int is_goldenberry_completed
+     }
 
-### `GameSessions`
-A single play session of a chapter side.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | TEXT | **PRIMARY KEY** (GUID). Unique session identifier. |
-| `chapter_sid` | TEXT | FOREIGN KEY (`ChapterSides.chapter_sid`) |
-| `side_id` | TEXT | FOREIGN KEY (`ChapterSides.side_id`) |
-| `date_time_start` | TEXT | ISO8601 start timestamp |
-| `duration_ms` | INTEGER | Total time spent in milliseconds |
-| `is_goldenberry_attempt`| INTEGER | 1 if carrying a golden berry, else 0 |
-| `is_goldenberry_completed`| INTEGER | 1 if completed with golden berry, else 0 |
-
-### `GameSessionChapterRoomStats`
-Granular per-room stats recorded during a session.
-| Column | Type | Notes |
-| :--- | :--- | :--- |
-| `id` | INTEGER | PRIMARY KEY, AUTOINCREMENT |
-| `gamesession_id` | TEXT | FOREIGN KEY (`GameSessions.id`) |
-| `chapter_sid` | TEXT | FOREIGN KEY (`ChapterSideRooms.chapter_sid`) |
-| `side_id` | TEXT | FOREIGN KEY (`ChapterSideRooms.side_id`) |
-| `room_name` | TEXT | FOREIGN KEY (`ChapterSideRooms.name`) |
-| `deaths_in_room` | INTEGER | Death count in this room |
-| `dashes_in_room` | INTEGER | Dash count in this room |
-| `jumps_in_room` | INTEGER | Jump count in this room |
-| `strawberries_achieved_in_room`| INTEGER | Berries collected in this room during this session |
-| `hearts_achieved_in_room`| INTEGER | Hearts collected in this room during this session |
-
+     GameSessionChapterRoomStats {
+         int id PK
+         string gamesession_id FK
+         string chapter_sid FK
+         string side_id FK
+         string room_name FK
+         int deaths_in_room
+         int dashes_in_room
+         int jumps_in_room
+         int strawberries_achieved_in_room
+         int hearts_achieved_in_room
+     }
 ---
 
 ## Common Queries

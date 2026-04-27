@@ -4,6 +4,7 @@ import RecentRunsTable from "../components/index/RecentRunsTable.svelte";
 import GeneralInfoGrid from "../components/index/GeneralInfoGrid.svelte";
 import farewellBanner from "../assets/bg_horizontal_farewell_banner.jpg";
 import madelineArtwork from "../assets/madeline_artwork_pendingcredits.png";
+import AppStatusGuard from "../components/global/AppStatusGuard.svelte";
 
 // import HeaderBerry from "../components/global/HeaderBerry.astro";
 
@@ -24,6 +25,7 @@ import IconWifi from "~icons/material-symbols/wifi";
   bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
   bodyId="page-hub"
 >
+  <AppStatusGuard client:load />
   <style>
     @keyframes drift {
       from {
