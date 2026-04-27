@@ -1,0 +1,32 @@
+---
+import Layout from "../Layout.astro";
+import CollectionTable from "../components/collections/CollectionTable.svelte";
+import AppStatusGuard from "../components/global/AppStatusGuard.svelte";
+import IconMap from "~icons/material-symbols/map";
+---
+
+<Layout
+  title="Collections"
+  bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
+  bodyId="page-collections"
+>
+  <AppStatusGuard client:load />
+
+  <main class="pt-24 pb-20 px-6 md:px-12">
+    <header class="mb-8">
+      <div class="flex items-center gap-4 mb-2">
+        <IconMap class="text-orange-400 text-4xl" />
+        <h1 class="text-4xl md:text-5xl font-headline font-bold text-white tracking-tighter">
+          Level <span class="text-orange-400 italic">Collections</span>
+        </h1>
+      </div>
+      <p class="text-zinc-400 text-lg leading-relaxed font-medium max-w-2xl">
+        Comprehensive overview of your progress across all campaigns and chapters.
+      </p>
+    </header>
+
+    <section>
+      <CollectionTable client:load />
+    </section>
+  </main>
+</Layout>
