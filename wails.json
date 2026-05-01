@@ -1,0 +1,13 @@
+{
+  "$schema": "./wails.schema.json",
+  "name": "TheCelesteTrackerDesktop",
+  "outputfilename": "TheCelesteTrackerDesktop",
+  "frontend:install": "bun install",
+  "frontend:build": "bun run build",
+  "frontend:dev:watcher": "bun dev",
+  "frontend:dev:serverUrl": "http://localhost:4321/",
+  "author": {
+    "name": "Kristan Ruiz Limon",
+    "email": "itan_07@hotmail.com"
+  }
+}

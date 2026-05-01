@@ -1,0 +1,7 @@
+# Frontend (astro) output
+build/bin
+node_modules
+frontend/dist
+
+# Backend (go) output
+build/

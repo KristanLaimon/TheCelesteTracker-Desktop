@@ -1,0 +1,23 @@
+---
+import strawberryIcon from "../../assets/interface_strawberry_icon.png";
+---
+
+<div class="relative w-8 h-8 group overflow-hidden flex items-center justify-center">
+  <img 
+    src={strawberryIcon.src} 
+    alt="Strawberry" 
+    class="w-7 h-7 object-contain animate-strawberry transition-all duration-700"
+    id="header-berry"
+  />
+</div>
+
+<style>
+  @keyframes strawberry-swap {
+    0%, 45% { filter: none; transform: scale(1); }
+    50% { filter: hue-rotate(160deg) saturate(2) brightness(1.2) drop-shadow(0 0 8px rgba(250, 204, 21, 0.8)); transform: scale(1.1); }
+    95%, 100% { filter: none; transform: scale(1); }
+  }
+  .animate-strawberry {
+    animation: strawberry-swap 10s infinite;
+  }
+</style>

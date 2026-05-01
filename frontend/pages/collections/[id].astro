@@ -1,0 +1,25 @@
+---
+import Layout from "../../Layout.astro";
+import CollectionDetail from "../../components/collections/CollectionDetail.svelte";
+import AppStatusGuard from "../../components/global/AppStatusGuard.svelte";
+
+export async function getStaticPaths() {
+  // Pre-generate 100 possible IDs for static routing in Tauri
+  return Array.from({ length: 100 }, (_, i) => ({
+    params: { id: (i + 1).toString() },
+  }));
+}
+
+const { id } = Astro.params;
+---
+
+<Layout
+  title="Collection Detail"
+  bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
+>
+  <AppStatusGuard client:load />
+
+  <main class="pt-24 pb-20 px-6 md:px-12">
+    <CollectionDetail client:load id={id} />
+  </main>
+</Layout>
