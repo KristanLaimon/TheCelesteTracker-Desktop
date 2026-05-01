@@ -55,7 +55,11 @@
   --color-glass: rgba(24, 24, 27, 0.85);
   --color-card-bg: rgba(39, 39, 42, 0.4);
 
-  --background-hero-gradient: linear-gradient(to right, #131315 20%, transparent 100%);
+  --background-hero-gradient: linear-gradient(
+    to right,
+    #131315 20%,
+    transparent 100%
+  );
   --background-accent-gradient: linear-gradient(135deg, #ff788c, #ff4d6d);
   --blur-glass: 16px;
 

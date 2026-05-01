@@ -1,16 +1,16 @@
 <script lang="ts">
-    import { GetGeneralInfo } from "../../wailsjs/go/app/App";
-    import { saveStore } from "../../lib/saveStore.svelte";
+    // import { GetGeneralInfo } from "@wails/backend";
+    // import { saveStore } from "@lib/saveStore.svelte";
 
 
-    import iconDeaths from "../../assets/interface_SIDEA_deaths_icon.png";
-    import iconStrawberry from "../../assets/interface_strawberry_icon.png";
-    import iconHeart from "../../assets/interface_SIDEA_heart.png";
-    import iconTimer from "../../assets/interface_timer_icon.png";
-    import iconFlag from "../../assets/interface_level_cleared_flag.png";
-    import iconCassette from "../../assets/interface_cassete.png";
-    import iconBird from "../../assets/interface_bird.png";
-    import iconGolden from "../../assets/interface_goldenstrawberry_icon.png";
+    import iconDeaths from "@assets/interface_SIDEA_deaths_icon.png";
+    import iconStrawberry from "@assets/interface_strawberry_icon.png";
+    import iconHeart from "@assets/interface_SIDEA_heart.png";
+    import iconTimer from "@assets/interface_timer_icon.png";
+    import iconFlag from "@assets/interface_level_cleared_flag.png";
+    import iconCassette from "@assets/interface_cassete.png";
+    import iconBird from "@assets/interface_bird.png";
+    import iconGolden from "@assets/interface_goldenstrawberry_icon.png";
 
     type GeneralInfo =  {
         totalCampaigns: number;
@@ -32,7 +32,7 @@
         const fetchStats = async () => {
             try {
                 stats = null; // Trigger skeleton
-                stats = await GetGeneralInfo(saveStore.userId, saveStore.selectedSlot);
+                // stats = await GetGeneralInfo(saveStore.userId, saveStore.selectedSlot);
                 error = null;
             } catch (e) {
                 error = String(e);
@@ -90,7 +90,7 @@
                     </p>
                 </div>
 
-                <button 
+                <button
                     type="button"
                     class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-xs text-zinc-600 hover:text-zinc-300 hover:bg-white/5 transition-all cursor-help"
                     onclick={(e) => togglePopover(def.key, e)}
@@ -100,7 +100,7 @@
                 </button>
 
                 {#if activePopover === def.key}
-                    <div 
+                    <div
                         role="dialog"
                         tabindex="0"
                         aria-modal="false"

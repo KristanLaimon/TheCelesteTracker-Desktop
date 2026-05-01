@@ -1,12 +1,12 @@
 ---
 import Layout from "../Layout.astro";
-import RecentRunsTable from "../components/index/RecentRunsTable.svelte";
-import GeneralInfoGrid from "../components/index/GeneralInfoGrid.svelte";
-import farewellBanner from "../assets/bg_horizontal_farewell_banner.jpg";
-import madelineArtwork from "../assets/madeline_artwork_pendingcredits.png";
-import AppStatusGuard from "../components/global/AppStatusGuard.svelte";
+import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
+import GeneralInfoGrid from "@components/index/GeneralInfoGrid.svelte";
+import farewellBanner from "@assets/bg_horizontal_farewell_banner.jpg";
+import madelineArtwork from "@assets/madeline_artwork_pendingcredits.png";
+// import AppStatusGuard from "@components/global/AppStatusGuard.svelte";
 
-// import HeaderBerry from "../components/global/HeaderBerry.astro";
+// import HeaderBerry from "@components/global/HeaderBerry.astro";
 
 // import IconSettings from "~icons/material-symbols/settings";
 // import IconNotifications from "~icons/material-symbols/notifications";
@@ -25,7 +25,7 @@ import IconWifi from "~icons/material-symbols/wifi";
   bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
   bodyId="page-hub"
 >
-  <AppStatusGuard client:load />
+  <!-- <AppStatusGuard client:load /> -->
   <style>
     @keyframes drift {
       from {

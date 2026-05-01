@@ -1,132 +1,132 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { GetCollections, GetAvailableCampaigns, CreateCollection, UpdateCollection, DeleteCollection, GetCollectionCampaignIDs } from '../../wailsjs/go/app/App';
-  import { saveStore } from '../../lib/saveStore.svelte';
-  import IconPlus from '~icons/material-symbols/add';
-  import IconFolder from '~icons/material-symbols/folder';
-  import IconDelete from '~icons/material-symbols/delete';
-  import IconEdit from '~icons/material-symbols/edit';
+  // import { onMount } from 'svelte';
+  // import { GetCollections, GetAvailableCampaigns, CreateCollection, UpdateCollection, DeleteCollection, GetCollectionCampaignIDs } from '../../wailsjs/go/app/App';
+  // import { saveStore } from '../../lib/saveStore.svelte';
+  // import IconPlus from '~icons/material-symbols/add';
+  // import IconFolder from '~icons/material-symbols/folder';
+  // import IconDelete from '~icons/material-symbols/delete';
+  // import IconEdit from '~icons/material-symbols/edit';
 
-  interface Collection {
-    id: number;
-    userId: number;
-    name: string;
-  }
+  // interface Collection {
+  //   id: number;
+  //   userId: number;
+  //   name: string;
+  // }
 
-  interface CampaignItem {
-    id: number;
-    campaignNameId: string;
-  }
+  // interface CampaignItem {
+  //   id: number;
+  //   campaignNameId: string;
+  // }
 
-  let collections = $state<Collection[]>([]);
-  let availableCampaigns = $state<CampaignItem[]>([]);
-  let loading = $state(true);
-  let showModal = $state(false);
+  // let collections = $state<Collection[]>([]);
+  // let availableCampaigns = $state<CampaignItem[]>([]);
+  // let loading = $state(true);
+  // let showModal = $state(false);
 
-  // Form state
-  let editingId = $state<number | null>(null);
-  let collectionName = $state('');
-  let selectedCampaignIds = $state<number[]>([]);
+  // // Form state
+  // let editingId = $state<number | null>(null);
+  // let collectionName = $state('');
+  // let selectedCampaignIds = $state<number[]>([]);
 
-  async function loadData() {
-    console.log('[Collections] loadData called, userId:', saveStore.userId);
-    if (!saveStore.userId) return;
-    loading = true;
-    try {
-      console.log('[Collections] fetching from backend...');
-      const [fetchedCollections, fetchedCampaigns] = await Promise.all([
-        GetCollections(saveStore.userId),
-        GetAvailableCampaigns(saveStore.userId)
-      ]);
-      console.log('[Collections] received collections:', fetchedCollections);
-      collections = fetchedCollections;
-      availableCampaigns = fetchedCampaigns;
-    } catch (e) {
-      console.error('Failed to load collections:', e);
-    } finally {
-      loading = false;
-    }
-  }
+  // async function loadData() {
+  //   console.log('[Collections] loadData called, userId:', saveStore.userId);
+  //   if (!saveStore.userId) return;
+  //   loading = true;
+  //   try {
+  //     console.log('[Collections] fetching from backend...');
+  //     const [fetchedCollections, fetchedCampaigns] = await Promise.all([
+  //       GetCollections(saveStore.userId),
+  //       GetAvailableCampaigns(saveStore.userId)
+  //     ]);
+  //     console.log('[Collections] received collections:', fetchedCollections);
+  //     collections = fetchedCollections;
+  //     availableCampaigns = fetchedCampaigns;
+  //   } catch (e) {
+  //     console.error('Failed to load collections:', e);
+  //   } finally {
+  //     loading = false;
+  //   }
+  // }
 
-  onMount(() => {
-    loadData();
-  });
+  // onMount(() => {
+  //   loadData();
+  // });
 
-  $effect(() => {
-    if (saveStore.userId) {
-      loadData();
-    }
-  });
+  // $effect(() => {
+  //   if (saveStore.userId) {
+  //     loadData();
+  //   }
+  // });
 
-  async function handleSave() {
-    if (!saveStore.userId || !collectionName) return;
+  // async function handleSave() {
+  //   if (!saveStore.userId || !collectionName) return;
 
-    try {
-      if (editingId) {
-        await UpdateCollection(editingId, collectionName, selectedCampaignIds);
-      } else {
-        await CreateCollection(saveStore.userId, collectionName, selectedCampaignIds);
-      }
-      showModal = false;
-      await loadData();
-    } catch (e) {
-      console.error('Failed to save collection:', e);
-    }
-  }
+  //   try {
+  //     if (editingId) {
+  //       await UpdateCollection(editingId, collectionName, selectedCampaignIds);
+  //     } else {
+  //       await CreateCollection(saveStore.userId, collectionName, selectedCampaignIds);
+  //     }
+  //     showModal = false;
+  //     await loadData();
+  //   } catch (e) {
+  //     console.error('Failed to save collection:', e);
+  //   }
+  // }
 
-  async function handleDelete(id: number) {
-    if (!confirm('Are you sure you want to delete this collection?')) return;
-    try {
-      await DeleteCollection(id);
-      await loadData();
-    } catch (e) {
-      console.error('Failed to delete collection:', e);
-    }
-  }
+  // async function handleDelete(id: number) {
+  //   if (!confirm('Are you sure you want to delete this collection?')) return;
+  //   try {
+  //     await DeleteCollection(id);
+  //     await loadData();
+  //   } catch (e) {
+  //     console.error('Failed to delete collection:', e);
+  //   }
+  // }
 
-  async function openEdit(col: Collection) {
-    editingId = col.id;
-    collectionName = col.name;
-    try {
-      selectedCampaignIds = await GetCollectionCampaignIDs(col.id);
-      showModal = true;
-    } catch (e) {
-      console.error('Failed to load collection details:', e);
-    }
-  }
+  // async function openEdit(col: Collection) {
+  //   editingId = col.id;
+  //   collectionName = col.name;
+  //   try {
+  //     selectedCampaignIds = await GetCollectionCampaignIDs(col.id);
+  //     showModal = true;
+  //   } catch (e) {
+  //     console.error('Failed to load collection details:', e);
+  //   }
+  // }
 
-  function openAdd() {
-    editingId = null;
-    collectionName = '';
-    selectedCampaignIds = [];
-    showModal = true;
-  }
+  // function openAdd() {
+  //   editingId = null;
+  //   collectionName = '';
+  //   selectedCampaignIds = [];
+  //   showModal = true;
+  // }
 
-  function toggleCampaign(id: number) {
-    if (selectedCampaignIds.includes(id)) {
-      selectedCampaignIds = selectedCampaignIds.filter(i => i !== id);
-    } else {
-      selectedCampaignIds = [...selectedCampaignIds, id];
-    }
-  }
+  // function toggleCampaign(id: number) {
+  //   if (selectedCampaignIds.includes(id)) {
+  //     selectedCampaignIds = selectedCampaignIds.filter(i => i !== id);
+  //   } else {
+  //     selectedCampaignIds = [...selectedCampaignIds, id];
+  //   }
+  // }
 
-  function moveUp(index: number) {
-    if (index === 0) return;
-    const newIds = [...selectedCampaignIds];
-    [newIds[index - 1], newIds[index]] = [newIds[index], newIds[index - 1]];
-    selectedCampaignIds = newIds;
-  }
+  // function moveUp(index: number) {
+  //   if (index === 0) return;
+  //   const newIds = [...selectedCampaignIds];
+  //   [newIds[index - 1], newIds[index]] = [newIds[index], newIds[index - 1]];
+  //   selectedCampaignIds = newIds;
+  // }
 
-  function moveDown(index: number) {
-    if (index === selectedCampaignIds.length - 1) return;
-    const newIds = [...selectedCampaignIds];
-    [newIds[index], newIds[index + 1]] = [newIds[index + 1], newIds[index]];
-    selectedCampaignIds = newIds;
-  }
+  // function moveDown(index: number) {
+  //   if (index === selectedCampaignIds.length - 1) return;
+  //   const newIds = [...selectedCampaignIds];
+  //   [newIds[index], newIds[index + 1]] = [newIds[index + 1], newIds[index]];
+  //   selectedCampaignIds = newIds;
+  // }
 
-  function getCampaignName(id: number) {
-    return availableCampaigns.find(c => c.id === id)?.campaignNameId || 'Unknown';
-  }
+  // function getCampaignName(id: number) {
+  //   return availableCampaigns.find(c => c.id === id)?.campaignNameId || 'Unknown';
+  // }
 </script>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

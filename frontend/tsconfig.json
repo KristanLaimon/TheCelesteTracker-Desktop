@@ -19,5 +19,17 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "types": ["unplugin-icons/types/astro"],
+    "baseUrl": ".",
+    "paths": {
+      "@wails/backend": ["wailsjs/go/main/App.js"],
+      "@wails/runtime": ["wailsjs/runtime/runtime.js"],
+      "@assets/*": ["src/assets/*"],
+      "@components/*": ["src/components/*"],
+      "@collections/*": ["src/collections/*"],
+      "@lib/*": ["src/lib/*"],
+      "@styles/*": ["src/styles/*"],
+    },
   },
+
+  "include": ["src/**/*", "wailsjs/**/*", "runtime/**/*"],
 }
