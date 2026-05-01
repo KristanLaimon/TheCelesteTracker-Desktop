@@ -4,44 +4,25 @@ import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
 import GeneralInfoGrid from "@components/index/GeneralInfoGrid.svelte";
 import farewellBanner from "@assets/bg_horizontal_farewell_banner.jpg";
 import madelineArtwork from "@assets/madeline_artwork_pendingcredits.png";
-// import AppStatusGuard from "@components/global/AppStatusGuard.svelte";
 
-// import HeaderBerry from "@components/global/HeaderBerry.astro";
+import LinkCard from "@components/index/LinkCard.svelte";
+import IconDashboard from "~icons/material-symbols/dashboard";
+import IconMountainFlag from "~icons/material-symbols/mountain-flag";
+import IconExtension from "~icons/material-symbols/extension";
+import IconLeaderboard from "~icons/material-symbols/leaderboard";
+import IconMap from "~icons/material-symbols/map";
+import IconHistory from "~icons/material-symbols/history";
 
-// import IconSettings from "~icons/material-symbols/settings";
-// import IconNotifications from "~icons/material-symbols/notifications";
-// import IconDashboard from "~icons/material-symbols/dashboard";
-// import IconMountainFlag from "~icons/material-symbols/mountain-flag";
-// import IconExtension from "~icons/material-symbols/extension";
-// import IconLeaderboard from "~icons/material-symbols/leaderboard";
-// import IconMap from "~icons/material-symbols/map";
-// import IconHistory from "~icons/material-symbols/history";
 import IconTerminal from "~icons/material-symbols/terminal";
 import IconWifi from "~icons/material-symbols/wifi";
 ---
+
 
 <Layout
   title="Main page!"
   bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
   bodyId="page-hub"
 >
-  <!-- <AppStatusGuard client:load /> -->
-  <style>
-    @keyframes drift {
-      from {
-        transform: translateX(0);
-      }
-      to {
-        transform: translateX(-50%);
-      }
-    }
-    .mountain-bg {
-      background: linear-gradient(to bottom, #1a1a1e 0%, #131315 100%);
-    }
-    .peak {
-      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-    }
-  </style>
 
   <!-- Main Content -->
   <main class="pt-16 pb-20">
@@ -78,65 +59,87 @@ import IconWifi from "~icons/material-symbols/wifi";
     <section class="px-6 md:px-12 -mt-6 relative z-20">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <!-- Dashboard / Overview -->
-        <!-- <a
-          class="bg-card-bg border border-outline-muted p-6 rounded-2xl hover:border-primary/50 transition-all group opacity-50 pointer-events-none"
+        <LinkCard
+          client:load
+          title="Dashboard"
+          subtitle="Overall progress & stats"
           href="#"
+          iconClass="text-primary"
+          disabled
         >
-          <IconDashboard class="text-primary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-          <h3 class="font-headline font-bold text-white text-lg">Dashboard</h3>
-          <p class="text-xs text-zinc-500 mt-1">Overall progress &amp; stats</p>
-        </a> -->
+          <IconDashboard slot="icon" />
+        </LinkCard>
+
         <!-- Vanilla Chapters -->
-        <!-- <a
-          class="bg-card-bg border border-outline-muted p-6 rounded-2xl hover:border-secondary/50 transition-all group opacity-50 pointer-events-none"
+        <LinkCard
+          client:load
+          title="Vanilla Chapters"
+          subtitle="Classic climb tracking"
           href="#"
+          iconClass="text-secondary"
+          borderHoverClass="hover:border-secondary/50"
+          disabled
         >
-          <IconMountainFlag class="text-secondary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-          <h3 class="font-headline font-bold text-white text-lg">Vanilla Chapters</h3>
-          <p class="text-xs text-zinc-500 mt-1">Classic climb tracking</p>
-        </a> -->
+          <IconMountainFlag slot="icon" />
+        </LinkCard>
+
         <!-- Modded Content -->
-        <!-- <a
-          class="bg-card-bg border border-outline-muted p-6 rounded-2xl hover:border-tertiary/50 transition-all group opacity-50 pointer-events-none"
+        <LinkCard
+          client:load
+          title="Modded Content"
+          subtitle="Everest & custom maps"
           href="#"
+          iconClass="text-tertiary"
+          borderHoverClass="hover:border-tertiary/50"
+          disabled
         >
-          <IconExtension class="text-tertiary text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-          <h3 class="font-headline font-bold text-white text-lg">Modded Content</h3>
-          <p class="text-xs text-zinc-500 mt-1">Everest &amp; custom maps</p>
-        </a> -->
+          <IconExtension slot="icon" />
+        </LinkCard>
+
         <!-- CSR Roadmap -->
-        <!-- <a
-          class="bg-card-bg border border-outline-muted p-6 rounded-2xl hover:border-purple-400/50 transition-all group opacity-50 pointer-events-none"
+        <LinkCard
+          client:load
+          title="CSR Roadmap"
+          subtitle="Global ranking goals"
           href="#"
+          iconClass="text-purple-400"
+          borderHoverClass="hover:border-purple-400/50"
+          disabled
         >
-          <IconLeaderboard class="text-purple-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-          <h3 class="font-headline font-bold text-white text-lg">CSR Roadmap</h3>
-          <p class="text-xs text-zinc-500 mt-1">Global ranking goals</p>
-        </a> -->
+          <IconLeaderboard slot="icon" />
+        </LinkCard>
+
         <!-- Map Collections -->
-        <!-- <a
-          class="bg-card-bg border border-outline-muted p-6 rounded-2xl hover:border-orange-400/50 transition-all group"
+        <LinkCard
+          client:load
+          title="Collections"
+          subtitle="Organize your levels"
           href="/collections"
+          iconClass="text-orange-400"
+          borderHoverClass="hover:border-orange-400/50"
         >
-          <IconMap class="text-orange-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-          <h3 class="font-headline font-bold text-white text-lg">Collections</h3>
-          <p class="text-xs text-zinc-500 mt-1">Organize your levels</p>
-        </a> -->
+          <IconMap slot="icon" />
+        </LinkCard>
+
         <!-- History -->
-        <!-- <a
-          class="bg-card-bg border border-outline-muted p-6 rounded-2xl hover:border-blue-400/50 transition-all group"
+        <LinkCard
+          client:load
+          title="Run History"
+          subtitle="Full archive of ascents"
           href="#"
+          iconClass="text-blue-400"
+          borderHoverClass="hover:border-blue-400/50"
         >
-          <IconHistory class="text-blue-400 text-3xl mb-4 block group-hover:scale-110 transition-transform" />
-          <h3 class="font-headline font-bold text-white text-lg">Run History</h3>
-          <p class="text-xs text-zinc-500 mt-1">Full archive of ascents</p>
-        </a> -->
+          <IconHistory slot="icon" />
+        </LinkCard>
       </div>
     </section>
+
     <!-- General Info Grid -->
     <section class="px-6 md:px-12 mt-12">
       <GeneralInfoGrid client:load />
     </section>
+
     <!-- Recent Run History Section -->
     <section class="px-6 md:px-12 mt-12">
       <RecentRunsTable client:load />
