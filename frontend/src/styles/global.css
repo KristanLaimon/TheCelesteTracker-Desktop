@@ -1,37 +1,37 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: "montserrat";
-  src: url("/fonts/montserrat.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
+	font-family: "montserrat";
+	src: url("/fonts/montserrat.ttf") format("truetype");
+	font-weight: 100 900;
+	font-style: normal;
 }
 
 @font-face {
-  font-family: "silkscreen";
-  src: url("/fonts/silkscreen.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+	font-family: "silkscreen";
+	src: url("/fonts/silkscreen.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
 }
 
 @font-face {
-  font-family: "dmsans";
-  src: url("/fonts/dmsans_variable.ttf") format("truetype");
+	font-family: "dmsans";
+	src: url("/fonts/dmsans_variable.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: "inter";
-  src: url("/fonts/inter_variable.ttf") format("truetype");
+	font-family: "inter";
+	src: url("/fonts/inter_variable.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: "labelleaurore";
-  src: url("/fonts/labelleaurore_regular.ttf") format("truetype");
+	font-family: "labelleaurore";
+	src: url("/fonts/labelleaurore_regular.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: "lato";
-  src: url("/fonts/lato_regular.ttf") format("truetype");
+	font-family: "lato";
+	src: url("/fonts/lato_regular.ttf") format("truetype");
 }
 
 @theme {

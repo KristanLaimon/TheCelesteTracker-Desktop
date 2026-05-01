@@ -1,20 +1,19 @@
 ---
-import Layout from "../Layout.astro";
-import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
-import GeneralInfoGrid from "@components/index/GeneralInfoGrid.svelte";
+import { Image } from "astro:assets";
 import farewellBanner from "@assets/bg_horizontal_farewell_banner.jpg";
 import madelineArtwork from "@assets/madeline_artwork_pendingcredits.png";
-
+import GeneralInfoGrid from "@components/index/GeneralInfoGrid.svelte";
 import LinkCard from "@components/index/LinkCard.svelte";
+import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
 import IconDashboard from "~icons/material-symbols/dashboard";
-import IconMountainFlag from "~icons/material-symbols/mountain-flag";
 import IconExtension from "~icons/material-symbols/extension";
+import IconHistory from "~icons/material-symbols/history";
 import IconLeaderboard from "~icons/material-symbols/leaderboard";
 import IconMap from "~icons/material-symbols/map";
-import IconHistory from "~icons/material-symbols/history";
-
+import IconMountainFlag from "~icons/material-symbols/mountain-flag";
 import IconTerminal from "~icons/material-symbols/terminal";
 import IconWifi from "~icons/material-symbols/wifi";
+import Layout from "../Layout.astro";
 ---
 
 
@@ -30,7 +29,7 @@ import IconWifi from "~icons/material-symbols/wifi";
     <section class="relative h-75 md:h-100 w-full overflow-hidden mountain-bg">
       <!-- Background Image -->
       <div class="absolute inset-0 z-0">
-        <img src={farewellBanner.src} alt="Farewell Background" class="w-full h-full object-cover opacity-40" />
+        <Image src={farewellBanner} alt="Farewell Background" class="w-full h-full object-cover opacity-40" />
         <div class="absolute inset-0 bg-hero-gradient"></div>
         <div class="absolute inset-0 bg-linear-to-t from-bg-base via-transparent to-transparent"></div>
       </div>

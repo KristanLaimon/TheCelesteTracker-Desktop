@@ -1,73 +1,129 @@
 <script lang="ts">
-    // import { GetGeneralInfo } from "@wails/backend";
-    // import { saveStore } from "@lib/saveStore.svelte";
+// import { GetGeneralInfo } from "@wails/backend";
+// import { saveStore } from "@lib/saveStore.svelte";
 
+import iconBird from "@assets/interface_bird.png";
+import iconCassette from "@assets/interface_cassete.png";
+import iconGolden from "@assets/interface_goldenstrawberry_icon.png";
+import iconFlag from "@assets/interface_level_cleared_flag.png";
+import iconDeaths from "@assets/interface_SIDEA_deaths_icon.png";
+import iconHeart from "@assets/interface_SIDEA_heart.png";
+import iconStrawberry from "@assets/interface_strawberry_icon.png";
+import iconTimer from "@assets/interface_timer_icon.png";
 
-    import iconDeaths from "@assets/interface_SIDEA_deaths_icon.png";
-    import iconStrawberry from "@assets/interface_strawberry_icon.png";
-    import iconHeart from "@assets/interface_SIDEA_heart.png";
-    import iconTimer from "@assets/interface_timer_icon.png";
-    import iconFlag from "@assets/interface_level_cleared_flag.png";
-    import iconCassette from "@assets/interface_cassete.png";
-    import iconBird from "@assets/interface_bird.png";
-    import iconGolden from "@assets/interface_goldenstrawberry_icon.png";
+type GeneralInfo = {
+	totalCampaigns: number;
+	totalChapters: number;
+	totalRooms: number;
+	totalPlaytime: number;
+	totalDeaths: number;
+	totalDashes: number;
+	totalStrawberries: number;
+	totalHearts: number;
+	totalGoldenStrawberries: number;
+};
 
-    type GeneralInfo =  {
-        totalCampaigns: number;
-        totalChapters: number;
-        totalRooms: number;
-        totalPlaytime: number;
-        totalDeaths: number;
-        totalDashes: number;
-        totalStrawberries: number;
-        totalHearts: number;
-        totalGoldenStrawberries: number;
-    }
+let stats: GeneralInfo | null = $state(null);
+let error: string | null = $state(null);
+let activePopover: string | null = $state(null);
 
-    let stats: GeneralInfo | null = $state(null);
-    let error: string | null = $state(null);
-    let activePopover: string | null = $state(null);
+$effect(() => {
+	const fetchStats = async () => {
+		try {
+			stats = null; // Trigger skeleton
+			// stats = await GetGeneralInfo(saveStore.userId, saveStore.selectedSlot);
+			error = null;
+		} catch (e) {
+			error = String(e);
+			console.error("Failed to fetch general info:", e);
+		}
+	};
+	fetchStats();
+});
 
-    $effect(() => {
-        const fetchStats = async () => {
-            try {
-                stats = null; // Trigger skeleton
-                // stats = await GetGeneralInfo(saveStore.userId, saveStore.selectedSlot);
-                error = null;
-            } catch (e) {
-                error = String(e);
-                console.error("Failed to fetch general info:", e);
-            }
-        };
-        fetchStats();
-    });
+function formatTime(ms: number) {
+	const hours = Math.floor(ms / (1000 * 60 * 60));
+	const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+	return `${hours}h ${minutes}m`;
+}
 
-    function formatTime(ms: number) {
-        const hours = Math.floor(ms / (1000 * 60 * 60));
-        const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-        return `${hours}h ${minutes}m`;
-    }
+const statDefinitions = [
+	{
+		key: "totalCampaigns",
+		label: "Campaigns",
+		icon: iconFlag,
+		color: "text-white",
+		info: "Total number of campaigns (vanilla + mods) you have progress in.",
+	},
+	{
+		key: "totalChapters",
+		label: "Chapters",
+		icon: iconCassette,
+		color: "text-blue-400",
+		info: "Unique chapters or maps entered across all campaigns.",
+	},
+	{
+		key: "totalRooms",
+		label: "Rooms",
+		icon: iconBird,
+		color: "text-green-400",
+		info: "Total count of unique rooms visited across all chapters.",
+	},
+	{
+		key: "totalPlaytime",
+		label: "Playtime",
+		icon: iconTimer,
+		color: "text-white",
+		info: "Cumulative time spent in-game on this save slot.",
+		format: formatTime,
+	},
+	{
+		key: "totalDeaths",
+		label: "Deaths",
+		icon: iconDeaths,
+		color: "text-primary",
+		info: "Total number of deaths recorded on this save slot.",
+		format: (v: number) => v.toLocaleString(),
+	},
+	{
+		key: "totalDashes",
+		label: "Dashes",
+		icon: "⚡",
+		color: "text-secondary",
+		info: "Total number of dashes performed across all chapters.",
+		format: (v: number) => v.toLocaleString(),
+	},
+	{
+		key: "totalStrawberries",
+		label: "Berries",
+		icon: iconStrawberry,
+		color: "text-tertiary",
+		info: "Total number of regular strawberries collected.",
+	},
+	{
+		key: "totalHearts",
+		label: "Hearts",
+		icon: iconHeart,
+		color: "text-purple-400",
+		info: "Total number of Crystal Hearts (A, B, and C sides) collected.",
+	},
+	{
+		key: "totalGoldenStrawberries",
+		label: "Goldens",
+		icon: iconGolden,
+		color: "text-orange-400",
+		info: "Total number of Golden Strawberries collected (deathless clears).",
+	},
+];
 
-    const statDefinitions = [
-        { key: 'totalCampaigns', label: 'Campaigns', icon: iconFlag, color: 'text-white', info: 'Total number of campaigns (vanilla + mods) you have progress in.' },
-        { key: 'totalChapters', label: 'Chapters', icon: iconCassette, color: 'text-blue-400', info: 'Unique chapters or maps entered across all campaigns.' },
-        { key: 'totalRooms', label: 'Rooms', icon: iconBird, color: 'text-green-400', info: 'Total count of unique rooms visited across all chapters.' },
-        { key: 'totalPlaytime', label: 'Playtime', icon: iconTimer, color: 'text-white', info: 'Cumulative time spent in-game on this save slot.', format: formatTime },
-        { key: 'totalDeaths', label: 'Deaths', icon: iconDeaths, color: 'text-primary', info: 'Total number of deaths recorded on this save slot.', format: (v: number) => v.toLocaleString() },
-        { key: 'totalDashes', label: 'Dashes', icon: '⚡', color: 'text-secondary', info: 'Total number of dashes performed across all chapters.', format: (v: number) => v.toLocaleString() },
-        { key: 'totalStrawberries', label: 'Berries', icon: iconStrawberry, color: 'text-tertiary', info: 'Total number of regular strawberries collected.' },
-        { key: 'totalHearts', label: 'Hearts', icon: iconHeart, color: 'text-purple-400', info: 'Total number of Crystal Hearts (A, B, and C sides) collected.' },
-        { key: 'totalGoldenStrawberries', label: 'Goldens', icon: iconGolden, color: 'text-orange-400', info: 'Total number of Golden Strawberries collected (deathless clears).' },
-    ];
+function togglePopover(key: string, event: MouseEvent) {
+	event.stopPropagation();
+	activePopover = activePopover === key ? null : key;
+}
 
-    function togglePopover(key: string, event: MouseEvent) {
-        event.stopPropagation();
-        activePopover = activePopover === key ? null : key;
-    }
-
-    function closePopover() {
-        activePopover = null;
-    }
+function closePopover() {
+	activePopover = null;
+}
 </script>
 
 <svelte:window onclick={closePopover} />

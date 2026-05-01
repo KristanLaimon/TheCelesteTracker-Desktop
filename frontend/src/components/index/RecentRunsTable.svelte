@@ -1,156 +1,104 @@
 <script lang="ts">
-  // import { RunsGetRecentOnes } from "@wails/backend";
-  import IconTimer from "~icons/material-symbols/timer";
-  import IconFilterHdr from "~icons/material-symbols/filter-hdr";
-  import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
-  import IconDiamond from "~icons/material-symbols/diamond";
-  import IconLandscape from "~icons/material-symbols/landscape";
+// import sideADeaths from "@assets/interface_SIDEA_deaths_icon.png";
+// import strawberryIcon from "@assets/interface_strawberry_icon.png";
+// import timerIcon from "@assets/interface_timer_icon.png";
+import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
+import IconDiamond from "~icons/material-symbols/diamond";
+import IconFilterHdr from "~icons/material-symbols/filter-hdr";
+import IconLandscape from "~icons/material-symbols/landscape";
+// import IconTimer from "~icons/material-symbols/timer";
+import type { RunData } from "./RecentRunsTable.svelte.types";
 
-  import sideADeaths from "@assets/interface_SIDEA_deaths_icon.png";
-  import sideBDeaths from "@assets/interface_SIDEB_deaths_icon.png";
-  import sideCDeaths from "@assets/interface_SIDEC_deaths_icon.png";
-  import sideAHeart from "@assets/interface_SIDEA_heart.png";
-  import sideBHeart from "@assets/interface_SIDEB_heart.png";
-  import sideCHeart from "@assets/interface_SIDEC_heart.png";
-  import strawberryIcon from "@assets/interface_strawberry_icon.png";
-  import timerIcon from "@assets/interface_timer_icon.png";
+let rows = $state<RunData[]>([]);
+let loading = $state(false);
+let hasMore = $state(true);
 
-  import logo1 from "@assets/level_1_logo_prologue.png";
-  import logo2 from "@assets/level_2_logo_forsakencity.png";
-  import logo3 from "@assets/level_3_logo_oldsite.png";
-  import logo4 from "@assets/level_4_logo_celestialresort.png";
-  import logo5 from "@assets/level_5_logo_goldenridge.png";
-  import logo6 from "@assets/level_6_logo_mirrortemple.png";
-  import logo7 from "@assets/level_7_logo_reflection.png";
-  import logo8 from "@assets/level_8_logo_summit.png";
-  import logo9 from "@assets/level_9_logo_epilogue.png";
-  import logo10 from "@assets/level_10_logo_core.png";
-  import logo11 from "@assets/level_11_logo_farewell_both_front_back.png";
+async function fetchRuns(
+	limit: number,
+	offset: number,
+	reset: boolean = false,
+) {
+	// if (loading) return;
+	// loading = true;
+	// try {
+	//   // const newRows: RunData[] = await RunsGetRecentOnes(limit, offset);
+	//   const newRows: RunData[] = [];
+	//   // Load icons for modded runs
+	//   for (const row of newRows) {
+	//     if (row.iconPath) {
+	//       // row.iconData = await getAssetUrl(row.iconPath) || undefined;
+	//     }
+	//   }
+	//   if (newRows.length < limit) {
+	//     hasMore = false;
+	//   } else {
+	//     hasMore = true;
+	//   }
+	//   if (reset) {
+	//     rows = newRows;
+	//   } else {
+	//     rows = [...rows, ...newRows];
+	//   }
+	// } catch (e) {
+	//   console.error(e);
+	// } finally {
+	//   loading = false;
+	// }
+}
 
-  import { getAssetUrl } from "@lib/assetHelper";
+$effect(() => {
+	// Re-fetch when slot changes
+	fetchRuns(10, 0, true);
+});
 
-  type RunData = {
-    levelName: string;
-    levelSide: string;
-    type: "Vanilla" | "Modded";
-    attemptType: "Wings Golden" | "Normal" | "Golden Attempt";
-    clearTime: number; // In milliseconds
-    deaths: number;
-    dashes: number;
-    jumps: number;
-    berriesAchieved: number;
-    status: "Completed" | "Goldenberry completed" | "Attempted" | "PB";
-    iconPath: string;
-    iconData?: string;
-  };
+function loadMore() {
+	fetchRuns(15, rows.length);
+}
 
-  let rows = $state<RunData[]>([]);
-  let loading = $state(false);
-  let hasMore = $state(true);
+const headers = [
+	"Level Name",
+	"Side",
+	"Type",
+	"Attempt",
+	"Time",
+	"Deaths",
+	"Dashes",
+	"Berries achieved",
+	"Status",
+];
 
-  async function fetchRuns(limit: number, offset: number, reset: boolean = false) {
-    if (loading) return;
-    loading = true;
-    try {
-      // const newRows: RunData[] = await RunsGetRecentOnes(limit, offset);
-      const newRows: RunData[] = [];
+function getLevelIcon(row: RunData) {
+	if (row.iconData) return row.iconData;
+	const logo = levelLogos[row.levelName];
+	if (logo) return logo.src || logo;
+	return null;
+}
 
-      // Load icons for modded runs
-      for (const row of newRows) {
-        if (row.iconPath) {
-          row.iconData = await getAssetUrl(row.iconPath) || undefined;
-        }
-      }
+const iconMap = {
+	vanilla: { icon: IconFilterHdr, color: "text-primary", bg: "bg-primary/10" },
+	modded: {
+		icon: IconAutoAwesome,
+		color: "text-tertiary",
+		bg: "bg-tertiary/10",
+	},
+	temple: {
+		icon: IconDiamond,
+		color: "text-purple-400",
+		bg: "bg-purple-400/10",
+	},
+	summit: {
+		icon: IconLandscape,
+		color: "text-orange-400",
+		bg: "bg-orange-400/10",
+	},
+};
 
-      if (newRows.length < limit) {
-        hasMore = false;
-      } else {
-        hasMore = true;
-      }
-
-      if (reset) {
-        rows = newRows;
-      } else {
-        rows = [...rows, ...newRows];
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      loading = false;
-    }
-  }
-
-  $effect(() => {
-    // Re-fetch when slot changes
-    fetchRuns(10, 0, true);
-  });
-
-  function loadMore() {
-    fetchRuns(15, rows.length);
-  }
-
-  const headers = ["Level Name", "Side", "Type", "Attempt", "Time", "Deaths", "Dashes", "Berries achieved", "Status"];
-
-  const deathIcons: Record<string, any> = {
-    "SIDE A": sideADeaths,
-    "SIDE B": sideBDeaths,
-    "SIDE C": sideCDeaths
-  };
-
-  const heartIcons: Record<string, any> = {
-    "SIDE A": sideAHeart,
-    "SIDE B": sideBHeart,
-    "SIDE C": sideCHeart
-  };
-
-  const levelLogos: Record<string, any> = {
-    "Prologue": logo1,
-    "Forsaken City": logo2,
-    "Old Site": logo3,
-    "Celestial Resort": logo4,
-    "Golden Ridge": logo5,
-    "Mirror Temple": logo6,
-    "Reflection": logo7,
-    "The Summit": logo8,
-    "Epilogue": logo9,
-    "Core": logo10,
-    "Farewell": logo11
-  };
-
-  function getLevelIcon(row: RunData) {
-    if (row.iconData) return row.iconData;
-    const logo = levelLogos[row.levelName];
-    if (logo) return logo.src || logo;
-    return null;
-  }
-
-  function formatTime(ms: number): string {
-    const milliseconds = Math.floor(ms % 1000);
-    const seconds = Math.floor((ms / 1000) % 60);
-    const minutes = Math.floor((ms / (1000 * 60)) % 60);
-    const hours = Math.floor(ms / (1000 * 60 * 60));
-
-    const hStr = hours.toString().padStart(2, "0");
-    const mStr = minutes.toString().padStart(2, "0");
-    const sStr = seconds.toString().padStart(2, "0");
-    const msStr = milliseconds.toString().padStart(3, "0");
-
-    if (hours > 0) return `${hStr}:${mStr}:${sStr}.${msStr}`;
-    return `${mStr}:${sStr}.${msStr}`;
-  }
-
-  const iconMap = {
-    vanilla: { icon: IconFilterHdr, color: "text-primary", bg: "bg-primary/10" },
-    modded: { icon: IconAutoAwesome, color: "text-tertiary", bg: "bg-tertiary/10" },
-    temple: { icon: IconDiamond, color: "text-purple-400", bg: "bg-purple-400/10" },
-    summit: { icon: IconLandscape, color: "text-orange-400", bg: "bg-orange-400/10" },
-  };
-
-  const attemptTypeColors = {
-    "Wings Golden": "bg-yellow-500/10 text-yellow-500",
-    "Normal": "bg-zinc-800 text-zinc-400",
-    "Golden Attempt": "bg-yellow-500/10 text-yellow-500/80 border border-yellow-500/20",
-  };
+const attemptTypeColors = {
+	"Wings Golden": "bg-yellow-500/10 text-yellow-500",
+	Normal: "bg-zinc-800 text-zinc-400",
+	"Golden Attempt":
+		"bg-yellow-500/10 text-yellow-500/80 border border-yellow-500/20",
+};
 </script>
 
 <style>

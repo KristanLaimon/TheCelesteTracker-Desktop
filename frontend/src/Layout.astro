@@ -1,13 +1,13 @@
 ---
 import { twMerge } from "tailwind-merge";
 import "@styles/global.css";
-import GlobalHeader from "./components/global/GlobalHeader.astro";
 import GlobalFooter from "./components/global/GlobalFooter.astro";
+import GlobalHeader from "./components/global/GlobalHeader.astro";
 
 export type Props = {
-  title: string;
-  bodyClassNames?: string;
-  bodyId?: string;
+	title: string;
+	bodyClassNames?: string;
+	bodyId?: string;
 };
 
 const { bodyClassNames = "", title, bodyId } = Astro.props;

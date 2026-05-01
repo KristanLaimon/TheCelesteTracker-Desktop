@@ -1,25 +1,25 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+import type { Snippet } from "svelte";
 
-  type LinkCardProps = {
-    icon?: Snippet;
-    iconClass?: string;
-    title: string;
-    subtitle: string;
-    href: string;
-    disabled?: boolean;
-    borderHoverClass?: string;
-  }
+type LinkCardProps = {
+	icon?: Snippet;
+	iconClass?: string;
+	title: string;
+	subtitle: string;
+	href: string;
+	disabled?: boolean;
+	borderHoverClass?: string;
+};
 
-  let {
-    href,
-    subtitle,
-    title,
-    icon,
-    iconClass = "",
-    disabled = false,
-    borderHoverClass = "hover:border-primary/50"
-  }: LinkCardProps = $props();
+let {
+	href,
+	subtitle,
+	title,
+	icon,
+	iconClass = "",
+	disabled = false,
+	borderHoverClass = "hover:border-primary/50",
+}: LinkCardProps = $props();
 </script>
 
 <a
