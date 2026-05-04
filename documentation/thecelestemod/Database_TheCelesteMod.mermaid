@@ -1,9 +1,9 @@
 erDiagram
-Users ||--o{ SaveDatas : "has"
-Users {
-int id PK
-string name
-}
+     Users ||--o{ SaveDatas : "has"
+     Users {
+         int id PK
+         string name
+     }
 
      SaveDatas ||--o{ Campaigns : "contains"
      SaveDatas {
@@ -41,7 +41,7 @@ string name
          int berries_collected
          int goldenstrawberry_achieved
          int goldenwingstrawberry_achieved
-     }
+     } 
 
      ChapterSideRooms ||--o{ GameSessionChapterRoomStats : "source"
      ChapterSideRooms {

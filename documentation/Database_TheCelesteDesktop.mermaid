@@ -1,108 +1,107 @@
-     erDiagram
-          Users ||--o{ SaveDatas : "has"
-          Users ||--o{ Collections : "creates"
-          Users {
-              int id PK
-              string name
-          }
+erDiagram
+    Users ||--o{ SaveDatas : "has"
+    Users ||--o{ Collections : "creates"
+    Users {
+        int id PK
+        string name
+    }
 
-          Collections ||--o{ CollectionCampaigns : "contains"
-          Collections {
-              int id PK
-              int user_id FK
-              string name
-          }
+    Collections ||--o{ CollectionCampaigns : "contains"
+    Collections {
+        int id PK
+        int user_id FK
+        string name
+    }
 
-          SaveDatas ||--o{ Lobbies : "contains"
-          SaveDatas ||--o{ Campaigns : "contains"
-          SaveDatas {
-              int id PK
-              int user_id FK
-              int slot_number
-              string file_name
-          }
+    SaveDatas ||--o{ Lobbies : "contains"
+    SaveDatas ||--o{ Campaigns : "contains"
+    SaveDatas {
+        int id PK
+        int user_id FK
+        int slot_number
+        string file_name
+    }
 
-          %% NEW: Collab Utils 2 Lobby grouping Campaigns
-          Lobbies ||--o{ Campaigns : "groups"
-          Lobbies {
-              int id PK
-              int save_data_id FK
-              string name
-              string chapter_sid "Nullable FK to Chapters (the lobby map)"
-              string icon_img_path "Nullable"
-          }
+    %% NEW: Collab Utils 2 Lobby grouping Campaigns
+    Lobbies ||--o{ Campaigns : "groups"
+    Lobbies {
+        int id PK
+        int save_data_id FK
+        string name
+        string chapter_sid "Nullable FK to Chapters (the lobby map)"
+        string icon_img_path "Nullable"
+    }
 
-          %% UPDATED: Added nullable lobby_id FK to Campaigns
-          Campaigns ||--o{ CollectionCampaigns : "member_of"
-          Campaigns ||--o{ Chapters : "manages"
-          Campaigns {
-              int id PK
-              int save_data_id FK
-              int lobby_id FK "Nullable"
-              string campaign_name_id
-              string cover_img_path "Nullable"
-          }
+    %% FIXED: Appended nullable columns to the bottom to preserve base ordinal positions
+    Campaigns ||--o{ CollectionCampaigns : "member_of"
+    Campaigns ||--o{ Chapters : "manages"
+    Campaigns {
+        int id PK
+        int save_data_id FK
+        string campaign_name_id
+        int lobby_id FK "Nullable"
+        string cover_img_path "Nullable"
+    }
 
-          CollectionCampaigns {
-              int collection_id PK, FK
-              int campaign_id PK, FK
-          }
+    CollectionCampaigns {
+        int collection_id PK, FK
+        int campaign_id PK, FK
+    }
 
-          Chapters ||--o{ ChapterSides : "has"
-          Chapters {
-              string sid PK
-              int campaign_id FK
-              string name
-              string icon_img_path "Nullable"
-              string endscreen_img_path "Nullable"
-          }
+    Chapters ||--o{ ChapterSides : "has"
+    Chapters {
+        string sid PK
+        int campaign_id FK
+        string name
+        string icon_img_path "Nullable"
+        string endscreen_img_path "Nullable"
+    }
 
+    ChapterSideTypes ||--o{ ChapterSides : "type"
+    ChapterSideTypes {
+        string id PK "SIDEA, SIDEB, SIDEC"
+    }
 
-          ChapterSideTypes ||--o{ ChapterSides : "type"
-          ChapterSideTypes {
-              string id PK "SIDEA, SIDEB, SIDEC"
-          }
+    ChapterSides ||--o{ ChapterSideRooms : "defines"
+    ChapterSides ||--o{ GameSessions : "tracks"
+    ChapterSides {
+        string chapter_sid PK, FK
+        string side_id PK, FK
+        int berries_available
+        int berries_collected
+        int goldenstrawberry_achieved
+        int goldenwingstrawberry_achieved
+    }
 
-          ChapterSides ||--o{ ChapterSideRooms : "defines"
-          ChapterSides ||--o{ GameSessions : "tracks"
-          ChapterSides {
-              string chapter_sid PK, FK
-              string side_id PK, FK
-              int berries_available
-              int berries_collected
-              int goldenstrawberry_achieved
-              int goldenwingstrawberry_achieved
-          }
+    ChapterSideRooms ||--o{ GameSessionChapterRoomStats : "source"
+    ChapterSideRooms {
+        string chapter_sid PK, FK
+        string side_id PK, FK
+        string name PK
+        int order
+        int strawberries_available
+    }
 
-          ChapterSideRooms ||--o{ GameSessionChapterRoomStats : "source"
-          ChapterSideRooms {
-              string chapter_sid PK, FK
-              string side_id PK, FK
-              string name PK
-              int order
-              int strawberries_available
-          }
+    GameSessions ||--o{ GameSessionChapterRoomStats : "logs"
+    GameSessions {
+        string id PK
+        string chapter_sid FK
+        string side_id FK
+        string date_time_start
+        int duration_ms
+        int is_goldenberry_attempt
+        int is_goldenberry_completed
+    }
 
-          GameSessions ||--o{ GameSessionChapterRoomStats : "logs"
-          GameSessions {
-              string id PK
-              string chapter_sid FK
-              string side_id FK
-              string date_time_start
-              int duration_ms
-              int is_goldenberry_attempt
-              int is_goldenberry_completed
-          }
-
-          GameSessionChapterRoomStats {
-              int id PK
-              string gamesession_id FK
-              string chapter_sid FK
-              string side_id FK
-              string room_name FK
-              int deaths_in_room
-              int dashes_in_room
-              int jumps_in_room
-              int strawberries_achieved_in_room
-              int hearts_achieved_in_room
-          }
+    GameSessionChapterRoomStats {
+        int id PK
+        string gamesession_id FK
+        string chapter_sid FK
+        string side_id FK
+        string room_name FK
+        int deaths_in_room
+        int dashes_in_room
+        int jumps_in_room
+        int strawberries_achieved_in_room
+        int hearts_achieved_in_room
+    }
