@@ -1,0 +1,65 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "frontend:build",
+      "type": "shell",
+      "command": "bun run build",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "wails:generate",
+      "type": "shell",
+      "command": "wails generate module",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "build:release-full",
+      "dependsOrder": "sequence",
+      "dependsOn": ["frontend:build", "wails:generate", "build:release-backend"],
+      "problemMatcher": []
+    },
+    {
+      "label": "build:release-backend",
+      "type": "shell",
+      "command": "go build -o build/bin/app.exe .",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$go"]
+    },
+    {
+      "label": "build:debug-full",
+      "dependsOrder": "sequence",
+      "dependsOn": ["frontend:build", "wails:generate", "build:debug-backend"],
+      "problemMatcher": []
+    },
+    {
+      "label": "build:debug-backend",
+      "type": "shell",
+      "command": "go build -tags debug -gcflags \"all=-N -l\" -o build/bin/app-debug.exe .",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$go"]
+    },
+    {
+      "label": "build:lib-test",
+      "type": "shell",
+      "command": "go build -tags debug -o build/bin/libtest.exe main.dev.go",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": "build",
+      "problemMatcher": ["$go"]
+    }
+  ]
+}

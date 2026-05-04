@@ -5,6 +5,8 @@ import sideBHeart from "@assets/interface_SIDEB_heart.png";
 import sideCDeaths from "@assets/interface_SIDEC_deaths_icon.png";
 import sideCHeart from "@assets/interface_SIDEC_heart.png";
 
+import logo10 from "@assets/level_10_logo_core.png";
+import logo11 from "@assets/level_11_logo_farewell_both_front_back.png";
 import logo1 from "@assets/level_1_logo_prologue.png";
 import logo2 from "@assets/level_2_logo_forsakencity.png";
 import logo3 from "@assets/level_3_logo_oldsite.png";
@@ -14,8 +16,6 @@ import logo6 from "@assets/level_6_logo_mirrortemple.png";
 import logo7 from "@assets/level_7_logo_reflection.png";
 import logo8 from "@assets/level_8_logo_summit.png";
 import logo9 from "@assets/level_9_logo_epilogue.png";
-import logo10 from "@assets/level_10_logo_core.png";
-import logo11 from "@assets/level_11_logo_farewell_both_front_back.png";
 
 export const Assets_Vanilla_DeathIcons: Record<string, any> = {
 	"SIDE A": sideADeaths,
@@ -42,3 +42,5 @@ const Assets_Vanilla_ChapterIcon: Record<string, any> = {
 	Core: logo10,
 	Farewell: logo11,
 };
+
+

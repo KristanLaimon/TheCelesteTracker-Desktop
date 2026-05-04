@@ -1,10 +1,10 @@
 import js from '@eslint/js';
-import ts from 'typescript-eslint';
+import astroParser from "astro-eslint-parser";
 import astro from 'eslint-plugin-astro';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import svelteParser from 'svelte-eslint-parser';
-import astroParser from 'astro-eslint-parser';
+import ts from "typescript-eslint";
 
 export default ts.config(
   {

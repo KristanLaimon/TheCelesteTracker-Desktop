@@ -6,7 +6,7 @@ import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
 import IconDiamond from "~icons/material-symbols/diamond";
 import IconFilterHdr from "~icons/material-symbols/filter-hdr";
 import IconLandscape from "~icons/material-symbols/landscape";
-// import IconTimer from "~icons/material-symbols/timer";
+import IconTimer from "~icons/material-symbols/timer";
 import type { RunData } from "./RecentRunsTable.svelte.types";
 
 let rows = $state<RunData[]>([]);

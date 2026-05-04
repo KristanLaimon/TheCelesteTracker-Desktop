@@ -3,6 +3,7 @@ build/bin
 node_modules
 frontend/dist
 frontend/archive/
+frontend/.astro/
 
 # Backend (go) output
 build/
