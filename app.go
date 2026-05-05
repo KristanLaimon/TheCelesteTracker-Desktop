@@ -1,6 +1,7 @@
 package main
 
 import (
+	"TheCelesteTrackerDesktop/src"
 	"context"
 	"fmt"
 )
@@ -24,4 +25,13 @@ func (a *App) startup(ctx context.Context) {
 // Greet returns a greeting for the given name
 func (a *App) Greet(name string) string {
 	return fmt.Sprintf("Hello %s, It's show time!", name)
+}
+
+// ================= HERE STARTS OUR METHODS =========================
+func (a *App) Query_GetRecentHistory() []src.RecentRun {
+	toReturn ,err := src.Query_GetRecentRunHistory()
+	if err != nil {
+		return make([]src.RecentRun, 0)
+	}
+	return toReturn
 }

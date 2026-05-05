@@ -1,0 +1,55 @@
+package src
+
+type RecentRun struct {
+    // Basic Info
+    CampaignName  string `db:"campaign_name"`
+    ChapterName   string `db:"chapter_name"`
+    Side          string `db:"side"`          // Added: column gs.side_id
+    CampaignType  string `db:"campaign_type"`
+    AttemptType   string `db:"attempt_type"`
+    FormattedTime string `db:"formatted_time"`
+
+    // Statistics (Result of SUM functions)
+    Deaths        int    `db:"deaths"`       // Added: sum(deaths_in_room)
+    Dashes        int    `db:"dashes"`       // Added: sum(dashes_in_room)
+    Jumps         int    `db:"jumps"`        // Added: sum(jumps_in_room)
+    Strawberries  int    `db:"strawberries"`
+}
+
+
+func Query_GetRecentRunHistory() ([]RecentRun, error) {
+	toReturn := make([]RecentRun, 0)
+
+	err := Db_DoQuery(&toReturn, `
+		select
+			cc.campaign_name_id as campaign_name,
+			c.name as chapter_name,
+			gs.side_id as side,
+			case
+				when cc.campaign_name_id like '%celeste%' then 'Vanilla'
+				else 'Mod'
+			end as campaign_type,
+			case
+				when gs.is_goldenberry_attempt == 1 then 'GoldenAttempt'
+				when gs.is_goldenberry_completed == 1 then 'GoldenCompleted'
+				else 'Normal try'
+			end as attempt_type,
+			strftime('%H:%M:%f', gs.duration_ms / 1000.0, 'unixepoch') AS formatted_time,
+			sum(gscrs.deaths_in_room) as deaths,
+			sum(gscrs.dashes_in_room) as dashes,
+			sum(gscrs.jumps_in_room) as jumps,
+			sum(gscrs.strawberries_achieved_in_room) as strawberries
+		from GameSessions gs
+		join Chapters c on gs.chapter_sid = c.sid
+		join Campaigns cc on c.campaign_id = cc.id
+		right join GameSessionChapterRoomStats gscrs on gscrs.gamesession_id = gs.id
+		group by c.name, cc.campaign_name_id
+		order by gs.date_time_start;
+	`);
+
+	if err != nil {
+		return []RecentRun{}, err
+	}
+
+	return toReturn, nil
+}

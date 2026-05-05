@@ -2,60 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "1. Release (Full)",
+      "name": "debug",
       "type": "go",
       "request": "launch",
       "mode": "exec",
       "program": "${workspaceFolder}/build/bin/app.exe",
       "preLaunchTask": "build:release-full",
       "cwd": "${workspaceFolder}",
-      "env": {}
+      "env": {},
     },
-    {
-      "name": "2. Release (Backend Only)",
-      "type": "go",
-      "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/app.exe",
-      "preLaunchTask": "build:release-backend",
-      "cwd": "${workspaceFolder}",
-      "env": {}
-    },
-    {
-      "name": "3. Debug (Full)",
-      "type": "go",
-      "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/app-debug.exe",
-      "preLaunchTask": "build:debug-full",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "debug": "true"
-      }
-    },
-    {
-      "name": "4. Debug (Backend Only)",
-      "type": "go",
-      "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/app-debug.exe",
-      "preLaunchTask": "build:debug-backend",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "debug": "true"
-      }
-    },
-    {
-      "name": "5. Lib Test (main.dev.go)",
-      "type": "go",
-      "request": "launch",
-      "mode": "exec",
-      "program": "${workspaceFolder}/build/bin/libtest.exe",
-      "preLaunchTask": "build:lib-test",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "debug": "true"
-      }
-    }
-  ]
+  ],
 }
