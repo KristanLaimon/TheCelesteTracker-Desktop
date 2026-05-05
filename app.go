@@ -28,8 +28,8 @@ func (a *App) Greet(name string) string {
 }
 
 // ================= HERE STARTS OUR METHODS =========================
-func (a *App) Query_GetRecentHistory() []src.RecentRun {
-	toReturn ,err := src.Query_GetRecentRunHistory()
+func (a *App) Query_GetRecentHistory(saveDataId int, userId int) []src.RecentRun {
+	toReturn ,err := src.Query_GetRecentRunHistory(saveDataId, userId)
 	if err != nil {
 		return make([]src.RecentRun, 0)
 	}

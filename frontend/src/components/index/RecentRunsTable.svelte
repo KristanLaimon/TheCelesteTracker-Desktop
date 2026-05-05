@@ -1,58 +1,48 @@
 <script lang="ts">
-// import sideADeaths from "@assets/interface_SIDEA_deaths_icon.png";
-// import strawberryIcon from "@assets/interface_strawberry_icon.png";
-// import timerIcon from "@assets/interface_timer_icon.png";
+import sideADeaths from "../../assets/interface_SIDEA_deaths_icon.png";
+import strawberryIcon from "../../assets/interface_strawberry_icon.png";
+import timerIcon from "../../assets/interface_timer_icon.png";
 import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
 import IconDiamond from "~icons/material-symbols/diamond";
 import IconFilterHdr from "~icons/material-symbols/filter-hdr";
 import IconLandscape from "~icons/material-symbols/landscape";
 import IconTimer from "~icons/material-symbols/timer";
-import type { RunData } from "./RecentRunsTable.svelte.types";
+import { Query_GetRecentHistory } from "../../../wailsjs/go/main/App";
+import  type {  src  } from "../../../wailsjs/go/models";
 
-let rows = $state<RunData[]>([]);
+import {
+	Assets_Vanilla_ChapterIcon,
+	Assets_Vanilla_DeathIcons,
+	Assets_Vanilla_SideIcon,
+} from "../../lib/assets";
+
+let rows = $state<src.RecentRun[]>([]);
 let loading = $state(false);
-let hasMore = $state(true);
+let hasMore = $state(false); // Backend query doesn't support pagination yet, so we'll show all
 
-async function fetchRuns(
-	limit: number,
-	offset: number,
-	reset: boolean = false,
-) {
-	// if (loading) return;
-	// loading = true;
-	// try {
-	//   // const newRows: RunData[] = await RunsGetRecentOnes(limit, offset);
-	//   const newRows: RunData[] = [];
-	//   // Load icons for modded runs
-	//   for (const row of newRows) {
-	//     if (row.iconPath) {
-	//       // row.iconData = await getAssetUrl(row.iconPath) || undefined;
-	//     }
-	//   }
-	//   if (newRows.length < limit) {
-	//     hasMore = false;
-	//   } else {
-	//     hasMore = true;
-	//   }
-	//   if (reset) {
-	//     rows = newRows;
-	//   } else {
-	//     rows = [...rows, ...newRows];
-	//   }
-	// } catch (e) {
-	//   console.error(e);
-	// } finally {
-	//   loading = false;
-	// }
+async function fetchRuns(reset: boolean = false) {
+	if (loading) return;
+	loading = true;
+	try {
+		const newRows: src.RecentRun[] = await Query_GetRecentHistory(1,1);
+		if (reset) {
+			rows = newRows;
+		} else {
+			rows = [...rows, ...newRows];
+		}
+	} catch (e) {
+		console.error(e);
+	} finally {
+		loading = false;
+	}
 }
 
 $effect(() => {
-	// Re-fetch when slot changes
-	fetchRuns(10, 0, true);
+	fetchRuns(true);
 });
 
 function loadMore() {
-	fetchRuns(15, rows.length);
+	// Not implemented in backend yet
 }
 
 const headers = [
@@ -67,9 +57,8 @@ const headers = [
 	"Status",
 ];
 
-function getLevelIcon(row: RunData) {
-	if (row.iconData) return row.iconData;
-	const logo = levelLogos[row.levelName];
+function getLevelIcon(row: RecentRun) {
+	const logo = Assets_Vanilla_ChapterIcon[row.ChapterName];
 	if (logo) return logo.src || logo;
 	return null;
 }
@@ -93,11 +82,12 @@ const iconMap = {
 	},
 };
 
-const attemptTypeColors = {
+const attemptTypeColors: Record<string, string> = {
 	"Wings Golden": "bg-yellow-500/10 text-yellow-500",
-	Normal: "bg-zinc-800 text-zinc-400",
-	"Golden Attempt":
+	"Normal try": "bg-zinc-800 text-zinc-400",
+	GoldenAttempt:
 		"bg-yellow-500/10 text-yellow-500/80 border border-yellow-500/20",
+	GoldenCompleted: "bg-yellow-500 text-black font-bold",
 };
 </script>
 
@@ -143,9 +133,9 @@ const attemptTypeColors = {
     <tbody class="divide-y divide-outline-muted/50">
       {#each rows as row}
         {@const levelIcon = getLevelIcon(row)}
-        {@const IconData = levelIcon ? null : (row.type === 'Vanilla' ? iconMap.vanilla : iconMap.modded)}
-        {@const isGoldenCompleted = row.status === "Goldenberry completed"}
-        {@const isGoldenAttempt = row.attemptType === "Golden Attempt"}
+        {@const IconData = levelIcon ? null : (row.CampaignType === 'Vanilla' ? iconMap.vanilla : iconMap.modded)}
+        {@const isGoldenCompleted = row.AttemptType === "GoldenCompleted"}
+        {@const isGoldenAttempt = row.AttemptType === "GoldenAttempt"}
         <tr class="hover:bg-white/5 transition-all group border-l-2 {isGoldenCompleted ? 'border-l-yellow-400 bg-yellow-400/5 shadow-[inset_0_0_20px_rgba(250,204,21,0.05)]' : 'border-l-transparent'}">
           <td class="px-6 py-4">
             <div class="flex items-center gap-3 justify-start">
@@ -156,33 +146,33 @@ const attemptTypeColors = {
                   <IconData.icon class="text-lg" />
                 {/if}
               </div>
-              <span class="font-bold text-zinc-200">{row.levelName}</span>
+              <span class="font-bold text-zinc-200">{row.ChapterName}</span>
             </div>
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-2 justify-center">
-              {#if heartIcons[row.levelSide]}
-                <img src={heartIcons[row.levelSide].src || heartIcons[row.levelSide]} alt="" class="w-4 h-4" />
+              {#if Assets_Vanilla_SideIcon[row.Side]}
+                <img src={Assets_Vanilla_SideIcon[row.Side].src || Assets_Vanilla_SideIcon[row.Side]} alt="" class="w-4 h-4" />
               {/if}
               <span class="text-[12px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 whitespace-nowrap">
-                {row.levelSide}
+                {row.Side}
               </span>
             </div>
           </td>
           <td class="px-6 py-4 text-center">
-            <span class="px-2 py-1 rounded text-[12px] font-bold uppercase tracking-tighter {row.type === 'Vanilla' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}">
-              {row.type}
+            <span class="px-2 py-1 rounded text-[12px] font-bold uppercase tracking-tighter {row.CampaignType === 'Vanilla' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}">
+              {row.CampaignType}
             </span>
           </td>
           <td class="px-6 py-4 text-center">
-            <span class="px-2 py-1 rounded text-[12px] font-bold uppercase tracking-tighter {attemptTypeColors[row.attemptType]}">
-              {row.attemptType}
+            <span class="px-2 py-1 rounded text-[12px] font-bold uppercase tracking-tighter {attemptTypeColors[row.AttemptType]}">
+              {row.AttemptType}
             </span>
           </td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
             <div class="flex items-center gap-2 justify-center">
-              <img src={timerIcon.src} alt="" class="w-4 h-4 opacity-50" />
-              {formatTime(row.clearTime)}
+              <img src={timerIcon.src || timerIcon} alt="" class="w-4 h-4 opacity-50" />
+              {row.FormattedTime}
             </div>
           </td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
@@ -190,26 +180,26 @@ const attemptTypeColors = {
               {#if isGoldenAttempt}
                 <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" title="Golden Death"></div>
               {:else}
-                <img src={(deathIcons[row.levelSide] || sideADeaths).src || (deathIcons[row.levelSide] || sideADeaths)} alt="" class="w-5 h-5" />
-                {row.deaths}
+                <img src={(Assets_Vanilla_DeathIcons[row.Side] || sideADeaths).src || (Assets_Vanilla_DeathIcons[row.Side] || sideADeaths)} alt="" class="w-5 h-5" />
+                {row.Deaths}
               {/if}
             </div>
           </td>
-          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">{row.dashes}</td>
+          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">{row.Dashes}</td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center w-24">
             <div class="flex items-center gap-2 justify-center">
-              <img src={strawberryIcon.src} alt="" class="w-5 h-5" />
-              {row.berriesAchieved}
+              <img src={strawberryIcon.src || strawberryIcon} alt="" class="w-5 h-5" />
+              {row.Strawberries}
             </div>
           </td>
           <td class="px-6 py-4 text-center">
-            <span class="font-bold text-sm {row.status === 'PB' ? 'text-green-400' : ''} {isGoldenCompleted ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] status-goldenberry px-2 py-1 rounded' : ''} {row.status === 'Completed' ? 'text-zinc-500' : ''} {row.status === 'Attempted' ? 'text-red-400/70' : ''}">
+            <span class="font-bold text-sm {isGoldenCompleted ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] status-goldenberry px-2 py-1 rounded' : 'text-zinc-500'}">
               {#if isGoldenCompleted}
                 Goldenberry
-              {:else if isGoldenAttempt && row.status === "Attempted"}
+              {:else if isGoldenAttempt}
                 Golden Attempted
               {:else}
-                {row.status}
+                Completed
               {/if}
             </span>
           </td>

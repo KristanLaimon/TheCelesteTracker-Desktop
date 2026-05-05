@@ -1,5 +1,7 @@
 package src
 
+import "fmt"
+
 type RecentRun struct {
     // Basic Info
     CampaignName  string `db:"campaign_name"`
@@ -17,16 +19,16 @@ type RecentRun struct {
 }
 
 
-func Query_GetRecentRunHistory() ([]RecentRun, error) {
+func Query_GetRecentRunHistory(saveDataId int, userId int) ([]RecentRun, error) {
 	toReturn := make([]RecentRun, 0)
 
-	err := Db_DoQuery(&toReturn, `
+	err := Db_DoQuery(&toReturn, fmt.Sprintf(`
 		select
 			cc.campaign_name_id as campaign_name,
 			c.name as chapter_name,
 			gs.side_id as side,
 			case
-				when cc.campaign_name_id like '%celeste%' then 'Vanilla'
+				when cc.campaign_name_id like '\%celeste\%' then 'Vanilla'
 				else 'Mod'
 			end as campaign_type,
 			case
@@ -42,10 +44,13 @@ func Query_GetRecentRunHistory() ([]RecentRun, error) {
 		from GameSessions gs
 		join Chapters c on gs.chapter_sid = c.sid
 		join Campaigns cc on c.campaign_id = cc.id
+		join SaveDatas sd on cc.save_data_id = sd.id
+		join Users u on sd.user_id = u.id
 		right join GameSessionChapterRoomStats gscrs on gscrs.gamesession_id = gs.id
+		where u.id == %d and sd.id = %d
 		group by c.name, cc.campaign_name_id
-		order by gs.date_time_start;
-	`);
+		order by gs.date_time_start
+	`, userId, saveDataId));
 
 	if err != nil {
 		return []RecentRun{}, err

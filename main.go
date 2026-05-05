@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"log"
 
-	src "TheCelesteTrackerDesktop/src"
-
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
@@ -17,11 +15,7 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
-	v, err := src.Query_GetRecentRunHistory()
-	if err == nil {
-		Debug(v)
-	}
+	StartWailsApp()
 }
 
 func StartWailsApp() {
@@ -50,7 +44,7 @@ func StartWailsApp() {
 func Debug(anything any) {
 	bytes, err := json.Marshal(anything)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%s", err.Error())
 	}
 	fmt.Println(string(bytes))
 }

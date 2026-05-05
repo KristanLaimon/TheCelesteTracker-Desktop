@@ -23,13 +23,13 @@ export const Assets_Vanilla_DeathIcons: Record<string, any> = {
 	"SIDE C": sideCDeaths,
 };
 
-const Assets_Vanilla_SideIcon: Record<string, any> = {
+export const Assets_Vanilla_SideIcon: Record<string, any> = {
 	"SIDE A": sideAHeart,
 	"SIDE B": sideBHeart,
 	"SIDE C": sideCHeart,
 };
 
-const Assets_Vanilla_ChapterIcon: Record<string, any> = {
+export const Assets_Vanilla_ChapterIcon: Record<string, any> = {
 	Prologue: logo1,
 	"Forsaken City": logo2,
 	"Old Site": logo3,
