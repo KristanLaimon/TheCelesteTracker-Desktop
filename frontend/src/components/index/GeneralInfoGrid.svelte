@@ -130,21 +130,21 @@ function closePopover() {
 
 <svelte:window onclick={closePopover} />
 
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+<div class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2 mb-8">
     {#if stats}
         {#each statDefinitions as def (def.key)}
-            <div class="bg-card-bg/40 border border-outline-muted p-4 rounded-xl flex items-center gap-4 relative group">
+            <div class="bg-card-bg/40 border border-outline-muted p-2 md:p-3 rounded-xl flex items-center gap-2 md:gap-3 relative group">
                 {#if typeof def.icon === 'string'}
-                    <div class="w-8 h-8 flex items-center justify-center">
-                        <span class="{def.color} text-2xl">{def.icon}</span>
+                    <div class="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center">
+                        <span class="{def.color} text-lg md:text-2xl">{def.icon}</span>
                     </div>
                 {:else}
-                    <img src={def.icon.src} alt={def.label} class="w-8 h-8 object-contain opacity-80" />
+                    <img src={def.icon.src} alt={def.label} class="w-6 h-6 md:w-8 md:h-8 object-contain opacity-80" />
                 {/if}
-                <div class="flex-1">
-                    <p class="text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-0.5">{def.label}</p>
-                    <p class="text-xl font-headline font-bold {def.color}">
-                        {def.format ? def.format(stats[def.key as keyof GeneralInfo]) : stats[def.key as keyof GeneralInfo]}
+                <div class="flex-1 min-w-0">
+                    <p class="text-[9px] md:text-[10px] uppercase tracking-wider text-zinc-500 font-bold mb-0.5 truncate">{def.label}</p>
+                    <p class="text-base md:text-xl font-headline font-bold {def.color} truncate">
+                        {def.format ? def.format(stats[def.key as keyof src.GlobalStats]) : stats[def.key as keyof src.GlobalStats]}
                     </p>
                 </div>
 

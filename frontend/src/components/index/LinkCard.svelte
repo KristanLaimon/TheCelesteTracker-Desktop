@@ -23,14 +23,18 @@ let {
 </script>
 
 <a
-    class="bg-card-bg border border-outline-muted p-6 rounded-2xl transition-all group {disabled ? 'opacity-50 pointer-events-none cursor-pointer' : borderHoverClass}"
+    class="bg-card-bg border border-outline-muted p-3 md:p-4 rounded-xl transition-all group {disabled ? 'opacity-50 pointer-events-none cursor-pointer' : borderHoverClass}"
     href={disabled ? '#' : href}
   >
-    {#if icon}
-      <div class="{iconClass} text-3xl mb-4 block group-hover:scale-105 transition-transform">
-        {@render icon()}
+    <div class="flex items-center gap-3">
+      {#if icon}
+        <div class="{iconClass} text-xl md:text-2xl block group-hover:scale-110 transition-transform flex-shrink-0">
+          {@render icon()}
+        </div>
+      {/if}
+      <div class="min-w-0">
+        <h3 class="font-headline font-bold text-white text-sm md:text-base truncate">{title}</h3>
+        <p class="text-[10px] md:text-xs text-zinc-500 truncate">{subtitle}</p>
       </div>
-    {/if}
-    <h3 class="font-headline font-bold text-white text-lg">{title}</h3>
-    <p class="text-xs text-zinc-500 mt-1">{subtitle}</p>
+    </div>
 </a>

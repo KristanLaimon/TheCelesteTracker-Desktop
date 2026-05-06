@@ -26,23 +26,24 @@ async function fetchRuns(reset: boolean = false) {
 	if (loading || (!hasMore && !reset)) return;
 	loading = true;
 	
-	if (reset) {
-		currentPage = 1;
-		hasMore = true;
-	}
+	const targetPage = reset ? 1 : currentPage + 1;
 
 	try {
-		const newRows: src.RecentRun[] = await Query_GetRecentHistory(1, 1, pageSize, currentPage);
+		const newRows: src.RecentRun[] = await Query_GetRecentHistory(1, 1, pageSize, targetPage);
 		
 		if (reset) {
 			rows = newRows;
+			currentPage = 1;
 		} else {
 			rows = [...rows, ...newRows];
+			currentPage = targetPage;
 		}
 
 		// If we got fewer results than requested, we've reached the end
 		if (newRows.length < pageSize) {
 			hasMore = false;
+		} else {
+			hasMore = true;
 		}
 	} catch (e) {
 		console.error(e);
@@ -57,10 +58,7 @@ $effect(() => {
 });
 
 function loadMore() {
-	if (!loading && hasMore) {
-		currentPage++;
-		fetchRuns();
-	}
+	fetchRuns(false);
 }
 
 const headers = [
