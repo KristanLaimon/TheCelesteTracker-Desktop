@@ -23,7 +23,7 @@ let loading = $state(false);
 let hasMore = $state(true); 
 
 async function fetchRuns(reset: boolean = false) {
-	if (loading) return;
+	if (loading || (!hasMore && !reset)) return;
 	loading = true;
 	
 	if (reset) {
@@ -33,14 +33,20 @@ async function fetchRuns(reset: boolean = false) {
 
 	try {
 		const newRows: src.RecentRun[] = await Query_GetRecentHistory(1, 1, pageSize, currentPage);
+		
 		if (reset) {
 			rows = newRows;
 		} else {
 			rows = [...rows, ...newRows];
 		}
-		hasMore = newRows.length === pageSize;
+
+		// If we got fewer results than requested, we've reached the end
+		if (newRows.length < pageSize) {
+			hasMore = false;
+		}
 	} catch (e) {
 		console.error(e);
+		hasMore = false; // Stop trying on error
 	} finally {
 		loading = false;
 	}
@@ -51,8 +57,10 @@ $effect(() => {
 });
 
 function loadMore() {
-	currentPage++;
-	fetchRuns();
+	if (!loading && hasMore) {
+		currentPage++;
+		fetchRuns();
+	}
 }
 
 const headers = [
@@ -64,7 +72,6 @@ const headers = [
 	"Deaths",
 	"Dashes",
 	"Berries achieved",
-	"Status",
 ];
 
 function getLevelIcon(row: src.RecentRun) {
@@ -201,17 +208,6 @@ const attemptTypeColors: Record<string, string> = {
               <img src={strawberryIcon.src || strawberryIcon} alt="" class="w-5 h-5" />
               {row.Strawberries}
             </div>
-          </td>
-          <td class="px-6 py-4 text-center">
-            <span class="font-bold text-sm {isGoldenCompleted ? 'text-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)] status-goldenberry px-2 py-1 rounded' : 'text-zinc-500'}">
-              {#if isGoldenCompleted}
-                Goldenberry
-              {:else if isGoldenAttempt}
-                Golden Attempted
-              {:else}
-                Completed
-              {/if}
-            </span>
           </td>
         </tr>
       {/each}

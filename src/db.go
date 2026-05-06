@@ -35,7 +35,7 @@ func Db_GetConnection() *sqlx.DB {
 func Db_DoQuery(typeToConvert any, query string, args ...any) error {
 	_db := Db_GetConnection()
 
-	err := _db.Select(typeToConvert, query);
+	err := _db.Select(typeToConvert, query, args...);
 
 	if err != nil {
 		log.Printf("[SQLITE Query] Error: %s", err)

@@ -1,5 +1,5 @@
 <script lang="ts">
-// import { GetGeneralInfo } from "@wails/backend";
+import { Query_GetGlobalStats } from "../../../wailsjs/go/main/App";
 // import { saveStore } from "@lib/saveStore.svelte";
 
 import iconBird from "@assets/interface_bird.png";
@@ -10,20 +10,11 @@ import iconDeaths from "@assets/interface_SIDEA_deaths_icon.png";
 import iconHeart from "@assets/interface_SIDEA_heart.png";
 import iconStrawberry from "@assets/interface_strawberry_icon.png";
 import iconTimer from "@assets/interface_timer_icon.png";
+import type { src } from "wailsjs/go/models";
 
-type GeneralInfo = {
-	totalCampaigns: number;
-	totalChapters: number;
-	totalRooms: number;
-	totalPlaytime: number;
-	totalDeaths: number;
-	totalDashes: number;
-	totalStrawberries: number;
-	totalHearts: number;
-	totalGoldenStrawberries: number;
-};
+//deleted innecesary local DTo
 
-let stats: GeneralInfo | null = $state(null);
+let stats: src.GlobalStats | null = $state(null); // refactor to use src.GlobalStats as dto
 let error: string | null = $state(null);
 let activePopover: string | null = $state(null);
 
@@ -32,6 +23,10 @@ $effect(() => {
 		try {
 			stats = null; // Trigger skeleton
 			// stats = await GetGeneralInfo(saveStore.userId, saveStore.selectedSlot);
+			const results = await Query_GetGlobalStats(1, 1);
+			if (results && results.length > 0) {
+				stats = results[0];
+			}
 			error = null;
 		} catch (e) {
 			error = String(e);
@@ -61,6 +56,13 @@ const statDefinitions = [
 		icon: iconCassette,
 		color: "text-blue-400",
 		info: "Unique chapters or maps entered across all campaigns.",
+	},
+	{
+		key: "totalSides",
+		label: "Sides",
+		icon: "📜",
+		color: "text-yellow-400",
+		info: "Total count of unique sides (A/B/C) played across all chapters.",
 	},
 	{
 		key: "totalRooms",
@@ -128,7 +130,7 @@ function closePopover() {
 
 <svelte:window onclick={closePopover} />
 
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4 mb-8">
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
     {#if stats}
         {#each statDefinitions as def (def.key)}
             <div class="bg-card-bg/40 border border-outline-muted p-4 rounded-xl flex items-center gap-4 relative group">
@@ -177,7 +179,7 @@ function closePopover() {
             Failed to load stats: {error}
         </div>
     {:else}
-        {#each Array(9) as _, i (i)}
+        {#each Array(10) as _, i (i)}
             <div class="bg-card-bg/40 border border-outline-muted p-4 rounded-xl animate-pulse flex items-center gap-4">
                 <div class="w-8 h-8 bg-zinc-800 rounded-full"></div>
                 <div>

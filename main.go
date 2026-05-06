@@ -1,6 +1,7 @@
 package main
 
 import (
+	"TheCelesteTrackerDesktop/src"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -15,7 +16,19 @@ import (
 var assets embed.FS
 
 func main() {
-	StartWailsApp()
+	var isDev bool = false;
+
+	if isDev {
+		res, err := src.Query_GetRecentRunHistory(1,1,2,1)
+		if err != nil {
+			log.Fatalf("%s", err.Error())
+		}
+		Debug(res)
+	}
+
+	if !isDev {
+		StartWailsApp()
+	}
 }
 
 func StartWailsApp() {

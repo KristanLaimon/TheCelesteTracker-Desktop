@@ -54,11 +54,92 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 			where u.id == %d and sd.id = %d
 			group by c.name, cc.campaign_name_id
 			order by gs.date_time_start
-			limit $d offset ($d - 1) * $d;
-	`, userId, saveDataId,pageSize, currentPage, pageSize));
+			limit %d offset (%d - 1) * %d;
+	`, userId, saveDataId, pageSize, currentPage, pageSize));
 
 	if err != nil {
 		return []RecentRun{}, err
+	}
+
+	return toReturn, nil
+}
+
+type GlobalStats struct {
+	TotalCampaigns          int   `db:"TotalCampaigns" json:"totalCampaigns"`
+	TotalChapters           int   `db:"TotalChapters" json:"totalChapters"`
+	TotalSides              int   `db:"TotalSides" json:"totalSides"`
+	TotalRooms              int   `db:"TotalRooms" json:"totalRooms"`
+	TotalPlaytime           int64 `db:"TotalPlaytime" json:"totalPlaytime"`
+	TotalDeaths             int   `db:"TotalDeaths" json:"totalDeaths"`
+	TotalDashes             int   `db:"TotalDashes" json:"totalDashes"`
+	TotalStrawberries       int   `db:"TotalStrawberries" json:"totalStrawberries"`
+	TotalHearts             int   `db:"TotalHearts" json:"totalHearts"`
+	TotalGoldenStrawberries int   `db:"TotalGoldenStrawberries" json:"totalGoldenStrawberries"`
+}
+
+func Query_GetGlobalStats(saveDataId int, userId int) ([]GlobalStats, error) {
+	toReturn := make([]GlobalStats, 0)
+
+	err := Db_DoQuery(&toReturn, fmt.Sprintf(`
+		SELECT
+    COUNT(DISTINCT c.id) AS TotalCampaigns,
+    COUNT(DISTINCT ch.sid) AS TotalChapters,
+    COUNT(DISTINCT cs.chapter_sid || '-' || cs.side_id) AS TotalSides,
+    COUNT(DISTINCT csr.chapter_sid || '-' || csr.side_id || '-' || csr.name) AS TotalRooms,
+    -- Subconsulta para Tiempo
+    (SELECT IFNULL(SUM(gs.duration_ms), 0)
+     FROM GameSessions gs
+     WHERE gs.chapter_sid IN (
+         SELECT sid FROM Chapters WHERE campaign_id IN (
+             SELECT id FROM Campaigns WHERE save_data_id = sd.id
+         )
+     )) AS TotalPlaytime,
+    -- Subconsulta para Muertes
+    (SELECT IFNULL(SUM(gscrs.deaths_in_room), 0)
+     FROM GameSessionChapterRoomStats gscrs
+     WHERE gscrs.chapter_sid IN (
+         SELECT sid FROM Chapters WHERE campaign_id IN (
+             SELECT id FROM Campaigns WHERE save_data_id = sd.id
+         )
+     )) AS TotalDeaths,
+     (SELECT IFNULL(SUM(gscrs.dashes_in_room ), 0)
+     FROM GameSessionChapterRoomStats gscrs
+     WHERE gscrs.chapter_sid IN (
+         SELECT sid FROM Chapters WHERE campaign_id IN (
+             SELECT id FROM Campaigns WHERE save_data_id = sd.id
+         )
+     )) AS TotalDashes,
+     (SELECT IFNULL(SUM(gscrs.strawberries_achieved_in_room), 0)
+     FROM GameSessionChapterRoomStats gscrs
+     WHERE gscrs.chapter_sid IN (
+         SELECT sid FROM Chapters WHERE campaign_id IN (
+             SELECT id FROM Campaigns WHERE save_data_id = sd.id
+         )
+     )) AS TotalStrawberries,
+     (SELECT IFNULL(SUM(gscrs.hearts_achieved_in_room ), 0)
+     FROM GameSessionChapterRoomStats gscrs
+     WHERE gscrs.chapter_sid IN (
+         SELECT sid FROM Chapters WHERE campaign_id IN (
+             SELECT id FROM Campaigns WHERE save_data_id = sd.id
+         )
+     )) AS TotalHearts,
+     (SELECT IFNULL(SUM(cs2.goldenstrawberry_achieved), 0)
+      FROM ChapterSides cs2
+      WHERE cs2.chapter_sid IN (
+       SELECT sid from Chapters WHERE campaign_id IN (
+       	SELECT id FROM Campaigns WHERE save_data_id = sd.id
+      ))) as TotalGoldenStrawberries
+		FROM Users u
+		JOIN SaveDatas sd ON u.id = sd.user_id
+		JOIN Campaigns c ON sd.id = c.save_data_id
+		LEFT JOIN Chapters ch ON c.id = ch.campaign_id
+		LEFT JOIN ChapterSides cs ON ch.sid = cs.chapter_sid
+		LEFT JOIN ChapterSideRooms csr ON cs.chapter_sid = csr.chapter_sid AND cs.side_id = csr.side_id
+		WHERE u.id = %d AND sd.id = %d;
+	`, userId, saveDataId))
+
+	if err != nil {
+		return []GlobalStats{}, err
 	}
 
 	return toReturn, nil

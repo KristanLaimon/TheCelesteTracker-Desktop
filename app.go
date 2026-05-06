@@ -35,3 +35,11 @@ func (a *App) Query_GetRecentHistory(saveDataId int, userId int, pageSize int, c
 	}
 	return toReturn
 }
+
+func (a *App) Query_GetGlobalStats(saveDataId int, userId int) ([]src.GlobalStats, error) {
+	toReturn, err := src.Query_GetGlobalStats(saveDataId, userId)
+	if err != nil {
+		return make([]src.GlobalStats, 0), err
+	}
+	return toReturn, nil
+}

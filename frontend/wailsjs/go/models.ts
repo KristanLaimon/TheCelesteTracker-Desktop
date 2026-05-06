@@ -1,5 +1,35 @@
 export namespace src {
 	
+	export class GlobalStats {
+	    totalCampaigns: number;
+	    totalChapters: number;
+	    totalSides: number;
+	    totalRooms: number;
+	    totalPlaytime: number;
+	    totalDeaths: number;
+	    totalDashes: number;
+	    totalStrawberries: number;
+	    totalHearts: number;
+	    totalGoldenStrawberries: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new GlobalStats(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.totalCampaigns = source["totalCampaigns"];
+	        this.totalChapters = source["totalChapters"];
+	        this.totalSides = source["totalSides"];
+	        this.totalRooms = source["totalRooms"];
+	        this.totalPlaytime = source["totalPlaytime"];
+	        this.totalDeaths = source["totalDeaths"];
+	        this.totalDashes = source["totalDashes"];
+	        this.totalStrawberries = source["totalStrawberries"];
+	        this.totalHearts = source["totalHearts"];
+	        this.totalGoldenStrawberries = source["totalGoldenStrawberries"];
+	    }
+	}
 	export class RecentRun {
 	    CampaignName: string;
 	    ChapterName: string;
