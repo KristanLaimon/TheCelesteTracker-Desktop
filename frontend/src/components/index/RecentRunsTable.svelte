@@ -16,20 +16,29 @@ import {
 	Assets_Vanilla_SideIcon,
 } from "../../lib/assets";
 
+let currentPage = $state(1);
+const pageSize = 10;
 let rows = $state<src.RecentRun[]>([]);
 let loading = $state(false);
-let hasMore = $state(false); // Backend query doesn't support pagination yet, so we'll show all
+let hasMore = $state(true); 
 
 async function fetchRuns(reset: boolean = false) {
 	if (loading) return;
 	loading = true;
+	
+	if (reset) {
+		currentPage = 1;
+		hasMore = true;
+	}
+
 	try {
-		const newRows: src.RecentRun[] = await Query_GetRecentHistory(1,1);
+		const newRows: src.RecentRun[] = await Query_GetRecentHistory(1, 1, pageSize, currentPage);
 		if (reset) {
 			rows = newRows;
 		} else {
 			rows = [...rows, ...newRows];
 		}
+		hasMore = newRows.length === pageSize;
 	} catch (e) {
 		console.error(e);
 	} finally {
@@ -42,7 +51,8 @@ $effect(() => {
 });
 
 function loadMore() {
-	// Not implemented in backend yet
+	currentPage++;
+	fetchRuns();
 }
 
 const headers = [
@@ -57,7 +67,7 @@ const headers = [
 	"Status",
 ];
 
-function getLevelIcon(row: RecentRun) {
+function getLevelIcon(row: src.RecentRun) {
 	const logo = Assets_Vanilla_ChapterIcon[row.ChapterName];
 	if (logo) return logo.src || logo;
 	return null;
