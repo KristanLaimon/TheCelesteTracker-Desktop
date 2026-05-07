@@ -3,28 +3,27 @@ package src
 import "fmt"
 
 type RecentRun struct {
-    // Basic Info
-    CampaignName  string `db:"campaign_name"`
-    ChapterName   string `db:"chapter_name"`
-    Side          string `db:"side"`          // Added: column gs.side_id
-    CampaignType  string `db:"campaign_type"`
-    AttemptType   string `db:"attempt_type"`
-    FormattedTime string `db:"formatted_time"`
+	// Basic Info
+	CampaignName  string `db:"campaign_name"`
+	ChapterName   string `db:"chapter_name"`
+	Side          string `db:"side"` // Added: column gs.side_id
+	CampaignType  string `db:"campaign_type"`
+	AttemptType   string `db:"attempt_type"`
+	FormattedTime string `db:"formatted_time"`
 
-    // Statistics (Result of SUM functions)
-    Deaths        int    `db:"deaths"`       // Added: sum(deaths_in_room)
-    Dashes        int    `db:"dashes"`       // Added: sum(dashes_in_room)
-    Jumps         int    `db:"jumps"`        // Added: sum(jumps_in_room)
-    Strawberries  int    `db:"strawberries"`
+	// Statistics (Result of SUM functions)
+	Deaths       int `db:"deaths"` // Added: sum(deaths_in_room)
+	Dashes       int `db:"dashes"` // Added: sum(dashes_in_room)
+	Jumps        int `db:"jumps"`  // Added: sum(jumps_in_room)
+	Strawberries int `db:"strawberries"`
 }
-
 
 func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, currentPage int) ([]RecentRun, error) {
 	toReturn := make([]RecentRun, 0)
-  if currentPage < 1 {
-	  currentPage = 1
-  }
-	err := Db_DoQuery(&toReturn, fmt.Sprintf(`
+	if currentPage < 1 {
+		currentPage = 1
+	}
+	err := Db_Select(&toReturn, fmt.Sprintf(`
 		select
 			cc.campaign_name_id as campaign_name,
 			c.name as chapter_name,
@@ -55,7 +54,7 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 			group by c.name, cc.campaign_name_id
 			order by gs.date_time_start
 			limit %d offset (%d - 1) * %d;
-	`, userId, saveDataId, pageSize, currentPage, pageSize));
+	`, userId, saveDataId, pageSize, currentPage, pageSize))
 
 	if err != nil {
 		return []RecentRun{}, err
@@ -80,7 +79,7 @@ type GlobalStats struct {
 func Query_GetGlobalStats(saveDataId int, userId int) ([]GlobalStats, error) {
 	toReturn := make([]GlobalStats, 0)
 
-	err := Db_DoQuery(&toReturn, fmt.Sprintf(`
+	err := Db_Select(&toReturn, fmt.Sprintf(`
 		SELECT
     COUNT(DISTINCT c.id) AS TotalCampaigns,
     COUNT(DISTINCT ch.sid) AS TotalChapters,

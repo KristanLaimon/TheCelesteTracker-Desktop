@@ -7,12 +7,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sqlx.DB;
+var ___db *sqlx.DB;
 var alreadyConnected bool = false
 
 func Db_GetConnection() *sqlx.DB {
 	if alreadyConnected {
-		return db
+		return ___db
 	}
 
 	celesteModDbPath, err := GetCelesteModTrackerDatabasePath()
@@ -27,12 +27,43 @@ func Db_GetConnection() *sqlx.DB {
 		LogFatalError(err.Error())
 	}
 
-	db = _db
+	___db = _db
 	alreadyConnected = true
-	return db
+	return ___db
 }
 
-func Db_DoQuery(typeToConvert any, query string, args ...any) error {
+type Db_ExecResult struct {
+  LastIdInserted int64
+  RowsAffected int64
+}
+func Db_Exec(queryNoSelect string, args ...any) (Db_ExecResult, error) {
+  _db := Db_GetConnection()
+  
+  var err error
+
+  res, err := _db.Exec(queryNoSelect, args)
+  if err != nil {
+    return Db_ExecResult{}, err
+  }
+
+
+  lastId, err := res.LastInsertId()
+  if err != nil {
+    return Db_ExecResult{}, err
+  }
+
+  rowsAffected, err := res.RowsAffected()
+  if err != nil {
+    return Db_ExecResult{}, err
+  }
+
+  return Db_ExecResult{
+    LastIdInserted: lastId ,
+    RowsAffected: rowsAffected,
+  }, nil
+}
+
+func Db_Select(typeToConvert any, query string, args ...any) error {
 	_db := Db_GetConnection()
 
 	err := _db.Select(typeToConvert, query, args...);
