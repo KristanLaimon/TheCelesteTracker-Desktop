@@ -16,17 +16,15 @@ import IconWifi from "~icons/material-symbols/wifi";
 import Layout from "../Layout.astro";
 ---
 
-
 <Layout
   title="Main page!"
   bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
   bodyId="page-hub"
 >
-
   <!-- Main Content -->
-  <main class="pt-16 pb-20">
+  <main class="pb-20">
     <!-- Hero Section -->
-    <section class="relative h-75 md:h-100 w-full overflow-hidden mountain-bg">
+    <section class="relative h-60 md:h-90 w-full overflow-hidden mountain-bg">
       <!-- Background Image -->
       <div class="absolute inset-0 z-0">
         <Image src={farewellBanner} alt="Farewell Background" class="w-full h-full object-cover opacity-40" />
@@ -48,7 +46,7 @@ import Layout from "../Layout.astro";
           <div class="absolute inset-0 bg-primary/20 blur-3xl group-hover:bg-primary/30 transition-all"></div>
           <img
             alt="Madeline Artwork"
-            class="relative w-62.5 drop-shadow-[0_0_30px_rgba(255,120,140,0.3)] group-hover:scale-105 transition-transform duration-700 right-10"
+            class="relative w-50 drop-shadow-[0_0_30px_rgba(255,120,140,0.3)] group-hover:scale-105 transition-transform duration-700 right-10"
             src={madelineArtwork.src}
           />
         </div>

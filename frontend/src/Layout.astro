@@ -3,11 +3,12 @@ import { twMerge } from "tailwind-merge";
 import "@styles/global.css";
 import GlobalFooter from "./components/global/GlobalFooter.astro";
 import GlobalHeader from "./components/global/GlobalHeader.astro";
+import TitleBar from "./components/global/TitleBar.svelte";
 
 export type Props = {
-	title: string;
-	bodyClassNames?: string;
-	bodyId?: string;
+  title: string;
+  bodyClassNames?: string;
+  bodyId?: string;
 };
 
 const { bodyClassNames = "", title, bodyId } = Astro.props;
@@ -22,9 +23,29 @@ const { bodyClassNames = "", title, bodyId } = Astro.props;
     <title>{title}</title>
   </head>
   <!-- prettier-ignore -->
-  <body class={twMerge([ "bg-bg-base text-zinc-100 font-montserrat antialiased selection:bg-primary selection:text-white ", bodyClassNames, ])} id={bodyId} >
+  <body class={twMerge([ "bg-bg-base text-zinc-100 font-montserrat antialiased selection:bg-primary selection:text-white", bodyClassNames, ])} id={bodyId} >
+    <TitleBar client:load />
     <GlobalHeader />
     <slot />
     <GlobalFooter />
   </body>
 </html>
+
+<style>
+  html,
+  body {
+    overflow-y: scroll;
+
+    /* Firefox */
+    scrollbar-width: none;
+
+    /* IE and old Edge */
+    -ms-overflow-style: none;
+  }
+
+  /* Chrome, Safari */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+</style>

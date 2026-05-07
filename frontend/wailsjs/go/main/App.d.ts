@@ -4,6 +4,10 @@ import {src} from '../models';
 
 export function Greet(arg1:string):Promise<string>;
 
+export function MaximiseApp():Promise<void>;
+
 export function Query_GetGlobalStats(arg1:number,arg2:number):Promise<Array<src.GlobalStats>>;
 
 export function Query_GetRecentHistory(arg1:number,arg2:number,arg3:number,arg4:number):Promise<Array<src.RecentRun>>;
+
+export function QuitApp():Promise<void>;

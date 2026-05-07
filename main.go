@@ -36,8 +36,8 @@ func StartWailsApp() {
 
 	err := wails.Run(&options.App{
 		Title:  "TheCelesteTrackerDesktop",
-		Width:  1024,
-		Height: 768,
+		Width:  1350,
+		Height: 680,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
@@ -46,8 +46,11 @@ func StartWailsApp() {
 		Bind: []any{
 			app,
 		},
+	 Frameless: true,
+	 Debug: options.Debug{
+		  OpenInspectorOnStartup: true,
+	 },
 	})
-
 	if err != nil {
 		println("Error:", err.Error())
 	}
