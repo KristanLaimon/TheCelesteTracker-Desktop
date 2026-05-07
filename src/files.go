@@ -1,9 +1,12 @@
 package src
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
+	"path/filepath"
 )
 
 func FileExists(path string) bool {
@@ -87,4 +90,26 @@ func ReadFileToObject(path string, containerToReadRef any) error {
 
 func DeleteFileContent(path string) {
   WriteToFileAsText(path, "")
+}
+
+func GetAssetAsBase64(path string) (string, error) {
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	var mimeType string
+	ext := filepath.Ext(path)
+	switch ext {
+	case ".png":
+		mimeType = "image/png"
+	case ".jpg", ".jpeg":
+		mimeType = "image/jpeg"
+	case ".gif":
+		mimeType = "image/gif"
+	default:
+		mimeType = "application/octet-stream"
+	}
+
+	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(bytes)), nil
 }

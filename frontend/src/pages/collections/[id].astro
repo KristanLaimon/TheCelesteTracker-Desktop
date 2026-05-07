@@ -1,0 +1,28 @@
+---
+import Layout from "../../Layout.astro";
+import CollectionDetail from "@components/collections/CollectionDetail.svelte";
+
+export function getStaticPaths() {
+  // Since we are in a Wails app, we might want to use SSR or just a catch-all if Astro is configured for it.
+  // But for a simple setup, we can just use a single page that handles the ID on the client side.
+  // However, if we want [id].astro, we need to provide paths or use output: 'server'.
+  // Given this is a desktop app, it's likely using static generation with a fallback or just client side routing.
+  // I'll assume we can use a single [id].astro for now.
+  return [
+    { params: { id: '1' } }, // Placeholder, in a real app this would be more dynamic or handled by client routing
+  ];
+}
+
+const { id } = Astro.params;
+---
+
+<Layout
+  title="Collection Detail"
+  bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
+>
+  <main class="min-h-screen pb-20 pt-12">
+    <div class="px-6 md:px-12 max-w-7xl mx-auto">
+      <CollectionDetail client:load id={id} />
+    </div>
+  </main>
+</Layout>

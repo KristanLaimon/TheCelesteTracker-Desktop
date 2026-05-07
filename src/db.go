@@ -39,9 +39,7 @@ type Db_ExecResult struct {
 func Db_Exec(queryNoSelect string, args ...any) (Db_ExecResult, error) {
   _db := Db_GetConnection()
   
-  var err error
-
-  res, err := _db.Exec(queryNoSelect, args)
+  res, err := _db.Exec(queryNoSelect, args...)
   if err != nil {
     return Db_ExecResult{}, err
   }

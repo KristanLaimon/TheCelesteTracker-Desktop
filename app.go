@@ -69,3 +69,60 @@ func (a *App) Query_GetGlobalStats(saveDataId int, userId int) ([]src.GlobalStat
 	}
 	return toReturn, nil
 }
+
+// Collections CRUD
+func (a *App) GetCollections(userId int) ([]src.Collection, error) {
+	return src.Collection_List(userId)
+}
+
+func (a *App) GetCollection(collectionId int) (src.Collection, error) {
+	return src.Collection_Get(collectionId)
+}
+
+func (a *App) CreateCollection(userId int, name string, campaignIds []int) (int, error) {
+	id, err := src.Collection_Insert(userId, name)
+	if err != nil {
+		return 0, err
+	}
+	
+	for _, campId := range campaignIds {
+		src.Collection_AddCampaign(int(id), campId)
+	}
+	
+	return int(id), nil
+}
+
+func (a *App) UpdateCollection(collectionId int, name string, campaignIds []int) error {
+	err := src.Collection_Update(collectionId, name)
+	if err != nil {
+		return err
+	}
+
+	// Simple way: delete all and re-add (can be optimized)
+	_, _ = src.Db_Exec(`DELETE FROM CollectionCampaigns WHERE collection_id = ?`, collectionId)
+	for _, campId := range campaignIds {
+		src.Collection_AddCampaign(collectionId, campId)
+	}
+
+	return nil
+}
+
+func (a *App) DeleteCollection(collectionId int) error {
+	return src.Collection_Delete(collectionId)
+}
+
+func (a *App) GetAvailableCampaigns(userId int) ([]src.CampaignItem, error) {
+	return src.Query_GetAvailableCampaigns(userId)
+}
+
+func (a *App) GetCollectionCampaignIDs(collectionId int) ([]int, error) {
+	return src.Collection_GetCampaignIDs(collectionId)
+}
+
+func (a *App) GetCollectionStats(campaignIds []int, saveDataId *int) ([]src.LevelCollectionStats, error) {
+	return src.Query_GetCollectionStats(campaignIds, saveDataId)
+}
+
+func (a *App) GetAssetAsBase64(path string) (string, error) {
+	return src.GetAssetAsBase64(path)
+}

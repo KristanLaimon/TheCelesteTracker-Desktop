@@ -1,0 +1,277 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { GetCollectionStats } from '../../../wailsjs/go/main/App';
+  import { saveStore } from '../../lib/saveStore.svelte';
+  import { getAssetUrl } from '../../lib/assetHelper';
+  import defaultLevelLogo from '../../assets/level_logo_moddedleveldefault.png';
+
+  import logo1 from "../../assets/level_1_logo_prologue.png";
+  import logo2 from "../../assets/level_2_logo_forsakencity.png";
+  import logo3 from "../../assets/level_3_logo_oldsite.png";
+  import logo4 from "../../assets/level_4_logo_celestialresort.png";
+  import logo5 from "../../assets/level_5_logo_goldenridge.png";
+  import logo6 from "../../assets/level_6_logo_mirrortemple.png";
+  import logo7 from "../../assets/level_7_logo_reflection.png";
+  import logo8 from "../../assets/level_8_logo_summit.png";
+  import logo9 from "../../assets/level_9_logo_epilogue.png";
+  import logo10 from "../../assets/level_10_logo_core.png";
+  import logo11 from "../../assets/level_11_logo_farewell_both_front_back.png";
+
+  const levelLogos: Record<string, any> = {
+    "Prologue": logo1,
+    "Forsaken City": logo2,
+    "Old Site": logo3,
+    "Celestial Resort": logo4,
+    "Golden Ridge": logo5,
+    "Mirror Temple": logo6,
+    "Reflection": logo7,
+    "The Summit": logo8,
+    "Epilogue": logo9,
+    "Core": logo10,
+    "Farewell": logo11
+  };
+
+  interface Props {
+    campaignIds?: number[];
+  }
+
+  let { campaignIds }: Props = $props();
+
+  interface LevelStats {
+    campaignId: number;
+    campaignName: string;
+    lobbyId: number | null;
+    lobbyName: string | null;
+    levelName: string;
+    levelSide: string;
+    totalTime: number;
+    strawberries: number;
+    goldenStrawberries: number;
+    hearts: number;
+    deaths: number;
+    dashes: number;
+    coverImgPath?: string | null;
+    iconImgPath?: string | null;
+    iconData?: string | null;
+  }
+
+  interface CampaignGroup {
+    id: number;
+    name: string;
+    coverImgPath?: string | null;
+    coverImgData?: string | null;
+    levels: LevelStats[];
+    totals: {
+      totalTime: number;
+      strawberries: number;
+      goldenStrawberries: number;
+      hearts: number;
+      deaths: number;
+      dashes: number;
+    }
+  }
+
+  interface LobbyGroup {
+    id: number | 'no-lobby';
+    name: string;
+    campaigns: CampaignGroup[];
+  }
+
+  let lobbyGroups = $state<LobbyGroup[]>([]);
+  let loading = $state(false);
+
+  async function loadStats() {
+    loading = true;
+    try {
+      let fetchedStats: LevelStats[] = [];
+      if (campaignIds && campaignIds.length > 0) {
+        fetchedStats = await GetCollectionStats(campaignIds, null);
+      } else {
+         // If no campaignIds provided, we might want to show nothing or all stats
+         // For now, let's assume we need campaignIds
+         fetchedStats = [];
+      }
+
+      // Collect all unique paths to load
+      const pathsToLoad = new Set<string>();
+      fetchedStats.forEach(s => {
+        if (s.coverImgPath) pathsToLoad.add(s.coverImgPath);
+        if (s.iconImgPath) pathsToLoad.add(s.iconImgPath);
+      });
+
+      // Map assets directly (asynchronous)
+      const loadedAssets = new Map<string, string>();
+      for (const path of pathsToLoad) {
+        const url = await getAssetUrl(path);
+        if (url) loadedAssets.set(path, url);
+      }
+
+      // Group by Lobby -> Campaign
+      const lobGroups: Record<string | number, LobbyGroup> = {};
+
+      for (const s of fetchedStats) {
+        const lId = s.lobbyId || 'no-lobby';
+        const lName = s.lobbyName || 'Individual Campaigns';
+
+        if (!lobGroups[lId]) {
+          lobGroups[lId] = { id: lId, name: lName, campaigns: [] };
+        }
+
+        let camp = lobGroups[lId].campaigns.find(c => c.id === s.campaignId);
+        if (!camp) {
+          camp = {
+            id: s.campaignId,
+            name: s.campaignName,
+            coverImgPath: s.coverImgPath,
+            coverImgData: s.coverImgPath ? (loadedAssets.get(s.coverImgPath) || null) : null,
+            levels: [],
+            totals: { totalTime: 0, strawberries: 0, goldenStrawberries: 0, hearts: 0, deaths: 0, dashes: 0 }
+          };
+          lobGroups[lId].campaigns.push(camp);
+        }
+
+        const levelWithIcon: LevelStats = {
+          ...s,
+          iconData: s.iconImgPath ? (loadedAssets.get(s.iconImgPath) || null) : null
+        };
+
+        camp.levels.push(levelWithIcon);
+
+        // Update totals
+        camp.totals.totalTime += s.totalTime;
+        camp.totals.strawberries += s.strawberries;
+        camp.totals.goldenStrawberries += s.goldenStrawberries;
+        camp.totals.hearts += s.hearts;
+        camp.totals.deaths += s.deaths;
+        camp.totals.dashes += s.dashes;
+      }
+
+      lobbyGroups = Object.values(lobGroups);
+    } catch (e) {
+      console.error('Failed to load collection stats:', e);
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(() => {
+    loadStats();
+  });
+
+  // Re-load when save slot or campaignIds change
+  $effect(() => {
+    if (saveStore.userId || campaignIds) {
+      loadStats();
+    }
+  });
+
+  function formatTime(ms: number) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+</script>
+
+<div class="overflow-x-auto rounded-xl border border-outline-muted bg-surface/50 backdrop-blur-xl">
+  {#if loading && lobbyGroups.length === 0}
+    <div class="p-8 text-center font-montserrat text-white/50">Loading stats...</div>
+  {:else if !loading && lobbyGroups.length === 0}
+    <div class="p-8 text-center font-montserrat text-white/50">No data available for this selection.</div>
+  {:else}
+    <table class="w-full border-collapse font-montserrat text-sm text-white">
+      <thead>
+        <tr class="border-b border-outline-muted bg-surface-high/30">
+          <th class="px-4 py-3 text-left font-bold uppercase tracking-wider">Level Name</th>
+          <th class="px-4 py-3 text-center font-bold uppercase tracking-wider">Total Time</th>
+          <th class="px-4 py-3 text-center font-bold uppercase tracking-wider text-tertiary">Strawberries</th>
+          <th class="px-4 py-3 text-center font-bold uppercase tracking-wider text-primary">Goldens</th>
+          <th class="px-4 py-3 text-center font-bold uppercase tracking-wider text-secondary">Hearts</th>
+          <th class="px-4 py-3 text-center font-bold uppercase tracking-wider text-red-400">Deaths</th>
+          <th class="px-4 py-3 text-center font-bold uppercase tracking-wider text-blue-300">Dashes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each lobbyGroups as lobby}
+          {#if lobby.id !== 'no-lobby'}
+            <!-- Lobby Header -->
+            <tr class="bg-zinc-900/80 border-y border-outline-muted/30">
+              <td colspan="7" class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-6 bg-primary rounded-full"></div>
+                  <span class="text-xl font-headline font-black text-white uppercase tracking-widest">{lobby.name}</span>
+                </div>
+              </td>
+            </tr>
+          {/if}
+
+          {#each lobby.campaigns as campaign}
+            <!-- Campaign Header -->
+            <tr class="relative overflow-hidden group">
+              <td colspan="7" class="px-0 py-0 h-20 relative">
+                <div class="absolute inset-0 bg-primary/10 z-10"></div>
+                {#if campaign.coverImgData}
+                  <img
+                    src={campaign.coverImgData}
+                    alt={campaign.name}
+                    class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-40 transition-opacity"
+                  />
+                {/if}
+                <div class="relative z-20 px-4 h-full flex items-center">
+                  <span class="text-lg font-headline font-bold text-white tracking-tight {lobby.id !== 'no-lobby' ? 'ml-4' : ''}">
+                    {campaign.name}
+                  </span>
+                </div>
+              </td>
+            </tr>
+
+            {#each campaign.levels as level}
+              <tr class="border-b border-outline-muted/50 hover:bg-white/5 transition-colors">
+                <td class="px-4 py-3 text-left">
+                  <div class="flex items-center gap-3 {lobby.id !== 'no-lobby' ? 'ml-6' : ''}">
+                    <div class="w-10 h-10 rounded bg-surface-high/50 shrink-0 overflow-hidden border border-white/10 flex items-center justify-center p-0.5">
+                      <img
+                        src={level.iconData || (levelLogos[level.levelName]?.src || levelLogos[level.levelName] || defaultLevelLogo.src)}
+                        alt={level.levelName}
+                        class="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <div class="font-medium">{level.levelName}</div>
+                      <div class="text-xs text-white/40 uppercase">{level.levelSide}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3 text-center font-pixel text-xs">{formatTime(level.totalTime)}</td>
+
+                <td class="px-4 py-3 text-center font-pixel text-xs text-tertiary">{level.strawberries}</td>
+                <td class="px-4 py-3 text-center font-pixel text-xs text-primary">{level.goldenStrawberries}</td>
+                <td class="px-4 py-3 text-center font-pixel text-xs text-secondary">{level.hearts}</td>
+                <td class="px-4 py-3 text-center font-pixel text-xs text-red-400">{level.deaths}</td>
+                <td class="px-4 py-3 text-center font-pixel text-xs text-blue-300">{level.dashes}</td>
+              </tr>
+            {/each}
+
+            <!-- Campaign Totals -->
+            <tr class="bg-surface-high/50 font-bold border-b border-outline-muted">
+              <td class="px-4 py-2 text-left uppercase text-white/60 {lobby.id !== 'no-lobby' ? 'pl-10' : ''}">Total {campaign.name}</td>
+              <td class="px-4 py-2 text-center font-pixel text-xs">{formatTime(campaign.totals.totalTime)}</td>
+              <td class="px-4 py-2 text-center font-pixel text-xs text-tertiary">{campaign.totals.strawberries}</td>
+              <td class="px-4 py-2 text-center font-pixel text-xs text-primary">{campaign.totals.goldenStrawberries}</td>
+              <td class="px-4 py-2 text-center font-pixel text-xs text-secondary">{campaign.totals.hearts}</td>
+              <td class="px-4 py-2 text-center font-pixel text-xs text-red-400">{campaign.totals.deaths}</td>
+              <td class="px-4 py-2 text-center font-pixel text-xs text-blue-300">{campaign.totals.dashes}</td>
+            </tr>
+          {/each}
+        {/each}
+      </tbody>
+    </table>
+  {/if}
+</div>
+
+<style>
+  th {
+    font-size: 0.75rem;
+  }
+</style>
