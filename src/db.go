@@ -11,18 +11,18 @@ var db *sqlx.DB;
 var alreadyConnected bool = false
 
 func Db_GetConnection() *sqlx.DB {
-	if (alreadyConnected){
+	if alreadyConnected {
 		return db
 	}
 
 	celesteModDbPath, err := GetCelesteModTrackerDatabasePath()
-
 	if err != nil {
 		LogFatalError(err.Error())
 	}
 
-	_db, err := sqlx.Open("sqlite3", "file:"+celesteModDbPath+"?_foreign_keys=on")
-
+	// Use _fk=1 to enable foreign key support in sqlite3 driver
+	dsn := fmt.Sprintf("%s?_fk=1", celesteModDbPath)
+	_db, err := sqlx.Open("sqlite3", dsn)
 	if err != nil {
 		LogFatalError(err.Error())
 	}
@@ -80,29 +80,28 @@ func db_addColumn(db *sqlx.DB, table, col, def string) error {
 func Db_AppendDesktopSchema() error {
 	_db := Db_GetConnection()
 
+	// Ensure foreign keys are enabled for this connection
+	_, _ = _db.Exec("PRAGMA foreign_keys = ON;")
+
 	// 1. Create new tables if they don't exist
+	// Refactored to use inline (column-level) FOREIGN KEY constraints for better compatibility
 	sqlStatements := []string{
 		`CREATE TABLE IF NOT EXISTS Collections (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			user_id INTEGER NOT NULL,
-			name TEXT NOT NULL,
-			FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
+			user_id INTEGER NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+			name TEXT NOT NULL
 		);`,
 		`CREATE TABLE IF NOT EXISTS Lobbies (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			save_data_id INTEGER NOT NULL,
+			save_data_id INTEGER NOT NULL REFERENCES SaveDatas(id) ON DELETE CASCADE,
 			name TEXT NOT NULL,
-			chapter_sid TEXT,
-			icon_img_path TEXT,
-			FOREIGN KEY (save_data_id) REFERENCES SaveDatas(id) ON DELETE CASCADE,
-			FOREIGN KEY (chapter_sid) REFERENCES Chapters(sid) ON DELETE SET NULL
+			chapter_sid TEXT REFERENCES Chapters(sid) ON DELETE SET NULL,
+			icon_img_path TEXT
 		);`,
 		`CREATE TABLE IF NOT EXISTS CollectionCampaigns (
-			collection_id INTEGER NOT NULL,
-			campaign_id INTEGER NOT NULL,
-			PRIMARY KEY (collection_id, campaign_id),
-			FOREIGN KEY (collection_id) REFERENCES Collections(id) ON DELETE CASCADE,
-			FOREIGN KEY (campaign_id) REFERENCES Campaigns(id) ON DELETE CASCADE
+			collection_id INTEGER NOT NULL REFERENCES Collections(id) ON DELETE CASCADE,
+			campaign_id INTEGER NOT NULL REFERENCES Campaigns(id) ON DELETE CASCADE,
+			PRIMARY KEY (collection_id, campaign_id)
 		);`,
 	}
 

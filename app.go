@@ -32,7 +32,7 @@ func (a *App) startup(ctx context.Context) {
 			src.LogError(fmt.Sprintf("Failed to append desktop schema: %s", err))
 		} else {
 			src.CONFIG.DatabaseAlreadyAppended = true
-			src.WriteToFile("./config.json", src.CONFIG)
+			src.WriteToFileAsJson("./config.json", src.CONFIG)
 			src.LogInfo("Desktop schema appended successfully.")
 		}
 	} else {

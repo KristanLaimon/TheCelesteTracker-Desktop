@@ -26,7 +26,18 @@ func EnsureFileExists(path string) {
 	}
 }
 
-func WriteToFile(path string, anything any) error {
+func WriteToFileAsText(path string, textContent string) error {
+  EnsureFileExists(path)
+
+  err := os.WriteFile(path, []byte(textContent), 0666)
+  if err != nil {
+    return err
+  }
+
+  return nil
+}
+
+func WriteToFileAsJson(path string, anything any) error {
 	EnsureFileExists(path)
 
 	textBytes, err := json.Marshal(anything)
@@ -71,4 +82,9 @@ func ReadFileToObject(path string, containerToReadRef any) error {
 	}
 
 	return nil
+}
+
+
+func DeleteFileContent(path string) {
+  WriteToFileAsText(path, "")
 }

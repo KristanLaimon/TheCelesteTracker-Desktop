@@ -8,6 +8,10 @@ import (
 
 var log_file_path string = "./log"
 
+func LogClearFile() {
+  WriteToFileAsText(log_file_path, "")
+}
+
 func LogInfo(message string) {
 	nowFormatted := getNowTimeFormatted()
 	WriteTextLnToFile(log_file_path, fmt.Sprintf("%s [INFO]: %s", nowFormatted, message))

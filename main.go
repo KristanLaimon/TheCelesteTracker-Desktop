@@ -4,7 +4,6 @@ import (
 	"TheCelesteTrackerDesktop/src"
 	"embed"
 	"encoding/json"
-	"fmt"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -15,19 +14,8 @@ import (
 var assets embed.FS
 
 func main() {
-	var isDev bool = false;
-
-	if isDev {
-		res, err := src.Query_GetRecentRunHistory(1,1,2,1)
-		if err != nil {
-			src.LogFatalError(err.Error())
-		}
-		Debug(res)
-	}
-
-	if !isDev {
-		StartWailsApp()
-	}
+  src.LogClearFile()
+  StartWailsApp()
 }
 
 func StartWailsApp() {
@@ -55,7 +43,6 @@ func StartWailsApp() {
 	}
 }
 
-
 func Debug(anything any) {
 	bytes, err := json.Marshal(anything)
 	if err != nil {
@@ -63,3 +50,4 @@ func Debug(anything any) {
 	}
 	src.LogDebug(string(bytes))
 }
+

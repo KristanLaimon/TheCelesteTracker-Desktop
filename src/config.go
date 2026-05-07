@@ -16,7 +16,7 @@ func Config_Initialize() {
 	LogInfo("Initializing configuration...")
 	if !FileExists(config_file_path) {
 		LogInfo("Config file not found, creating default...")
-		err := WriteToFile(config_file_path, CONFIG)
+		err := WriteToFileAsJson(config_file_path, CONFIG)
 		if err != nil {
 			LogError(fmt.Sprintf("Error creating config file: %s", err))
 		}

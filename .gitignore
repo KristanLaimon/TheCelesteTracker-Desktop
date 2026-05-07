@@ -5,5 +5,12 @@ frontend/dist
 frontend/archive/
 frontend/.astro/
 
+
 # Backend (go) output
 build/
+
+
+
+# Dev build temp files
+config.json
+log
