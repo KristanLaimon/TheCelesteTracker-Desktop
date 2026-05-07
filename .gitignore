@@ -7,8 +7,7 @@ frontend/.astro/
 
 
 # Backend (go) output
-build/
-
+build/bin
 
 
 # Dev build temp files
