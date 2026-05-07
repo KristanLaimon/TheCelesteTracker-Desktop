@@ -22,6 +22,22 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	src.LogInfo("Application starting up...")
+	src.Config_Initialize()
+
+	if !src.CONFIG.DatabaseAlreadyAppended {
+		src.LogInfo("Appending Desktop schema to database...")
+		err := src.Db_AppendDesktopSchema()
+		if err != nil {
+			src.LogError(fmt.Sprintf("Failed to append desktop schema: %s", err))
+		} else {
+			src.CONFIG.DatabaseAlreadyAppended = true
+			src.WriteToFile("./config.json", src.CONFIG)
+			src.LogInfo("Desktop schema appended successfully.")
+		}
+	} else {
+		src.LogInfo("Desktop schema database already appended. Skipping...")
+	}
 }
 
 func (a *App) QuitApp() {

@@ -5,7 +5,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"log"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -21,7 +20,7 @@ func main() {
 	if isDev {
 		res, err := src.Query_GetRecentRunHistory(1,1,2,1)
 		if err != nil {
-			log.Fatalf("%s", err.Error())
+			src.LogFatalError(err.Error())
 		}
 		Debug(res)
 	}
@@ -52,7 +51,7 @@ func StartWailsApp() {
 	 },
 	})
 	if err != nil {
-		println("Error:", err.Error())
+		src.LogError("Error: " + err.Error())
 	}
 }
 
@@ -60,7 +59,7 @@ func StartWailsApp() {
 func Debug(anything any) {
 	bytes, err := json.Marshal(anything)
 	if err != nil {
-		log.Fatalf("%s", err.Error())
+		src.LogFatalError(err.Error())
 	}
-	fmt.Println(string(bytes))
+	src.LogDebug(string(bytes))
 }
