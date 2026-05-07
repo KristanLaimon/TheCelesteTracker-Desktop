@@ -31,7 +31,6 @@ export default defineConfig({
         usePolling: true,
         interval: 100,
         ignored: [
-          "**/src-tauri/**",
           "**/target/**",
           "**/dist/**",
           "**/.astro/**",

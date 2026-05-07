@@ -42,11 +42,11 @@ Note: While there are mods to track this info, they are all in-game, limited by 
 
 ## Key Features
 
-- **⚡ Real-time Sync**: Auto-connect to Everest WebSocket server.
+- **🔄 Real-time Sync**: Auto-connect to Everest WebSocket server.
 - **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
-- **🖥️ Live Overlay**: Immersive HUD triggers on level entry.
+- **🎭 Live Overlay**: Immersive HUD triggers on level entry.
 - **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
-- **🛠️ Rust-Backed**: Type-safe event handling.
+- **🐹 Go-Backed**: Fast and reliable event handling via Wails.
 
 ## Preview
 
@@ -61,16 +61,18 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
 *Current UI is subject to change during beta.*
 
 ## Tech Stack
-- **Backend**: [Rust](https://www.rust-lang.org/) + [Tauri v2](https://v2.tauri.app/) (Desktop bridge & Performance)
-- **Frontend**: [Svelte 5](https://svelte.dev/) + [Tailwind CSS](https://tailwindcss.com/) (Reactive UI & Styling)
+- **Backend**: [Go](https://go.dev/) + [Wails v2](https://wails.io/) (Desktop bridge & Application Logic)
+- **Frontend**: [Astro 6](https://astro.build/) + [Svelte 5](https://svelte.dev/) + [Tailwind CSS 4](https://tailwindcss.com/) (Reactive UI & Styling)
 - **Database**: [SQLite](https://sqlite.org/) (Local data persistence)
-- **Communication**: [Tokio](https://tokio.rs/) (Asynchronous WebSockets)
+- **Icons**: [Iconify](https://iconify.design/) via [unplugin-icons](https://github.com/unplugin/unplugin-icons)
+- **Package Manager**: [Bun](https://bun.sh/) (Fast dependency management)
 
 ## Getting Started
 
 ### Prerequisites
-- **Rust**: [Installation Guide](https://www.rust-lang.org/tools/install)
-- **Node.js/Bun**: [Bun](https://bun.sh/) is recommended for faster installs.
+- **Go**: [Installation Guide](https://go.dev/doc/install)
+- **Wails**: [Installation Guide](https://wails.io/docs/gettingstarted/installation)
+- **Bun**: [Bun Installation](https://bun.sh/)
 - **Celeste Mod**: Install **TheCelesteTracker-Mod** in Everest. Currently available via [GitHub](https://github.com/KristanLaimon/TheCelesteTracker-Mod) (coming soon to GameBanana).
 
 ### Installation
@@ -85,15 +87,14 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
    ```
 3. Run in development mode:
    ```bash
-   bun run tauri dev
+   wails dev
    ```
 
 ## Architecture
-- `src-tauri/src/ws.rs`: Manages WebSocket lifecycle and automated port scanning.
-- `src-tauri/src/events.rs`: Defines type-safe structures for gameplay events.
-- `src/lib/saveStore.svelte.ts`: Handles reactive application state using Svelte 5 Runes.
-- `src-tauri/src/db/`: SQL queries and database migrations.
+- `main.go` & `app.go`: Wails application entry point and event binding.
+- `src/`: Go backend source code (Database management, Celeste-specific logic).
+- `frontend/`: Astro + Svelte frontend source.
+- `frontend/wailsjs/`: Auto-generated JavaScript bindings for Go methods.
 
 ## License
 MIT License. Created for the Celeste community.
->>>>>>> 9ae455de8b911dafa9e2f6f20c76a5816f968d85
