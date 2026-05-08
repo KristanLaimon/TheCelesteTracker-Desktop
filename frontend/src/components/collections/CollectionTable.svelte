@@ -202,7 +202,7 @@
               <td colspan="7" class="px-4 py-3">
                 <div class="flex items-center gap-2">
                   <div class="w-2 h-6 bg-primary rounded-full"></div>
-                  <span class="text-xl font-headline font-black text-white uppercase tracking-widest">{lobby.name}</span>
+                  <span class="text-xl font-headline font-black text-white tracking-tight">{lobby.name}</span>
                 </div>
               </td>
             </tr>
@@ -257,7 +257,7 @@
 
             <!-- Campaign Totals -->
             <tr class="bg-surface-high/50 font-bold border-b border-outline-muted">
-              <td class="px-4 py-2 text-left uppercase text-white/60 {lobby.id !== 'no-lobby' ? 'pl-10' : ''}">Total {campaign.name}</td>
+              <td class="px-4 py-2 text-left text-white/60 {lobby.id !== 'no-lobby' ? 'pl-10' : ''}">Total {campaign.name}</td>
               <td class="px-4 py-2 text-center font-pixel text-xs">{formatTime(campaign.totals.totalTime)}</td>
               <td class="px-4 py-2 text-center font-pixel text-xs text-tertiary">{campaign.totals.strawberries}</td>
               <td class="px-4 py-2 text-center font-pixel text-xs text-primary">{campaign.totals.goldenStrawberries}</td>

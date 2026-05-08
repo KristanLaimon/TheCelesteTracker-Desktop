@@ -4,6 +4,7 @@
   import IconClose from "~icons/material-symbols/close";
   import IconRemove from "~icons/material-symbols/remove";
   import IconSquareOutline from "~icons/material-symbols/square-outline";
+  import IconArrowBack from "~icons/material-symbols/arrow-back";
   import { tick } from "svelte";
 
   import StrawberryRedGif from "../../assets/gifs/red_strawberryy.gif";
@@ -13,6 +14,7 @@
   let showClosingAnimation = $state(false);
   let containerEl = $state<HTMLElement | null>(null);
   let linesWrapperEl = $state<HTMLElement | null>(null);
+  let isHomePage = $derived(false);
 
   async function handleClose(isTest = false) {
     if (showClosingAnimation) return;
@@ -131,9 +133,20 @@
   class="fixed top-0 left-0 w-full h-8 bg-zinc-950/90 backdrop-blur-sm border-b border-outline-muted flex justify-between items-center z-[100]"
   style="--wails-draggable:drag"
 >
-  <div class="flex items-center gap-2 px-4 pointer-events-none">
-    <img src={StrawberryRedGif.src} alt="strawberry_red_gif" class="w-auto h-6 object-contain" />
-    <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">The Celeste Tracker</span>
+  <div class="flex items-center gap-2 px-4 h-full">
+    {#if !isHomePage}
+      <button
+        onclick={() => window.history.back()}
+        class="no-drag h-full px-2 -ml-2 text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors"
+        title="Go Back"
+      >
+        <IconArrowBack class="w-4 h-4" />
+      </button>
+    {/if}
+    <div class="flex items-center gap-2 pointer-events-none">
+      <img src={StrawberryRedGif.src} alt="strawberry_red_gif" class="w-auto h-6 object-contain" />
+      <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">The Celeste Tracker</span>
+    </div>
   </div>
 
   <div class="flex items-center h-full no-drag" style="--wails-draggable:no-drag">

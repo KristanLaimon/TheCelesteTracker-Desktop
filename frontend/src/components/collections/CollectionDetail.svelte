@@ -137,7 +137,7 @@
             {#if isEditingName}
               <input
                 bind:value={editedName}
-                class="bg-white/10 border border-white/20 rounded-lg px-4 py-1 text-4xl font-headline font-black text-white tracking-tighter uppercase focus:outline-none focus:border-primary w-full max-w-2xl"
+                class="bg-white/10 border border-white/20 rounded-lg px-4 py-1 text-4xl font-headline font-black text-white tracking-tighter focus:outline-none focus:border-primary w-full max-w-2xl"
                 onkeydown={(e) => e.key === 'Enter' && saveNewName()}
               />
               <div class="flex gap-2">
@@ -150,7 +150,7 @@
               </div>
             {:else}
               <h1 
-                class="text-5xl font-headline font-black text-white tracking-tighter drop-shadow-2xl uppercase cursor-pointer hover:text-primary transition-colors"
+                class="text-5xl font-headline font-black text-white tracking-tighter drop-shadow-2xl cursor-pointer hover:text-primary transition-colors"
                 role="button"
                 tabindex="0"
                 onclick={() => isEditingName = true}
