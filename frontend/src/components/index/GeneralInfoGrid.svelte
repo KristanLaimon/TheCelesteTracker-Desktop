@@ -130,10 +130,10 @@ function closePopover() {
 
 <svelte:window onclick={closePopover} />
 
-<div class="flex flex-wrap gap-2 mb-8 w-full">
+<div class="grid grid-cols-2 md:grid-cols-5 2xl:grid-cols-10 gap-2 mb-8 w-full">
     {#if stats}
         {#each statDefinitions as def (def.key)}
-            <div class="flex-1 min-w-fit bg-card-bg/40 border border-outline-muted p-2 md:p-3 rounded-xl flex items-center gap-2 md:gap-3 relative group">
+            <div class="bg-card-bg/40 border border-outline-muted p-2 md:p-3 rounded-xl flex items-center gap-2 md:gap-3 relative group">
                 {#if typeof def.icon === 'string'}
                     <div class="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center">
                         <span class="{def.color} text-lg md:text-2xl">{def.icon}</span>
@@ -180,7 +180,7 @@ function closePopover() {
         </div>
     {:else}
         {#each [0,1,2,3,4,5,6,7,8,9] as i (i)}
-            <div class="flex-1 min-w-fit bg-card-bg/40 border border-outline-muted p-2 md:p-3 rounded-xl animate-pulse flex items-center gap-2 md:gap-3">
+            <div class="bg-card-bg/40 border border-outline-muted p-2 md:p-3 rounded-xl animate-pulse flex items-center gap-2 md:gap-3">
                 <div class="w-6 h-6 md:w-8 md:h-8 bg-zinc-800 rounded-full"></div>
                 <div class="flex-1 min-w-0">
                     <div class="h-2 w-10 bg-zinc-800 rounded mb-2"></div>

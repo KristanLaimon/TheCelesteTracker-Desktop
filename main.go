@@ -24,7 +24,9 @@ func StartWailsApp() {
 	err := wails.Run(&options.App{
 		Title:  "TheCelesteTrackerDesktop",
 		Width:  1350,
-		Height: 680,
+		Height: 800,
+		MinWidth:  480,
+		MinHeight: 800,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

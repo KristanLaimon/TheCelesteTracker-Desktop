@@ -24,7 +24,7 @@ import Layout from "../Layout.astro";
   <!-- Main Content -->
   <main class="pb-20">
     <!-- Hero Section -->
-    <section class="relative h-60 md:h-90 w-full overflow-hidden mountain-bg">
+    <section class="relative h-auto min-h-[450px] lg:h-90 w-full overflow-hidden mountain-bg flex items-center">
       <!-- Background Image -->
       <div class="absolute inset-0 z-0">
         <Image src={farewellBanner} alt="Farewell Background" class="w-full h-full object-cover opacity-40" />
@@ -32,23 +32,23 @@ import Layout from "../Layout.astro";
         <div class="absolute inset-0 bg-linear-to-t from-bg-base via-transparent to-transparent"></div>
       </div>
 
-      <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-12">
-        <div class="pb-12 max-w-2xl">
+      <div class="relative z-10 w-full flex flex-col lg:flex-row items-center justify-center lg:justify-between px-6 md:px-12 py-12 lg:py-0 text-center lg:text-left">
+        <div class="relative group mb-8 lg:mb-0 lg:order-2">
+          <div class="absolute inset-0 bg-primary/20 blur-3xl group-hover:bg-primary/30 transition-all"></div>
+          <img
+            alt="Madeline Artwork"
+            class="relative w-40 md:w-50 drop-shadow-[0_0_30px_rgba(255,120,140,0.3)] group-hover:scale-105 transition-transform duration-700 lg:right-10"
+            src={madelineArtwork.src}
+          />
+        </div>
+
+        <div class="max-w-2xl lg:order-1">
           <h1 class="text-5xl md:text-7xl font-headline font-bold text-white tracking-tighter mb-4">
             Celeste <span class="text-primary italic">Tracker</span>
           </h1>
           <p class="text-zinc-400 text-lg md:text-xl leading-relaxed font-medium">
             Your mountain progress and all the stats you need.
           </p>
-        </div>
-
-        <div class="hidden lg:block relative group">
-          <div class="absolute inset-0 bg-primary/20 blur-3xl group-hover:bg-primary/30 transition-all"></div>
-          <img
-            alt="Madeline Artwork"
-            class="relative w-50 drop-shadow-[0_0_30px_rgba(255,120,140,0.3)] group-hover:scale-105 transition-transform duration-700 right-10"
-            src={madelineArtwork.src}
-          />
         </div>
       </div>
     </section>
