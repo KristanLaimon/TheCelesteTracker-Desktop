@@ -14,7 +14,24 @@
   let showClosingAnimation = $state(false);
   let containerEl = $state<HTMLElement | null>(null);
   let linesWrapperEl = $state<HTMLElement | null>(null);
-  let isHomePage = $derived(false);
+  let isHomePage = $state(true);
+
+  $effect(() => {
+    const checkPath = () => {
+      isHomePage = window.location.pathname === "/" || window.location.pathname === "/index.html";
+    };
+    checkPath();
+    
+    // Watch for navigation events
+    window.addEventListener("popstate", checkPath);
+    document.addEventListener("astro:after-swap", checkPath);
+    
+    return () => {
+      window.removeEventListener("popstate", checkPath);
+      document.removeEventListener("astro:after-swap", checkPath);
+    };
+  });
+
 
   async function handleClose(isTest = false) {
     if (showClosingAnimation) return;

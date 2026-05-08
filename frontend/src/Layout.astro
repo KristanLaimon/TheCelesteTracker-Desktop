@@ -2,8 +2,8 @@
 import { twMerge } from "tailwind-merge";
 import "@styles/global.css";
 import GlobalFooter from "./components/global/GlobalFooter.astro";
-import GlobalHeader from "./components/global/GlobalHeader.astro";
 import TitleBar from "./components/global/TitleBar.svelte";
+import { ClientRouter } from "astro:transitions";
 
 export type Props = {
   title: string;
@@ -25,13 +25,13 @@ const { bodyClassNames = "", title, bodyId } = Astro.props;
     <!-- Wails Runtime & IPC -->
     <script is:inline src="/wails/ipc.js"></script>
     <script is:inline src="/wails/runtime.js"></script>
+    <ClientRouter />
   </head>
-  <!-- prettier-ignore -->
-  <body class={twMerge([ "bg-bg-base text-zinc-100 font-montserrat antialiased selection:bg-primary selection:text-white", bodyClassNames, ])} id={bodyId} >
-    <TitleBar client:load />
-    <GlobalHeader />
+  <body class={twMerge([ "bg-bg-base text-zinc-100 font-montserrat antialiased selection:bg-primary selection:text-white pt-8", bodyClassNames, ])} id={bodyId} >
+    <TitleBar client:load transition:persist />
+    <!-- <GlobalHeader /> -->
     <slot />
-    <GlobalFooter />
+    <GlobalFooter transition:persist />
   </body>
 </html>
 
