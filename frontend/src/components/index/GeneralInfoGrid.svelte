@@ -179,7 +179,7 @@ function closePopover() {
             Failed to load stats: {error}
         </div>
     {:else}
-        {#each Array(10) as _, i (i)}
+        {#each [0,1,2,3,4,5,6,7,8,9] as i (i)}
             <div class="flex-1 min-w-fit bg-card-bg/40 border border-outline-muted p-2 md:p-3 rounded-xl animate-pulse flex items-center gap-2 md:gap-3">
                 <div class="w-6 h-6 md:w-8 md:h-8 bg-zinc-800 rounded-full"></div>
                 <div class="flex-1 min-w-0">

@@ -1,5 +1,5 @@
 # Frontend (astro) output
-build/bin
+
 node_modules
 frontend/dist
 frontend/archive/

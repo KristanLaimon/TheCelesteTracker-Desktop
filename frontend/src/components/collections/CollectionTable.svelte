@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { GetCollectionStats } from '../../../wailsjs/go/main/App';
   import { saveStore } from '../../lib/saveStore.svelte';
   import { getAssetUrl } from '../../lib/assetHelper';
   import defaultLevelLogo from '../../assets/level_logo_moddedleveldefault.png';
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
   import logo1 from "../../assets/level_1_logo_prologue.png";
   import logo2 from "../../assets/level_2_logo_forsakencity.png";
@@ -17,7 +17,7 @@
   import logo10 from "../../assets/level_10_logo_core.png";
   import logo11 from "../../assets/level_11_logo_farewell_both_front_back.png";
 
-  const levelLogos: Record<string, any> = {
+  const levelLogos: Record<string, { src: string } | string> = {
     "Prologue": logo1,
     "Forsaken City": logo2,
     "Old Site": logo3,
@@ -40,8 +40,8 @@
   interface LevelStats {
     campaignId: number;
     campaignName: string;
-    lobbyId: number | null;
-    lobbyName: string | null;
+    lobbyId: number | undefined;
+    lobbyName: string | undefined;
     levelName: string;
     levelSide: string;
     totalTime: number;
@@ -50,15 +50,15 @@
     hearts: number;
     deaths: number;
     dashes: number;
-    coverImgPath?: string | null;
-    iconImgPath?: string | null;
+    coverImgPath?: string | undefined;
+    iconImgPath?: string | undefined;
     iconData?: string | null;
   }
 
   interface CampaignGroup {
     id: number;
     name: string;
-    coverImgPath?: string | null;
+    coverImgPath?: string | undefined;
     coverImgData?: string | null;
     levels: LevelStats[];
     totals: {
@@ -87,20 +87,18 @@
       if (campaignIds && campaignIds.length > 0) {
         fetchedStats = await GetCollectionStats(campaignIds, null);
       } else {
-         // If no campaignIds provided, we might want to show nothing or all stats
-         // For now, let's assume we need campaignIds
          fetchedStats = [];
       }
 
       // Collect all unique paths to load
-      const pathsToLoad = new Set<string>();
+      const pathsToLoad = new SvelteSet<string>();
       fetchedStats.forEach(s => {
         if (s.coverImgPath) pathsToLoad.add(s.coverImgPath);
         if (s.iconImgPath) pathsToLoad.add(s.iconImgPath);
       });
 
       // Map assets directly (asynchronous)
-      const loadedAssets = new Map<string, string>();
+      const loadedAssets = new SvelteMap<string, string>();
       for (const path of pathsToLoad) {
         const url = await getAssetUrl(path);
         if (url) loadedAssets.set(path, url);
@@ -154,10 +152,6 @@
     }
   }
 
-  onMount(() => {
-    loadStats();
-  });
-
   // Re-load when save slot or campaignIds change
   $effect(() => {
     if (saveStore.userId || campaignIds) {
@@ -171,6 +165,14 @@
     const m = Math.floor((totalSeconds % 3600) / 60);
     const s = totalSeconds % 60;
     return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function getLevelIcon(level: LevelStats) {
+      const logo = levelLogos[level.levelName];
+      if (level.iconData) return level.iconData;
+      if (!logo) return defaultLevelLogo.src;
+      if (typeof logo === 'string') return logo;
+      return logo.src;
   }
 </script>
 
@@ -193,7 +195,7 @@
         </tr>
       </thead>
       <tbody>
-        {#each lobbyGroups as lobby}
+        {#each lobbyGroups as lobby (lobby.id)}
           {#if lobby.id !== 'no-lobby'}
             <!-- Lobby Header -->
             <tr class="bg-zinc-900/80 border-y border-outline-muted/30">
@@ -206,7 +208,7 @@
             </tr>
           {/if}
 
-          {#each lobby.campaigns as campaign}
+          {#each lobby.campaigns as campaign (campaign.id)}
             <!-- Campaign Header -->
             <tr class="relative overflow-hidden group">
               <td colspan="7" class="px-0 py-0 h-20 relative">
@@ -226,13 +228,13 @@
               </td>
             </tr>
 
-            {#each campaign.levels as level}
+            {#each campaign.levels as level (level.levelName + level.levelSide)}
               <tr class="border-b border-outline-muted/50 hover:bg-white/5 transition-colors">
                 <td class="px-4 py-3 text-left">
                   <div class="flex items-center gap-3 {lobby.id !== 'no-lobby' ? 'ml-6' : ''}">
                     <div class="w-10 h-10 rounded bg-surface-high/50 shrink-0 overflow-hidden border border-white/10 flex items-center justify-center p-0.5">
                       <img
-                        src={level.iconData || (levelLogos[level.levelName]?.src || levelLogos[level.levelName] || defaultLevelLogo.src)}
+                        src={getLevelIcon(level)}
                         alt={level.levelName}
                         class="w-full h-full object-contain"
                       />

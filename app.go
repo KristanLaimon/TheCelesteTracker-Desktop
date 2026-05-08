@@ -126,3 +126,35 @@ func (a *App) GetCollectionStats(campaignIds []int, saveDataId *int) ([]src.Leve
 func (a *App) GetAssetAsBase64(path string) (string, error) {
 	return src.GetAssetAsBase64(path)
 }
+
+// Campaign CRUD
+func (a *App) CreateCampaign(saveDataId int, nameId string, lobbyId *int, coverPath *string) (int, error) {
+	id, err := src.Campaign_Insert(saveDataId, nameId, lobbyId, coverPath)
+	return int(id), err
+}
+
+func (a *App) UpdateCampaign(id int, nameId string, lobbyId *int, coverPath *string) error {
+	return src.Campaign_Update(id, nameId, lobbyId, coverPath)
+}
+
+func (a *App) DeleteCampaign(id int) error {
+	return src.Campaign_Delete(id)
+}
+
+func (a *App) GetCampaign(id int) (src.Campaign, error) {
+	return src.Campaign_Get(id)
+}
+
+func (a *App) GetCampaigns(saveDataId int) ([]src.Campaign, error) {
+	return src.Campaign_ListBySaveData(saveDataId)
+}
+
+// Lobby CRUD
+func (a *App) CreateLobby(saveDataId int, name string, chapterSid *string, iconPath *string) (int, error) {
+	id, err := src.Lobby_Insert(saveDataId, name, chapterSid, iconPath)
+	return int(id), err
+}
+
+func (a *App) GetLobbies(saveDataId int) ([]src.Lobby, error) {
+	return src.Lobby_ListBySaveData(saveDataId)
+}

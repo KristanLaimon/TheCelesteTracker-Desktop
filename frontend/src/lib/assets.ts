@@ -17,19 +17,19 @@ import logo7 from "@assets/level_7_logo_reflection.png";
 import logo8 from "@assets/level_8_logo_summit.png";
 import logo9 from "@assets/level_9_logo_epilogue.png";
 
-export const Assets_Vanilla_DeathIcons: Record<string, any> = {
+export const Assets_Vanilla_DeathIcons: Record<string, { src: string } | string> = {
 	"SIDE A": sideADeaths,
 	"SIDE B": sideBDeaths,
 	"SIDE C": sideCDeaths,
 };
 
-export const Assets_Vanilla_SideIcon: Record<string, any> = {
+export const Assets_Vanilla_SideIcon: Record<string, { src: string } | string> = {
 	"SIDE A": sideAHeart,
 	"SIDE B": sideBHeart,
 	"SIDE C": sideCHeart,
 };
 
-export const Assets_Vanilla_ChapterIcon: Record<string, any> = {
+export const Assets_Vanilla_ChapterIcon: Record<string, { src: string } | string> = {
 	Prologue: logo1,
 	"Forsaken City": logo2,
 	"Old Site": logo3,

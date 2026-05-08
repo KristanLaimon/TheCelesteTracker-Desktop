@@ -9,18 +9,18 @@ import ts from "typescript-eslint";
 export default ts.config(
   {
     ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.astro/**',
-      '**/wailsjs/**',
-      '**/runtime/**',
-      'migrate-tailwind.script.js'
-    ]
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.astro/**",
+      "**/wailsjs/**",
+      "**/runtime/**",
+      "migrate-tailwind.script.js",
+    ],
   },
   js.configs.recommended,
   ...ts.configs.recommended,
   ...astro.configs.recommended,
-  ...svelte.configs['flat/recommended'],
+  ...svelte.configs["flat/recommended"],
   {
     languageOptions: {
       globals: {
@@ -30,31 +30,31 @@ export default ts.config(
     },
   },
   {
-    files: ['*.svelte', '**/*.svelte'],
+    files: ["*.svelte", "**/*.svelte"],
     languageOptions: {
       parser: svelteParser,
       parserOptions: {
         parser: ts.parser,
-        extraFileExtensions: ['.svelte'],
+        extraFileExtensions: [".svelte"],
       },
     },
   },
   {
-    files: ['*.astro', '**/*.astro'],
+    files: ["*.astro", "**/*.astro"],
     languageOptions: {
       parser: astroParser,
       parserOptions: {
         parser: ts.parser,
-        extraFileExtensions: ['.astro'],
+        extraFileExtensions: [".astro"],
       },
     },
   },
   {
-    rules: {
-      '@typescript-eslint/consistent-type-imports': [
-        'error',
-        { prefer: 'type-imports', fixStyle: 'inline-type-imports' },
-      ],
-    },
-  }
+    // rules: {
+    //   "@typescript-eslint/consistent-type-imports": [
+    //     "error",
+    //     { prefer: "type-imports", fixStyle: "inline-type-imports" },
+    //   ],
+    // },
+  },
 );

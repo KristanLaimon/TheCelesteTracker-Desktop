@@ -1,5 +1,25 @@
 export namespace src {
 	
+	export class Campaign {
+	    id: number;
+	    saveDataId: number;
+	    campaignNameId: string;
+	    lobbyId?: number;
+	    coverImgPath?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Campaign(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.saveDataId = source["saveDataId"];
+	        this.campaignNameId = source["campaignNameId"];
+	        this.lobbyId = source["lobbyId"];
+	        this.coverImgPath = source["coverImgPath"];
+	    }
+	}
 	export class CampaignItem {
 	    id: number;
 	    campaignNameId: string;
@@ -97,6 +117,26 @@ export namespace src {
 	        this.deaths = source["deaths"];
 	        this.dashes = source["dashes"];
 	        this.coverImgPath = source["coverImgPath"];
+	        this.iconImgPath = source["iconImgPath"];
+	    }
+	}
+	export class Lobby {
+	    id: number;
+	    saveDataId: number;
+	    name: string;
+	    chapterSid?: string;
+	    iconImgPath?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Lobby(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.saveDataId = source["saveDataId"];
+	        this.name = source["name"];
+	        this.chapterSid = source["chapterSid"];
 	        this.iconImgPath = source["iconImgPath"];
 	    }
 	}

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { GetCollections, GetCollectionCampaignIDs, GetCollectionStats, GetAvailableCampaigns, UpdateCollection } from '../../../wailsjs/go/main/App';
   import CollectionTable from './CollectionTable.svelte';
   import { saveStore } from "../../lib/saveStore.svelte";
@@ -29,11 +28,12 @@
 
   async function loadCollection() {
     if (!saveStore.userId) return;
+
     loading = true;
     try {
       const collections = await GetCollections(saveStore.userId);
       const col = collections.find(c => c.id.toString() === id);
-      if (col) {
+      if (col && id) {
         collectionName = col.name;
         editedName = col.name;
         campaignIds = await GetCollectionCampaignIDs(parseInt(id));
@@ -51,7 +51,7 @@
 
             // Get banner from first campaign if available (as fallback background)
             const allCampaigns = await GetAvailableCampaigns(saveStore.userId);
-            const firstCampaign = allCampaigns.find(c => (c.id as any) === campaignIds[0]);
+            const firstCampaign = allCampaigns.find(c => c.id === campaignIds[0]);
             if (firstCampaign && firstCampaign.coverImgPath) {
                 bannerData = await getAssetUrl(firstCampaign.coverImgPath);
             }
@@ -71,17 +71,15 @@
     }
 
     try {
-      await UpdateCollection(parseInt(id), editedName, campaignIds);
-      collectionName = editedName;
+      if (id) {
+        await UpdateCollection(parseInt(id), editedName, campaignIds);
+        collectionName = editedName;
+      }
       isEditingName = false;
     } catch (e) {
       console.error('Failed to update collection name:', e);
     }
   }
-
-  onMount(() => {
-    loadCollection();
-  });
 
   $effect(() => {
     if (saveStore.userId) {
@@ -106,13 +104,13 @@
     <!-- Icon Grid Layer -->
     <div class="absolute inset-0 p-4 opacity-40 group-hover:opacity-60 transition-opacity duration-700">
         <div class="grid grid-cols-8 md:grid-cols-12 gap-2 h-full overflow-hidden [mask-[linear-gradient(to_bottom,black_50%,transparent)]">
-            {#each [...chapterIcons, ...chapterIcons, ...chapterIcons].slice(0, 48) as icon}
+            {#each [...chapterIcons, ...chapterIcons, ...chapterIcons].slice(0, 48) as icon, index (index)}
                 <div class="aspect-square rounded-lg bg-white/5 border border-white/5 flex items-center justify-center p-1 transform rotate-12 hover:rotate-0 transition-transform">
                     <img src={icon} alt="" class="w-full h-full object-contain" />
                 </div>
             {/each}
             {#if chapterIcons.length === 0}
-                {#each Array(24) as _}
+                {#each [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23] as i (i)}
                     <div class="aspect-square rounded-lg bg-white/5 border border-white/5 flex items-center justify-center p-1 transform rotate-12">
                         <img src={defaultLevelLogo.src} alt="" class="w-full h-full object-contain opacity-20" />
                     </div>
@@ -153,7 +151,10 @@
             {:else}
               <h1 
                 class="text-5xl font-headline font-black text-white tracking-tighter drop-shadow-2xl uppercase cursor-pointer hover:text-primary transition-colors"
+                role="button"
+                tabindex="0"
                 onclick={() => isEditingName = true}
+                onkeydown={(e) => e.key === 'Enter' && (isEditingName = true)}
               >
                 {collectionName || 'Loading...'}
               </h1>

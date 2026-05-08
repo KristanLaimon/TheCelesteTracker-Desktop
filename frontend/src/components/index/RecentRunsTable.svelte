@@ -74,7 +74,7 @@ const headers = [
 
 function getLevelIcon(row: src.RecentRun) {
 	const logo = Assets_Vanilla_ChapterIcon[row.ChapterName];
-	if (logo) return logo.src || logo;
+	if (logo) return (logo as { src: string }).src || logo;
 	return null;
 }
 
@@ -138,7 +138,7 @@ const attemptTypeColors: Record<string, string> = {
   <table class="w-full text-left border-collapse min-w-[900px]">
     <thead>
       <tr class="border-b border-outline-muted bg-zinc-900/50">
-        {#each headers as header, i}
+        {#each headers as header, i (header)}
           <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold {i === 0 ? 'text-left' : 'text-center'}">
             {header}
           </th>
@@ -146,7 +146,7 @@ const attemptTypeColors: Record<string, string> = {
       </tr>
     </thead>
     <tbody class="divide-y divide-outline-muted/50">
-      {#each rows as row}
+      {#each rows as row (row.FormattedTime + row.ChapterName + row.Side + row.AttemptType)}
         {@const levelIcon = getLevelIcon(row)}
         {@const IconData = levelIcon ? null : (row.CampaignType === 'Vanilla' ? iconMap.vanilla : iconMap.modded)}
         {@const isGoldenCompleted = row.AttemptType === "GoldenCompleted"}
@@ -167,7 +167,7 @@ const attemptTypeColors: Record<string, string> = {
           <td class="px-6 py-4">
             <div class="flex items-center gap-2 justify-center">
               {#if Assets_Vanilla_SideIcon[row.Side]}
-                <img src={Assets_Vanilla_SideIcon[row.Side].src || Assets_Vanilla_SideIcon[row.Side]} alt="" class="w-4 h-4" />
+                <img src={(Assets_Vanilla_SideIcon[row.Side] as { src: string }).src || Assets_Vanilla_SideIcon[row.Side]} alt="" class="w-4 h-4" />
               {/if}
               <span class="text-[12px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 whitespace-nowrap">
                 {row.Side}
@@ -186,7 +186,7 @@ const attemptTypeColors: Record<string, string> = {
           </td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
             <div class="flex items-center gap-2 justify-center">
-              <img src={timerIcon.src || timerIcon} alt="" class="w-4 h-4 opacity-50" />
+              <img src={timerIcon.src} alt="" class="w-4 h-4 opacity-50" />
               {row.FormattedTime}
             </div>
           </td>
@@ -195,7 +195,7 @@ const attemptTypeColors: Record<string, string> = {
               {#if isGoldenAttempt}
                 <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" title="Golden Death"></div>
               {:else}
-                <img src={(Assets_Vanilla_DeathIcons[row.Side] || sideADeaths).src || (Assets_Vanilla_DeathIcons[row.Side] || sideADeaths)} alt="" class="w-5 h-5" />
+                <img src={((Assets_Vanilla_DeathIcons[row.Side] || sideADeaths) as { src: string }).src || (Assets_Vanilla_DeathIcons[row.Side] || sideADeaths)} alt="" class="w-5 h-5" />
                 {row.Deaths}
               {/if}
             </div>
@@ -203,7 +203,7 @@ const attemptTypeColors: Record<string, string> = {
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">{row.Dashes}</td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center w-24">
             <div class="flex items-center gap-2 justify-center">
-              <img src={strawberryIcon.src || strawberryIcon} alt="" class="w-5 h-5" />
+              <img src={strawberryIcon.src} alt="" class="w-5 h-5" />
               {row.Strawberries}
             </div>
           </td>

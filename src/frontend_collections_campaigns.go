@@ -66,10 +66,23 @@ func Collection_GetCampaignIDs(collectionId int) ([]int, error) {
 
 func Query_GetAvailableCampaigns(userId int) ([]CampaignItem, error) {
 	toReturn := make([]CampaignItem, 0)
-	err := Db_Select(&toReturn, `SELECT id, campaign_name_id, COALESCE(cover_img_path, '') as cover_img_path FROM Campaigns`)
+	
+	query := `
+		SELECT 
+			MIN(c.id) as id, 
+			c.campaign_name_id, 
+			COALESCE(c.cover_img_path, '') as cover_img_path 
+		FROM Campaigns c
+		JOIN SaveDatas sd ON c.save_data_id = sd.id
+		WHERE sd.user_id = ?
+		GROUP BY c.campaign_name_id
+	`
+	
+	err := Db_Select(&toReturn, query, userId)
 
 	if err != nil {
-		return nil, err
+		LogError(fmt.Sprintf("[Query_GetAvailableCampaigns] Error: %s", err))
+		return make([]CampaignItem, 0), err
 	}
 
 	return toReturn, nil

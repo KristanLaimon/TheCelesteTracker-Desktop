@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { GetCollections, GetAvailableCampaigns, CreateCollection, UpdateCollection, DeleteCollection, GetCollectionCampaignIDs } from '../../../wailsjs/go/main/App';
   import { saveStore } from '../../lib/saveStore.svelte';
   import IconPlus from '~icons/material-symbols/add';
@@ -20,7 +19,6 @@
 
   let collections = $state<Collection[]>([]);
   let availableCampaigns = $state<CampaignItem[]>([]);
-  let loading = $state(true);
   let showModal = $state(false);
 
   // Form state
@@ -31,7 +29,7 @@
   async function loadData() {
     console.log('[Collections] loadData called, userId:', saveStore.userId);
     if (!saveStore.userId) return;
-    loading = true;
+
     try {
       console.log('[Collections] fetching from backend...');
       const [fetchedCollections, fetchedCampaigns] = await Promise.all([
@@ -39,18 +37,13 @@
         GetAvailableCampaigns(saveStore.userId)
       ]);
       console.log('[Collections] received collections:', fetchedCollections);
-      collections = fetchedCollections;
-      availableCampaigns = fetchedCampaigns;
+      console.log('[Collections] received campaigns:', fetchedCampaigns);
+      collections = fetchedCollections || [];
+      availableCampaigns = fetchedCampaigns || [];
     } catch (e) {
       console.error('Failed to load collections:', e);
-    } finally {
-      loading = false;
     }
   }
-
-  onMount(() => {
-    loadData();
-  });
 
   $effect(() => {
     if (saveStore.userId) {
@@ -139,7 +132,7 @@
     <span class="font-bold text-zinc-400 group-hover:text-white transition-colors">Create Collection</span>
   </button>
 
-  {#each collections as col}
+  {#each collections as col (col.id)}
     <div class="relative group h-48 rounded-2xl bg-surface/40 border border-outline-muted overflow-hidden hover:border-primary/50 hover:bg-surface-high/60 transition-all">
       <a href={`/collections/detail?id=${col.id}`} class="flex flex-col h-full p-6">
         <IconFolder class="text-4xl text-orange-400 mb-4" />
@@ -189,7 +182,7 @@
           <div>
             <div class="block text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2">Available Campaigns</div>
             <div class="space-y-2">
-              {#each availableCampaigns as camp}
+              {#each availableCampaigns as camp (camp.id)}
                 <button
                   onclick={() => toggleCampaign(camp.id)}
                   class="w-full flex items-center gap-3 p-3 rounded-lg border transition-all text-left {selectedCampaignIds.includes(camp.id) ? 'bg-primary/20 border-primary text-white' : 'bg-surface border-outline-muted text-zinc-400 hover:bg-white/5'}"
@@ -213,7 +206,7 @@
             <p class="text-zinc-600 text-sm italic mt-8 text-center">No campaigns selected</p>
           {:else}
             <div class="space-y-2">
-              {#each selectedCampaignIds as id, index}
+              {#each selectedCampaignIds as id, index (id)}
                 <div class="flex items-center gap-2 p-3 bg-surface rounded-lg border border-outline-muted">
                   <span class="text-zinc-500 font-bold text-xs w-4">{index + 1}.</span>
                   <span class="flex-1 text-sm font-medium truncate">{getCampaignName(id)}</span>

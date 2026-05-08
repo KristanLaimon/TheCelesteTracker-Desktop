@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "astro": "astro",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "svelte-check": "svelte-check"
   },
   "dependencies": {
     "@astrojs/check": "0.9.8",
@@ -30,6 +31,7 @@
     "eslint-plugin-astro": "^1.7.0",
     "eslint-plugin-svelte": "^3.17.1",
     "globals": "^17.5.0",
+    "svelte-check": "^4.4.8",
     "svelte-eslint-parser": "^1.6.0",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.59.1",
