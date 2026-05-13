@@ -199,7 +199,7 @@ function getDeathIcon(side: string) {
             <div class="flex items-center gap-3 justify-start">
               <div class="w-8 h-8 rounded flex items-center justify-center {IconData ? IconData.bg : 'bg-zinc-800/50'} {IconData ? IconData.color : ''}">
                 {#if levelIcon}
-                  <img src={levelIcon} alt="" class="w-7 h-7 object-contain" />
+                  <img src={levelIcon} alt="" class="size-20 object-contain" />
                 {:else if IconData}
                   <IconData.icon class="text-lg" />
                 {/if}

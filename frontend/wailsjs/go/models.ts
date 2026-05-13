@@ -146,6 +146,9 @@ export namespace src {
 	    iconsCopied: number;
 	    endscreensCopied: number;
 	    assetFilesIndexed: number;
+	    chaptersQueued: number;
+	    chaptersAttempted: number;
+	    chaptersSkipped: number;
 	
 	    static createFrom(source: any = {}) {
 	        return new ModAssetIndexResult(source);
@@ -158,6 +161,9 @@ export namespace src {
 	        this.iconsCopied = source["iconsCopied"];
 	        this.endscreensCopied = source["endscreensCopied"];
 	        this.assetFilesIndexed = source["assetFilesIndexed"];
+	        this.chaptersQueued = source["chaptersQueued"];
+	        this.chaptersAttempted = source["chaptersAttempted"];
+	        this.chaptersSkipped = source["chaptersSkipped"];
 	    }
 	}
 	export class RecentRun {

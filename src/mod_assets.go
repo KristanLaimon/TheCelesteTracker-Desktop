@@ -2,6 +2,7 @@ package src
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -39,6 +40,19 @@ type ModAssetIndexResult struct {
 	IconsCopied       int `json:"iconsCopied"`
 	EndscreensCopied  int `json:"endscreensCopied"`
 	AssetFilesIndexed int `json:"assetFilesIndexed"`
+	ChaptersQueued    int `json:"chaptersQueued"`
+	ChaptersAttempted int `json:"chaptersAttempted"`
+	ChaptersSkipped   int `json:"chaptersSkipped"`
+}
+
+type modAssetIndexManifest struct {
+	AttemptedChapters map[string]bool `json:"attemptedChapters"`
+}
+
+type trackedChapterAssetState struct {
+	SID              string `db:"sid"`
+	IconImgPath      string `db:"icon_img_path"`
+	EndscreenImgPath string `db:"endscreen_img_path"`
 }
 
 func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
@@ -50,6 +64,15 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 	appDataDir, err := GetExecutableDataDir()
 	if err != nil {
 		return ModAssetIndexResult{}, err
+	}
+
+	manifest := readModAssetIndexManifest(appDataDir)
+	chapterWorklist, err := getChapterAssetWorklist(appDataDir, manifest)
+	if err != nil {
+		return ModAssetIndexResult{}, err
+	}
+	if len(chapterWorklist) == 0 {
+		return ModAssetIndexResult{ChaptersQueued: 0}, nil
 	}
 
 	sources, err := openModAssetSources(modsFolder)
@@ -70,6 +93,7 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 	result := ModAssetIndexResult{
 		ModsScanned:       len(sources),
 		AssetFilesIndexed: len(globalAssets),
+		ChaptersQueued:    len(chapterWorklist),
 	}
 
 	for i := range sources {
@@ -81,6 +105,10 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 
 			mapSID := strings.TrimSuffix(strings.TrimPrefix(entryName, "Maps/"), path.Ext(entryName))
 			chapterSID := canonicalChapterSID(mapSID)
+			if len(chapterWorklist) > 0 && !chapterWorklist[chapterSID] {
+				result.ChaptersSkipped++
+				continue
+			}
 			metaName := strings.TrimSuffix(entryName, path.Ext(entryName)) + ".meta.yaml"
 			metadata := mapAssetMetadata{}
 			metaContent, ok := readSourceText(source, metaName)
@@ -121,7 +149,16 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 				}
 				result.ChaptersUpdated += updated
 			}
+
+			if len(chapterWorklist) > 0 {
+				manifest.AttemptedChapters[chapterSID] = true
+				result.ChaptersAttempted++
+			}
 		}
+	}
+
+	if err := writeModAssetIndexManifest(appDataDir, manifest); err != nil {
+		LogError(fmt.Sprintf("[Mod Assets] Failed to write manifest: %s", err))
 	}
 
 	return result, nil
@@ -133,6 +170,91 @@ func GetExecutableDataDir() (string, error) {
 		return "", err
 	}
 	return filepath.Join(filepath.Dir(executablePath), "data"), nil
+}
+
+func readModAssetIndexManifest(dataDir string) modAssetIndexManifest {
+	manifest := modAssetIndexManifest{AttemptedChapters: make(map[string]bool)}
+	bytes, err := os.ReadFile(filepath.Join(dataDir, assetRootFolderName, "asset_index_manifest.json"))
+	if err != nil {
+		return manifest
+	}
+	if err := json.Unmarshal(bytes, &manifest); err != nil {
+		return modAssetIndexManifest{AttemptedChapters: make(map[string]bool)}
+	}
+	if manifest.AttemptedChapters == nil {
+		manifest.AttemptedChapters = make(map[string]bool)
+	}
+	return manifest
+}
+
+func writeModAssetIndexManifest(dataDir string, manifest modAssetIndexManifest) error {
+	targetDir := filepath.Join(dataDir, assetRootFolderName)
+	if err := os.MkdirAll(targetDir, 0755); err != nil {
+		return err
+	}
+	bytes, err := json.MarshalIndent(manifest, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(targetDir, "asset_index_manifest.json"), bytes, 0644)
+}
+
+func getChapterAssetWorklist(dataDir string, manifest modAssetIndexManifest) (map[string]bool, error) {
+	rows := make([]trackedChapterAssetState, 0)
+	err := Db_Select(&rows, `
+		SELECT
+			sid,
+			COALESCE(icon_img_path, '') as icon_img_path,
+			COALESCE(endscreen_img_path, '') as endscreen_img_path
+		FROM Chapters
+	`)
+	if err != nil {
+		return nil, err
+	}
+
+	worklist := make(map[string]bool)
+	for _, row := range rows {
+		chapterSID := canonicalChapterSID(stripChapterSIDPrefix(row.SID))
+		if chapterSID == "" {
+			continue
+		}
+		if !manifest.AttemptedChapters[chapterSID] || indexedAssetFileMissing(dataDir, row.IconImgPath) || indexedAssetFileMissing(dataDir, row.EndscreenImgPath) {
+			worklist[chapterSID] = true
+		}
+	}
+
+	return worklist, nil
+}
+
+func indexedAssetFileMissing(dataDir, fileName string) bool {
+	if fileName == "" {
+		return false
+	}
+	for _, candidateDataDir := range append([]string{dataDir}, getCandidateDataDirs()...) {
+		assetsDir := filepath.Join(candidateDataDir, assetRootFolderName)
+		found := false
+		_ = filepath.WalkDir(assetsDir, func(current string, d os.DirEntry, walkErr error) error {
+			if walkErr != nil || d.IsDir() {
+				return nil
+			}
+			if strings.EqualFold(d.Name(), fileName) {
+				found = true
+				return filepath.SkipAll
+			}
+			return nil
+		})
+		if found {
+			return false
+		}
+	}
+	return true
+}
+
+func stripChapterSIDPrefix(sid string) string {
+	if idx := strings.Index(sid, ":"); idx >= 0 && idx+1 < len(sid) {
+		return sid[idx+1:]
+	}
+	return sid
 }
 
 func GetIndexedAssetAsBase64(fileName string) (string, error) {

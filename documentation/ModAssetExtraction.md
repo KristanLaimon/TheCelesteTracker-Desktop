@@ -126,6 +126,9 @@ Some large mods split maps and assets into companion zips. For example, map meta
 - Assets are copied, not symlinked.
 - Existing files with the same copied filename are overwritten.
 - The Mods folder is only read.
+- Indexing is incremental using `data/assets/asset_index_manifest.json`.
+- On the first run, the manifest does not exist, so all tracked DB chapters are queued.
+- On later runs, only new DB chapters or chapters whose copied asset file is missing are queued.
 - The frontend loads indexed icons by filename through the backend.
 - Recent run chapter icons fall back in this order:
   1. Indexed mod icon from `Chapters.icon_img_path`
