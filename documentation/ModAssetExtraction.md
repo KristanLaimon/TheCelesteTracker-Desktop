@@ -168,6 +168,15 @@ Graphics/Atlases/Gui/areas/SJ2021/lobby/<chapter>.png
 Graphics/Atlases/Gui/areas/SJ2021/gym/<chapter>.png
 ```
 
+If a Strawberry Jam map has no sticker mapping, the extractor falls back to the map checkpoint atlas, preferring:
+
+```text
+Graphics/Atlases/Checkpoints/StrawberryJam2021/<tier>/<map>/A/Start.png
+Graphics/Atlases/Checkpoints/StrawberryJam2021/<tier>/<map>/A/start.png
+```
+
+If neither exact start filename exists, it uses the first `.png` under the A-side checkpoint folder. This covers maps that are represented by checkpoint art rather than lobby stickers.
+
 ## Edge Cases To Confirm
 
 - When a chapter has separate A/B/C-side icons, the current implementation indexes the canonical chapter SID and may let a later side update the same chapter row. Should A-side always win?

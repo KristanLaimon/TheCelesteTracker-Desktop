@@ -544,6 +544,15 @@ Graphics/Atlases/Gui/areas/SJ2021/lobby/<chapter>.png
 Graphics/Atlases/Gui/areas/SJ2021/gym/<chapter>.png
 ```
 
+If no sticker exists for a Strawberry Jam map, the extractor falls back to checkpoint artwork:
+
+```text
+Graphics/Atlases/Checkpoints/StrawberryJam2021/<tier>/<map>/A/Start.png
+Graphics/Atlases/Checkpoints/StrawberryJam2021/<tier>/<map>/A/start.png
+```
+
+If neither start filename exists, the first `.png` under the A-side checkpoint folder is used.
+
 ## Notes For Future Agents
 
 - Do not extract mod zips into the Celeste `Mods` folder.

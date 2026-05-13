@@ -39,3 +39,20 @@ Stickers:
 		t.Fatalf("missing quoted sticker mapping: %#v", stickers)
 	}
 }
+
+func TestResolveStrawberryJamCheckpointIconAssetFallsBackToStart(t *testing.T) {
+	source := &modAssetSource{
+		modID: "StrawberryJam2021",
+		entries: map[string]string{
+			"graphics/atlases/checkpoints/strawberryjam2021/1-beginner/zz-heartside/a/start.png": "Graphics/Atlases/Checkpoints/StrawberryJam2021/1-Beginner/ZZ-HeartSide/A/Start.png",
+		},
+	}
+
+	ref, ok := resolveStrawberryJamCheckpointIconAsset(source, map[string]modAssetRef{}, "StrawberryJam2021/1-Beginner/ZZ-HeartSide")
+	if !ok {
+		t.Fatal("expected checkpoint start fallback to resolve")
+	}
+	if ref.name != "Graphics/Atlases/Checkpoints/StrawberryJam2021/1-Beginner/ZZ-HeartSide/A/Start.png" {
+		t.Fatalf("unexpected checkpoint fallback path: %s", ref.name)
+	}
+}

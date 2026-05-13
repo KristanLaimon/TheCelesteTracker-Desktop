@@ -140,30 +140,57 @@ func GetIndexedAssetAsBase64(fileName string) (string, error) {
 		return "", fmt.Errorf("invalid indexed asset file name")
 	}
 
-	dataDir, err := GetExecutableDataDir()
-	if err != nil {
-		return "", err
-	}
-
 	var match string
-	assetsDir := filepath.Join(dataDir, assetRootFolderName)
-	err = filepath.WalkDir(assetsDir, func(current string, d os.DirEntry, walkErr error) error {
-		if walkErr != nil || d.IsDir() {
+	for _, dataDir := range getCandidateDataDirs() {
+		assetsDir := filepath.Join(dataDir, assetRootFolderName)
+		err := filepath.WalkDir(assetsDir, func(current string, d os.DirEntry, walkErr error) error {
+			if walkErr != nil || d.IsDir() {
+				return nil
+			}
+			if strings.EqualFold(d.Name(), fileName) {
+				match = current
+				return filepath.SkipAll
+			}
 			return nil
+		})
+		if err != nil || match == "" {
+			continue
 		}
-		if strings.EqualFold(d.Name(), fileName) {
-			match = current
-			return filepath.SkipAll
-		}
-		return nil
-	})
-	if err != nil {
-		return "", err
+		break
 	}
 	if match == "" {
 		return "", fmt.Errorf("indexed asset not found: %s", fileName)
 	}
 	return GetAssetAsBase64(match)
+}
+
+func getCandidateDataDirs() []string {
+	candidates := make([]string, 0, 3)
+	seen := make(map[string]bool)
+	add := func(path string) {
+		if path == "" {
+			return
+		}
+		cleaned, err := filepath.Abs(path)
+		if err != nil {
+			cleaned = filepath.Clean(path)
+		}
+		key := strings.ToLower(cleaned)
+		if !seen[key] {
+			seen[key] = true
+			candidates = append(candidates, cleaned)
+		}
+	}
+
+	if dataDir, err := GetExecutableDataDir(); err == nil {
+		add(dataDir)
+	}
+	if cwd, err := os.Getwd(); err == nil {
+		add(filepath.Join(cwd, "data"))
+		add(filepath.Join(cwd, "build", "bin", "data"))
+	}
+
+	return candidates
 }
 
 func openModAssetSources(modsFolder string) ([]modAssetSource, error) {
@@ -436,11 +463,13 @@ func resolveStrawberryJamChapterIconAsset(source *modAssetSource, globalAssets m
 
 	stickerPaths := parseStrawberryJamStickerPaths(source)
 	stickerPath, ok := stickerPaths[chapterSID]
-	if !ok {
-		return modAssetRef{}, false
+	if ok {
+		if ref, ok := resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Stickers", stickerPath+".png")); ok {
+			return ref, true
+		}
 	}
 
-	return resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Stickers", stickerPath+".png"))
+	return resolveStrawberryJamCheckpointIconAsset(source, globalAssets, chapterSID)
 }
 
 func parseStrawberryJamStickerPaths(source *modAssetSource) map[string]string {
@@ -498,6 +527,33 @@ func parseStrawberryJamStickerPathsFromMeta(content string) map[string]string {
 	}
 
 	return stickers
+}
+
+func resolveStrawberryJamCheckpointIconAsset(source *modAssetSource, globalAssets map[string]modAssetRef, chapterSID string) (modAssetRef, bool) {
+	prefix := strings.ToLower(normalizeArchivePath(path.Join("Graphics/Atlases/Checkpoints", chapterSID, "A"))) + "/"
+	preferred := []string{
+		path.Join("Graphics/Atlases/Checkpoints", chapterSID, "A", "Start.png"),
+		path.Join("Graphics/Atlases/Checkpoints", chapterSID, "A", "start.png"),
+	}
+
+	for _, candidate := range preferred {
+		if ref, ok := resolveSourceOrGlobalAsset(source, globalAssets, candidate); ok {
+			return ref, true
+		}
+	}
+
+	candidates := make([]string, 0)
+	for normalized := range globalAssets {
+		if strings.HasPrefix(normalized, prefix) && strings.HasSuffix(normalized, ".png") {
+			candidates = append(candidates, normalized)
+		}
+	}
+	sort.Strings(candidates)
+	if len(candidates) == 0 {
+		return modAssetRef{}, false
+	}
+
+	return globalAssets[candidates[0]], true
 }
 
 func resolveEndscreenAsset(source *modAssetSource, globalAssets map[string]modAssetRef, metadata mapAssetMetadata) (modAssetRef, bool) {
