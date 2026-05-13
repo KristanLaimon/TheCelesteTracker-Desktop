@@ -7,7 +7,9 @@ type RecentRun struct {
 
 	// Basic Info
 	CampaignName  string `db:"campaign_name"`
+	ChapterSID    string `db:"chapter_sid"`
 	ChapterName   string `db:"chapter_name"`
+	IconImgPath   string `db:"icon_img_path"`
 	Side          string `db:"side"` // Added: column gs.side_id
 	CampaignType  string `db:"campaign_type"`
 	AttemptType   string `db:"attempt_type"`
@@ -29,7 +31,9 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 		select
 			gs.id as id,
 			cc.campaign_name_id as campaign_name,
+			c.sid as chapter_sid,
 			c.name as chapter_name,
+			coalesce(c.icon_img_path, '') as icon_img_path,
 			gs.side_id as side,
 			case
 				when cc.campaign_name_id like '%%celeste%%' then 'Vanilla'

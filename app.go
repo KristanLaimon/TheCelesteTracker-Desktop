@@ -38,6 +38,13 @@ func (a *App) startup(ctx context.Context) {
 	} else {
 		src.LogInfo("Desktop schema database already appended. Skipping...")
 	}
+
+	result, err := src.Asset_IndexInstalledMods()
+	if err != nil {
+		src.LogError(fmt.Sprintf("Failed to index mod assets: %s", err))
+	} else {
+		src.LogInfo(fmt.Sprintf("Mod assets indexed: %+v", result))
+	}
 }
 
 func (a *App) QuitApp() {
@@ -55,7 +62,7 @@ func (a *App) Greet(name string) string {
 
 // ================= HERE STARTS OUR METHODS =========================
 func (a *App) Query_GetRecentHistory(saveDataId int, userId int, pageSize int, currentPage int) []src.RecentRun {
-	toReturn ,err := src.Query_GetRecentRunHistory(saveDataId, userId, pageSize, currentPage)
+	toReturn, err := src.Query_GetRecentRunHistory(saveDataId, userId, pageSize, currentPage)
 	if err != nil {
 		return make([]src.RecentRun, 0)
 	}
@@ -84,11 +91,11 @@ func (a *App) CreateCollection(userId int, name string, campaignIds []int) (int,
 	if err != nil {
 		return 0, err
 	}
-	
+
 	for _, campId := range campaignIds {
 		src.Collection_AddCampaign(int(id), campId)
 	}
-	
+
 	return int(id), nil
 }
 
@@ -125,6 +132,14 @@ func (a *App) GetCollectionStats(campaignIds []int, saveDataId *int) ([]src.Leve
 
 func (a *App) GetAssetAsBase64(path string) (string, error) {
 	return src.GetAssetAsBase64(path)
+}
+
+func (a *App) GetIndexedAssetAsBase64(fileName string) (string, error) {
+	return src.GetIndexedAssetAsBase64(fileName)
+}
+
+func (a *App) IndexModAssets() (src.ModAssetIndexResult, error) {
+	return src.Asset_IndexInstalledMods()
 }
 
 // Campaign CRUD

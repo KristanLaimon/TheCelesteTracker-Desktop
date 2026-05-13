@@ -7,6 +7,7 @@ import LinkCard from "@components/index/LinkCard.svelte";
 import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
 import IconDashboard from "~icons/material-symbols/dashboard";
 import IconExtension from "~icons/material-symbols/extension";
+import IconFlag from "~icons/material-symbols/flag";
 import IconHistory from "~icons/material-symbols/history";
 import IconLeaderboard from "~icons/material-symbols/leaderboard";
 import IconMap from "~icons/material-symbols/map";
@@ -54,7 +55,7 @@ import Layout from "../Layout.astro";
     </section>
     <!-- Navigation Cards Grid -->
     <section class="px-6 md:px-12 -mt-4 relative z-20">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-3">
         <!-- Dashboard / Overview -->
         <LinkCard
           client:load
@@ -104,6 +105,18 @@ import Layout from "../Layout.astro";
           disabled
         >
           <IconLeaderboard slot="icon" />
+        </LinkCard>
+
+        <!-- Strawberry Jam -->
+        <LinkCard
+          client:load
+          title="Strawberry Jam"
+          subtitle="Lobby tiers & maps"
+          href="/strawberry-jam"
+          iconClass="text-pink-400"
+          borderHoverClass="hover:border-pink-400/50"
+        >
+          <IconFlag slot="icon" />
         </LinkCard>
 
         <!-- Map Collections -->

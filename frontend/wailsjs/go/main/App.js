@@ -54,12 +54,20 @@ export function GetCollections(arg1) {
   return window['go']['main']['App']['GetCollections'](arg1);
 }
 
+export function GetIndexedAssetAsBase64(arg1) {
+  return window['go']['main']['App']['GetIndexedAssetAsBase64'](arg1);
+}
+
 export function GetLobbies(arg1) {
   return window['go']['main']['App']['GetLobbies'](arg1);
 }
 
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
+}
+
+export function IndexModAssets() {
+  return window['go']['main']['App']['IndexModAssets']();
 }
 
 export function MaximiseApp() {

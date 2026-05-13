@@ -28,9 +28,13 @@ export function GetCollectionStats(arg1:Array<number>,arg2:any):Promise<Array<sr
 
 export function GetCollections(arg1:number):Promise<Array<src.Collection>>;
 
+export function GetIndexedAssetAsBase64(arg1:string):Promise<string>;
+
 export function GetLobbies(arg1:number):Promise<Array<src.Lobby>>;
 
 export function Greet(arg1:string):Promise<string>;
+
+export function IndexModAssets():Promise<src.ModAssetIndexResult>;
 
 export function MaximiseApp():Promise<void>;
 

@@ -140,10 +140,32 @@ export namespace src {
 	        this.iconImgPath = source["iconImgPath"];
 	    }
 	}
+	export class ModAssetIndexResult {
+	    modsScanned: number;
+	    chaptersUpdated: number;
+	    iconsCopied: number;
+	    endscreensCopied: number;
+	    assetFilesIndexed: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ModAssetIndexResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.modsScanned = source["modsScanned"];
+	        this.chaptersUpdated = source["chaptersUpdated"];
+	        this.iconsCopied = source["iconsCopied"];
+	        this.endscreensCopied = source["endscreensCopied"];
+	        this.assetFilesIndexed = source["assetFilesIndexed"];
+	    }
+	}
 	export class RecentRun {
 	    ID: string;
 	    CampaignName: string;
+	    ChapterSID: string;
 	    ChapterName: string;
+	    IconImgPath: string;
 	    Side: string;
 	    CampaignType: string;
 	    AttemptType: string;
@@ -161,7 +183,9 @@ export namespace src {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.ID = source["ID"];
 	        this.CampaignName = source["CampaignName"];
+	        this.ChapterSID = source["ChapterSID"];
 	        this.ChapterName = source["ChapterName"];
+	        this.IconImgPath = source["IconImgPath"];
 	        this.Side = source["Side"];
 	        this.CampaignType = source["CampaignType"];
 	        this.AttemptType = source["AttemptType"];

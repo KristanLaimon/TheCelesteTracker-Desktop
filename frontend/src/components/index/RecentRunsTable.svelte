@@ -1,5 +1,6 @@
 <script lang="ts">
 import sideADeaths from "../../assets/interface_SIDEA_deaths_icon.png";
+import defaultLevelIcon from "../../assets/level_logo_moddedleveldefault.png";
 import strawberryIcon from "../../assets/interface_strawberry_icon.png";
 import timerIcon from "../../assets/interface_timer_icon.png";
 import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
@@ -8,7 +9,7 @@ import IconFilterHdr from "~icons/material-symbols/filter-hdr";
 import IconLandscape from "~icons/material-symbols/landscape";
 import IconTimer from "~icons/material-symbols/timer";
 import { onMount } from "svelte";
-import { Query_GetRecentHistory } from "../../../wailsjs/go/main/App";
+import { GetIndexedAssetAsBase64, Query_GetRecentHistory } from "../../../wailsjs/go/main/App";
 import  type {  src  } from "../../../wailsjs/go/models";
 
 import {
@@ -22,6 +23,7 @@ const pageSize = 10;
 let rows = $state<src.RecentRun[]>([]);
 let loading = $state(false);
 let hasMore = $state(true); 
+let indexedAssetCache = $state<Record<string, string>>({});
 
 async function fetchRuns(reset: boolean = false) {
 	if (loading || (!hasMore && !reset)) return;
@@ -44,12 +46,36 @@ async function fetchRuns(reset: boolean = false) {
 				hasMore = false;
 			}
 		}
+		void loadIndexedAssets(newRows);
 	} catch (e) {
 		console.error(e);
 		hasMore = false; // Stop trying on error
 	} finally {
 		loading = false;
 	}
+}
+
+async function loadIndexedAssets(runRows: src.RecentRun[]) {
+	const missingAssetNames = [...new Set(runRows
+		.map((row) => row.IconImgPath)
+		.filter((fileName): fileName is string => Boolean(fileName && !indexedAssetCache[fileName]))
+	)];
+
+	if (missingAssetNames.length === 0) return;
+
+	const loadedEntries = await Promise.all(missingAssetNames.map(async (fileName) => {
+		try {
+			return [fileName, await GetIndexedAssetAsBase64(fileName)] as const;
+		} catch (e) {
+			console.warn(`Could not load indexed chapter asset ${fileName}`, e);
+			return [fileName, ""] as const;
+		}
+	}));
+
+	indexedAssetCache = {
+		...indexedAssetCache,
+		...Object.fromEntries(loadedEntries),
+	};
 }
 
 onMount(() => {
@@ -72,8 +98,9 @@ const headers = [
 ];
 
 function getLevelIcon(row: src.RecentRun) {
+	if (row.IconImgPath && indexedAssetCache[row.IconImgPath]) return indexedAssetCache[row.IconImgPath];
 	const logo = Assets_Vanilla_ChapterIcon[row.ChapterName];
-	if (!logo) return null;
+	if (!logo) return defaultLevelIcon.src;
 	if (typeof logo === "string") return logo;
 	return logo.src;
 }
