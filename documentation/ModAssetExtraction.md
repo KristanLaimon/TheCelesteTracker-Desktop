@@ -132,6 +132,42 @@ Some large mods split maps and assets into companion zips. For example, map meta
   2. Built-in vanilla chapter icon
   3. Built-in generic modded-level icon
 
+## Strawberry Jam Icons
+
+Strawberry Jam is handled as a special collaboration case because its played maps use lobby stickers as their map icons, and those sticker images can live in the companion asset zip:
+
+```text
+StrawberryJam2021Assets.zip/Graphics/Atlases/Stickers/SJ2021/<tier>/<sticker>.png
+```
+
+The main Strawberry Jam zip stores the mapping from maps to stickers in lobby metadata under `Stickers`:
+
+```yaml
+Stickers:
+  - Path: SJ2021/1-Beginner/Asterisk
+    FinishedMaps:
+    - StrawberryJam2021/1-Beginner/asteriskblue
+```
+
+The extractor reads these mappings from:
+
+```text
+Maps/StrawberryJam2021/0-Lobbies/*.meta.yaml
+```
+
+Then it resolves the sticker path under:
+
+```text
+Graphics/Atlases/Stickers/<Path>.png
+```
+
+Lobby and gym chapters use their dedicated GUI area icons:
+
+```text
+Graphics/Atlases/Gui/areas/SJ2021/lobby/<chapter>.png
+Graphics/Atlases/Gui/areas/SJ2021/gym/<chapter>.png
+```
+
 ## Edge Cases To Confirm
 
 - When a chapter has separate A/B/C-side icons, the current implementation indexes the canonical chapter SID and may let a later side update the same chapter row. Should A-side always win?

@@ -82,12 +82,12 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 			mapSID := strings.TrimSuffix(strings.TrimPrefix(entryName, "Maps/"), path.Ext(entryName))
 			chapterSID := canonicalChapterSID(mapSID)
 			metaName := strings.TrimSuffix(entryName, path.Ext(entryName)) + ".meta.yaml"
+			metadata := mapAssetMetadata{}
 			metaContent, ok := readSourceText(source, metaName)
-			if !ok {
-				continue
+			if ok {
+				metadata = parseMapAssetMetadata(metaContent)
 			}
 
-			metadata := parseMapAssetMetadata(metaContent)
 			iconFileName := ""
 			endscreenFileName := ""
 
@@ -407,7 +407,97 @@ func resolveChapterIconAsset(source *modAssetSource, globalAssets map[string]mod
 		}
 	}
 
+	if ref, ok := resolveStrawberryJamChapterIconAsset(source, globalAssets, chapterSID); ok {
+		return ref, true
+	}
+
 	return modAssetRef{}, false
+}
+
+func resolveStrawberryJamChapterIconAsset(source *modAssetSource, globalAssets map[string]modAssetRef, chapterSID string) (modAssetRef, bool) {
+	const strawberryJamPrefix = "StrawberryJam2021/"
+	if !strings.HasPrefix(chapterSID, strawberryJamPrefix) {
+		return modAssetRef{}, false
+	}
+
+	parts := strings.Split(chapterSID, "/")
+	if len(parts) != 3 {
+		return modAssetRef{}, false
+	}
+
+	group := parts[1]
+	mapName := parts[2]
+	if group == "0-Lobbies" {
+		return resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Gui/areas/SJ2021/lobby", mapName+".png"))
+	}
+	if group == "0-Gyms" {
+		return resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Gui/areas/SJ2021/gym", mapName+".png"))
+	}
+
+	stickerPaths := parseStrawberryJamStickerPaths(source)
+	stickerPath, ok := stickerPaths[chapterSID]
+	if !ok {
+		return modAssetRef{}, false
+	}
+
+	return resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Stickers", stickerPath+".png"))
+}
+
+func parseStrawberryJamStickerPaths(source *modAssetSource) map[string]string {
+	stickers := make(map[string]string)
+	for normalized, entryName := range source.entries {
+		if !strings.HasPrefix(normalized, "maps/strawberryjam2021/0-lobbies/") || !strings.HasSuffix(normalized, ".meta.yaml") {
+			continue
+		}
+
+		content, ok := readSourceText(source, entryName)
+		if !ok {
+			continue
+		}
+		for finishedMap, stickerPath := range parseStrawberryJamStickerPathsFromMeta(content) {
+			stickers[finishedMap] = stickerPath
+		}
+	}
+	return stickers
+}
+
+func parseStrawberryJamStickerPathsFromMeta(content string) map[string]string {
+	stickers := make(map[string]string)
+	currentPath := ""
+	inFinishedMaps := false
+
+	for _, line := range strings.Split(content, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+
+		if strings.HasPrefix(trimmed, "- Path:") || strings.HasPrefix(trimmed, "Path:") {
+			parts := strings.SplitN(trimmed, ":", 2)
+			currentPath = strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+			inFinishedMaps = false
+			continue
+		}
+
+		if strings.HasPrefix(trimmed, "FinishedMaps:") {
+			inFinishedMaps = true
+			continue
+		}
+
+		if inFinishedMaps && strings.HasPrefix(trimmed, "- ") && currentPath != "" {
+			finishedMap := strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "- ")), `"'`)
+			if finishedMap != "" {
+				stickers[finishedMap] = currentPath
+			}
+			continue
+		}
+
+		if inFinishedMaps && !strings.HasPrefix(trimmed, "- ") {
+			inFinishedMaps = false
+		}
+	}
+
+	return stickers
 }
 
 func resolveEndscreenAsset(source *modAssetSource, globalAssets map[string]modAssetRef, metadata mapAssetMetadata) (modAssetRef, bool) {

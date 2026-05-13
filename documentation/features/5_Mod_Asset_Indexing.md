@@ -510,6 +510,40 @@ StrawberryJam2021/
 
 That special-casing belongs in the UI layer only. Asset extraction remains based on generic Everest file and metadata rules.
 
+Strawberry Jam also has one extractor-level exception for map icons because its lobby UI uses sticker assets as map badges. The mappings are not stored in the individual map `.meta.yaml` files. They are stored in the lobby metadata:
+
+```text
+Maps/StrawberryJam2021/0-Lobbies/*.meta.yaml
+```
+
+Each sticker entry maps a sticker image to one or more completed maps:
+
+```yaml
+Stickers:
+  - Path: SJ2021/1-Beginner/Asterisk
+    FinishedMaps:
+    - StrawberryJam2021/1-Beginner/asteriskblue
+```
+
+The sticker image itself can be in the companion asset zip:
+
+```text
+StrawberryJam2021Assets.zip/Graphics/Atlases/Stickers/SJ2021/<tier>/<sticker>.png
+```
+
+The extractor resolves that as:
+
+```text
+Graphics/Atlases/Stickers/<Path>.png
+```
+
+Lobbies and gyms use the main Strawberry Jam GUI area icons instead:
+
+```text
+Graphics/Atlases/Gui/areas/SJ2021/lobby/<chapter>.png
+Graphics/Atlases/Gui/areas/SJ2021/gym/<chapter>.png
+```
+
 ## Notes For Future Agents
 
 - Do not extract mod zips into the Celeste `Mods` folder.
