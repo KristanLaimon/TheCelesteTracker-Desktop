@@ -2,6 +2,7 @@
   import { GetCollectionStats } from '../../../wailsjs/go/main/App';
   import { saveStore } from '../../lib/saveStore.svelte';
   import { getAssetUrl } from '../../lib/assetHelper';
+  import type { src } from '../../../wailsjs/go/models';
   import defaultLevelLogo from '../../assets/level_logo_moddedleveldefault.png';
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 
@@ -37,23 +38,9 @@
 
   let { campaignIds }: Props = $props();
 
-  interface LevelStats {
-    campaignId: number;
-    campaignName: string;
-    lobbyId: number | undefined;
-    lobbyName: string | undefined;
-    levelName: string;
-    levelSide: string;
-    totalTime: number;
-    strawberries: number;
-    goldenStrawberries: number;
-    hearts: number;
-    deaths: number;
-    dashes: number;
-    coverImgPath?: string | undefined;
-    iconImgPath?: string | undefined;
+  type LevelStats = src.LevelCollectionStats & {
     iconData?: string | null;
-  }
+  };
 
   interface CampaignGroup {
     id: number;

@@ -7,7 +7,7 @@ import Icons from "unplugin-icons/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  devToolbar: { enabled: true, placement: "bottom-left" },
+  devToolbar: { enabled: false },
   outDir: "./dist",
 
   vite: {
@@ -25,6 +25,7 @@ export default defineConfig({
           "./src/pages/**/*.astro",
           "./src/layouts/**/*.astro",
           "./src/components/**/*.astro",
+          "./src/components/**/*.svelte",
         ],
       },
       watch: {
@@ -40,7 +41,7 @@ export default defineConfig({
     },
 
     optimizeDeps: {
-      include: ["astro"],
+      include: ["@astrojs/svelte/client.js", "svelte", "gsap"],
     },
   },
 

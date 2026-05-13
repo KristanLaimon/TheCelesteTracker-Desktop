@@ -1,0 +1,14 @@
+[vite] connected.
+[2m11:21:20[22m [34m[types][39m Generated [2m3ms[22m
+[33m[1m11:21:20[22m [WARN] [content][39m Content config not loaded
+[2m11:21:20[22m [34m[vite][39m Re-optimizing dependencies because vite config has changed
+[42m[1m astro [22m[49m [32mv6.1.8[39m [2mready in[22m 5133 [2mms[22m
+[2m┃[22m Local    [36mhttp://127.0.0.1:4321/[39m
+[2m11:21:21[22m [32mwatching for file changes...[39m
+11:21:21 AM [vite-plugin-svelte] src/components/collections/CollectionDetail.svelte:152:14 Non-interactive element `<h1>` cannot have interactive role 'button'
+https://svelte.dev/e/a11y_no_noninteractive_element_to_interactive_role
+11:21:21 AM [vite-plugin-svelte] src/components/collections/CollectionList/CollectionModal.svelte:33:30 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+11:21:21 AM [vite-plugin-svelte] src/components/collections/CollectionList/CollectionModal.svelte:34:49 This reference only captures the initial value of `initialSelectedIds`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally
+[2m11:21:24[22m [34m[200][39m / [2m249ms[22m

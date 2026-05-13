@@ -16,3 +16,9 @@ declare module "*.gif" {
 
   export default value;
 }
+
+interface Window {
+  go?: {
+    main?: unknown;
+  };
+}

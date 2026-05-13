@@ -52,7 +52,7 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 			right join GameSessionChapterRoomStats gscrs on gscrs.gamesession_id = gs.id
 			where u.id == %d and sd.id = %d
 			group by c.name, cc.campaign_name_id
-			order by gs.date_time_start
+			order by gs.date_time_start desc
 			limit %d offset (%d - 1) * %d;
 	`, userId, saveDataId, pageSize, currentPage, pageSize))
 

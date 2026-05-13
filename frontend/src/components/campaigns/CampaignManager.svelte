@@ -2,27 +2,17 @@
   import { GetCampaigns, GetLobbies, CreateCampaign, UpdateCampaign, DeleteCampaign } from '../../../wailsjs/go/main/App';
   import { saveStore } from '../../lib/saveStore.svelte';
   import { getAssetUrl } from '../../lib/assetHelper';
+  import type { src } from '../../../wailsjs/go/models';
   import IconPlus from '~icons/material-symbols/add';
   import IconEdit from '~icons/material-symbols/edit';
   import IconDelete from '~icons/material-symbols/delete';
   import IconFolder from '~icons/material-symbols/folder';
 
-  interface Campaign {
-    id: number;
-    saveDataId: number;
-    campaignNameId: string;
-    lobbyId: number | undefined;
-    coverImgPath: string | undefined;
+  type Campaign = src.Campaign & {
     coverUrl?: string | null;
-  }
+  };
 
-  interface Lobby {
-    id: number;
-    saveDataId: number;
-    name: string;
-    chapterSid: string | undefined;
-    iconImgPath: string | undefined;
-  }
+  type Lobby = src.Lobby;
 
   let campaigns = $state<Campaign[]>([]);
   let lobbies = $state<Lobby[]>([]);
@@ -108,7 +98,7 @@
   function openEdit(c: Campaign) {
     editingId = c.id;
     campaignNameId = c.campaignNameId;
-    selectedLobbyId = c.lobbyId;
+    selectedLobbyId = c.lobbyId ?? null;
     coverImgPath = c.coverImgPath || '';
     showModal = true;
   }

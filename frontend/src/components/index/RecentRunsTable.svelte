@@ -34,16 +34,14 @@ async function fetchRuns(reset: boolean = false) {
 		if (reset) {
 			rows = newRows;
 			currentPage = 1;
+			hasMore = newRows.length === pageSize;
 		} else {
 			rows = [...rows, ...newRows];
 			currentPage = targetPage;
-		}
-
-		// If we got fewer results than requested, we've reached the end
-		if (newRows.length < pageSize) {
-			hasMore = false;
-		} else {
-			hasMore = true;
+			// If we got fewer results than requested, we've reached the end
+			if (newRows.length < pageSize) {
+				hasMore = false;
+			}
 		}
 	} catch (e) {
 		console.error(e);
@@ -74,8 +72,9 @@ const headers = [
 
 function getLevelIcon(row: src.RecentRun) {
 	const logo = Assets_Vanilla_ChapterIcon[row.ChapterName];
-	if (logo) return (logo as { src: string }).src || logo;
-	return null;
+	if (!logo) return null;
+	if (typeof logo === "string") return logo;
+	return logo.src;
 }
 
 const iconMap = {
@@ -104,6 +103,20 @@ const attemptTypeColors: Record<string, string> = {
 		"bg-yellow-500/10 text-yellow-500/80 border border-yellow-500/20",
 	GoldenCompleted: "bg-yellow-500 text-black font-bold",
 };
+
+function getSideIcon(side: string) {
+	const icon = Assets_Vanilla_SideIcon[side];
+	if (!icon) return null;
+	if (typeof icon === "string") return icon;
+	return icon.src;
+}
+
+function getDeathIcon(side: string) {
+	const icon = Assets_Vanilla_DeathIcons[side] || sideADeaths;
+	if (!icon) return null;
+	if (typeof icon === "string") return icon;
+	return icon.src;
+}
 </script>
 
 <style>
@@ -151,6 +164,8 @@ const attemptTypeColors: Record<string, string> = {
         {@const IconData = levelIcon ? null : (row.CampaignType === 'Vanilla' ? iconMap.vanilla : iconMap.modded)}
         {@const isGoldenCompleted = row.AttemptType === "GoldenCompleted"}
         {@const isGoldenAttempt = row.AttemptType === "GoldenAttempt"}
+        {@const sideIcon = getSideIcon(row.Side)}
+        {@const deathIcon = getDeathIcon(row.Side)}
         <tr class="hover:bg-white/5 transition-all group border-l-2 {isGoldenCompleted ? 'border-l-yellow-400 bg-yellow-400/5 shadow-[inset_0_0_20px_rgba(250,204,21,0.05)]' : 'border-l-transparent'}">
           <td class="px-6 py-4">
             <div class="flex items-center gap-3 justify-start">
@@ -166,8 +181,8 @@ const attemptTypeColors: Record<string, string> = {
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-2 justify-center">
-              {#if Assets_Vanilla_SideIcon[row.Side]}
-                <img src={(Assets_Vanilla_SideIcon[row.Side] as { src: string }).src || Assets_Vanilla_SideIcon[row.Side]} alt="" class="w-4 h-4" />
+              {#if sideIcon}
+                <img src={sideIcon} alt="" class="w-4 h-4" />
               {/if}
               <span class="text-[12px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 whitespace-nowrap">
                 {row.Side}
@@ -195,7 +210,7 @@ const attemptTypeColors: Record<string, string> = {
               {#if isGoldenAttempt}
                 <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" title="Golden Death"></div>
               {:else}
-                <img src={((Assets_Vanilla_DeathIcons[row.Side] || sideADeaths) as { src: string }).src || (Assets_Vanilla_DeathIcons[row.Side] || sideADeaths)} alt="" class="w-5 h-5" />
+                <img src={deathIcon} alt="" class="w-5 h-5" />
                 {row.Deaths}
               {/if}
             </div>
