@@ -11,6 +11,9 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"TheCelesteTrackerDesktop/src/lobbies"
+	"TheCelesteTrackerDesktop/src/strawberryjam"
 )
 
 const assetRootFolderName = "assets"
@@ -28,10 +31,20 @@ type modAssetRef struct {
 	name   string
 }
 
+type modAssetLobbyContext struct {
+	source       *modAssetSource
+	globalAssets map[string]modAssetRef
+	lobbyAssets  map[string]lobbies.AssetRef
+}
+
 type mapAssetMetadata struct {
 	iconTexture string
 	atlas       string
 	images      []string
+}
+
+var lobbyChapterIconResolvers = []lobbies.ChapterIconResolver{
+	strawberryjam.NewResolver(),
 }
 
 type ModAssetIndexResult struct {
@@ -556,126 +569,57 @@ func resolveChapterIconAsset(source *modAssetSource, globalAssets map[string]mod
 		}
 	}
 
-	if ref, ok := resolveStrawberryJamChapterIconAsset(source, globalAssets, chapterSID); ok {
-		return ref, true
+	lobbyCtx := newModAssetLobbyContext(source, globalAssets)
+	for _, resolver := range lobbyChapterIconResolvers {
+		if ref, ok := resolver.ResolveChapterIconAsset(lobbyCtx, chapterSID); ok {
+			if modRef, ok := lobbyAssetRef(ref); ok {
+				return modRef, true
+			}
+		}
 	}
 
 	return modAssetRef{}, false
 }
 
-func resolveStrawberryJamChapterIconAsset(source *modAssetSource, globalAssets map[string]modAssetRef, chapterSID string) (modAssetRef, bool) {
-	const strawberryJamPrefix = "StrawberryJam2021/"
-	if !strings.HasPrefix(chapterSID, strawberryJamPrefix) {
-		return modAssetRef{}, false
+func newModAssetLobbyContext(source *modAssetSource, globalAssets map[string]modAssetRef) modAssetLobbyContext {
+	lobbyAssets := make(map[string]lobbies.AssetRef, len(globalAssets))
+	for normalized, ref := range globalAssets {
+		lobbyAssets[normalized] = lobbies.AssetRef{Name: ref.name, Payload: ref}
 	}
 
-	parts := strings.Split(chapterSID, "/")
-	if len(parts) != 3 {
-		return modAssetRef{}, false
+	return modAssetLobbyContext{
+		source:       source,
+		globalAssets: globalAssets,
+		lobbyAssets:  lobbyAssets,
 	}
-
-	group := parts[1]
-	mapName := parts[2]
-	if group == "0-Lobbies" {
-		return resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Gui/areas/SJ2021/lobby", mapName+".png"))
-	}
-	if group == "0-Gyms" {
-		return resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Gui/areas/SJ2021/gym", mapName+".png"))
-	}
-
-	stickerPaths := parseStrawberryJamStickerPaths(source)
-	stickerPath, ok := stickerPaths[chapterSID]
-	if ok {
-		if ref, ok := resolveSourceOrGlobalAsset(source, globalAssets, path.Join("Graphics/Atlases/Stickers", stickerPath+".png")); ok {
-			return ref, true
-		}
-	}
-
-	return resolveStrawberryJamCheckpointIconAsset(source, globalAssets, chapterSID)
 }
 
-func parseStrawberryJamStickerPaths(source *modAssetSource) map[string]string {
-	stickers := make(map[string]string)
-	for normalized, entryName := range source.entries {
-		if !strings.HasPrefix(normalized, "maps/strawberryjam2021/0-lobbies/") || !strings.HasSuffix(normalized, ".meta.yaml") {
-			continue
-		}
-
-		content, ok := readSourceText(source, entryName)
-		if !ok {
-			continue
-		}
-		for finishedMap, stickerPath := range parseStrawberryJamStickerPathsFromMeta(content) {
-			stickers[finishedMap] = stickerPath
-		}
-	}
-	return stickers
+func (c modAssetLobbyContext) Entries() map[string]string {
+	return c.source.entries
 }
 
-func parseStrawberryJamStickerPathsFromMeta(content string) map[string]string {
-	stickers := make(map[string]string)
-	currentPath := ""
-	inFinishedMaps := false
-
-	for _, line := range strings.Split(content, "\n") {
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
-			continue
-		}
-
-		if strings.HasPrefix(trimmed, "- Path:") || strings.HasPrefix(trimmed, "Path:") {
-			parts := strings.SplitN(trimmed, ":", 2)
-			currentPath = strings.Trim(strings.TrimSpace(parts[1]), `"'`)
-			inFinishedMaps = false
-			continue
-		}
-
-		if strings.HasPrefix(trimmed, "FinishedMaps:") {
-			inFinishedMaps = true
-			continue
-		}
-
-		if inFinishedMaps && strings.HasPrefix(trimmed, "- ") && currentPath != "" {
-			finishedMap := strings.Trim(strings.TrimSpace(strings.TrimPrefix(trimmed, "- ")), `"'`)
-			if finishedMap != "" {
-				stickers[finishedMap] = currentPath
-			}
-			continue
-		}
-
-		if inFinishedMaps && !strings.HasPrefix(trimmed, "- ") {
-			inFinishedMaps = false
-		}
-	}
-
-	return stickers
+func (c modAssetLobbyContext) GlobalAssets() map[string]lobbies.AssetRef {
+	return c.lobbyAssets
 }
 
-func resolveStrawberryJamCheckpointIconAsset(source *modAssetSource, globalAssets map[string]modAssetRef, chapterSID string) (modAssetRef, bool) {
-	prefix := strings.ToLower(normalizeArchivePath(path.Join("Graphics/Atlases/Checkpoints", chapterSID, "A"))) + "/"
-	preferred := []string{
-		path.Join("Graphics/Atlases/Checkpoints", chapterSID, "A", "Start.png"),
-		path.Join("Graphics/Atlases/Checkpoints", chapterSID, "A", "start.png"),
-	}
+func (c modAssetLobbyContext) ReadText(name string) (string, bool) {
+	return readSourceText(c.source, name)
+}
 
-	for _, candidate := range preferred {
-		if ref, ok := resolveSourceOrGlobalAsset(source, globalAssets, candidate); ok {
-			return ref, true
-		}
+func (c modAssetLobbyContext) ResolveAsset(archivePath string) (lobbies.AssetRef, bool) {
+	ref, ok := resolveSourceOrGlobalAsset(c.source, c.globalAssets, archivePath)
+	if !ok {
+		return lobbies.AssetRef{}, false
 	}
+	return lobbies.AssetRef{Name: ref.name, Payload: ref}, true
+}
 
-	candidates := make([]string, 0)
-	for normalized := range globalAssets {
-		if strings.HasPrefix(normalized, prefix) && strings.HasSuffix(normalized, ".png") {
-			candidates = append(candidates, normalized)
-		}
-	}
-	sort.Strings(candidates)
-	if len(candidates) == 0 {
+func lobbyAssetRef(ref lobbies.AssetRef) (modAssetRef, bool) {
+	modRef, ok := ref.Payload.(modAssetRef)
+	if !ok {
 		return modAssetRef{}, false
 	}
-
-	return globalAssets[candidates[0]], true
+	return modRef, true
 }
 
 func resolveEndscreenAsset(source *modAssetSource, globalAssets map[string]modAssetRef, metadata mapAssetMetadata) (modAssetRef, bool) {
