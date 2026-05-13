@@ -3,6 +3,8 @@ package src
 import "fmt"
 
 type RecentRun struct {
+	ID string `db:"id"`
+
 	// Basic Info
 	CampaignName  string `db:"campaign_name"`
 	ChapterName   string `db:"chapter_name"`
@@ -25,6 +27,7 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 	}
 	err := Db_Select(&toReturn, fmt.Sprintf(`
 		select
+			gs.id as id,
 			cc.campaign_name_id as campaign_name,
 			c.name as chapter_name,
 			gs.side_id as side,
@@ -51,7 +54,7 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 
 			right join GameSessionChapterRoomStats gscrs on gscrs.gamesession_id = gs.id
 			where u.id == %d and sd.id = %d
-			group by c.name, cc.campaign_name_id
+			group by gs.id
 			order by gs.date_time_start desc
 			limit %d offset (%d - 1) * %d;
 	`, userId, saveDataId, pageSize, currentPage, pageSize))

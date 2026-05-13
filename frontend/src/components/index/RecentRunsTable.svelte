@@ -7,6 +7,7 @@ import IconDiamond from "~icons/material-symbols/diamond";
 import IconFilterHdr from "~icons/material-symbols/filter-hdr";
 import IconLandscape from "~icons/material-symbols/landscape";
 import IconTimer from "~icons/material-symbols/timer";
+import { onMount } from "svelte";
 import { Query_GetRecentHistory } from "../../../wailsjs/go/main/App";
 import  type {  src  } from "../../../wailsjs/go/models";
 
@@ -51,7 +52,7 @@ async function fetchRuns(reset: boolean = false) {
 	}
 }
 
-$effect(() => {
+onMount(() => {
 	fetchRuns(true);
 });
 
@@ -147,10 +148,10 @@ function getDeathIcon(side: string) {
   <button class="text-sm font-medium text-primary hover:underline transition-all">Export Data</button>
 </div>
 
-<div class="bg-card-bg border border-outline-muted rounded-2xl overflow-hidden overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+<div class="bg-card-bg border border-outline-muted rounded-2xl overflow-auto max-h-[560px] overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
   <table class="w-full text-left border-collapse min-w-[900px]">
-    <thead>
-      <tr class="border-b border-outline-muted bg-zinc-900/50">
+    <thead class="sticky top-0 z-10">
+      <tr class="border-b border-outline-muted bg-zinc-900">
         {#each headers as header, i (header)}
           <th class="px-6 py-4 text-xs uppercase tracking-widest text-zinc-500 font-bold {i === 0 ? 'text-left' : 'text-center'}">
             {header}
@@ -159,7 +160,7 @@ function getDeathIcon(side: string) {
       </tr>
     </thead>
     <tbody class="divide-y divide-outline-muted/50">
-      {#each rows as row (row.FormattedTime + row.ChapterName + row.Side + row.AttemptType)}
+      {#each rows as row (row.ID)}
         {@const levelIcon = getLevelIcon(row)}
         {@const IconData = levelIcon ? null : (row.CampaignType === 'Vanilla' ? iconMap.vanilla : iconMap.modded)}
         {@const isGoldenCompleted = row.AttemptType === "GoldenCompleted"}

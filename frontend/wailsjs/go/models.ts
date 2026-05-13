@@ -141,6 +141,7 @@ export namespace src {
 	    }
 	}
 	export class RecentRun {
+	    ID: string;
 	    CampaignName: string;
 	    ChapterName: string;
 	    Side: string;
@@ -158,6 +159,7 @@ export namespace src {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.ID = source["ID"];
 	        this.CampaignName = source["CampaignName"];
 	        this.ChapterName = source["ChapterName"];
 	        this.Side = source["Side"];
