@@ -43,6 +43,7 @@
   let dragSource = $state<'available' | 'selected' | null>(null);
   let isDraggingOverSelected = $state(false);
   let isDraggingOverAvailable = $state(false);
+  let availableToSelect = $derived(availableCampaigns.filter((campaign) => !selectedCampaignIds.includes(campaign.id)));
 
   $effect(() => {
     if (show) {
@@ -171,11 +172,18 @@
 
       <div class="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] overflow-hidden">
         <div
-          class="p-5 md:p-6 space-y-6 overflow-y-auto border-r border-outline-muted bg-zinc-950/50 custom-scrollbar {isDraggingOverAvailable ? 'bg-primary/5' : ''}"
+          class="p-5 md:p-6 space-y-5 overflow-y-auto border-r border-outline-muted bg-zinc-950/50 custom-scrollbar {isDraggingOverAvailable ? 'bg-primary/5' : ''}"
           ondragover={handleAvailableDragOver}
           ondragleave={() => isDraggingOverAvailable = false}
           ondrop={handleAvailableDrop}
         >
+          <div class="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 flex items-start gap-3">
+            <IconDragIndicator class="text-xl text-primary shrink-0 mt-0.5" />
+            <p class="text-xs leading-relaxed text-zinc-300">
+              Drag campaign cards into the selected list, drag selected cards to reorder them, or drag them back here to remove them.
+            </p>
+          </div>
+
           <div class="space-y-2">
             <label for="collection-name" class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary mb-2">
               <IconMap class="text-lg" />
@@ -198,33 +206,33 @@
                 <IconSearch class="text-lg" />
                 Available Campaigns
               </div>
-              <div class="text-xs text-zinc-500 font-medium">{availableCampaigns.length} total</div>
+              <div class="text-xs text-zinc-500 font-medium">{availableToSelect.length} available</div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {#each availableCampaigns as camp (camp.id)}
-                {@const selected = selectedCampaignIds.includes(camp.id)}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 rounded-xl transition-colors {isDraggingOverAvailable ? 'outline outline-1 outline-primary/40 outline-offset-4' : ''}">
+              {#each availableToSelect as camp (camp.id)}
                 <button
                   onclick={() => toggleCampaign(camp.id)}
                   draggable="true"
                   ondragstart={(e) => handleAvailableDragStart(camp.id, e)}
                   ondragend={resetDragState}
-                  class="w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left group/item {selected ? 'bg-primary/10 border-primary/70' : 'bg-zinc-900/60 border-outline-muted hover:border-white/20 hover:bg-white/[0.05]'}"
+                  class="drag-card w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left group/item bg-zinc-900/60 border-outline-muted hover:border-white/20 hover:bg-white/[0.05] {dragSource === 'available' && draggedCampaignId === camp.id ? 'picked-up' : ''}"
                 >
-                  <div class="w-7 h-7 rounded-lg border flex items-center justify-center transition-all shrink-0 {selected ? 'bg-primary border-primary scale-105' : 'border-zinc-700 group-hover/item:border-zinc-500'}">
-                    {#if selected}
-                      <IconCheck class="text-white text-lg" />
-                    {:else}
-                      <IconPlus class="text-zinc-600 text-lg" />
-                    {/if}
+                  <div class="w-7 h-7 rounded-lg border flex items-center justify-center transition-all shrink-0 border-zinc-700 group-hover/item:border-zinc-500">
+                    <IconPlus class="text-zinc-600 text-lg" />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <span class="font-bold text-sm truncate block {selected ? 'text-white' : 'text-zinc-400 group-hover/item:text-zinc-200'}">
+                    <span class="font-bold text-sm truncate block text-zinc-400 group-hover/item:text-zinc-200">
                       {formatCampaignName(camp.campaignNameId)}
                     </span>
                     <span class="text-[10px] text-zinc-600 truncate block mt-0.5">{camp.campaignNameId}</span>
                   </div>
                 </button>
               {/each}
+              {#if availableToSelect.length === 0}
+                <div class="md:col-span-2 rounded-xl border border-dashed border-outline-muted p-6 text-center text-sm text-zinc-600">
+                  All campaigns are selected.
+                </div>
+              {/if}
             </div>
           </div>
         </div>
@@ -261,7 +269,7 @@
                     ondragover={(e) => handleSelectedDragOver(e, index)}
                     ondragend={resetDragState}
                     ondrop={(e) => { e.stopPropagation(); handleSelectedDrop(index); }}
-                    class="flex items-center gap-4 p-4 bg-zinc-900/70 hover:bg-white/[0.06] rounded-xl border border-outline-muted transition-all cursor-grab active:cursor-grabbing group/row {dragOverIndex === index ? 'border-primary border-dashed bg-primary/5 translate-y-1' : ''} {draggedIndex === index ? 'opacity-40 grayscale scale-95' : ''}"
+                    class="drag-card flex items-center gap-4 p-4 bg-zinc-900/70 hover:bg-white/[0.06] rounded-xl border border-outline-muted transition-all cursor-grab active:cursor-grabbing group/row {dragOverIndex === index ? 'border-primary border-dashed bg-primary/5 translate-y-1' : ''} {draggedIndex === index ? 'picked-up' : ''}"
                   >
                     <div class="text-zinc-600 group-hover/row:text-zinc-400 transition-colors">
                       <IconDragIndicator class="text-xl" />
@@ -323,5 +331,24 @@
   .custom-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .drag-card {
+    transform-origin: center;
+    will-change: transform, opacity, filter;
+    transition:
+      transform 180ms ease,
+      opacity 180ms ease,
+      filter 180ms ease,
+      box-shadow 180ms ease,
+      border-color 180ms ease,
+      background-color 180ms ease;
+  }
+
+  .picked-up {
+    opacity: 0.58;
+    transform: rotate(1.25deg) scale(1.035);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    filter: saturate(1.15);
   }
 </style>

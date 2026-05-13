@@ -79,8 +79,7 @@
   const campaignSummaryStats = [
     { key: 'totalTime', label: 'Total Time', image: timerIcon, color: 'text-white', format: (totals: Totals) => formatTime(totals.totalTime) },
     { key: 'berries', label: 'Berries', image: strawberryIcon, color: 'text-tertiary', format: (totals: Totals) => `${totals.strawberries}/${totals.maxStrawberries}` },
-    { key: 'hearts', label: 'Hearts', image: heartIcon, color: 'text-purple-400', format: (totals: Totals) => totals.hearts.toLocaleString() },
-    { key: 'maxHearts', label: 'Max', image: heartIcon, color: 'text-purple-300', format: (totals: Totals) => totals.maxHearts.toLocaleString() },
+    { key: 'hearts', label: 'Hearts', image: heartIcon, color: 'text-purple-400', format: (totals: Totals) => `${totals.hearts}/${totals.maxHearts}` },
     { key: 'deaths', label: 'Deaths', image: deathIcon, color: 'text-primary', format: (totals: Totals) => totals.deaths.toLocaleString() },
     { key: 'fewestDeaths', label: 'Fewest', image: deathIcon, color: 'text-red-200', format: (totals: Totals) => totals.fewestDeaths.toLocaleString() },
     { key: 'dashes', label: 'Dashes', icon: IconBolt, color: 'text-secondary', format: (totals: Totals) => totals.dashes.toLocaleString() },
@@ -296,11 +295,9 @@
     { label: 'Status', align: 'center' },
     { label: 'Name', align: 'left' },
     { label: 'Berries', align: 'center', image: strawberryIcon },
-    { label: 'Max', align: 'center', image: strawberryIcon },
     { label: 'Golden', align: 'center', image: goldenStrawberryIcon },
     { label: 'Total Time', align: 'center', image: timerIcon },
     { label: 'Hearts', align: 'center', image: heartIcon },
-    { label: 'Max', align: 'center', image: heartIcon },
     { label: 'Deaths', align: 'center', image: deathIcon },
     { label: 'Fewest', align: 'center', image: deathIcon },
     { label: 'Dashes', align: 'center', icon: IconBolt, color: 'text-secondary' },
@@ -351,7 +348,7 @@
                   <h3 class="text-3xl font-headline font-black text-white tracking-tight truncate">{campaign.displayName}</h3>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-9 gap-2 max-w-6xl">
+                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-8 gap-2 max-w-6xl">
                   {#each campaignSummaryStats as stat (stat.key)}
                     <div class="bg-zinc-950/75 border border-white/10 rounded-lg px-3 py-2 flex items-center gap-2 min-w-0">
                       {#if stat.image}
@@ -412,17 +409,12 @@
                       </div>
                     </div>
 
-                    <div class="stat-cell text-zinc-300"><img src={strawberryIcon.src} alt="" />{level.strawberries}</div>
-                    <div class="stat-cell text-zinc-400"><img src={strawberryIcon.src} alt="" class="opacity-50" />{level.maxStrawberries}</div>
+                    <div class="stat-cell text-zinc-300"><img src={strawberryIcon.src} alt="" />{level.strawberries}/{level.maxStrawberries}</div>
                     <div class="stat-cell text-yellow-300"><img src={goldenStrawberryIcon.src} alt="" />{level.goldenStrawberries}</div>
                     <div class="stat-cell text-zinc-300"><img src={timerIcon.src} alt="" class="opacity-70" />{formatTime(level.totalTime)}</div>
                     <div class="stat-cell text-pink-300">
                       {#if sideIcon}<img src={sideIcon} alt="" />{:else}<IconFavorite class="text-lg" />{/if}
-                      {level.hearts}
-                    </div>
-                    <div class="stat-cell text-zinc-400">
-                      {#if sideIcon}<img src={sideIcon} alt="" class="opacity-60" />{:else}<IconFavorite class="text-lg opacity-70" />{/if}
-                      {level.maxHearts}
+                      {level.hearts}/{level.maxHearts}
                     </div>
                     <div class="stat-cell text-red-300">
                       {#if levelDeathIcon}<img src={levelDeathIcon} alt="" />{:else}<IconSkull class="text-lg" />{/if}
@@ -450,9 +442,9 @@
     grid-template-columns:
       minmax(5.2rem, 0.58fr)
       minmax(11rem, 1.55fr)
-      repeat(3, minmax(3.1rem, 0.48fr))
+      repeat(2, minmax(3.1rem, 0.48fr))
       minmax(5.8rem, 0.72fr)
-      repeat(6, minmax(3.1rem, 0.48fr));
+      repeat(5, minmax(3.1rem, 0.48fr));
     align-items: center;
     gap: 0.35rem;
   }
@@ -510,9 +502,9 @@
       grid-template-columns:
         minmax(5.2rem, 0.58fr)
         minmax(11rem, 1.55fr)
-        repeat(3, minmax(3.1rem, 0.48fr))
+        repeat(2, minmax(3.1rem, 0.48fr))
         minmax(5.8rem, 0.72fr)
-        repeat(6, minmax(3.1rem, 0.48fr));
+        repeat(5, minmax(3.1rem, 0.48fr));
       gap: 0.35rem;
       padding: 0.75rem;
       align-items: center;
