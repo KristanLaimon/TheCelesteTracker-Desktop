@@ -88,15 +88,21 @@ export namespace src {
 	    lobbyId?: number;
 	    lobbyName?: string;
 	    levelName: string;
+	    chapterName: string;
 	    levelSide: string;
 	    totalTime: number;
 	    strawberries: number;
+	    maxStrawberries: number;
 	    goldenStrawberries: number;
 	    hearts: number;
+	    maxHearts: number;
 	    deaths: number;
+	    fewestDeaths: number;
 	    dashes: number;
+	    jumps: number;
 	    coverImgPath?: string;
 	    iconImgPath?: string;
+	    endscreenImgPath?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new LevelCollectionStats(source);
@@ -109,15 +115,21 @@ export namespace src {
 	        this.lobbyId = source["lobbyId"];
 	        this.lobbyName = source["lobbyName"];
 	        this.levelName = source["levelName"];
+	        this.chapterName = source["chapterName"];
 	        this.levelSide = source["levelSide"];
 	        this.totalTime = source["totalTime"];
 	        this.strawberries = source["strawberries"];
+	        this.maxStrawberries = source["maxStrawberries"];
 	        this.goldenStrawberries = source["goldenStrawberries"];
 	        this.hearts = source["hearts"];
+	        this.maxHearts = source["maxHearts"];
 	        this.deaths = source["deaths"];
+	        this.fewestDeaths = source["fewestDeaths"];
 	        this.dashes = source["dashes"];
+	        this.jumps = source["jumps"];
 	        this.coverImgPath = source["coverImgPath"];
 	        this.iconImgPath = source["iconImgPath"];
+	        this.endscreenImgPath = source["endscreenImgPath"];
 	    }
 	}
 	export class Lobby {

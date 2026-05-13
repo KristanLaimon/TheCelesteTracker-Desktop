@@ -14,15 +14,21 @@ type LevelCollectionStats struct {
 	LobbyId            *int    `db:"lobby_id" json:"lobbyId"`
 	LobbyName          *string `db:"lobby_name" json:"lobbyName"`
 	LevelName          string  `db:"level_name" json:"levelName"`
+	ChapterName        string  `db:"chapter_name" json:"chapterName"`
 	LevelSide          string  `db:"level_side" json:"levelSide"`
 	TotalTime          int64   `db:"total_time" json:"totalTime"`
 	Strawberries       int     `db:"strawberries" json:"strawberries"`
+	MaxStrawberries    int     `db:"max_strawberries" json:"maxStrawberries"`
 	GoldenStrawberries int     `db:"golden_strawberries" json:"goldenStrawberries"`
 	Hearts             int     `db:"hearts" json:"hearts"`
+	MaxHearts          int     `db:"max_hearts" json:"maxHearts"`
 	Deaths             int     `db:"deaths" json:"deaths"`
+	FewestDeaths       int     `db:"fewest_deaths" json:"fewestDeaths"`
 	Dashes             int     `db:"dashes" json:"dashes"`
+	Jumps              int     `db:"jumps" json:"jumps"`
 	CoverImgPath       *string `db:"cover_img_path" json:"coverImgPath"`
 	IconImgPath        *string `db:"icon_img_path" json:"iconImgPath"`
+	EndscreenImgPath   *string `db:"endscreen_img_path" json:"endscreenImgPath"`
 }
 
 func Collection_AddCampaign(collectionId int, campaignId int) bool {
@@ -66,7 +72,7 @@ func Collection_GetCampaignIDs(collectionId int) ([]int, error) {
 
 func Query_GetAvailableCampaigns(userId int) ([]CampaignItem, error) {
 	toReturn := make([]CampaignItem, 0)
-	
+
 	query := `
 		SELECT 
 			MIN(c.id) as id, 
@@ -77,7 +83,7 @@ func Query_GetAvailableCampaigns(userId int) ([]CampaignItem, error) {
 		WHERE sd.user_id = ?
 		GROUP BY c.campaign_name_id
 	`
-	
+
 	err := Db_Select(&toReturn, query, userId)
 
 	if err != nil {
@@ -100,23 +106,49 @@ func Query_GetCollectionStats(campaignIds []int, saveDataId *int) ([]LevelCollec
 			l.id as lobby_id,
 			l.name as lobby_name,
 			ch.sid as level_name,
+			COALESCE(NULLIF(ch.name, ''), ch.sid) as chapter_name,
 			cs.side_id as level_side,
-			COALESCE(SUM(gs.duration_ms), 0) as total_time,
-			cs.berries_collected as strawberries,
-			COALESCE(SUM(gs.is_goldenberry_completed), 0) as golden_strawberries,
-			cs.heart_collected as hearts,
-			COALESCE(SUM(room_stats.deaths_in_room), 0) as deaths,
-			COALESCE(SUM(room_stats.dashes_in_room), 0) as dashes,
+			COALESCE(play_stats.total_time, 0) as total_time,
+			COALESCE(cs.berries_collected, 0) as strawberries,
+			COALESCE(cs.berries_available, 0) as max_strawberries,
+			COALESCE(cs.goldenstrawberry_achieved, 0) as golden_strawberries,
+			COALESCE(cs.heart_collected, 0) as hearts,
+			1 as max_hearts,
+			COALESCE(play_stats.deaths, 0) as deaths,
+			COALESCE(play_stats.fewest_deaths, 0) as fewest_deaths,
+			COALESCE(play_stats.dashes, 0) as dashes,
+			COALESCE(play_stats.jumps, 0) as jumps,
 			c.cover_img_path,
-			ch.icon_img_path
+			ch.icon_img_path,
+			ch.endscreen_img_path
 		FROM Campaigns c
 		LEFT JOIN Lobbies l ON c.lobby_id = l.id
 		JOIN Chapters ch ON ch.campaign_id = c.id
 		JOIN ChapterSides cs ON cs.chapter_sid = ch.sid
-		LEFT JOIN GameSessions gs ON gs.chapter_sid = ch.sid AND gs.side_id = cs.side_id
-		LEFT JOIN GameSessionChapterRoomStats room_stats ON room_stats.game_session_id = gs.id
-		WHERE c.id IN (%s)
+		LEFT JOIN (
+			SELECT
+				gs.chapter_sid,
+				gs.side_id,
+				SUM(gs.duration_ms) as total_time,
+				SUM(COALESCE(session_totals.deaths, 0)) as deaths,
+				MIN(COALESCE(session_totals.deaths, 0)) as fewest_deaths,
+				SUM(COALESCE(session_totals.dashes, 0)) as dashes,
+				SUM(COALESCE(session_totals.jumps, 0)) as jumps
+			FROM GameSessions gs
+			LEFT JOIN (
+				SELECT
+					gamesession_id,
+					SUM(deaths_in_room) as deaths,
+					SUM(dashes_in_room) as dashes,
+					SUM(jumps_in_room) as jumps
+				FROM GameSessionChapterRoomStats
+				GROUP BY gamesession_id
+			) session_totals ON session_totals.gamesession_id = gs.id
+			GROUP BY gs.chapter_sid, gs.side_id
+		) play_stats ON play_stats.chapter_sid = ch.sid AND play_stats.side_id = cs.side_id
+		WHERE c.id IN (%s)%s
 		GROUP BY c.id, ch.sid, cs.side_id
+		ORDER BY COALESCE(l.name, ''), c.campaign_name_id, ch.sid, cs.side_id
 	`
 
 	// Build the IN clause
@@ -128,7 +160,12 @@ func Query_GetCollectionStats(campaignIds []int, saveDataId *int) ([]LevelCollec
 		idsStr += fmt.Sprintf("%d", id)
 	}
 
-	query = fmt.Sprintf(query, idsStr)
+	saveDataFilter := ""
+	if saveDataId != nil {
+		saveDataFilter = fmt.Sprintf(" AND c.save_data_id = %d", *saveDataId)
+	}
+
+	query = fmt.Sprintf(query, idsStr, saveDataFilter)
 
 	toReturn := make([]LevelCollectionStats, 0)
 	err := Db_Select(&toReturn, query)

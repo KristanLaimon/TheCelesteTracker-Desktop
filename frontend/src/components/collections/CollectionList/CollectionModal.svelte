@@ -2,7 +2,13 @@
   import IconPlus from '~icons/material-symbols/add';
   import IconDelete from '~icons/material-symbols/delete';
   import IconClose from '~icons/material-symbols/close';
+  import IconCheck from '~icons/material-symbols/check';
   import IconDragIndicator from '~icons/material-symbols/drag-indicator';
+  import IconFolder from '~icons/material-symbols/folder';
+  import IconMap from '~icons/material-symbols/map';
+  import IconSave from '~icons/material-symbols/save';
+  import IconSearch from '~icons/material-symbols/search';
+  import IconViewList from '~icons/material-symbols/view-list';
 
   interface CampaignItem {
     id: number;
@@ -19,21 +25,25 @@
     onClose: () => void;
   }
 
-  let { 
-    show, 
-    editingId, 
-    initialName, 
-    initialSelectedIds, 
-    availableCampaigns, 
-    onSave, 
-    onClose 
+  let {
+    show,
+    editingId,
+    initialName,
+    initialSelectedIds,
+    availableCampaigns,
+    onSave,
+    onClose,
   }: Props = $props();
 
-  // Internal state for the form
   let collectionName = $state(initialName);
   let selectedCampaignIds = $state<number[]>([...initialSelectedIds]);
+  let draggedIndex = $state<number | null>(null);
+  let dragOverIndex = $state<number | null>(null);
+  let draggedCampaignId = $state<number | null>(null);
+  let dragSource = $state<'available' | 'selected' | null>(null);
+  let isDraggingOverSelected = $state(false);
+  let isDraggingOverAvailable = $state(false);
 
-  // Sync internal state when props change (when modal opens)
   $effect(() => {
     if (show) {
       collectionName = initialName;
@@ -41,45 +51,93 @@
     }
   });
 
-  // Drag and Drop state
-  let draggedIndex = $state<number | null>(null);
-  let dragOverIndex = $state<number | null>(null);
-
   function toggleCampaign(id: number) {
     if (selectedCampaignIds.includes(id)) {
-      selectedCampaignIds = selectedCampaignIds.filter(i => i !== id);
+      selectedCampaignIds = selectedCampaignIds.filter((item) => item !== id);
     } else {
       selectedCampaignIds = [...selectedCampaignIds, id];
     }
   }
 
-  function handleDragStart(index: number) {
-    draggedIndex = index;
+  function handleAvailableDragStart(id: number, e: DragEvent) {
+    draggedCampaignId = id;
+    draggedIndex = null;
+    dragSource = 'available';
+    e.dataTransfer?.setData('text/plain', String(id));
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copyMove';
   }
 
-  function handleDragOver(e: DragEvent, index: number) {
+  function handleSelectedDragStart(index: number, id: number, e: DragEvent) {
+    draggedIndex = index;
+    draggedCampaignId = id;
+    dragSource = 'selected';
+    e.dataTransfer?.setData('text/plain', String(id));
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+  }
+
+  function resetDragState() {
+    draggedIndex = null;
+    dragOverIndex = null;
+    draggedCampaignId = null;
+    dragSource = null;
+    isDraggingOverSelected = false;
+    isDraggingOverAvailable = false;
+  }
+
+  function handleSelectedDragOver(e: DragEvent, index: number | null = null) {
     e.preventDefault();
+    isDraggingOverSelected = true;
+    isDraggingOverAvailable = false;
     dragOverIndex = index;
   }
 
-  function handleDrop(index: number) {
-    if (draggedIndex === null || draggedIndex === index) {
-        draggedIndex = null;
-        dragOverIndex = null;
-        return;
+  function handleAvailableDragOver(e: DragEvent) {
+    if (dragSource !== 'selected') return;
+    e.preventDefault();
+    isDraggingOverAvailable = true;
+    isDraggingOverSelected = false;
+  }
+
+  function handleSelectedDrop(index: number | null = null) {
+    if (draggedCampaignId === null) {
+      resetDragState();
+      return;
     }
 
     const newIds = [...selectedCampaignIds];
-    const draggedItem = newIds.splice(draggedIndex, 1)[0];
-    newIds.splice(index, 0, draggedItem);
-    selectedCampaignIds = newIds;
 
-    draggedIndex = null;
-    dragOverIndex = null;
+    if (dragSource === 'selected' && draggedIndex !== null) {
+      if (draggedIndex === index) {
+        resetDragState();
+        return;
+      }
+
+      const draggedItem = newIds.splice(draggedIndex, 1)[0];
+      const targetIndex = index === null ? newIds.length : Math.min(index, newIds.length);
+      newIds.splice(targetIndex, 0, draggedItem);
+    } else if (dragSource === 'available' && !newIds.includes(draggedCampaignId)) {
+      const targetIndex = index === null ? newIds.length : Math.min(index, newIds.length);
+      newIds.splice(targetIndex, 0, draggedCampaignId);
+    }
+
+    selectedCampaignIds = newIds;
+    resetDragState();
+  }
+
+  function handleAvailableDrop() {
+    if (dragSource === 'selected' && draggedCampaignId !== null) {
+      selectedCampaignIds = selectedCampaignIds.filter((id) => id !== draggedCampaignId);
+    }
+    resetDragState();
   }
 
   function getCampaignName(id: number) {
-    return availableCampaigns.find(c => c.id === id)?.campaignNameId || 'Unknown';
+    return availableCampaigns.find((campaign) => campaign.id === id)?.campaignNameId || 'Unknown';
+  }
+
+  function formatCampaignName(name: string) {
+    const parts = name.split('/').filter(Boolean);
+    return parts.at(-1) || name;
   }
 
   async function handleInternalSave() {
@@ -88,54 +146,82 @@
 </script>
 
 {#if show}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-8">
-    <div class="bg-zinc-950 border border-white/10 rounded-3xl w-[90vw] h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-      <!-- Modal Header -->
-      <div class="p-8 border-b border-white/5 flex justify-between items-center">
-        <div>
-            <h2 class="text-3xl font-headline font-black text-white tracking-tight uppercase">{editingId ? 'Edit' : 'New'} Collection</h2>
-            <p class="text-zinc-500 text-sm font-medium mt-1">Select and arrange campaigns for your custom set</p>
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 md:p-8">
+    <div class="bg-zinc-950 border border-outline-muted rounded-2xl w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-5 md:p-6 border-b border-outline-muted flex justify-between items-center bg-card-bg/60">
+        <div class="flex items-center gap-4 min-w-0">
+          <div class="w-12 h-12 rounded-xl bg-orange-400/15 border border-orange-400/25 text-orange-300 flex items-center justify-center shrink-0">
+            <IconFolder class="text-2xl" />
+          </div>
+          <div class="min-w-0">
+            <h2 class="text-2xl md:text-3xl font-headline font-black text-white tracking-tight uppercase truncate">
+              {editingId ? 'Edit Collection' : 'New Collection'}
+            </h2>
+            <p class="text-zinc-500 text-sm font-medium mt-1">Select campaigns and set their display order.</p>
+          </div>
         </div>
-        <button 
+        <button
           onclick={onClose}
-          class="p-3 rounded-2xl hover:bg-white/5 text-zinc-500 hover:text-white transition-all group"
+          class="p-3 rounded-xl bg-zinc-900 border border-outline-muted hover:bg-zinc-800 text-zinc-500 hover:text-white transition-all group"
           aria-label="Close modal"
         >
-            <IconClose class="text-2xl group-active:scale-90" />
+          <IconClose class="text-2xl group-active:scale-90" />
         </button>
       </div>
 
-      <div class="flex-1 grid grid-cols-1 md:grid-cols-2 overflow-hidden">
-        <!-- Selection Side -->
-        <div class="p-8 space-y-8 overflow-y-auto border-r border-white/5 bg-zinc-950/50">
+      <div class="flex-1 grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] overflow-hidden">
+        <div
+          class="p-5 md:p-6 space-y-6 overflow-y-auto border-r border-outline-muted bg-zinc-950/50 custom-scrollbar {isDraggingOverAvailable ? 'bg-primary/5' : ''}"
+          ondragover={handleAvailableDragOver}
+          ondragleave={() => isDraggingOverAvailable = false}
+          ondrop={handleAvailableDrop}
+        >
           <div class="space-y-2">
-            <label for="collection-name" class="block text-xs font-bold uppercase tracking-widest text-primary mb-2">Collection Name</label>
-            <input
-              id="collection-name"
-              bind:value={collectionName}
-              placeholder="e.g. My Favorites"
-              class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xl font-headline font-bold text-white focus:outline-none focus:border-primary transition-all placeholder:text-zinc-700"
-            />
+            <label for="collection-name" class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary mb-2">
+              <IconMap class="text-lg" />
+              Collection Name
+            </label>
+            <div class="relative">
+              <IconFolder class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 text-xl" />
+              <input
+                id="collection-name"
+                bind:value={collectionName}
+                placeholder="e.g. My Favorites"
+                class="w-full bg-zinc-900/80 border border-outline-muted rounded-xl pl-12 pr-4 py-4 text-xl font-headline font-bold text-white focus:outline-none focus:border-primary transition-all placeholder:text-zinc-700"
+              />
+            </div>
           </div>
 
           <div class="space-y-4">
             <div class="flex justify-between items-end">
-                <div class="block text-xs font-bold uppercase tracking-widest text-primary">Available Campaigns</div>
-                <div class="text-xs text-zinc-500 font-medium">{availableCampaigns.length} total</div>
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
+                <IconSearch class="text-lg" />
+                Available Campaigns
+              </div>
+              <div class="text-xs text-zinc-500 font-medium">{availableCampaigns.length} total</div>
             </div>
-            <div class="grid grid-cols-1 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
               {#each availableCampaigns as camp (camp.id)}
+                {@const selected = selectedCampaignIds.includes(camp.id)}
                 <button
                   onclick={() => toggleCampaign(camp.id)}
-                  class="w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left group/item {selectedCampaignIds.includes(camp.id) ? 'bg-primary/10 border-primary' : 'bg-white/2 border-white/5 hover:border-white/10 hover:bg-white/[0.05]'}"
+                  draggable="true"
+                  ondragstart={(e) => handleAvailableDragStart(camp.id, e)}
+                  ondragend={resetDragState}
+                  class="w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left group/item {selected ? 'bg-primary/10 border-primary/70' : 'bg-zinc-900/60 border-outline-muted hover:border-white/20 hover:bg-white/[0.05]'}"
                 >
-                  <div class="w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all {selectedCampaignIds.includes(camp.id) ? 'bg-primary border-primary scale-110' : 'border-zinc-700 group-hover/item:border-zinc-500'}">
-                    {#if selectedCampaignIds.includes(camp.id)}
-                      <span class="text-white text-xs font-black">✓</span>
+                  <div class="w-7 h-7 rounded-lg border flex items-center justify-center transition-all shrink-0 {selected ? 'bg-primary border-primary scale-105' : 'border-zinc-700 group-hover/item:border-zinc-500'}">
+                    {#if selected}
+                      <IconCheck class="text-white text-lg" />
+                    {:else}
+                      <IconPlus class="text-zinc-600 text-lg" />
                     {/if}
                   </div>
                   <div class="flex-1 min-w-0">
-                    <span class="font-bold text-base truncate block {selectedCampaignIds.includes(camp.id) ? 'text-white' : 'text-zinc-400 group-hover/item:text-zinc-200'}">{camp.campaignNameId}</span>
+                    <span class="font-bold text-sm truncate block {selected ? 'text-white' : 'text-zinc-400 group-hover/item:text-zinc-200'}">
+                      {formatCampaignName(camp.campaignNameId)}
+                    </span>
+                    <span class="text-[10px] text-zinc-600 truncate block mt-0.5">{camp.campaignNameId}</span>
                   </div>
                 </button>
               {/each}
@@ -143,44 +229,52 @@
           </div>
         </div>
 
-        <!-- Order Side -->
-        <div class="p-8 flex flex-col overflow-hidden bg-black/40">
+        <div
+          class="p-5 md:p-6 flex flex-col overflow-hidden bg-black/40 {isDraggingOverSelected ? 'bg-secondary/5' : ''}"
+          ondragover={(e) => handleSelectedDragOver(e)}
+          ondragleave={() => isDraggingOverSelected = false}
+          ondrop={() => handleSelectedDrop()}
+        >
           <div class="flex justify-between items-end mb-6">
-            <div class="block text-xs font-bold uppercase tracking-widest text-secondary">Selected & Order</div>
+            <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-secondary">
+              <IconViewList class="text-lg" />
+              Selected Order
+            </div>
             <div class="text-xs text-zinc-500 font-medium">{selectedCampaignIds.length} selected</div>
           </div>
 
           <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar" role="list">
             {#if selectedCampaignIds.length === 0}
-              <div class="h-full flex flex-col items-center justify-center text-center p-8">
+              <div class="h-full flex flex-col items-center justify-center text-center p-8 rounded-xl border border-dashed {isDraggingOverSelected ? 'border-secondary bg-secondary/10' : 'border-transparent'}">
                 <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
-                    <IconPlus class="text-2xl text-zinc-700" />
+                  <IconPlus class="text-2xl text-zinc-700" />
                 </div>
-                <p class="text-zinc-500 text-sm font-medium">No campaigns selected.<br/>Pick some from the left panel!</p>
+                <p class="text-zinc-500 text-sm font-medium">Drag campaigns here.</p>
               </div>
             {:else}
               <div class="space-y-3">
                 {#each selectedCampaignIds as id, index (id)}
-                  <div 
+                  <div
                     draggable="true"
                     role="listitem"
-                    ondragstart={() => handleDragStart(index)}
-                    ondragover={(e) => handleDragOver(e, index)}
-                    ondrop={() => handleDrop(index)}
-                    class="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/8 rounded-2xl border border-white/5 transition-all cursor-grab active:cursor-grabbing group/row {dragOverIndex === index ? 'border-primary border-dashed bg-primary/5 translate-y-1' : ''} {draggedIndex === index ? 'opacity-40 grayscale scale-95' : ''}"
+                    ondragstart={(e) => handleSelectedDragStart(index, id, e)}
+                    ondragover={(e) => handleSelectedDragOver(e, index)}
+                    ondragend={resetDragState}
+                    ondrop={(e) => { e.stopPropagation(); handleSelectedDrop(index); }}
+                    class="flex items-center gap-4 p-4 bg-zinc-900/70 hover:bg-white/[0.06] rounded-xl border border-outline-muted transition-all cursor-grab active:cursor-grabbing group/row {dragOverIndex === index ? 'border-primary border-dashed bg-primary/5 translate-y-1' : ''} {draggedIndex === index ? 'opacity-40 grayscale scale-95' : ''}"
                   >
                     <div class="text-zinc-600 group-hover/row:text-zinc-400 transition-colors">
-                        <IconDragIndicator class="text-xl" />
+                      <IconDragIndicator class="text-xl" />
                     </div>
                     <span class="text-zinc-500 font-pixel text-[10px] w-6">{index + 1}.</span>
-                    <span class="flex-1 text-sm font-bold text-zinc-200 truncate">{getCampaignName(id)}</span>
-                    
-                    <button 
-                        onclick={() => toggleCampaign(id)}
-                        class="p-2 rounded-xl hover:bg-red-500/20 text-zinc-600 hover:text-red-400 transition-all opacity-0 group-hover/row:opacity-100"
-                        title="Remove"
+                    <span class="flex-1 text-sm font-bold text-zinc-200 truncate">{formatCampaignName(getCampaignName(id))}</span>
+
+                    <button
+                      onclick={() => toggleCampaign(id)}
+                      class="p-2 rounded-xl hover:bg-red-500/20 text-zinc-600 hover:text-red-400 transition-all opacity-0 group-hover/row:opacity-100"
+                      title="Remove"
                     >
-                        <IconDelete class="text-lg" />
+                      <IconDelete class="text-lg" />
                     </button>
                   </div>
                 {/each}
@@ -190,20 +284,20 @@
         </div>
       </div>
 
-      <!-- Modal Footer -->
-      <div class="p-8 flex gap-4 justify-end border-t border-white/5">
+      <div class="p-5 md:p-6 flex gap-3 justify-end border-t border-outline-muted bg-card-bg/40">
         <button
           onclick={onClose}
-          class="px-8 py-3 rounded-2xl font-bold text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
+          class="px-6 py-3 rounded-xl font-bold text-zinc-500 hover:text-white hover:bg-white/5 transition-all"
         >
           Cancel
         </button>
         <button
           onclick={handleInternalSave}
-          class="px-12 py-3 rounded-2xl font-headline font-black text-lg bg-primary text-white hover:bg-primary-high transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-8 py-3 rounded-xl font-headline font-black text-base bg-primary text-white hover:bg-primary-high transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           disabled={!collectionName || selectedCampaignIds.length === 0}
         >
-          SAVE COLLECTION
+          <IconSave class="text-xl" />
+          Save Collection
         </button>
       </div>
     </div>
@@ -211,17 +305,23 @@
 {/if}
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none;
+    width: 0;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .custom-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 </style>

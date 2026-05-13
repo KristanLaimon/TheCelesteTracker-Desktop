@@ -4,6 +4,7 @@ import defaultLevelIcon from "../../assets/level_logo_moddedleveldefault.png";
 import strawberryIcon from "../../assets/interface_strawberry_icon.png";
 import timerIcon from "../../assets/interface_timer_icon.png";
 import IconAutoAwesome from "~icons/material-symbols/auto-awesome";
+import IconBolt from "~icons/material-symbols/bolt";
 import IconDiamond from "~icons/material-symbols/diamond";
 import IconFilterHdr from "~icons/material-symbols/filter-hdr";
 import IconLandscape from "~icons/material-symbols/landscape";
@@ -105,6 +106,41 @@ function getLevelIcon(row: src.RecentRun) {
 	return logo.src;
 }
 
+function titleCaseFromId(value: string) {
+	return value
+		.replace(/__/g, " ")
+		.replace(/([a-z])([A-Z])/g, "$1 $2")
+		.replace(/([A-Za-z])(\d)/g, "$1 $2")
+		.replace(/(\d)([A-Za-z])/g, "$1 $2")
+		.replace(/[_-]+/g, " ")
+		.replace(/\s+/g, " ")
+		.trim()
+		.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getModNameFromIndexedAsset(fileName: string) {
+	const [modName] = fileName.split("__");
+	return modName && modName !== fileName ? modName : "";
+}
+
+function getModNameFromCampaignId(campaignName: string) {
+	const parts = campaignName.split("/").map((part) => part.trim()).filter(Boolean);
+	if (parts.length <= 1) return campaignName;
+
+	const lastPart = parts.at(-1) || "";
+	if (/^\d+/.test(lastPart)) return parts[0];
+	return lastPart;
+}
+
+function getModDisplayName(row: src.RecentRun) {
+	if (row.CampaignType === "Vanilla") return "Celeste";
+
+	const metadataName = getModNameFromIndexedAsset(row.IconImgPath || "");
+	const campaignName = row.CampaignName || row.ChapterSID || "";
+	const modName = metadataName || getModNameFromCampaignId(campaignName);
+	return titleCaseFromId(modName || "Modded map");
+}
+
 const iconMap = {
 	vanilla: { icon: IconFilterHdr, color: "text-primary", bg: "bg-primary/10" },
 	modded: {
@@ -196,21 +232,26 @@ function getDeathIcon(side: string) {
         {@const deathIcon = getDeathIcon(row.Side)}
         <tr class="hover:bg-white/5 transition-all group border-l-2 {isGoldenCompleted ? 'border-l-yellow-400 bg-yellow-400/5 shadow-[inset_0_0_20px_rgba(250,204,21,0.05)]' : 'border-l-transparent'}">
           <td class="px-6 py-4">
-            <div class="flex items-center gap-3 justify-start">
-              <div class="w-8 h-8 rounded flex items-center justify-center {IconData ? IconData.bg : 'bg-zinc-800/50'} {IconData ? IconData.color : ''}">
+            <div class="flex items-center gap-4 justify-start">
+              <div class="w-14 h-14 rounded-lg flex items-center justify-center shrink-0 overflow-hidden {IconData ? IconData.bg : 'bg-zinc-800/50'} {IconData ? IconData.color : ''}">
                 {#if levelIcon}
-                  <img src={levelIcon} alt="" class="size-20 object-contain" />
+                  <img src={levelIcon} alt="" class="w-14 h-14 object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.45)]" />
                 {:else if IconData}
-                  <IconData.icon class="text-lg" />
+                  <IconData.icon class="text-3xl" />
                 {/if}
               </div>
-              <span class="font-bold text-zinc-200">{row.ChapterName}</span>
+              <div class="min-w-0">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-primary/80 truncate">
+                  {getModDisplayName(row)}
+                </div>
+                <div class="font-bold text-zinc-100 text-base leading-tight truncate">{row.ChapterName}</div>
+              </div>
             </div>
           </td>
           <td class="px-6 py-4">
             <div class="flex items-center gap-2 justify-center">
               {#if sideIcon}
-                <img src={sideIcon} alt="" class="w-4 h-4" />
+                <img src={sideIcon} alt="" class="w-6 h-6 object-contain" />
               {/if}
               <span class="text-[12px] font-bold text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded border border-zinc-700 whitespace-nowrap">
                 {row.Side}
@@ -229,7 +270,7 @@ function getDeathIcon(side: string) {
           </td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
             <div class="flex items-center gap-2 justify-center">
-              <img src={timerIcon.src} alt="" class="w-4 h-4 opacity-50" />
+              <img src={timerIcon.src} alt="" class="w-6 h-6 opacity-70 object-contain" />
               {row.FormattedTime}
             </div>
           </td>
@@ -238,15 +279,20 @@ function getDeathIcon(side: string) {
               {#if isGoldenAttempt}
                 <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" title="Golden Death"></div>
               {:else}
-                <img src={deathIcon} alt="" class="w-5 h-5" />
+                <img src={deathIcon} alt="" class="w-7 h-7 object-contain" />
                 {row.Deaths}
               {/if}
             </div>
           </td>
-          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">{row.Dashes}</td>
+          <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center">
+            <div class="flex items-center gap-2 justify-center">
+              <IconBolt class="text-2xl text-cyan-300/80" />
+              {row.Dashes}
+            </div>
+          </td>
           <td class="px-6 py-4 font-pixel text-[12px] text-zinc-400 text-center w-24">
             <div class="flex items-center gap-2 justify-center">
-              <img src={strawberryIcon.src} alt="" class="w-5 h-5" />
+              <img src={strawberryIcon.src} alt="" class="w-7 h-7 object-contain" />
               {row.Strawberries}
             </div>
           </td>

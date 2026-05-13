@@ -1,13 +1,19 @@
 <script lang="ts">
-  import { GetCollections, GetCollectionCampaignIDs, GetCollectionStats, GetAvailableCampaigns, UpdateCollection } from '../../../wailsjs/go/main/App';
+  import { GetCollection, GetCollectionCampaignIDs, GetCollectionStats, GetIndexedAssetAsBase64, UpdateCollection } from '../../../wailsjs/go/main/App';
   import CollectionTable from './CollectionTable.svelte';
   import { saveStore } from "../../lib/saveStore.svelte";
   import { getAssetUrl } from "../../lib/assetHelper";
   import IconArrowBack from '~icons/material-symbols/arrow-back';
+  import IconBolt from '~icons/material-symbols/bolt';
   import IconEdit from '~icons/material-symbols/edit';
+  import IconFlag from '~icons/material-symbols/flag';
   import IconCheck from '~icons/material-symbols/check';
   import IconClose from '~icons/material-symbols/close';
   import defaultLevelLogo from '../../assets/level_logo_moddedleveldefault.png';
+  import deathIcon from '../../assets/interface_SIDEA_deaths_icon.png';
+  import heartIcon from '../../assets/interface_SIDEA_heart.png';
+  import strawberryIcon from '../../assets/interface_strawberry_icon.png';
+  import timerIcon from '../../assets/interface_timer_icon.png';
 
   type Props = {
     id?: string;
@@ -20,42 +26,68 @@
   let campaignIds = $state<number[]>([]);
   let bannerData = $state<string | null>(null);
   let chapterIcons = $state<string[]>([]);
+  let chapterCount = $state(0);
+  let sideCount = $state(0);
+  let totalTime = $state(0);
+  let totalBerries = $state(0);
+  let maxBerries = $state(0);
+  let totalHearts = $state(0);
+  let totalDeaths = $state(0);
+  let totalDashes = $state(0);
   let loading = $state(true);
 
   // Edit state
   let isEditingName = $state(false);
   let editedName = $state('');
 
-  async function loadCollection() {
+  const statCards = [
+    { key: 'time', label: 'Total Time', image: timerIcon, color: 'text-white', value: () => formatTime(totalTime) },
+    { key: 'berries', label: 'Berries', image: strawberryIcon, color: 'text-tertiary', value: () => `${totalBerries}/${maxBerries}` },
+    { key: 'hearts', label: 'Hearts', image: heartIcon, color: 'text-purple-400', value: () => totalHearts.toLocaleString() },
+    { key: 'deaths', label: 'Deaths', image: deathIcon, color: 'text-primary', value: () => totalDeaths.toLocaleString() },
+    { key: 'dashes', label: 'Dashes', icon: IconBolt, color: 'text-secondary', value: () => totalDashes.toLocaleString() },
+    { key: 'sides', label: 'Sides', icon: IconFlag, color: 'text-yellow-400', value: () => sideCount.toLocaleString() },
+  ];
+
+  async function loadCollection(collectionId: string) {
     if (!saveStore.userId) return;
 
     loading = true;
     try {
-      const collections = await GetCollections(saveStore.userId);
-      const col = collections.find(c => c.id.toString() === id);
-      if (col && id) {
-        collectionName = col.name;
-        editedName = col.name;
-        campaignIds = await GetCollectionCampaignIDs(parseInt(id));
+      const col = await GetCollection(parseInt(collectionId));
+      collectionName = col.name;
+      editedName = col.name;
+      campaignIds = await GetCollectionCampaignIDs(parseInt(collectionId));
 
-        if (campaignIds.length > 0) {
-            // Fetch stats to get icons
-            const stats = await GetCollectionStats(campaignIds, null);
+      if (campaignIds.length > 0) {
+          const stats = await GetCollectionStats(campaignIds, saveStore.saveDataId || null);
+          const uniqueChapters = new Set(stats.map((stat) => stat.levelName));
+          chapterCount = uniqueChapters.size;
+          sideCount = stats.length;
+          totalTime = stats.reduce((sum, stat) => sum + (stat.totalTime || 0), 0);
+          totalBerries = stats.reduce((sum, stat) => sum + (stat.strawberries || 0), 0);
+          maxBerries = stats.reduce((sum, stat) => sum + (stat.maxStrawberries || 0), 0);
+          totalHearts = stats.reduce((sum, stat) => sum + (stat.hearts || 0), 0);
+          totalDeaths = stats.reduce((sum, stat) => sum + (stat.deaths || 0), 0);
+          totalDashes = stats.reduce((sum, stat) => sum + (stat.dashes || 0), 0);
 
-            // Extract unique icons directly (asynchronous)
-            const uniqueIconPaths = [...new Set(stats.map(s => s.iconImgPath).filter(Boolean))] as string[];
-            const loadedIcons = await Promise.all(
-                uniqueIconPaths.map(path => getAssetUrl(path))
-            );
-            chapterIcons = loadedIcons.filter(Boolean) as string[];
+          const uniqueIconPaths = [...new Set(stats.map(s => s.iconImgPath).filter(Boolean))] as string[];
+          const loadedIcons = await Promise.all(uniqueIconPaths.map(path => loadCollectionAsset(path)));
+          chapterIcons = loadedIcons.filter(Boolean) as string[];
 
-            // Get banner from first campaign if available (as fallback background)
-            const allCampaigns = await GetAvailableCampaigns(saveStore.userId);
-            const firstCampaign = allCampaigns.find(c => c.id === campaignIds[0]);
-            if (firstCampaign && firstCampaign.coverImgPath) {
-                bannerData = await getAssetUrl(firstCampaign.coverImgPath);
-            }
-        }
+          const firstEndscreen = stats.find((stat) => stat.endscreenImgPath)?.endscreenImgPath;
+          bannerData = firstEndscreen ? await loadCollectionAsset(firstEndscreen) : null;
+      } else {
+        bannerData = null;
+        chapterIcons = [];
+        chapterCount = 0;
+        sideCount = 0;
+        totalTime = 0;
+        totalBerries = 0;
+        maxBerries = 0;
+        totalHearts = 0;
+        totalDeaths = 0;
+        totalDashes = 0;
       }
     } catch (e) {
       console.error('Failed to load collection:', e);
@@ -82,20 +114,41 @@
   }
 
   $effect(() => {
-    if (saveStore.userId) {
-      loadCollection();
+    const collectionId = id;
+    if (saveStore.userId && collectionId) {
+      void loadCollection(collectionId);
     }
   });
+
+  function formatTime(ms: number) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+
+  async function loadCollectionAsset(path: string | null) {
+    if (!path) return null;
+    if (!path.includes('/') && !path.includes('\\')) {
+      try {
+        return await GetIndexedAssetAsBase64(path);
+      } catch (error) {
+        console.warn(`Could not load indexed collection asset ${path}`, error);
+        return null;
+      }
+    }
+    return getAssetUrl(path);
+  }
 </script>
 
 <div class="space-y-8">
   <div class="relative h-72 w-full rounded-3xl overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl group">
-    <!-- Background Layer: Blurred Banner or Gradient -->
     {#if bannerData}
       <img
         src={bannerData}
         alt=""
-        class="absolute inset-0 w-full h-full object-cover opacity-30 blur-xl scale-110"
+        class="absolute inset-0 w-full h-full object-cover opacity-60"
       />
     {:else}
        <div class="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 blur-3xl"></div>
@@ -120,7 +173,7 @@
     </div>
 
     <!-- Overlay Gradient -->
-    <div class="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/45 to-transparent"></div>
     <div class="absolute inset-0 bg-linear-to-r from-zinc-950/80 via-transparent to-transparent"></div>
 
     <!-- Content -->
@@ -168,11 +221,27 @@
           </div>
           <div class="flex items-center gap-3 mt-1">
             <span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest border border-primary/20">Collection</span>
-            <p class="text-white/40 font-medium text-sm">Contains {campaignIds.length} campaigns and {chapterIcons.length} unique chapters</p>
+            <p class="text-white/50 font-medium text-sm">Contains {campaignIds.length} campaigns, {chapterCount} chapters, and {sideCount} sides</p>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+    {#each statCards as stat (stat.key)}
+      <div class="border border-outline-muted bg-card-bg rounded-xl p-4 flex items-center gap-3 min-w-0">
+        {#if stat.image}
+          <img src={stat.image.src} alt="" class="w-8 h-8 object-contain opacity-85 shrink-0" />
+        {:else if stat.icon}
+          <stat.icon class="text-3xl shrink-0 {stat.color}" />
+        {/if}
+        <div class="min-w-0">
+          <p class="text-[11px] text-zinc-500 uppercase tracking-widest font-bold truncate">{stat.label}</p>
+          <p class="font-pixel text-lg {stat.color} mt-1 truncate">{stat.value()}</p>
+        </div>
+      </div>
+    {/each}
   </div>
 
   {#if !loading}

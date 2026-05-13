@@ -6,6 +6,8 @@
   import { 
     GetCollections, 
     GetAvailableCampaigns, 
+    GetCollectionStats,
+    GetIndexedAssetAsBase64,
     CreateCollection, 
     UpdateCollection, 
     DeleteCollection, 
@@ -33,6 +35,7 @@
   // Reactive State
   let collections = $state<Collection[]>([]);
   let availableCampaigns = $state<CampaignItem[]>([]);
+  let collectionPreviewIcons = $state<Record<number, string[]>>({});
   let showModal = $state(false);
 
   // Modal Form State
@@ -53,9 +56,36 @@
       ]);
       collections = fetchedCollections || [];
       availableCampaigns = fetchedCampaigns || [];
+      void loadCollectionPreviews(collections);
     } catch (e) {
       console.error('Failed to load collections:', e);
     }
+  }
+
+  async function loadCollectionPreviews(items: Collection[]) {
+    const previewEntries = await Promise.all(items.map(async (collection) => {
+      try {
+        const campaignIds = await GetCollectionCampaignIDs(collection.id);
+        if (campaignIds.length === 0) return [collection.id, []] as const;
+
+        const stats = await GetCollectionStats(campaignIds, saveStore.saveDataId || null);
+        const iconPaths = [...new Set(stats.map((stat) => stat.iconImgPath).filter(Boolean))].slice(0, 24) as string[];
+        const icons = await Promise.all(iconPaths.map(async (path) => {
+          try {
+            return await GetIndexedAssetAsBase64(path);
+          } catch {
+            return '';
+          }
+        }));
+
+        return [collection.id, icons.filter(Boolean)] as const;
+      } catch (error) {
+        console.warn(`Failed to load preview icons for collection ${collection.id}`, error);
+        return [collection.id, []] as const;
+      }
+    }));
+
+    collectionPreviewIcons = Object.fromEntries(previewEntries);
   }
 
   // Load data when userId is available
@@ -137,6 +167,7 @@
   {#each collections as col (col.id)}
     <CollectionCard 
       collection={col} 
+      previewIcons={collectionPreviewIcons[col.id] || []}
       onEdit={openEdit} 
       onDelete={handleDelete} 
     />
