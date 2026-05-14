@@ -160,10 +160,10 @@
         <IconArrowBack class="w-4 h-4" />
       </button>
     {/if}
-    <div class="flex items-center gap-2 pointer-events-none">
+    <a href="/" class="no-drag flex items-center gap-2 cursor-pointer group">
       <img src={StrawberryRedGif.src} alt="strawberry_red_gif" class="w-auto h-6 object-contain" />
-      <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">The Celeste Tracker</span>
-    </div>
+      <span class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 group-hover:text-zinc-300 transition-colors">The Celeste Tracker</span>
+    </a>
   </div>
 
   <div class="flex items-center h-full no-drag" style="--wails-draggable:no-drag">
