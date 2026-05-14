@@ -5,9 +5,9 @@ import madelineArtwork from "@assets/madeline_artwork_pendingcredits.png";
 import GeneralInfoGrid from "@components/index/GeneralInfoGrid.svelte";
 import LinkCard from "@components/index/LinkCard.svelte";
 import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
+import StartupScreens from "@components/global/StartupScreens.svelte";
 import IconDashboard from "~icons/material-symbols/dashboard";
 import IconExtension from "~icons/material-symbols/extension";
-import IconFlag from "~icons/material-symbols/flag";
 import IconHistory from "~icons/material-symbols/history";
 import IconLeaderboard from "~icons/material-symbols/leaderboard";
 import IconMap from "~icons/material-symbols/map";
@@ -22,6 +22,7 @@ import Layout from "../Layout.astro";
   bodyClassNames="antialiased selection:bg-primary selection:text-white bg-bg-base text-zinc-100 font-body"
   bodyId="page-hub"
 >
+  <StartupScreens client:load />
   <!-- Main Content -->
   <main class="pb-20">
     <!-- Hero Section -->

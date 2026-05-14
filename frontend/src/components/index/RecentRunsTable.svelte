@@ -80,7 +80,17 @@ async function loadIndexedAssets(runRows: src.RecentRun[]) {
 }
 
 onMount(() => {
+	const refreshAfterAssetIndex = () => {
+		indexedAssetCache = {};
+		void fetchRuns(true);
+	};
+
+	window.addEventListener("celeste-assets-indexed", refreshAfterAssetIndex);
 	fetchRuns(true);
+
+	return () => {
+		window.removeEventListener("celeste-assets-indexed", refreshAfterAssetIndex);
+	};
 });
 
 function loadMore() {

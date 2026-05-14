@@ -36,6 +36,26 @@ export namespace src {
 	        this.coverImgPath = source["coverImgPath"];
 	    }
 	}
+	export class CelesteInstallValidation {
+	    celesteInstalled: boolean;
+	    everestInstalled: boolean;
+	    celestePath: string;
+	    modsPath: string;
+	    message: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new CelesteInstallValidation(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.celesteInstalled = source["celesteInstalled"];
+	        this.everestInstalled = source["everestInstalled"];
+	        this.celestePath = source["celestePath"];
+	        this.modsPath = source["modsPath"];
+	        this.message = source["message"];
+	    }
+	}
 	export class Collection {
 	    id: number;
 	    name: string;

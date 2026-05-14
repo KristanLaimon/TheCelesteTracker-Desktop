@@ -38,13 +38,6 @@ func (a *App) startup(ctx context.Context) {
 	} else {
 		src.LogInfo("Desktop schema database already appended. Skipping...")
 	}
-
-	result, err := src.Asset_IndexInstalledMods()
-	if err != nil {
-		src.LogError(fmt.Sprintf("Failed to index mod assets: %s", err))
-	} else {
-		src.LogInfo(fmt.Sprintf("Mod assets indexed: %+v", result))
-	}
 }
 
 func (a *App) QuitApp() {
@@ -140,6 +133,10 @@ func (a *App) GetIndexedAssetAsBase64(fileName string) (string, error) {
 
 func (a *App) IndexModAssets() (src.ModAssetIndexResult, error) {
 	return src.Asset_IndexInstalledMods()
+}
+
+func (a *App) ValidateCelesteInstall() src.CelesteInstallValidation {
+	return src.ValidateCelesteInstall()
 }
 
 // Campaign CRUD

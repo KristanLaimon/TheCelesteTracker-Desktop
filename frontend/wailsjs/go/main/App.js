@@ -93,3 +93,7 @@ export function UpdateCampaign(arg1, arg2, arg3, arg4) {
 export function UpdateCollection(arg1, arg2, arg3) {
   return window['go']['main']['App']['UpdateCollection'](arg1, arg2, arg3);
 }
+
+export function ValidateCelesteInstall() {
+  return window['go']['main']['App']['ValidateCelesteInstall']();
+}

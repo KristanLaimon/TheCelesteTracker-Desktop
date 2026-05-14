@@ -47,3 +47,5 @@ export function QuitApp():Promise<void>;
 export function UpdateCampaign(arg1:number,arg2:string,arg3:any,arg4:any):Promise<void>;
 
 export function UpdateCollection(arg1:number,arg2:string,arg3:Array<number>):Promise<void>;
+
+export function ValidateCelesteInstall():Promise<src.CelesteInstallValidation>;

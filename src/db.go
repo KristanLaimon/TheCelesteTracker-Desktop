@@ -1,13 +1,14 @@
 package src
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var ___db *sqlx.DB;
+var ___db *sqlx.DB
 var alreadyConnected bool = false
 
 func Db_GetConnection() *sqlx.DB {
@@ -17,14 +18,20 @@ func Db_GetConnection() *sqlx.DB {
 
 	celesteModDbPath, err := GetCelesteModTrackerDatabasePath()
 	if err != nil {
-		LogFatalError(err.Error())
+		LogError(err.Error())
+		return nil
+	}
+	if !FileExists(celesteModDbPath) {
+		LogError(fmt.Sprintf("database not found: %s", celesteModDbPath))
+		return nil
 	}
 
 	// Use _fk=1 to enable foreign key support in sqlite3 driver
 	dsn := fmt.Sprintf("%s?_fk=1", celesteModDbPath)
 	_db, err := sqlx.Open("sqlite3", dsn)
 	if err != nil {
-		LogFatalError(err.Error())
+		LogError(err.Error())
+		return nil
 	}
 
 	___db = _db
@@ -33,38 +40,44 @@ func Db_GetConnection() *sqlx.DB {
 }
 
 type Db_ExecResult struct {
-  LastIdInserted int64
-  RowsAffected int64
+	LastIdInserted int64
+	RowsAffected   int64
 }
+
 func Db_Exec(queryNoSelect string, args ...any) (Db_ExecResult, error) {
-  _db := Db_GetConnection()
-  
-  res, err := _db.Exec(queryNoSelect, args...)
-  if err != nil {
-    return Db_ExecResult{}, err
-  }
+	_db := Db_GetConnection()
+	if _db == nil {
+		return Db_ExecResult{}, errors.New("database unavailable")
+	}
 
+	res, err := _db.Exec(queryNoSelect, args...)
+	if err != nil {
+		return Db_ExecResult{}, err
+	}
 
-  lastId, err := res.LastInsertId()
-  if err != nil {
-    return Db_ExecResult{}, err
-  }
+	lastId, err := res.LastInsertId()
+	if err != nil {
+		return Db_ExecResult{}, err
+	}
 
-  rowsAffected, err := res.RowsAffected()
-  if err != nil {
-    return Db_ExecResult{}, err
-  }
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		return Db_ExecResult{}, err
+	}
 
-  return Db_ExecResult{
-    LastIdInserted: lastId ,
-    RowsAffected: rowsAffected,
-  }, nil
+	return Db_ExecResult{
+		LastIdInserted: lastId,
+		RowsAffected:   rowsAffected,
+	}, nil
 }
 
 func Db_Select(typeToConvert any, query string, args ...any) error {
 	_db := Db_GetConnection()
+	if _db == nil {
+		return errors.New("database unavailable")
+	}
 
-	err := _db.Select(typeToConvert, query, args...);
+	err := _db.Select(typeToConvert, query, args...)
 
 	if err != nil {
 		LogError(fmt.Sprintf("[SQLITE Query] Error: %s", err))
@@ -108,6 +121,9 @@ func db_addColumn(db *sqlx.DB, table, col, def string) error {
 
 func Db_AppendDesktopSchema() error {
 	_db := Db_GetConnection()
+	if _db == nil {
+		return errors.New("database unavailable")
+	}
 
 	// Ensure foreign keys are enabled for this connection
 	_, _ = _db.Exec("PRAGMA foreign_keys = ON;")
