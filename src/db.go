@@ -175,5 +175,25 @@ func Db_AppendDesktopSchema() error {
 		return err
 	}
 
+	// ChapterSides: editable desktop metadata.
+	if err := db_addColumn(_db, "ChapterSides", "hearts_available", "INTEGER"); err != nil {
+		return err
+	}
+	if err := db_addColumn(_db, "ChapterSides", "desktop_total_time", "INTEGER"); err != nil {
+		return err
+	}
+	if err := db_addColumn(_db, "ChapterSides", "desktop_deaths", "INTEGER"); err != nil {
+		return err
+	}
+	if err := db_addColumn(_db, "ChapterSides", "desktop_fewest_deaths", "INTEGER"); err != nil {
+		return err
+	}
+	if err := db_addColumn(_db, "ChapterSides", "desktop_dashes", "INTEGER"); err != nil {
+		return err
+	}
+	if err := db_addColumn(_db, "ChapterSides", "desktop_jumps", "INTEGER"); err != nil {
+		return err
+	}
+
 	return nil
 }

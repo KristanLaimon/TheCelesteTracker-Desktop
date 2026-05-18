@@ -31,6 +31,21 @@ type LevelCollectionStats struct {
 	EndscreenImgPath   *string `db:"endscreen_img_path" json:"endscreenImgPath"`
 }
 
+type ChapterSideStatsUpdate struct {
+	ChapterSid         string `json:"chapterSid"`
+	SideId             string `json:"sideId"`
+	TotalTime          int64  `json:"totalTime"`
+	Strawberries       int    `json:"strawberries"`
+	MaxStrawberries    int    `json:"maxStrawberries"`
+	GoldenStrawberries int    `json:"goldenStrawberries"`
+	Hearts             int    `json:"hearts"`
+	MaxHearts          int    `json:"maxHearts"`
+	Deaths             int    `json:"deaths"`
+	FewestDeaths       int    `json:"fewestDeaths"`
+	Dashes             int    `json:"dashes"`
+	Jumps              int    `json:"jumps"`
+}
+
 func Collection_AddCampaign(collectionId int, campaignId int) bool {
 	_, err := Db_Exec(`INSERT INTO CollectionCampaigns (collection_id, campaign_id) VALUES (?, ?)`, collectionId, campaignId)
 
@@ -108,16 +123,16 @@ func Query_GetCollectionStats(campaignIds []int, saveDataId *int) ([]LevelCollec
 			ch.sid as level_name,
 			COALESCE(NULLIF(ch.name, ''), ch.sid) as chapter_name,
 			cs.side_id as level_side,
-			COALESCE(play_stats.total_time, 0) as total_time,
+			COALESCE(cs.desktop_total_time, play_stats.total_time, 0) as total_time,
 			COALESCE(cs.berries_collected, 0) as strawberries,
 			COALESCE(cs.berries_available, 0) as max_strawberries,
 			COALESCE(cs.goldenstrawberry_achieved, 0) as golden_strawberries,
 			COALESCE(cs.heart_collected, 0) as hearts,
-			1 as max_hearts,
-			COALESCE(play_stats.deaths, 0) as deaths,
-			COALESCE(play_stats.fewest_deaths, 0) as fewest_deaths,
-			COALESCE(play_stats.dashes, 0) as dashes,
-			COALESCE(play_stats.jumps, 0) as jumps,
+			COALESCE(cs.hearts_available, 1) as max_hearts,
+			COALESCE(cs.desktop_deaths, play_stats.deaths, 0) as deaths,
+			COALESCE(cs.desktop_fewest_deaths, play_stats.fewest_deaths, 0) as fewest_deaths,
+			COALESCE(cs.desktop_dashes, play_stats.dashes, 0) as dashes,
+			COALESCE(cs.desktop_jumps, play_stats.jumps, 0) as jumps,
 			c.cover_img_path,
 			ch.icon_img_path,
 			ch.endscreen_img_path
@@ -174,4 +189,117 @@ func Query_GetCollectionStats(campaignIds []int, saveDataId *int) ([]LevelCollec
 	}
 
 	return toReturn, nil
+}
+
+func ChapterSide_UpdateHearts(chapterSid string, sideId string, hearts int, maxHearts int) error {
+	if hearts < 0 {
+		hearts = 0
+	}
+	if maxHearts < 0 {
+		maxHearts = 0
+	}
+	if hearts > maxHearts {
+		hearts = maxHearts
+	}
+
+	_, err := Db_Exec(`
+		UPDATE ChapterSides
+		SET heart_collected = ?, hearts_available = ?
+		WHERE chapter_sid = ? AND side_id = ?
+	`, hearts, maxHearts, chapterSid, sideId)
+
+	if err != nil {
+		LogError(fmt.Sprintf("[ChapterSide_UpdateHearts] Error: %s", err))
+	}
+
+	return err
+}
+
+func ChapterSide_UpdateStats(update ChapterSideStatsUpdate) error {
+	update = clampChapterSideStatsUpdate(update)
+	if err := Db_AppendDesktopSchema(); err != nil {
+		return err
+	}
+
+	_, err := Db_Exec(`
+		UPDATE ChapterSides
+		SET
+			berries_collected = ?,
+			berries_available = ?,
+			goldenstrawberry_achieved = ?,
+			heart_collected = ?,
+			hearts_available = ?,
+			desktop_total_time = ?,
+			desktop_deaths = ?,
+			desktop_fewest_deaths = ?,
+			desktop_dashes = ?,
+			desktop_jumps = ?
+		WHERE chapter_sid = ? AND side_id = ?
+	`,
+		update.Strawberries,
+		update.MaxStrawberries,
+		update.GoldenStrawberries,
+		update.Hearts,
+		update.MaxHearts,
+		update.TotalTime,
+		update.Deaths,
+		update.FewestDeaths,
+		update.Dashes,
+		update.Jumps,
+		update.ChapterSid,
+		update.SideId,
+	)
+
+	if err != nil {
+		LogError(fmt.Sprintf("[ChapterSide_UpdateStats] Error: %s", err))
+	}
+
+	return err
+}
+
+func clampChapterSideStatsUpdate(update ChapterSideStatsUpdate) ChapterSideStatsUpdate {
+	if update.TotalTime < 0 {
+		update.TotalTime = 0
+	}
+	if update.Strawberries < 0 {
+		update.Strawberries = 0
+	}
+	if update.MaxStrawberries < 0 {
+		update.MaxStrawberries = 0
+	}
+	if update.Strawberries > update.MaxStrawberries {
+		update.Strawberries = update.MaxStrawberries
+	}
+	if update.GoldenStrawberries < 0 {
+		update.GoldenStrawberries = 0
+	}
+	if update.GoldenStrawberries > 1 {
+		update.GoldenStrawberries = 1
+	}
+	if update.Hearts < 0 {
+		update.Hearts = 0
+	}
+	if update.MaxHearts < 0 {
+		update.MaxHearts = 0
+	}
+	if update.Hearts > update.MaxHearts {
+		update.Hearts = update.MaxHearts
+	}
+	if update.Deaths < 0 {
+		update.Deaths = 0
+	}
+	if update.FewestDeaths < 0 {
+		update.FewestDeaths = 0
+	}
+	if update.FewestDeaths > update.Deaths {
+		update.FewestDeaths = update.Deaths
+	}
+	if update.Dashes < 0 {
+		update.Dashes = 0
+	}
+	if update.Jumps < 0 {
+		update.Jumps = 0
+	}
+
+	return update
 }

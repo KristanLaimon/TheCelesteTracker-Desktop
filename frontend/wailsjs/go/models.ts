@@ -56,6 +56,40 @@ export namespace src {
 	        this.message = source["message"];
 	    }
 	}
+	export class ChapterSideStatsUpdate {
+	    chapterSid: string;
+	    sideId: string;
+	    totalTime: number;
+	    strawberries: number;
+	    maxStrawberries: number;
+	    goldenStrawberries: number;
+	    hearts: number;
+	    maxHearts: number;
+	    deaths: number;
+	    fewestDeaths: number;
+	    dashes: number;
+	    jumps: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ChapterSideStatsUpdate(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.chapterSid = source["chapterSid"];
+	        this.sideId = source["sideId"];
+	        this.totalTime = source["totalTime"];
+	        this.strawberries = source["strawberries"];
+	        this.maxStrawberries = source["maxStrawberries"];
+	        this.goldenStrawberries = source["goldenStrawberries"];
+	        this.hearts = source["hearts"];
+	        this.maxHearts = source["maxHearts"];
+	        this.deaths = source["deaths"];
+	        this.fewestDeaths = source["fewestDeaths"];
+	        this.dashes = source["dashes"];
+	        this.jumps = source["jumps"];
+	    }
+	}
 	export class Collection {
 	    id: number;
 	    name: string;

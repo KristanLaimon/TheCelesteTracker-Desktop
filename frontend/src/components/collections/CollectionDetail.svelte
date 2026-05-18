@@ -32,6 +32,7 @@
   let totalBerries = $state(0);
   let maxBerries = $state(0);
   let totalHearts = $state(0);
+  let maxHearts = $state(0);
   let totalDeaths = $state(0);
   let totalDashes = $state(0);
   let loading = $state(true);
@@ -43,7 +44,7 @@
   const statCards = [
     { key: 'time', label: 'Total Time', image: timerIcon, color: 'text-white', value: () => formatTime(totalTime) },
     { key: 'berries', label: 'Berries', image: strawberryIcon, color: 'text-tertiary', value: () => `${totalBerries}/${maxBerries}` },
-    { key: 'hearts', label: 'Hearts', image: heartIcon, color: 'text-purple-400', value: () => totalHearts.toLocaleString() },
+    { key: 'hearts', label: 'Hearts', image: heartIcon, color: 'text-purple-400', value: () => `${totalHearts}/${maxHearts}` },
     { key: 'deaths', label: 'Deaths', image: deathIcon, color: 'text-primary', value: () => totalDeaths.toLocaleString() },
     { key: 'dashes', label: 'Dashes', icon: IconBolt, color: 'text-secondary', value: () => totalDashes.toLocaleString() },
     { key: 'sides', label: 'Sides', icon: IconFlag, color: 'text-yellow-400', value: () => sideCount.toLocaleString() },
@@ -68,6 +69,7 @@
           totalBerries = stats.reduce((sum, stat) => sum + (stat.strawberries || 0), 0);
           maxBerries = stats.reduce((sum, stat) => sum + (stat.maxStrawberries || 0), 0);
           totalHearts = stats.reduce((sum, stat) => sum + (stat.hearts || 0), 0);
+          maxHearts = stats.reduce((sum, stat) => sum + (stat.maxHearts || 0), 0);
           totalDeaths = stats.reduce((sum, stat) => sum + (stat.deaths || 0), 0);
           totalDashes = stats.reduce((sum, stat) => sum + (stat.dashes || 0), 0);
 
@@ -86,6 +88,7 @@
         totalBerries = 0;
         maxBerries = 0;
         totalHearts = 0;
+        maxHearts = 0;
         totalDeaths = 0;
         totalDashes = 0;
       }
@@ -180,7 +183,7 @@
     <div class="absolute inset-0 p-8 flex flex-col justify-end">
       <div class="flex items-center gap-6">
         <a
-          href="/collections"
+          href="/collections/"
           class="p-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white backdrop-blur-xl transition-all active:scale-95 border border-white/10 group/back"
         >
           <IconArrowBack class="text-2xl group-hover/back:-translate-x-1 transition-transform" />
@@ -202,15 +205,13 @@
                 </button>
               </div>
             {:else}
-              <h1 
-                class="text-5xl font-headline font-black text-white tracking-tighter drop-shadow-2xl cursor-pointer hover:text-primary transition-colors"
-                role="button"
-                tabindex="0"
+              <button
+                type="button"
+                class="appearance-none border-0 bg-transparent p-0 text-left text-5xl font-headline font-black text-white tracking-tighter drop-shadow-2xl cursor-pointer hover:text-primary transition-colors"
                 onclick={() => isEditingName = true}
-                onkeydown={(e) => e.key === 'Enter' && (isEditingName = true)}
               >
                 {collectionName || 'Loading...'}
-              </h1>
+              </button>
               <button 
                 onclick={() => isEditingName = true}
                 class="p-2 rounded-lg bg-white/5 text-white/40 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100"
@@ -245,7 +246,7 @@
   </div>
 
   {#if !loading}
-    <CollectionTable {campaignIds} />
+    <CollectionTable {campaignIds} onStatsChanged={() => id && loadCollection(id)} />
   {:else}
     <div class="p-12 text-center text-zinc-500 font-montserrat">
         <div class="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>

@@ -36,7 +36,7 @@
   <div class="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/75 to-zinc-950/30"></div>
   <div class="absolute inset-0 bg-linear-to-r from-zinc-950/80 via-transparent to-transparent"></div>
 
-  <a href={`/collections/detail?id=${collection.id}`} class="relative z-10 flex flex-col justify-end h-full p-6">
+  <a href={`/collections/detail/?id=${collection.id}`} class="relative z-10 flex flex-col justify-end h-full p-6">
     <div class="w-11 h-11 rounded-xl bg-orange-400/15 border border-orange-400/25 text-orange-300 flex items-center justify-center mb-4">
       <IconMap class="text-2xl" />
     </div>

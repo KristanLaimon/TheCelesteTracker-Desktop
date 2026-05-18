@@ -4,13 +4,15 @@ import (
 	"TheCelesteTrackerDesktop/src"
 	"context"
 	"fmt"
+	"sync/atomic"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx      context.Context
+	quitting atomic.Bool
 }
 
 // NewApp creates a new App application struct
@@ -25,23 +27,56 @@ func (a *App) startup(ctx context.Context) {
 	src.LogInfo("Application starting up...")
 	src.Config_Initialize()
 
-	if !src.CONFIG.DatabaseAlreadyAppended {
-		src.LogInfo("Appending Desktop schema to database...")
-		err := src.Db_AppendDesktopSchema()
-		if err != nil {
-			src.LogError(fmt.Sprintf("Failed to append desktop schema: %s", err))
-		} else {
+	src.LogInfo("Ensuring Desktop schema is up to date...")
+	err := src.Db_AppendDesktopSchema()
+	if err != nil {
+		src.LogError(fmt.Sprintf("Failed to append desktop schema: %s", err))
+	} else {
+		if !src.CONFIG.DatabaseAlreadyAppended {
 			src.CONFIG.DatabaseAlreadyAppended = true
 			src.WriteToFileAsJson("./config.json", src.CONFIG)
-			src.LogInfo("Desktop schema appended successfully.")
+		}
+		src.LogInfo("Desktop schema ready.")
+	}
+
+	if !src.Config_IsInitialProgressScrappingMadeForConfiguredSlot() {
+		src.LogInfo(fmt.Sprintf("Initial progress bootstrap pending for save slot %d...", src.CONFIG.SelectedSaveSlotFile))
+		result, err := src.InitialProgress_BootstrapConfiguredSlot()
+		if err != nil {
+			src.LogError(fmt.Sprintf("Initial progress bootstrap failed: %s", err))
+		} else {
+			err = src.Config_MarkInitialProgressScrappingMadeForConfiguredSlot()
+			if err != nil {
+				src.LogError(fmt.Sprintf("Initial progress bootstrap completed but config update failed: %s", err))
+			} else {
+				src.LogInfo(fmt.Sprintf(
+					"Initial progress bootstrap completed for slot %d: %d campaigns, %d chapters, %d sides, %d sessions, %d assets updated.",
+					result.SlotFile,
+					result.CampaignsTouched,
+					result.ChaptersTouched,
+					result.SidesTouched,
+					result.SessionsInserted,
+					result.AssetIndex.ChaptersUpdated,
+				))
+			}
 		}
 	} else {
-		src.LogInfo("Desktop schema database already appended. Skipping...")
+		src.LogInfo(fmt.Sprintf("Initial progress bootstrap already completed for save slot %d. Skipping...", src.CONFIG.SelectedSaveSlotFile))
 	}
 }
 
 func (a *App) QuitApp() {
+	a.quitting.Store(true)
 	runtime.Quit(a.ctx)
+}
+
+func (a *App) beforeClose(ctx context.Context) (prevent bool) {
+	if a.quitting.Load() {
+		return false
+	}
+
+	runtime.EventsEmit(ctx, "app:close-requested")
+	return true
 }
 
 func (a *App) MaximiseApp() {
@@ -123,6 +158,14 @@ func (a *App) GetCollectionStats(campaignIds []int, saveDataId *int) ([]src.Leve
 	return src.Query_GetCollectionStats(campaignIds, saveDataId)
 }
 
+func (a *App) UpdateChapterSideHearts(chapterSid string, sideId string, hearts int, maxHearts int) error {
+	return src.ChapterSide_UpdateHearts(chapterSid, sideId, hearts, maxHearts)
+}
+
+func (a *App) UpdateChapterSideStats(update src.ChapterSideStatsUpdate) error {
+	return src.ChapterSide_UpdateStats(update)
+}
+
 func (a *App) GetAssetAsBase64(path string) (string, error) {
 	return src.GetAssetAsBase64(path)
 }
@@ -133,6 +176,10 @@ func (a *App) GetIndexedAssetAsBase64(fileName string) (string, error) {
 
 func (a *App) IndexModAssets() (src.ModAssetIndexResult, error) {
 	return src.Asset_IndexInstalledMods()
+}
+
+func (a *App) GetModAssetIndexStatus() (src.ModAssetIndexResult, error) {
+	return src.Asset_GetIndexStatus()
 }
 
 func (a *App) ValidateCelesteInstall() src.CelesteInstallValidation {

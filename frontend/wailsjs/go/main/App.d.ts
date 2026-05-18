@@ -32,6 +32,8 @@ export function GetIndexedAssetAsBase64(arg1:string):Promise<string>;
 
 export function GetLobbies(arg1:number):Promise<Array<src.Lobby>>;
 
+export function GetModAssetIndexStatus():Promise<src.ModAssetIndexResult>;
+
 export function Greet(arg1:string):Promise<string>;
 
 export function IndexModAssets():Promise<src.ModAssetIndexResult>;
@@ -45,6 +47,10 @@ export function Query_GetRecentHistory(arg1:number,arg2:number,arg3:number,arg4:
 export function QuitApp():Promise<void>;
 
 export function UpdateCampaign(arg1:number,arg2:string,arg3:any,arg4:any):Promise<void>;
+
+export function UpdateChapterSideHearts(arg1:string,arg2:string,arg3:number,arg4:number):Promise<void>;
+
+export function UpdateChapterSideStats(arg1:src.ChapterSideStatsUpdate):Promise<void>;
 
 export function UpdateCollection(arg1:number,arg2:string,arg3:Array<number>):Promise<void>;
 

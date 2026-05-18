@@ -2,6 +2,8 @@ package src
 
 import (
 	"archive/zip"
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -59,6 +61,7 @@ type ModAssetIndexResult struct {
 }
 
 type modAssetIndexManifest struct {
+	ModSetFingerprint string          `json:"modSetFingerprint"`
 	AttemptedChapters map[string]bool `json:"attemptedChapters"`
 }
 
@@ -80,6 +83,10 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 	}
 
 	manifest := readModAssetIndexManifest(appDataDir)
+	modSetFingerprint := fingerprintModAssetSources(modsFolder)
+	if manifest.ModSetFingerprint != "" && manifest.ModSetFingerprint != modSetFingerprint {
+		manifest.AttemptedChapters = make(map[string]bool)
+	}
 	chapterWorklist, err := getChapterAssetWorklist(appDataDir, manifest)
 	if err != nil {
 		return ModAssetIndexResult{}, err
@@ -170,11 +177,41 @@ func Asset_IndexInstalledMods() (ModAssetIndexResult, error) {
 		}
 	}
 
+	if len(chapterWorklist) > 0 {
+		for chapterSID := range chapterWorklist {
+			manifest.AttemptedChapters[chapterSID] = true
+		}
+	}
+	manifest.ModSetFingerprint = modSetFingerprint
 	if err := writeModAssetIndexManifest(appDataDir, manifest); err != nil {
 		LogError(fmt.Sprintf("[Mod Assets] Failed to write manifest: %s", err))
 	}
 
 	return result, nil
+}
+
+func Asset_GetIndexStatus() (ModAssetIndexResult, error) {
+	modsFolder, err := GetCelesteModsFolder()
+	if err != nil {
+		return ModAssetIndexResult{}, err
+	}
+
+	appDataDir, err := GetExecutableDataDir()
+	if err != nil {
+		return ModAssetIndexResult{}, err
+	}
+
+	manifest := readModAssetIndexManifest(appDataDir)
+	modSetFingerprint := fingerprintModAssetSources(modsFolder)
+	if manifest.ModSetFingerprint != "" && manifest.ModSetFingerprint != modSetFingerprint {
+		manifest.AttemptedChapters = make(map[string]bool)
+	}
+	chapterWorklist, err := getChapterAssetWorklist(appDataDir, manifest)
+	if err != nil {
+		return ModAssetIndexResult{}, err
+	}
+
+	return ModAssetIndexResult{ChaptersQueued: len(chapterWorklist)}, nil
 }
 
 func GetExecutableDataDir() (string, error) {
@@ -231,36 +268,12 @@ func getChapterAssetWorklist(dataDir string, manifest modAssetIndexManifest) (ma
 		if chapterSID == "" {
 			continue
 		}
-		if !manifest.AttemptedChapters[chapterSID] || indexedAssetFileMissing(dataDir, row.IconImgPath) || indexedAssetFileMissing(dataDir, row.EndscreenImgPath) {
+		if !manifest.AttemptedChapters[chapterSID] {
 			worklist[chapterSID] = true
 		}
 	}
 
 	return worklist, nil
-}
-
-func indexedAssetFileMissing(dataDir, fileName string) bool {
-	if fileName == "" {
-		return false
-	}
-	for _, candidateDataDir := range append([]string{dataDir}, getCandidateDataDirs()...) {
-		assetsDir := filepath.Join(candidateDataDir, assetRootFolderName)
-		found := false
-		_ = filepath.WalkDir(assetsDir, func(current string, d os.DirEntry, walkErr error) error {
-			if walkErr != nil || d.IsDir() {
-				return nil
-			}
-			if strings.EqualFold(d.Name(), fileName) {
-				found = true
-				return filepath.SkipAll
-			}
-			return nil
-		})
-		if found {
-			return false
-		}
-	}
-	return true
 }
 
 func stripChapterSIDPrefix(sid string) string {
@@ -352,6 +365,57 @@ func openModAssetSources(modsFolder string) ([]modAssetSource, error) {
 		}
 	}
 	return sources, nil
+}
+
+func fingerprintModAssetSources(modsFolder string) string {
+	entries, err := os.ReadDir(modsFolder)
+	if err != nil {
+		return ""
+	}
+
+	parts := make([]string, 0, len(entries))
+	for _, entry := range entries {
+		if entry.Name() == "Cache" || strings.EqualFold(entry.Name(), "blacklist.txt") || strings.EqualFold(entry.Name(), "favorites.txt") {
+			continue
+		}
+		fullPath := filepath.Join(modsFolder, entry.Name())
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		if entry.IsDir() {
+			parts = append(parts, "dir:"+entry.Name()+":"+fingerprintDirectoryMod(fullPath))
+			continue
+		}
+		if strings.EqualFold(filepath.Ext(entry.Name()), ".zip") {
+			parts = append(parts, fmt.Sprintf("zip:%s:%d:%d", entry.Name(), info.Size(), info.ModTime().UnixNano()))
+		}
+	}
+	sort.Strings(parts)
+	sum := sha1.Sum([]byte(strings.Join(parts, "\n")))
+	return hex.EncodeToString(sum[:])
+}
+
+func fingerprintDirectoryMod(dirPath string) string {
+	parts := make([]string, 0)
+	_ = filepath.WalkDir(dirPath, func(current string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return nil
+		}
+		info, err := d.Info()
+		if err != nil {
+			return nil
+		}
+		rel, err := filepath.Rel(dirPath, current)
+		if err != nil {
+			return nil
+		}
+		parts = append(parts, fmt.Sprintf("%s:%d:%d", normalizeArchivePath(rel), info.Size(), info.ModTime().UnixNano()))
+		return nil
+	})
+	sort.Strings(parts)
+	sum := sha1.Sum([]byte(strings.Join(parts, "\n")))
+	return hex.EncodeToString(sum[:])
 }
 
 func openZipModSource(filePath string) (modAssetSource, bool) {
@@ -553,8 +617,16 @@ func resolveChapterIconAsset(source *modAssetSource, globalAssets map[string]mod
 	candidates = append(candidates,
 		path.Join("Graphics/Atlases/Gui/areas", sid+"_icon.png"),
 		path.Join("Graphics/Atlases/Gui/areas", sid+".png"),
+		path.Join("Graphics/Atlases/Gui/areas", sid, "mapicon.png"),
+		path.Join("Graphics/Atlases/Gui/areas", sid, "icon.png"),
+		path.Join("Graphics/Atlases/Gui/areas", sid, baseName+".png"),
+		path.Join("Graphics/Atlases/Gui/areas", sid, baseName+"_icon.png"),
 		path.Join("Graphics/Atlases/Gui/areas", baseDir, baseName+"_icon.png"),
 		path.Join("Graphics/Atlases/Gui/areas", baseDir, baseName+".png"),
+		path.Join("Graphics/Atlases/Gui/areas", baseDir, "mapicon.png"),
+		path.Join("Graphics/Atlases/Gui/areas", baseDir, "icon.png"),
+		path.Join("Graphics/Atlases/Gui/areas", baseDir, baseName, "mapicon.png"),
+		path.Join("Graphics/Atlases/Gui/areas", baseDir, baseName, "icon.png"),
 	)
 
 	seen := make(map[string]bool)

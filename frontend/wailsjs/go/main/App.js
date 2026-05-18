@@ -62,6 +62,10 @@ export function GetLobbies(arg1) {
   return window['go']['main']['App']['GetLobbies'](arg1);
 }
 
+export function GetModAssetIndexStatus() {
+  return window['go']['main']['App']['GetModAssetIndexStatus']();
+}
+
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
@@ -88,6 +92,14 @@ export function QuitApp() {
 
 export function UpdateCampaign(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['UpdateCampaign'](arg1, arg2, arg3, arg4);
+}
+
+export function UpdateChapterSideHearts(arg1, arg2, arg3, arg4) {
+  return window['go']['main']['App']['UpdateChapterSideHearts'](arg1, arg2, arg3, arg4);
+}
+
+export function UpdateChapterSideStats(arg1) {
+  return window['go']['main']['App']['UpdateChapterSideStats'](arg1);
 }
 
 export function UpdateCollection(arg1, arg2, arg3) {

@@ -14,17 +14,17 @@ import (
 var assets embed.FS
 
 func main() {
-  src.LogClearFile()
-  StartWailsApp()
+	src.LogClearFile()
+	StartWailsApp()
 }
 
 func StartWailsApp() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:  "TheCelesteTrackerDesktop",
-		Width:  1350,
-		Height: 800,
+		Title:     "TheCelesteTrackerDesktop",
+		Width:     1350,
+		Height:    800,
 		MinWidth:  480,
 		MinHeight: 800,
 		AssetServer: &assetserver.Options{
@@ -32,13 +32,14 @@ func StartWailsApp() {
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		OnStartup:        app.startup,
+		OnBeforeClose:    app.beforeClose,
 		Bind: []any{
 			app,
 		},
-	 Frameless: true,
-	 Debug: options.Debug{
-		  OpenInspectorOnStartup: true,
-	 },
+		Frameless: true,
+		Debug: options.Debug{
+			OpenInspectorOnStartup: true,
+		},
 	})
 	if err != nil {
 		src.LogError("Error: " + err.Error())
@@ -52,4 +53,3 @@ func Debug(anything any) {
 	}
 	src.LogDebug(string(bytes))
 }
-

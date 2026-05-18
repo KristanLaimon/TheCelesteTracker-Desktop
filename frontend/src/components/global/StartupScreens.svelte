@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import {
+    GetModAssetIndexStatus,
     IndexModAssets,
     ValidateCelesteInstall,
   } from "../../../wailsjs/go/main/App";
@@ -64,11 +65,17 @@
         };
       }
 
-      delayTimer = setTimeout(() => {
-        showFetchingAssets = true;
-      }, fetchingDelayMs);
-
       try {
+        const status = await GetModAssetIndexStatus();
+        if (status.chaptersQueued === 0) {
+          return;
+        }
+
+        fetchingDetail = `Preparing assets for ${status.chaptersQueued} chapters.`;
+        delayTimer = setTimeout(() => {
+          showFetchingAssets = true;
+        }, fetchingDelayMs);
+
         const result = await IndexModAssets();
         fetchingDetail = `${result.iconsCopied} icons copied from ${result.modsScanned} mods.`;
         window.dispatchEvent(new CustomEvent("celeste-assets-indexed", { detail: result }));
