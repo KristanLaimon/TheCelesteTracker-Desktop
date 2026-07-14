@@ -1,0 +1,253 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Neutralinojs Configuration",
+  "description": "Configuration file for Neutralinojs applications (neutralino.config.json).",
+  "type": "object",
+  "properties": {
+    "applicationId": {
+      "type": "string",
+      "description": "Unique string to identify your application. Eg: js.neutralino.sample"
+    },
+    "version": {
+      "type": "string",
+      "description": "Application version. Eg: 2.4.22"
+    },
+    "defaultMode": {
+      "type": "string",
+      "enum": ["window", "browser", "cloud", "chrome"],
+      "description": "Mode of the application."
+    },
+    "port": {
+      "type": "integer",
+      "description": "The port of your application. If the value is 0, Neutralinojs will use a random available port."
+    },
+    "enableServer": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enables or disables the background server (Disables static file serving feature and native API messaging)."
+    },
+    "enableNativeAPI": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enables or disables the native API."
+    },
+    "singlePageServe": {
+      "type": "boolean",
+      "default": false,
+      "description": "Activates SPA (Single Page App) serving."
+    },
+    "tokenSecurity": {
+      "type": "string",
+      "enum": ["one-time", "none"],
+      "default": "one-time",
+      "description": "Defines the security implementation for the access token."
+    },
+    "url": {
+      "type": "string",
+      "description": "The entry URL of the application. Accepts both relative and absolute URLs."
+    },
+    "documentRoot": {
+      "type": "string",
+      "description": "Sets the document root for the static server."
+    },
+    "exportAuthInfo": {
+      "type": "boolean",
+      "description": "Exports authentication details to the ${NL_PATH}/.tmp/auth_info.json file."
+    },
+    "enableExtensions": {
+      "type": "boolean",
+      "description": "Enables/disables extensions."
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "An array of extension definitions."
+    },
+    "nativeBlockList": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "An array of native methods needs to be blocked from the frontend of the application."
+    },
+    "nativeAllowList": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "An array of native methods needs to be allowed from the frontend of the application."
+    },
+    "globalVariables": {
+      "type": "object",
+      "description": "A key-value-based JavaScript object of custom global variables."
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enables or disables the logging feature."
+        },
+        "writeToLogFile": {
+          "type": "boolean",
+          "description": "Enables or disables log file writing to neutralinojs.log."
+        }
+      }
+    },
+    "serverHeaders": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Custom headers for the static server and Websocket handshake process."
+    },
+    "dataLocation": {
+      "type": "string",
+      "enum": ["app", "system"],
+      "default": "app",
+      "description": "Configures the internal framework data files storage directory."
+    },
+    "storageLocation": {
+      "type": "string",
+      "enum": ["app", "system"],
+      "default": "app",
+      "description": "Configures the Neutralinojs storage location."
+    },
+    "modes": {
+      "type": "object",
+      "properties": {
+        "window": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "width": { "type": "integer" },
+            "height": { "type": "integer" },
+            "minWidth": { "type": "integer" },
+            "minHeight": { "type": "integer" },
+            "maxWidth": { "type": "integer" },
+            "maxHeight": { "type": "integer" },
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "center": { "type": "boolean" },
+            "transparent": { "type": "boolean", "default": false },
+            "fullScreen": { "type": "boolean" },
+            "icon": { "type": "string" },
+            "alwaysOnTop": { "type": "boolean" },
+            "enableInspector": { "type": "boolean" },
+            "openInspectorOnStartup": { "type": "boolean" },
+            "borderless": { "type": "boolean" },
+            "maximize": { "type": "boolean" },
+            "resizable": { "type": "boolean", "default": true },
+            "hidden": { "type": "boolean" },
+            "skipTaskbar": { "type": "boolean" },
+            "exitProcessOnClose": { "type": "boolean" },
+            "useSavedState": { "type": "boolean", "default": true },
+            "useLogicalPixels": { "type": "boolean" },
+            "extendUserAgentWith": { "type": "string" },
+            "injectGlobals": { "type": "boolean" },
+            "injectClientLibrary": { "type": "boolean" },
+            "injectScript": { "type": "string" },
+            "webviewArgs": { "type": "string" },
+            "emitDropEvents": { "type": "boolean" },
+            "newWindowPolicy": {
+              "type": "string",
+              "enum": ["system", "browser", "custom"]
+            }
+          }
+        },
+        "chrome": {
+          "type": "object",
+          "properties": {
+            "width": { "type": "integer" },
+            "height": { "type": "integer" },
+            "browserBinary": { "type": "string" },
+            "browserBinaryLinux": { "type": "string" },
+            "browserBinaryDarwin": { "type": "string" },
+            "browserBinaryWindows": { "type": "string" },
+            "args": { "type": "string" }
+          }
+        }
+      }
+    },
+    "cli": {
+      "type": "object",
+      "properties": {
+        "binaryName": { "type": "string" },
+        "resourcesPath": { "type": "string" },
+        "resourcesExclude": { "type": "string" },
+        "extensionsPath": { "type": "string" },
+        "extensionsExclude": { "type": "string" },
+        "clientLibrary": { "type": "string" },
+        "binaryVersion": { "type": "string" },
+        "clientVersion": { "type": "string" },
+        "autoReloadExclude": { "type": "string" },
+        "frontendLibrary": {
+          "type": "object",
+          "properties": {
+            "patchFile": {
+              "type": "string",
+              "description": "Path to the main HTML file to be patched by neu CLI for HMR (Hot Module Replacement)."
+            },
+            "devUrl": {
+              "type": "string",
+              "description": "The URL of the frontend framework's development server."
+            },
+            "projectPath": {
+              "type": "string",
+              "description": "Path to the frontend framework project directory."
+            },
+            "initCommand": {
+              "type": "string",
+              "description": "Command to initialize the frontend project (e.g., npm install)."
+            },
+            "devCommand": {
+              "type": "string",
+              "description": "Command to start the frontend framework's development server."
+            },
+            "buildCommand": {
+              "type": "string",
+              "description": "Command to build the frontend framework's production assets."
+            }
+          }
+        },
+        "hostProject": {
+          "type": "object",
+          "properties": {
+            "projectPath": { "type": "string" },
+            "initCommand": { "type": "string" },
+            "devCommand": { "type": "string" },
+            "buildCommand": { "type": "string" },
+            "buildPath": { "type": "string" }
+          }
+        },
+        "distributionPath": { "type": "string", "default": "/dist" },
+        "copyItems": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "applicationName": {
+      "type": "string",
+      "description": "The human-readable application name (Windows metadata)."
+    },
+    "applicationIcon": {
+      "type": "string",
+      "description": "The location of the executable's icon in PNG format (Windows metadata)."
+    },
+    "author": {
+      "type": "string",
+      "description": "The developer of the application (Windows metadata)."
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of the executable file (Windows metadata)."
+    },
+    "copyright": {
+      "type": "string",
+      "description": "Copyright information (Windows metadata)."
+    }
+  }
+}
