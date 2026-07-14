@@ -1,8 +1,7 @@
-import type { Component } from 'svelte';
-
 export interface Route {
   pattern: string;
-  component: Component;
+  // biome-ignore lint/suspicious/noExplicitAny: compatibility with Svelte 4 class components and Svelte 5 function components in IDE type checkers
+  component: any;
 }
 
 class Router {
@@ -22,7 +21,8 @@ class Router {
           params,
           query,
           hash,
-          component: route.component as Component,
+          // biome-ignore lint/suspicious/noExplicitAny: compatibility type
+          component: route.component as any,
         };
       }
     }
@@ -32,7 +32,8 @@ class Router {
       params: {} as Record<string, string>,
       query,
       hash,
-      component: null as Component | null,
+      // biome-ignore lint/suspicious/noExplicitAny: compatibility type
+      component: null as any,
     };
   });
 
