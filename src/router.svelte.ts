@@ -38,6 +38,17 @@ class Router {
     this.routes = newRoutes;
   }
 
+  scrollToHash(hash: string) {
+    if (!hash) return;
+    setTimeout(() => {
+      const id = decodeURIComponent(hash.slice(1));
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 0);
+  }
+
   navigate(href: string, options: { replace?: boolean } = {}) {
     if (typeof window === 'undefined') return;
     const newUrl = new URL(href, window.location.href);
@@ -47,6 +58,7 @@ class Router {
       window.history.pushState({}, '', href);
     }
     this.url = newUrl;
+    this.scrollToHash(newUrl.hash);
   }
 
   // Svelte action to intercept anchor clicks and route client-side
@@ -82,9 +94,13 @@ class Router {
   };
 
   constructor() {
-    window.addEventListener('popstate', () => {
-      this.url = new URL(window.location.href);
-    });
+    if (typeof window !== 'undefined') {
+      window.addEventListener('popstate', () => {
+        this.url = new URL(window.location.href);
+        this.scrollToHash(this.url.hash);
+      });
+      this.scrollToHash(window.location.hash);
+    }
   }
 }
 
