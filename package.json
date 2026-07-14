@@ -16,6 +16,7 @@
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.3",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@tsconfig/svelte": "5.0.8",
     "@types/node": "24.13.2",

@@ -1,6 +1,8 @@
+import type { Component } from 'svelte';
+
 export interface Route {
   pattern: string;
-  component: any;
+  component: Component;
 }
 
 class Router {
@@ -20,7 +22,7 @@ class Router {
           params,
           query,
           hash,
-          component: route.component
+          component: route.component as Component,
         };
       }
     }
@@ -30,7 +32,7 @@ class Router {
       params: {} as Record<string, string>,
       query,
       hash,
-      component: null as any
+      component: null as Component | null,
     };
   });
 
@@ -89,7 +91,7 @@ class Router {
     return {
       destroy() {
         node.removeEventListener('click', click);
-      }
+      },
     };
   };
 
@@ -112,11 +114,11 @@ function matchRoute(pattern: string, path: string): Record<string, string> | nul
       return '([^/]+)';
     })
     .replace(/\*/g, '.*');
-  
+
   const regex = new RegExp(`^${regexStr}$`);
   const match = path.match(regex);
   if (!match) return null;
-  
+
   const params: Record<string, string> = {};
   keys.forEach((key, index) => {
     params[key] = decodeURIComponent(match[index + 1] || '');

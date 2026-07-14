@@ -1,12 +1,16 @@
+import { init } from '@neutralinojs/lib';
 import { mount } from 'svelte';
 import App from './main.svelte';
 
-import { init } from "@neutralinojs/lib";
+const target = document.getElementById('app');
+if (!target) {
+  throw new Error("Could not find element with id 'app'");
+}
 
 const app = mount(App, {
-  target: document.getElementById('app')!,
-})
+  target,
+});
 
-export default app
+export default app;
 
 init();

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import './global.css';
-  import { router } from './router.svelte';
-  import "./routes";
+import './global.css';
+import { router } from './router.svelte';
+import './routes';
 </script>
 
 <nav style="display: flex; gap: 15px; padding: 15px; background: #1e1e2e; border-radius: 8px; margin-bottom: 20px;">
