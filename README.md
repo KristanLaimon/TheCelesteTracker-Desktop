@@ -61,18 +61,18 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
 *Current UI is subject to change during beta.*
 
 ## Tech Stack
-- **Backend**: [Go](https://go.dev/) + [Wails v2](https://wails.io/) (Desktop bridge & Application Logic)
-- **Frontend**: [Astro 6](https://astro.build/) + [Svelte 5](https://svelte.dev/) + [Tailwind CSS 4](https://tailwindcss.com/) (Reactive UI & Styling)
-- **Database**: [SQLite](https://sqlite.org/) (Local data persistence)
-- **Icons**: [Iconify](https://iconify.design/) via [unplugin-icons](https://github.com/unplugin/unplugin-icons)
-- **Package Manager**: [Bun](https://bun.sh/) (Fast dependency management)
+- **Framework**: [Neutralinojs](https://neutralino.js.org/) (Lightweight portable desktop application framework)
+- **Frontend**: [Svelte 5](https://svelte.dev/) + [Vite](https://vite.dev/) + TypeScript
+- **Package Manager**: [Bun](https://bun.sh/) (Fast dependency management and runner)
 
 ## Getting Started
 
 ### Prerequisites
-- **Go**: [Installation Guide](https://go.dev/doc/install)
-- **Wails**: [Installation Guide](https://wails.io/docs/gettingstarted/installation)
 - **Bun**: [Bun Installation](https://bun.sh/)
+- **Neutralino CLI**: Install globally using:
+  ```bash
+  npm install -g @neutralinojs/neu
+  ```
 - **Celeste Mod**: Install **TheCelesteTracker-Mod** in Everest. Currently available via [GitHub](https://github.com/KristanLaimon/TheCelesteTracker-Mod) (coming soon to GameBanana).
 
 ### Installation
@@ -81,20 +81,28 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
    git clone https://github.com/KristanLaimon/TheCelesteTracker_Desktop.git
    cd TheCelesteTracker_Desktop
    ```
-2. Install dependencies:
+2. Install dependencies (this will automatically run `neu update` to download the required Neutralino binaries):
    ```bash
    bun install
    ```
-3. Run in development mode:
-   ```bash
-   wails dev
-   ```
+
+### Development
+To run the app in development mode with live reload and inspection enabled:
+```bash
+bun run dev
+```
+
+### Production Build
+To bundle the frontend assets and package the executable binaries:
+```bash
+bun run build
+```
+The final executable packages and `resources.neu` will be generated in the `dist/myapp/` directory.
 
 ## Architecture
-- `main.go` & `app.go`: Wails application entry point and event binding.
-- `src/`: Go backend source code (Database management, Celeste-specific logic).
-- `frontend/`: Astro + Svelte frontend source.
-- `frontend/wailsjs/`: Auto-generated JavaScript bindings for Go methods.
+- `neutralino.config.json`: Configuration for the Neutralinojs app runtime, build settings, and permission list.
+- `vite.config.ts`: Configuration for Vite bundler, configured to output client builds to the `resources/` directory to avoid colliding with Neutralino's `dist/` directory.
+- `src/`: Svelte 5 + TypeScript source code for the frontend UI.
 
 ## License
 MIT License. Created for the Celeste community.
