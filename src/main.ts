@@ -1,6 +1,5 @@
 import { mount } from 'svelte';
-import './app.css';
-import App from './App.svelte';
+import App from './main.svelte';
 
 import { init } from "@neutralinojs/lib";
 
@@ -9,6 +8,5 @@ const app = mount(App, {
 })
 
 export default app
-
 
 init();

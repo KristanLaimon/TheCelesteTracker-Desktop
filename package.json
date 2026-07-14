@@ -6,14 +6,14 @@
   "scripts": {
     "postinstall": "neu update",
     "dev": "neu run -- --window-enable-inspector",
-    "vite": "vite",
     "build:frontend": "vite build",
-    "build": "neu build",
-    "preview": "vite preview",
+    "build": "neu build --embed-resources",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
   },
   "dependencies": {
-    "@neutralinojs/lib": "6.8.0"
+    "@neutralinojs/lib": "6.8.0",
+    "@tailwindcss/vite": "^4.3.2",
+    "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.1.2",

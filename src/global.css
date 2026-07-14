@@ -43,7 +43,7 @@
   --font-silkscreen: "silkscreen", cursive;
 }
 
-@theme {
+/* @theme {
   --color-primary: #ff788c;
   --color-primary-container: #520017;
   --color-secondary: #67d8d2;
@@ -66,4 +66,4 @@
   --font-headline: "montserrat", sans-serif;
   --font-body: "montserrat", sans-serif;
   --font-pixel: "silkscreen", cursive;
-}
+} */
