@@ -105,6 +105,14 @@ func (a *App) Query_GetGlobalStats(saveDataId int, userId int) ([]src.GlobalStat
 	return toReturn, nil
 }
 
+func (a *App) Query_GetMonthlyRunStats(saveDataId int, userId int) ([]src.MonthlyRunStats, error) {
+	toReturn, err := src.Query_GetMonthlyRunStats(saveDataId, userId)
+	if err != nil {
+		return make([]src.MonthlyRunStats, 0), err
+	}
+	return toReturn, nil
+}
+
 // Collections CRUD
 func (a *App) GetCollections(userId int) ([]src.Collection, error) {
 	return src.Collection_List(userId)

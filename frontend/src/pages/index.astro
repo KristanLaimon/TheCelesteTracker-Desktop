@@ -5,6 +5,7 @@ import madelineArtwork from "@assets/madeline_artwork_pendingcredits.png";
 import GeneralInfoGrid from "@components/index/GeneralInfoGrid.svelte";
 import LinkCard from "@components/index/LinkCard.svelte";
 import RecentRunsTable from "@components/index/RecentRunsTable.svelte";
+import StatsTimeline from "@components/index/StatsTimeline.svelte";
 import StartupScreens from "@components/global/StartupScreens.svelte";
 import IconDashboard from "~icons/material-symbols/dashboard";
 import IconExtension from "~icons/material-symbols/extension";
@@ -76,10 +77,9 @@ import Layout from "../Layout.astro";
           client:load
           title="Vanilla Chapters"
           subtitle="Classic climb tracking"
-          href="#"
+          href="/vanilla-chapters/"
           iconClass="text-secondary"
           borderHoverClass="hover:border-secondary/50"
-          disabled
         >
           <IconMountainFlag slot="icon" />
         </LinkCard>
@@ -143,6 +143,10 @@ import Layout from "../Layout.astro";
     </section>
 
     <!-- Recent Run History Section -->
+    <section class="px-6 md:px-12 mt-12">
+      <StatsTimeline client:load />
+    </section>
+
     <section class="px-6 md:px-12 mt-12">
       <RecentRunsTable client:load />
     </section>

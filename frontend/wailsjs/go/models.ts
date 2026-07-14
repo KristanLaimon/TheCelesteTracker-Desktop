@@ -232,6 +232,38 @@ export namespace src {
 	        this.chaptersSkipped = source["chaptersSkipped"];
 	    }
 	}
+	export class MonthlyRunStats {
+	    month: string;
+	    runs: number;
+	    playtimeMs: number;
+	    deaths: number;
+	    dashes: number;
+	    jumps: number;
+	    strawberries: number;
+	    goldenAttempts: number;
+	    goldenCompletions: number;
+	    modRuns: number;
+	    vanillaRuns: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new MonthlyRunStats(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.month = source["month"];
+	        this.runs = source["runs"];
+	        this.playtimeMs = source["playtimeMs"];
+	        this.deaths = source["deaths"];
+	        this.dashes = source["dashes"];
+	        this.jumps = source["jumps"];
+	        this.strawberries = source["strawberries"];
+	        this.goldenAttempts = source["goldenAttempts"];
+	        this.goldenCompletions = source["goldenCompletions"];
+	        this.modRuns = source["modRuns"];
+	        this.vanillaRuns = source["vanillaRuns"];
+	    }
+	}
 	export class RecentRun {
 	    ID: string;
 	    CampaignName: string;

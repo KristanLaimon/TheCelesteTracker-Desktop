@@ -22,6 +22,20 @@ type RecentRun struct {
 	Strawberries int `db:"strawberries"`
 }
 
+type MonthlyRunStats struct {
+	Month            string `db:"month" json:"month"`
+	Runs             int    `db:"runs" json:"runs"`
+	PlaytimeMs       int64  `db:"playtime_ms" json:"playtimeMs"`
+	Deaths           int    `db:"deaths" json:"deaths"`
+	Dashes           int    `db:"dashes" json:"dashes"`
+	Jumps            int    `db:"jumps" json:"jumps"`
+	Strawberries     int    `db:"strawberries" json:"strawberries"`
+	GoldenAttempts   int    `db:"golden_attempts" json:"goldenAttempts"`
+	GoldenCompletions int    `db:"golden_completions" json:"goldenCompletions"`
+	ModRuns          int    `db:"mod_runs" json:"modRuns"`
+	VanillaRuns      int    `db:"vanilla_runs" json:"vanillaRuns"`
+}
+
 func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, currentPage int) ([]RecentRun, error) {
 	toReturn := make([]RecentRun, 0)
 	if currentPage < 1 {
@@ -65,6 +79,61 @@ func Query_GetRecentRunHistory(saveDataId int, userId int, pageSize int, current
 
 	if err != nil {
 		return []RecentRun{}, err
+	}
+
+	return toReturn, nil
+}
+
+func Query_GetMonthlyRunStats(saveDataId int, userId int) ([]MonthlyRunStats, error) {
+	toReturn := make([]MonthlyRunStats, 0)
+
+	err := Db_Select(&toReturn, fmt.Sprintf(`
+		with session_stats as (
+			select
+				gs.id,
+				strftime('%%Y-%%m', gs.date_time_start) as month,
+				gs.duration_ms,
+				gs.is_goldenberry_attempt,
+				gs.is_goldenberry_completed,
+				case
+					when cc.campaign_name_id like '%%celeste%%' then 'Vanilla'
+					else 'Mod'
+				end as campaign_type,
+				coalesce(sum(gscrs.deaths_in_room), 0) as deaths,
+				coalesce(sum(gscrs.dashes_in_room), 0) as dashes,
+				coalesce(sum(gscrs.jumps_in_room), 0) as jumps,
+				coalesce(sum(gscrs.strawberries_achieved_in_room), 0) as strawberries
+			from GameSessions gs
+			join Chapters c on gs.chapter_sid = c.sid
+			join Campaigns cc on c.campaign_id = cc.id
+			join SaveDatas sd on cc.save_data_id = sd.id
+			join Users u on sd.user_id = u.id
+			left join GameSessionChapterRoomStats gscrs on gscrs.gamesession_id = gs.id
+			where u.id = %d
+				and sd.id = %d
+				and gs.date_time_start >= date('now', 'start of month', '-11 months')
+			group by gs.id
+		)
+		select
+			month,
+			count(*) as runs,
+			coalesce(sum(duration_ms), 0) as playtime_ms,
+			coalesce(sum(deaths), 0) as deaths,
+			coalesce(sum(dashes), 0) as dashes,
+			coalesce(sum(jumps), 0) as jumps,
+			coalesce(sum(strawberries), 0) as strawberries,
+			coalesce(sum(is_goldenberry_attempt), 0) as golden_attempts,
+			coalesce(sum(is_goldenberry_completed), 0) as golden_completions,
+			coalesce(sum(case when campaign_type = 'Mod' then 1 else 0 end), 0) as mod_runs,
+			coalesce(sum(case when campaign_type = 'Vanilla' then 1 else 0 end), 0) as vanilla_runs
+		from session_stats
+		where month is not null
+		group by month
+		order by month asc;
+	`, userId, saveDataId))
+
+	if err != nil {
+		return []MonthlyRunStats{}, err
 	}
 
 	return toReturn, nil

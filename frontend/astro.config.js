@@ -9,6 +9,7 @@ import Icons from "unplugin-icons/vite";
 export default defineConfig({
   devToolbar: { enabled: false },
   outDir: "./dist",
+  trailingSlash: "always",
 
   vite: {
     plugins: [

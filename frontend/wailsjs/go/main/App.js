@@ -82,6 +82,10 @@ export function Query_GetGlobalStats(arg1, arg2) {
   return window['go']['main']['App']['Query_GetGlobalStats'](arg1, arg2);
 }
 
+export function Query_GetMonthlyRunStats(arg1, arg2) {
+  return window['go']['main']['App']['Query_GetMonthlyRunStats'](arg1, arg2);
+}
+
 export function Query_GetRecentHistory(arg1, arg2, arg3, arg4) {
   return window['go']['main']['App']['Query_GetRecentHistory'](arg1, arg2, arg3, arg4);
 }

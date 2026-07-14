@@ -663,7 +663,7 @@
               </div>
             </div>
 
-            <div>
+            <div class="chapter-table-shell">
               <div class="hidden xl:grid chapter-grid border-y border-outline-muted bg-zinc-900 px-3 py-3">
                 {#each columns as column, index (column + index)}
                   <div class="text-[10px] uppercase tracking-widest text-zinc-500 font-bold {column.align === 'left' ? 'text-left' : 'text-center'}">
@@ -679,7 +679,7 @@
                 {/each}
               </div>
 
-              <div class="divide-y divide-outline-muted/50">
+              <div class="chapter-table-body divide-y divide-outline-muted/50">
                 {#each campaign.levels as level (campaign.id + level.levelName + level.levelSide)}
                   {@const status = getStatus(level)}
                   {@const isGoldenFullClear = status.className === 'status-golden-full-clear'}
@@ -708,7 +708,7 @@
                       </div>
                     </div>
 
-                    <div class="stat-cell text-zinc-300">
+                    <div class="stat-cell text-zinc-300" data-label="Berries">
                       <img src={strawberryIcon.src} alt="" />
                       {#if isEditing}
                         <span class="stat-editor" aria-label="Edit berries collected and available">
@@ -720,7 +720,7 @@
                         {level.strawberries}/{level.maxStrawberries}
                       {/if}
                     </div>
-                    <div class="stat-cell text-yellow-300">
+                    <div class="stat-cell text-yellow-300" data-label="Golden">
                       <img src={goldenStrawberryIcon.src} alt="" />
                       {#if isEditing}
                         <label class="golden-editor" title="Golden collected">
@@ -730,7 +730,7 @@
                         {level.goldenStrawberries >= 1 ? 'Yes' : '-'}
                       {/if}
                     </div>
-                    <div class="stat-cell text-zinc-300">
+                    <div class="stat-cell text-zinc-300" data-label="Time">
                       <img src={timerIcon.src} alt="" class="opacity-70" />
                       {#if isEditing}
                         <input class="time-editor" value={draft.totalTimeText} aria-label="Total time" oninput={(event) => updateDraft(level, 'totalTimeText', event.currentTarget.value)} />
@@ -738,7 +738,7 @@
                         {formatTime(level.totalTime)}
                       {/if}
                     </div>
-                    <div class="stat-cell text-pink-300">
+                    <div class="stat-cell text-pink-300" data-label="Hearts">
                       {#if sideIcon}<img src={sideIcon} alt="" />{:else}<IconFavorite class="text-lg" />{/if}
                       {#if isEditing}
                         <span class="stat-editor heart-editor" aria-label="Edit hearts collected and available">
@@ -750,7 +750,7 @@
                         {level.hearts}/{level.maxHearts}
                       {/if}
                     </div>
-                    <div class="stat-cell text-red-300">
+                    <div class="stat-cell text-red-300" data-label="Deaths">
                       {#if levelDeathIcon}<img src={levelDeathIcon} alt="" />{:else}<IconSkull class="text-lg" />{/if}
                       {#if isEditing}
                         <input class="number-editor" type="number" min="0" value={draft.deaths} aria-label="Deaths" oninput={(event) => updateDraft(level, 'deaths', event.currentTarget.value)} />
@@ -758,7 +758,7 @@
                         {level.deaths}
                       {/if}
                     </div>
-                    <div class="stat-cell text-zinc-400">
+                    <div class="stat-cell text-zinc-400" data-label="Fewest">
                       {#if levelDeathIcon}<img src={levelDeathIcon} alt="" class="opacity-60" />{:else}<IconSkull class="text-lg opacity-70" />{/if}
                       {#if isEditing}
                         <input class="number-editor" type="number" min="0" value={draft.fewestDeaths} aria-label="Fewest deaths" oninput={(event) => updateDraft(level, 'fewestDeaths', event.currentTarget.value)} />
@@ -766,7 +766,7 @@
                         {level.fewestDeaths}
                       {/if}
                     </div>
-                    <div class="stat-cell text-cyan-300">
+                    <div class="stat-cell text-cyan-300" data-label="Dashes">
                       <IconBolt class="text-xl" />
                       {#if isEditing}
                         <input class="number-editor" type="number" min="0" value={draft.dashes} aria-label="Dashes" oninput={(event) => updateDraft(level, 'dashes', event.currentTarget.value)} />
@@ -774,7 +774,7 @@
                         {level.dashes}
                       {/if}
                     </div>
-                    <div class="stat-cell text-zinc-400">
+                    <div class="stat-cell text-zinc-400" data-label="Jumps">
                       <IconDirectionsRun class="text-lg" />
                       {#if isEditing}
                         <input class="number-editor" type="number" min="0" value={draft.jumps} aria-label="Jumps" oninput={(event) => updateDraft(level, 'jumps', event.currentTarget.value)} />
@@ -794,6 +794,11 @@
 </div>
 
 <style>
+  .chapter-table-shell {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
   .chapter-grid {
     grid-template-columns:
       minmax(5.2rem, 0.58fr)
@@ -807,8 +812,8 @@
 
   .chapter-row {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
     padding: 0.9rem;
   }
 
@@ -875,6 +880,8 @@
 
   .chapter-status {
     display: flex;
+    grid-column: 1 / -1;
+    grid-row: 2;
     align-items: center;
   }
 
@@ -950,6 +957,8 @@
 
   .chapter-name {
     display: flex;
+    grid-column: 1 / -1;
+    grid-row: 1;
     min-width: 0;
     align-items: center;
     gap: 0.75rem;
@@ -961,9 +970,25 @@
     align-items: center;
     justify-content: flex-start;
     gap: 0.35rem;
+    min-height: 2.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0.5rem;
+    background: rgba(9, 9, 11, 0.34);
+    padding: 0.35rem 0.5rem;
     font-family: var(--font-pixel);
     font-size: 0.68rem;
     white-space: nowrap;
+  }
+
+  .stat-cell::before {
+    content: attr(data-label);
+    margin-right: auto;
+    font-family: var(--font-body);
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(113, 113, 122);
   }
 
   .stat-cell img {
@@ -1024,7 +1049,7 @@
 
   @media (min-width: 640px) {
     .chapter-row {
-      grid-template-columns: minmax(7rem, 1fr) repeat(4, minmax(4rem, 0.7fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       align-items: center;
     }
 
@@ -1034,6 +1059,11 @@
   }
 
   @media (min-width: 1280px) {
+    .chapter-grid,
+    .chapter-row {
+      min-width: max(100%, 72rem);
+    }
+
     .chapter-row {
       grid-template-columns:
         minmax(5.2rem, 0.58fr)
@@ -1051,8 +1081,26 @@
       justify-content: center;
     }
 
+    .chapter-status {
+      grid-column: auto;
+      grid-row: auto;
+    }
+
     .chapter-name {
       grid-column: auto;
+      grid-row: auto;
+    }
+
+    .stat-cell {
+      min-height: auto;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .stat-cell::before {
+      display: none;
     }
   }
 </style>
