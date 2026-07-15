@@ -31,7 +31,7 @@ interface IRawInternalCanvasWidgetPropsHelper<T = Record<string, any>> {
 }
 
 /**
- * Persistence configuration and methods for the Canvas component.
+ * Persistence configuration and callbacks for the Canvas component.
  */
 export interface CanvasPersistence<Registry extends CanvasRegistry = CanvasRegistry> {
 	/** The localStorage key under which nodes are saved/loaded. */
@@ -40,16 +40,6 @@ export interface CanvasPersistence<Registry extends CanvasRegistry = CanvasRegis
 	beforeSave?: (nodes: CanvasNodeData<Registry>[], cancel: () => void) => void;
 	/** Callback fired after the canvas state is saved. */
 	afterSave?: (nodes: CanvasNodeData<Registry>[]) => void;
-	/** Method dynamically bound by the Canvas component. Call to clear all components. */
-	clearComponents?: () => void;
-	/** Method dynamically bound by the Canvas component. Call to clear viewport pan/zoom. */
-	clearView?: () => void;
-	/** Method dynamically bound by the Canvas component. Call to clear both components and viewport. */
-	clearAll?: () => void;
-	/** Deprecated method. Use clearComponents instead. */
-	clear?: () => void;
-	/** Deprecated method. Use clearView instead. */
-	resetView?: () => void;
 }
 
 // Helper to determine the required keys of a Svelte component's props interface

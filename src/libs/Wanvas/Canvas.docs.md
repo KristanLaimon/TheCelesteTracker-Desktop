@@ -1,4 +1,4 @@
-# Canvas.svelte Documentation
+# Wanvas.svelte Documentation (Widget Canvas)
 
 `Canvas.svelte` is a fully encapsulated, portable, zoomable, and pannable 2D workspace component designed for Svelte 5. It supports infinite or bounded panning, mouse-wheel zooming relative to the cursor, pinch-to-zoom touch gestures, custom node dragging and resizing, and full state serialization for persistent layouts.
 

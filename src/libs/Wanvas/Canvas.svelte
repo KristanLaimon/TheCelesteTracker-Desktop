@@ -8,7 +8,7 @@
 
 import type { Snippet } from 'svelte';
 import { onDestroy, onMount } from 'svelte';
-import { Log_Warn } from '../logic/logger';
+import { Log_Warn } from '../../logic/logger';
 import type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry } from './Canvas.types';
 
 export type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry };
@@ -291,37 +291,6 @@ onMount(() => {
 		const rect = wrapperEl.getBoundingClientRect();
 		x = rect.width / 2;
 		y = rect.height / 2;
-	}
-
-	// Bind the persistence methods safely here on mount to prevent reactive $effect loops
-	if (persistence) {
-		persistence.clearComponents = () => {
-			nodes = [];
-			if (isPersistenceEnabled && persistence.key) {
-				localStorage.removeItem(`${persistence.key}_nodes`);
-			}
-			triggerChange();
-		};
-		persistence.clearView = () => {
-			resetView();
-			if (isPersistenceEnabled && persistence.key) {
-				localStorage.removeItem(`${persistence.key}_view`);
-			}
-		};
-		persistence.clearAll = () => {
-			nodes = [];
-			resetView();
-			if (isPersistenceEnabled && persistence.key) {
-				localStorage.removeItem(`${persistence.key}_nodes`);
-				localStorage.removeItem(`${persistence.key}_view`);
-				localStorage.removeItem(persistence.key);
-			}
-			triggerChange();
-		};
-
-		// Map deprecated/compatibility properties
-		persistence.clear = persistence.clearComponents;
-		persistence.resetView = persistence.clearView;
 	}
 });
 

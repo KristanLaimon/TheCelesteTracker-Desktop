@@ -1,8 +1,8 @@
 <script lang="ts">
-import TextWidget from '../components/Widgets/canvas_widgets/TextWidget.svelte';
+import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import Canvas from '../libs/Canvas.svelte';
-import type { CanvasNodeData, CanvasPersistence, CanvasRegistry } from '../libs/Canvas.types';
+import Canvas from "../libs/Wanvas/Canvas.svelte";
+import type { CanvasNodeData, CanvasPersistence, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
 
 const registry = {
 	textWidget: TextWidget,
@@ -21,6 +21,24 @@ let nodes = $state<CanvasNodeData<typeof registry>[]>([
 	},
 ]);
 
+function AddNewTextWidget(text:string = ""){
+  nodes.push({
+    id: nodes.length.toString(),
+    x: 100,
+    y: 150,
+    type: "textWidget",
+    props:{
+      text: text
+    }
+ 
+  } satisfies CanvasNodeData<typeof registry>)
+}
+
+// Bindable view state — set directly to reset the viewport
+let canvasX = $state(0);
+let canvasY = $state(0);
+let canvasZoom = $state(1);
+
 // Setup the persistence configuration object
 let persistence = $state<CanvasPersistence<typeof registry>>({
 	key: 'test-canvas-persistence',
@@ -32,24 +50,41 @@ let persistence = $state<CanvasPersistence<typeof registry>>({
 	}
 });
 
-function clearPersistence() {
-	localStorage.removeItem('test-canvas-persistence_nodes');
-	localStorage.removeItem('test-canvas-persistence_view');
-	window.location.reload();
+function clearNodes() {
+	nodes = [];
+}
+
+function clearView() {
+	canvasX = 0;
+	canvasY = 0;
+	canvasZoom = 1;
+}
+
+function clearAll() {
+	nodes = [];
+	canvasX = 0;
+	canvasY = 0;
+	canvasZoom = 1;
 }
 </script>
 
 <CenteredLayout>
   <div class="hud">
-    <button class="hud-btn danger" onclick={clearPersistence}>Clear Save</button>
+    <button class="hud-btn danger" onclick={clearNodes}>Clear Nodes</button>
+    <button class="hud-btn" onclick={clearView}>Reset View</button>
+    <button class="hud-btn danger" onclick={clearAll}>Clear All</button>
+    <button class="hud-btn" onclick={() => {AddNewTextWidget("default text!!")}}>Add new txt widget</button>
   </div>
 
-  <Canvas {registry} 
-    classNames={{wrapper: "w-[80vw] h-[80vh]"}} 
-    mode="normal" 
-    bind:nodes 
+  <Canvas {registry}
+    classNames={{wrapper: "w-[80vw] h-[80vh]"}}
+    mode="normal"
+    bind:nodes
+    bind:x={canvasX}
+    bind:y={canvasY}
+    bind:zoom={canvasZoom}
     bind:persistence
-    showDots={true} 
+    showDots={true}
   />
 </CenteredLayout>
 

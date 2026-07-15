@@ -11,13 +11,12 @@ let isInteractive = $state<boolean>(false);
 </script>
 
 <article id="text-widget-wrapper">
-<p>Hola</p>
-  <!-- <textarea
+  <textarea
     value={text}
     oninput={(e) => onChange?.({ text: e.currentTarget.value })}
     placeholder="Type here..."
     class:no-interactive={!isInteractive}
-  ></textarea> -->
+  ></textarea>
 </article>
 
 <style>
