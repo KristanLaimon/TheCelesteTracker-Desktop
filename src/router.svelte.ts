@@ -67,15 +67,7 @@ class Router {
   // Svelte action to intercept anchor clicks and route client-side
   link = (node: HTMLAnchorElement) => {
     const click = (event: MouseEvent) => {
-      if (
-        event.defaultPrevented ||
-        event.button !== 0 ||
-        event.metaKey ||
-        event.altKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        node.target
-      ) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.altKey || event.ctrlKey || event.shiftKey || node.target) {
         return;
       }
 

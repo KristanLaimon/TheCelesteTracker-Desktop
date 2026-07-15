@@ -62,15 +62,8 @@ function openTutorial() {
 
 async function showNotification() {
   try {
-    await os.showNotification(
-      'Neutralino API',
-      'This is a native OS notification triggered from Svelte!',
-    );
-    await os.showMessageBox(
-      'MessageBoxTitle',
-      'A question, is it ok or want to cancel?',
-      'OK_CANCEL' as MessageBoxChoice,
-    );
+    await os.showNotification('Neutralino API', 'This is a native OS notification triggered from Svelte!');
+    await os.showMessageBox('MessageBoxTitle', 'A question, is it ok or want to cancel?', 'OK_CANCEL' as MessageBoxChoice);
     showNotificationSuccess = true;
     setTimeout(() => (showNotificationSuccess = false), 3000);
   } catch (e) {
@@ -105,10 +98,7 @@ async function onTrayMenuItemClicked(event: any) {
   switch (id) {
     case 'VERSION':
       try {
-        await os.showMessageBox(
-          'Version Information',
-          `Neutralinojs Server: v${serverVersion} | Neutralinojs Client: v${clientVersion}`,
-        );
+        await os.showMessageBox('Version Information', `Neutralinojs Server: v${serverVersion} | Neutralinojs Client: v${clientVersion}`);
       } catch (e) {
         console.error(e);
       }
