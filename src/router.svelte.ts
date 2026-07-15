@@ -1,7 +1,8 @@
+import type { Component } from 'svelte';
+
 export interface Route {
   pattern: string;
-  // biome-ignore lint/suspicious/noExplicitAny: compatibility with Svelte 4 class components and Svelte 5 function components in IDE type checkers
-  component: any;
+  component: Component;
 }
 
 class Router {

@@ -12,12 +12,13 @@
   },
   "dependencies": {
     "@neutralinojs/lib": "6.8.0",
-    "@tailwindcss/vite": "^4.3.2",
-    "golden-layout": "^2.6.0",
-    "tailwindcss": "^4.3.2"
+    "@tailwindcss/vite": "4.3.2",
+    "golden-layout": "2.6.0",
+    "interactjs": "1.10.27",
+    "tailwindcss": "4.3.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.3",
+    "@biomejs/biome": "2.5.3",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
     "@tsconfig/svelte": "5.0.8",
     "@types/node": "24.13.2",

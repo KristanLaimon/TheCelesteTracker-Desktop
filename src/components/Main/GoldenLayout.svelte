@@ -3,9 +3,9 @@ import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
 import { Log_Throw } from '../../logic/logger';
 import type {
+  CustomRootContentItemsConfig,
   GoldenLayoutComponentPartsTailwindCssOverrides,
   GoldenLayoutThemeCssColorsOverrides,
-  CustomRootContentItemsConfig,
   LayoutContentRootConfig,
 } from './GoldenLayout.types';
 import { GoldenLayoutWrapper } from './GoldenLayoutWrapper';
