@@ -8,7 +8,8 @@
     "dev": "neu run -- --window-enable-inspector",
     "build:frontend": "vite build",
     "build": "neu build --embed-resources",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "lint": "biome check . --write --unsafe"
   },
   "dependencies": {
     "@neutralinojs/lib": "6.8.0",

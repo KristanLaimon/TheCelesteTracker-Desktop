@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/dist", "!**/*.css"]
+    "includes": ["**", "!!**/dist", "!**/*.css", "!src/dependencies/jquery_1.11.1.min.js"]
   },
   "formatter": {
     "enabled": true,

@@ -27,9 +27,9 @@
       "@components/*": ["src/components/*"],
       "@collections/*": ["src/collections/*"],
       "@lib/*": ["src/lib/*"],
-      "@styles/*": ["src/styles/*"],
-    },
+      "@styles/*": ["src/styles/*"]
+    }
   },
 
-  "include": ["src/**/*", "wailsjs/**/*", "runtime/**/*"],
+  "include": ["src/**/*", "wailsjs/**/*", "runtime/**/*"]
 }
