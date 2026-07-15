@@ -6,14 +6,19 @@
 	"scripts": {
 		"dev": "neu run -- --window-enable-inspector",
 		"build:frontend": "vite build",
-		"build": "neu build --embed-resources",
+		"build:extension": "bun src-sqlite-extension/build.ts",
+		"build:noextensions": "neu build --embed-resources",
+		"build": "bun run build:extension && neu build --embed-resources",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
 		"lint": "biome check . --write --unsafe"
 	},
 	"dependencies": {
+		"@libsql/client": "^0.17.4",
 		"@neutralinojs/lib": "6.8.0",
 		"@panzoom/panzoom": "^4.6.2",
 		"@tailwindcss/vite": "4.3.2",
+		"dotenv": "^17.4.2",
+		"drizzle-orm": "^1.0.0-rc.4",
 		"golden-layout": "2.6.0",
 		"hotkeys-js": "^4.0.4",
 		"interactjs": "1.10.27",

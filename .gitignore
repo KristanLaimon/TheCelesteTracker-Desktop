@@ -32,3 +32,5 @@ neutralino.js
 *.njsproj
 *.sln
 *.sw?
+
+src-sqlite-extension/build/

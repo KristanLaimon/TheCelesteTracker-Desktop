@@ -6,6 +6,7 @@
 	"documentRoot": "/resources",
 	"url": "/",
 	"enableServer": true,
+  "enableExtensions": true,
 	"enableNativeAPI": true,
 	"tokenSecurity": "none",
 	"port": 6767,
@@ -28,6 +29,14 @@
 			"hidden": false
 		}
 	},
+	"extensions": [
+		{
+			"id": "sqlite",
+			"commandLinux": "${NL_PATH}/extensions/sqlite/sqlite-linux_x64",
+			"commandDarwin": "${NL_PATH}/extensions/sqlite/sqlite-mac_x64",
+			"commandWindows": "${NL_PATH}/extensions/sqlite/sqlite-win_x64.exe"
+		}
+	],
 	"cli": {
 		"binaryName": "myapp",
 		"resourcesPath": "/resources",

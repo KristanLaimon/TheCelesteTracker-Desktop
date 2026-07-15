@@ -9,8 +9,8 @@ import type {
 } from './GoldenLayout.types';
 import { GoldenLayoutWrapper } from './GoldenLayoutWrapper';
 
-import './GoldenLayoutThemes/goldenlayout-base.css';
-import './GoldenLayoutThemes/predefined/goldenlayout-dark-theme.css';
+import './goldenlayout-base.css';
+import './predefined/goldenlayout-dark-theme.css';
 
 // PUBLIC-PROPS
 type Props = {
