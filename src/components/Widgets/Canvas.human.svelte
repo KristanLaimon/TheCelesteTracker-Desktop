@@ -1,22 +1,20 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import Panzoom from "@panzoom/panzoom";
+import Panzoom from '@panzoom/panzoom';
+import { onMount } from 'svelte';
 
-  onMount(() => {
-    const HTML_CanvasWrapper = document.getElementById(
-      "canvas-wrapper",
-    ) as HTMLElement | null;
-    if (HTML_CanvasWrapper === null) return;
+onMount(() => {
+  const HTML_CanvasWrapper = document.getElementById('canvas-wrapper') as HTMLElement | null;
+  if (HTML_CanvasWrapper === null) return;
 
-    const Panzoom_CanvasWrapper = Panzoom(HTML_CanvasWrapper);
+  const Panzoom_CanvasWrapper = Panzoom(HTML_CanvasWrapper);
 
-    HTML_CanvasWrapper.addEventListener("wheel", (e) => {
-      const direction = Math.sign(e.deltaY) > 0 ? "down" : "up";
+  HTML_CanvasWrapper.addEventListener('wheel', (e) => {
+    const direction = Math.sign(e.deltaY) > 0 ? 'down' : 'up';
 
-      if (direction === "down") Panzoom_CanvasWrapper.zoomIn({ animate: true });
-      else Panzoom_CanvasWrapper.zoomOut({ animate: true });
-    });
+    if (direction === 'down') Panzoom_CanvasWrapper.zoomIn({ animate: true });
+    else Panzoom_CanvasWrapper.zoomOut({ animate: true });
   });
+});
 </script>
 
 <section id="canvas-wrapper">

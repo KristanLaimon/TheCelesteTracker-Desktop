@@ -10,11 +10,13 @@ function registerHotkey(key: string, callback: () => void) {
 }
 
 registerHotkey('ctrl+d', () => {
-  console.log('Going to dev page');
-  router.navigate('/dev', { replace: true });
+  router.navigate('/dev');
 });
 
 registerHotkey('ctrl+m', () => {
-  console.log('Going to main');
-  router.navigate('/', { replace: true });
+  router.navigate('/');
+});
+
+registerHotkey('ctrl+t', () => {
+  router.navigate('/test');
 });

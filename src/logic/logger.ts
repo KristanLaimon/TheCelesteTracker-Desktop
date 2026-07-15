@@ -8,3 +8,7 @@ export function Log_Throw(throwErrorMsg: string): void {
 export function Log_Info(infoMsg: string): void {
   console.info(`[${APP_NAME}- INFO]: ${infoMsg}`);
 }
+
+export function Log_Warn(infoMsg: string): void {
+  console.info(`[${APP_NAME}- WARN]: ${infoMsg}`);
+}

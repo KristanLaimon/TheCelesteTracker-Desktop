@@ -1,166 +1,166 @@
 <script lang="ts">
-  import Canvas from "../libs/Canvas.svelte";
-  import type { CanvasNodeData } from "../libs/Canvas.svelte";
-  import ChapterCard from "../components/Widgets/ChapterCard.svelte";
-  import TaskNode from "../components/Widgets/TaskNode.svelte";
-  import { onMount } from "svelte";
+import { onMount } from 'svelte';
+import ChapterCard from '../components/Widgets/ChapterCard.svelte';
+import TaskNode from '../components/Widgets/TaskNode.svelte';
+import type { CanvasNodeData } from '../libs/Canvas.svelte';
+import Canvas from '../libs/Canvas.svelte';
 
-  // Map type strings to Svelte Components
-  const registry = {
-    chapterNode: ChapterCard,
-    taskNode: TaskNode
+// Map type strings to Svelte Components
+const registry = {
+  chapterNode: ChapterCard,
+  taskNode: TaskNode,
+};
+
+// State: zoom and pan coordinates (with persistence)
+let x = $state(0);
+let y = $state(0);
+let zoom = $state(1);
+
+// Dynamic nodes list state demonstrating serializable registry type AND direct Svelte component class injection
+let nodes = $state<CanvasNodeData[]>([
+  {
+    id: 'chap-1',
+    type: 'chapterNode',
+    x: 100,
+    y: 150,
+    props: {
+      number: '01',
+      title: 'Forsaken City',
+      status: 'completed',
+      berries: '20 / 20',
+      cassette: 'Found',
+      heart: 'Blue',
+    },
+  },
+  {
+    id: 'todo-list',
+    type: 'taskNode',
+    x: 500,
+    y: 150,
+    width: 250,
+    height: 250,
+    props: {
+      title: 'Modding Checklist',
+    },
+  },
+  // Direct component class example (fully portable, non-serializable without mapping)
+  {
+    id: 'custom-node',
+    component: ChapterCard,
+    x: 900,
+    y: 150,
+    props: {
+      number: '03',
+      title: 'Celestial Resort',
+      status: 'locked',
+      berries: '0 / 29',
+      cassette: 'Missing',
+      heart: 'Missing',
+    },
+  },
+]);
+
+// Load state on mount
+onMount(() => {
+  const savedNodes = localStorage.getItem('celeste-tracker-nodes');
+  if (savedNodes) {
+    try {
+      const parsed = JSON.parse(savedNodes);
+      // Re-map the parsed JSON array back to Svelte components if they are direct
+      nodes = parsed.map((n: CanvasNodeData) => {
+        if (n.id === 'custom-node') {
+          n.component = ChapterCard;
+        }
+        return n;
+      });
+    } catch (err) {
+      console.error('Failed to parse saved nodes:', err);
+    }
+  }
+
+  const savedPos = localStorage.getItem('celeste-tracker-view');
+  if (savedPos) {
+    try {
+      const parsed = JSON.parse(savedPos);
+      x = parsed.x;
+      y = parsed.y;
+      zoom = parsed.zoom;
+    } catch (err) {
+      console.error('Failed to parse saved view:', err);
+    }
+  }
+});
+
+// Save callback triggered when nodes change position or size
+function handleNodeChange(updatedNodes: CanvasNodeData[]) {
+  localStorage.setItem('celeste-tracker-nodes', JSON.stringify(updatedNodes));
+}
+
+// Effect to save viewport changes
+$effect(() => {
+  localStorage.setItem('celeste-tracker-view', JSON.stringify({ x, y, zoom }));
+});
+
+// Helper to calculate world coordinates for new nodes at screen center
+function getCenterWorldCoords() {
+  const rect = document.querySelector('.root')?.getBoundingClientRect();
+  const width = rect?.width ?? 800;
+  const height = rect?.height ?? 600;
+  return {
+    x: (width / 2 - x) / zoom - 125,
+    y: (height / 2 - y) / zoom - 110,
   };
+}
 
-  // State: zoom and pan coordinates (with persistence)
-  let x = $state(0);
-  let y = $state(0);
-  let zoom = $state(1);
+// Add a new Chapter Card node
+function addChapterNode() {
+  const id = `chap-${Date.now()}`;
+  const coords = getCenterWorldCoords();
 
-  // Dynamic nodes list state demonstrating serializable registry type AND direct Svelte component class injection
-  let nodes = $state<CanvasNodeData[]>([
-    {
-      id: "chap-1",
-      type: "chapterNode",
-      x: 100,
-      y: 150,
-      props: {
-        number: "01",
-        title: "Forsaken City",
-        status: "completed",
-        berries: "20 / 20",
-        cassette: "Found",
-        heart: "Blue"
-      }
+  nodes.push({
+    id,
+    type: 'chapterNode',
+    x: coords.x,
+    y: coords.y,
+    props: {
+      number: 'New',
+      title: `Custom Chapter ${nodes.length + 1}`,
+      status: 'locked',
+      berries: '0 / 0',
+      cassette: 'Missing',
+      heart: 'Missing',
     },
-    {
-      id: "todo-list",
-      type: "taskNode",
-      x: 500,
-      y: 150,
-      width: 250,
-      height: 250,
-      props: {
-        title: "Modding Checklist"
-      }
-    },
-    // Direct component class example (fully portable, non-serializable without mapping)
-    {
-      id: "custom-node",
-      component: ChapterCard,
-      x: 900,
-      y: 150,
-      props: {
-        number: "03",
-        title: "Celestial Resort",
-        status: "locked",
-        berries: "0 / 29",
-        cassette: "Missing",
-        heart: "Missing"
-      }
-    }
-  ]);
-
-  // Load state on mount
-  onMount(() => {
-    const savedNodes = localStorage.getItem("celeste-tracker-nodes");
-    if (savedNodes) {
-      try {
-        const parsed = JSON.parse(savedNodes);
-        // Re-map the parsed JSON array back to Svelte components if they are direct
-        nodes = parsed.map((n: CanvasNodeData) => {
-          if (n.id === "custom-node") {
-            n.component = ChapterCard;
-          }
-          return n;
-        });
-      } catch (err) {
-        console.error("Failed to parse saved nodes:", err);
-      }
-    }
-
-    const savedPos = localStorage.getItem("celeste-tracker-view");
-    if (savedPos) {
-      try {
-        const parsed = JSON.parse(savedPos);
-        x = parsed.x;
-        y = parsed.y;
-        zoom = parsed.zoom;
-      } catch (err) {
-        console.error("Failed to parse saved view:", err);
-      }
-    }
   });
 
-  // Save callback triggered when nodes change position or size
-  function handleNodeChange(updatedNodes: CanvasNodeData[]) {
-    localStorage.setItem("celeste-tracker-nodes", JSON.stringify(updatedNodes));
-  }
+  handleNodeChange(nodes);
+}
 
-  // Effect to save viewport changes
-  $effect(() => {
-    localStorage.setItem("celeste-tracker-view", JSON.stringify({ x, y, zoom }));
+// Add a new Task Node list
+function addTaskNode() {
+  const id = `todo-${Date.now()}`;
+  const coords = getCenterWorldCoords();
+
+  nodes.push({
+    id,
+    type: 'taskNode',
+    x: coords.x,
+    y: coords.y,
+    width: 250,
+    height: 250,
+    props: {
+      title: 'Mod Tasks list',
+    },
   });
 
-  // Helper to calculate world coordinates for new nodes at screen center
-  function getCenterWorldCoords() {
-    const rect = document.querySelector(".root")?.getBoundingClientRect();
-    const width = rect?.width ?? 800;
-    const height = rect?.height ?? 600;
-    return {
-      x: (width / 2 - x) / zoom - 125,
-      y: (height / 2 - y) / zoom - 110
-    };
-  }
+  handleNodeChange(nodes);
+}
 
-  // Add a new Chapter Card node
-  function addChapterNode() {
-    const id = `chap-${Date.now()}`;
-    const coords = getCenterWorldCoords();
-
-    nodes.push({
-      id,
-      type: "chapterNode",
-      x: coords.x,
-      y: coords.y,
-      props: {
-        number: "New",
-        title: `Custom Chapter ${nodes.length + 1}`,
-        status: "locked",
-        berries: "0 / 0",
-        cassette: "Missing",
-        heart: "Missing"
-      }
-    });
-
-    handleNodeChange(nodes);
-  }
-
-  // Add a new Task Node list
-  function addTaskNode() {
-    const id = `todo-${Date.now()}`;
-    const coords = getCenterWorldCoords();
-
-    nodes.push({
-      id,
-      type: "taskNode",
-      x: coords.x,
-      y: coords.y,
-      width: 250,
-      height: 250,
-      props: {
-        title: "Mod Tasks list"
-      }
-    });
-
-    handleNodeChange(nodes);
-  }
-
-  // Clear/Reset all storage
-  function clearPersistence() {
-    localStorage.removeItem("celeste-tracker-nodes");
-    localStorage.removeItem("celeste-tracker-view");
-    window.location.reload();
-  }
+// Clear/Reset all storage
+function clearPersistence() {
+  localStorage.removeItem('celeste-tracker-nodes');
+  localStorage.removeItem('celeste-tracker-view');
+  window.location.reload();
+}
 </script>
 
 <main class="root">
