@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ICanvasWidgetProps } from '../../../libs/Canvas.types';
+import type { ICanvasWidgetProps } from '../../../libs/Wanvas/Canvas.types';
 
 type TextProps = {
 	text: string;

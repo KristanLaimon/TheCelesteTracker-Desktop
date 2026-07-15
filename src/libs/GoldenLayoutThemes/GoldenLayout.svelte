@@ -1,7 +1,6 @@
 <script lang="ts" generics="ComponentTypes extends LayoutContentRootConfig & string">
 import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
-import { Log_Throw } from '../logic/logger';
 import type {
 	CustomRootContentItemsConfig,
 	GoldenLayoutComponentPartsTailwindCssOverrides,
@@ -158,7 +157,7 @@ onMount(() => {
 		console.log('GoldenLayout Wrapper: Mounting Svelte Component...');
 
 		if (!layoutContainerEl) {
-			Log_Throw('Layout HTML element not found to inject Golden-Layout dependency.');
+			console.error('Layout HTML element not found to inject Golden-Layout dependency.');
 			return;
 		}
 

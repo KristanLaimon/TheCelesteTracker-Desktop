@@ -1,9 +1,9 @@
 <script lang="ts">
-import CustomPanel from '../components/Widgets/CustomPanel.svelte';
-import TestPanel from '../components/Widgets/TestPanel.svelte';
-import GoldenLayout from '../libs/GoldenLayout.svelte';
-import type { CustomRootContentItemsConfig, LayoutContentRootConfig } from '../libs/GoldenLayout.types';
-import { GoldenLayoutWrapper } from '../libs/GoldenLayoutWrapper';
+import CustomPanel from "../components/CustomPanel.svelte";
+import TestPanel from "../components/TestPanel.svelte";
+import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
+import type { CustomRootContentItemsConfig, LayoutContentRootConfig } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
+import { GoldenLayoutWrapper } from '../libs/GoldenLayoutThemes/GoldenLayoutWrapper';
 
 let Layout = $state<GoldenLayoutWrapper | null>(null);
 
