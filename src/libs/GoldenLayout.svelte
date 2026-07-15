@@ -1,7 +1,7 @@
 <script lang="ts" generics="ComponentTypes extends LayoutContentRootConfig & string">
 import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
-import { Log_Throw } from '../../logic/logger';
+import { Log_Throw } from '../logic/logger';
 import type {
   CustomRootContentItemsConfig,
   GoldenLayoutComponentPartsTailwindCssOverrides,
