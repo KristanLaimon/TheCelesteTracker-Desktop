@@ -22,8 +22,7 @@ class Router {
           params,
           query,
           hash,
-          // biome-ignore lint/suspicious/noExplicitAny: compatibility type
-          component: route.component as any,
+          component: route.component,
         };
       }
     }
