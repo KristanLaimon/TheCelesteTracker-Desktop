@@ -19,13 +19,13 @@ function _neutralinoBuildPlugin() {
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    tailwindcss(),
-    svelte(),
-    // neutralinoBuildPlugin(),
-  ],
-  build: {
-    outDir: 'resources', // Change output to 'resources'
-    emptyOutDir: true, // Ensure it cleans the directory before building
-  },
+	plugins: [
+		tailwindcss(),
+		svelte(),
+		// neutralinoBuildPlugin(),
+	],
+	build: {
+		outDir: 'resources', // Change output to 'resources'
+		emptyOutDir: true, // Ensure it cleans the directory before building
+	},
 });

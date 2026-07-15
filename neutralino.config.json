@@ -1,47 +1,47 @@
 {
-  "$schema": "neutralino.config.schema.json",
-  "applicationId": "js.neutralino.zero",
-  "version": "1.0.0",
-  "defaultMode": "window",
-  "documentRoot": "/resources",
-  "url": "/",
-  "enableServer": true,
-  "enableNativeAPI": true,
-  "tokenSecurity": "none",
-  "port": 6767,
-  "nativeAllowList": [
-    "app.*",
-    "filesystem.readDirectory",
-    "window.show",
-    "os.setTray",
-    "os.open",
-    "os.showNotification",
-    "os.showMessageBox"
-  ],
-  "modes": {
-    "window": {
-      "title": "myapp",
-      "width": 800,
-      "height": 500,
-      "minWidth": 400,
-      "minHeight": 200,
-      "icon": "/public/favicon.svg",
-      "hidden": false
-    }
-  },
-  "cli": {
-    "binaryName": "myapp",
-    "resourcesPath": "/resources",
-    "extensionsPath": "/extensions/",
-    "binaryVersion": "6.8.0",
-    "clientVersion": "6.8.0",
-    "frontendLibrary": {
-      "patchFile": "/index.html",
-      "devUrl": "http://localhost:5173",
-      "projectPath": ".",
-      "initCommand": "bun install",
-      "devCommand": "bun run vite",
-      "buildCommand": "bun run build:frontend"
-    }
-  }
+	"$schema": "neutralino.config.schema.json",
+	"applicationId": "js.neutralino.zero",
+	"version": "1.0.0",
+	"defaultMode": "window",
+	"documentRoot": "/resources",
+	"url": "/",
+	"enableServer": true,
+	"enableNativeAPI": true,
+	"tokenSecurity": "none",
+	"port": 6767,
+	"nativeAllowList": [
+		"app.*",
+		"filesystem.readDirectory",
+		"window.show",
+		"os.setTray",
+		"os.open",
+		"os.showNotification",
+		"os.showMessageBox"
+	],
+	"modes": {
+		"window": {
+			"title": "myapp",
+			"width": 800,
+			"height": 500,
+			"minWidth": 400,
+			"minHeight": 200,
+			"icon": "/public/favicon.svg",
+			"hidden": false
+		}
+	},
+	"cli": {
+		"binaryName": "myapp",
+		"resourcesPath": "/resources",
+		"extensionsPath": "/extensions/",
+		"binaryVersion": "6.8.0",
+		"clientVersion": "6.8.0",
+		"frontendLibrary": {
+			"patchFile": "/index.html",
+			"devUrl": "http://localhost:5173",
+			"projectPath": ".",
+			"initCommand": "bun install",
+			"devCommand": "bun run vite",
+			"buildCommand": "bun run build:frontend"
+		}
+	}
 }

@@ -5,54 +5,54 @@ export type GoldenLayoutContent = RowOrColumnItemConfig | StackItemConfig | Comp
 
 // Custom recursive generic types to constrain componentType to a specific union of strings
 export type CustomComponentItemConfig<ComponentTypes extends string> = Omit<ComponentItemConfig, 'componentType'> & {
-  componentType: ComponentTypes;
+	componentType: ComponentTypes;
 };
 
 export type CustomRowOrColumnItemConfig<ComponentTypes extends string> = Omit<RowOrColumnItemConfig, 'content'> & {
-  content: CustomChildItemConfig<ComponentTypes>[];
+	content: CustomChildItemConfig<ComponentTypes>[];
 };
 
 export type CustomStackItemConfig<ComponentTypes extends string> = Omit<StackItemConfig, 'content'> & {
-  content: CustomComponentItemConfig<ComponentTypes>[];
+	content: CustomComponentItemConfig<ComponentTypes>[];
 };
 
 export type CustomChildItemConfig<ComponentTypes extends string> =
-  | CustomRowOrColumnItemConfig<ComponentTypes>
-  | CustomStackItemConfig<ComponentTypes>
-  | CustomComponentItemConfig<ComponentTypes>;
+	| CustomRowOrColumnItemConfig<ComponentTypes>
+	| CustomStackItemConfig<ComponentTypes>
+	| CustomComponentItemConfig<ComponentTypes>;
 
 // export type CustomRootContentItemsConfig<ComponentTypes extends string> =
 export type CustomRootContentItemsConfig<ComponentTypes extends LayoutContentRootConfig> =
-  | CustomRowOrColumnItemConfig<keyof ComponentTypes & string>
-  | CustomStackItemConfig<keyof ComponentTypes & string>
-  | CustomComponentItemConfig<keyof ComponentTypes & string>;
+	| CustomRowOrColumnItemConfig<keyof ComponentTypes & string>
+	| CustomStackItemConfig<keyof ComponentTypes & string>
+	| CustomComponentItemConfig<keyof ComponentTypes & string>;
 
 // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 export type LayoutContentRootConfig = Record<string, Component<any, any, any>>;
 
 export interface GoldenLayoutThemeCssColorsOverrides {
-  layoutBg?: string;
-  contentBg?: string;
-  contentBorder?: string;
-  splitterBg?: string;
-  splitterHoverBg?: string;
-  headerBg?: string;
-  tabBg?: string;
-  tabText?: string;
-  activeTabBg?: string;
-  activeTabText?: string;
-  tabHoverBg?: string;
-  tabHoverText?: string;
-  dragProxyBg?: string;
-  dragProxyBorder?: string;
+	layoutBg?: string;
+	contentBg?: string;
+	contentBorder?: string;
+	splitterBg?: string;
+	splitterHoverBg?: string;
+	headerBg?: string;
+	tabBg?: string;
+	tabText?: string;
+	activeTabBg?: string;
+	activeTabText?: string;
+	tabHoverBg?: string;
+	tabHoverText?: string;
+	dragProxyBg?: string;
+	dragProxyBorder?: string;
 }
 
 export interface GoldenLayoutComponentPartsTailwindCssOverrides {
-  layout?: string;
-  content?: string;
-  header?: string;
-  tab?: string;
-  activeTab?: string;
-  splitter?: string;
-  dragProxy?: string;
+	layout?: string;
+	content?: string;
+	header?: string;
+	tab?: string;
+	activeTab?: string;
+	splitter?: string;
+	dragProxy?: string;
 }

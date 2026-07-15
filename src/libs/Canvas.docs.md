@@ -39,6 +39,7 @@
 | **`registry`** | `Record<string, any>` | `{}` | Key-value mapping of component type names to Svelte Component classes. |
 | **`dragHandleClass`** | `string` | `""` | Optional CSS selector class (e.g. `"drag-handle"`). If specified, nodes can *only* be dragged via elements matching this class. |
 | **`onNodeChange`** | `function` | `undefined` | Callback fired when a node is moved or resized. Receives a clean JSON-serializable array of all nodes. |
+| **`persistence`** | `CanvasPersistence \| null` | `{ key: 'canvas-persistence-default' }` | Persistence configuration and callbacks for localStorage (bindable). Bypassed if `onNodeChange` is passed. Set to `null` to explicitly disable storage. |
 | **`classNames`** | `CanvasClassNames` | `{}` | Tailored Tailwind CSS override classes for internal canvas elements. |
 | **`class`** | `string` | `""` | CSS class applied directly to the outer canvas wrapper element. |
 | **`style`** | `string` | `""` | Custom inline style rules applied directly to the outer canvas wrapper element. |
@@ -157,6 +158,89 @@ If you are importing third-party libraries or want to isolate a container comple
 >
   <!-- Interactive elements here work normally -->
 </div>
+
+### 4. The `no-interactive` Class (Focus Lock & Canvas Controls Override)
+If you want to place a normally interactive element (like an `<input>`, `<textarea>`, or `<button>`) inside a node but prevent it from receiving user focus, key input, or native clicks, give it the class `no-interactive`.
+The canvas will intercept clicks on these elements:
+- It calls `e.preventDefault()` to block browser focus or button clicks (locking it in read-only / preview mode).
+- It calls `e.stopPropagation()` and treats interaction as standard node dragging or canvas panning.
+
+```svelte
+<!-- This textarea cannot be typed in or focused; clicking and dragging it drags the node wrapper instead -->
+<textarea class="no-interactive" value="Read-only text area serving as a drag handle" />
+```
+
+---
+
+## Persistence & Widget Properties Synchronization
+
+`Canvas.svelte` supports an automated, persistence-first architecture. This allows widgets inside the canvas to notify the parent of property updates reactively while keeping the loaded/saved data 100% JSON-serializable (without storing callback functions in `localStorage`).
+
+### 1. The `ICanvasWidgetProps` Interface
+For a child component to reactively update its properties, its props should extend `ICanvasWidgetProps<T>` from `./Canvas.types`. The canvas automatically intercepts and injects the `onChange` callback at runtime.
+
+```svelte
+<!-- TextWidget.svelte -->
+<script lang="ts">
+  import type { ICanvasWidgetProps } from "../libs/Canvas.types";
+
+  type TextProps = {
+    text: string;
+  };
+
+  // Combine component properties with the ICanvasWidgetProps contract
+  type Props = TextProps & ICanvasWidgetProps<TextProps>;
+
+  let { text, onChange }: Props = $props();
+</script>
+
+<article class="widget">
+  <textarea
+    value={text}
+    oninput={(e) => onChange?.({ text: e.currentTarget.value })}
+  ></textarea>
+</article>
+```
+
+### 2. Auto-Persistence and Configuration (`CanvasPersistence`)
+By default, the canvas will automatically save and load its layout to/from `localStorage` using the default key `'canvas-persistence-default'`.
+
+To use custom keys, intercept saving, or clear the canvas programmatically, pass a `persistence` object:
+
+```svelte
+<script lang="ts">
+  import Canvas from "./libs/Canvas.svelte";
+  import type { CanvasPersistence } from "./libs/Canvas.types";
+  import type { CanvasNodeData } from "./libs/Canvas.types";
+
+  let nodes = $state<CanvasNodeData[]>([]);
+
+  // Setup the persistence config
+  let persistence = $state<CanvasPersistence>({
+    key: "my-custom-board",
+    
+    // Fired before saving. Invoke cancel() to abort saving
+    beforeSave: (nodes, cancel) => {
+      console.log("Saving nodes...", nodes);
+    },
+    
+    // Fired after successful save to localStorage
+    afterSave: (nodes) => {
+      console.log("Saved successfully!");
+    }
+  });
+</script>
+
+<!-- Clear the canvas or reset the viewport programmatically using the bound methods -->
+<button onclick={() => persistence.clear?.()}>
+  Clear Canvas
+</button>
+<button onclick={() => persistence.resetView?.()}>
+  Reset Viewport
+</button>
+
+<Canvas bind:nodes bind:persistence />
+```
 ```
 
 ---

@@ -2,9 +2,9 @@
 import type { Snippet } from 'svelte';
 
 type Props = {
-  width?: string;
-  height?: string;
-  children?: Snippet;
+	width?: string;
+	height?: string;
+	children?: Snippet;
 };
 
 const { width = '100vw', height = '100vh', children }: Props = $props();
@@ -19,7 +19,5 @@ const { width = '100vw', height = '100vh', children }: Props = $props();
     display: flex;
     justify-content: center;
     align-items: center;
-    width: fit-content;
-    height: fit-content;
   }
 </style>

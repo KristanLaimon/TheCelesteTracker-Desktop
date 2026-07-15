@@ -1,43 +1,43 @@
 <script lang="ts">
 type Task = {
-  id: string;
-  text: string;
-  completed: boolean;
+	id: string;
+	text: string;
+	completed: boolean;
 };
 
 // Props
 type Props = {
-  title?: string;
+	title?: string;
 };
 
 let { title = 'Modding Tasks' }: Props = $props();
 
 // Reactive state inside the Svelte component
 let tasks = $state<Task[]>([
-  { id: '1', text: 'Download Celeste tools', completed: true },
-  { id: '2', text: 'Configure Everest map builder', completed: false },
-  { id: '3', text: 'Test dash trigger triggers', completed: false },
+	{ id: '1', text: 'Download Celeste tools', completed: true },
+	{ id: '2', text: 'Configure Everest map builder', completed: false },
+	{ id: '3', text: 'Test dash trigger triggers', completed: false },
 ]);
 
 let newTaskText = $state('');
 
 function addTask() {
-  if (!newTaskText.trim()) return;
-  tasks.push({
-    id: Date.now().toString(),
-    text: newTaskText.trim(),
-    completed: false,
-  });
-  newTaskText = '';
+	if (!newTaskText.trim()) return;
+	tasks.push({
+		id: Date.now().toString(),
+		text: newTaskText.trim(),
+		completed: false,
+	});
+	newTaskText = '';
 }
 
 function toggleTask(id: string) {
-  const task = tasks.find((t) => t.id === id);
-  if (task) task.completed = !task.completed;
+	const task = tasks.find((t) => t.id === id);
+	if (task) task.completed = !task.completed;
 }
 
 function clearCompleted() {
-  tasks = tasks.filter((t) => !t.completed);
+	tasks = tasks.filter((t) => !t.completed);
 }
 </script>
 

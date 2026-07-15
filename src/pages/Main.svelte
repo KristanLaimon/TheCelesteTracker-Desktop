@@ -8,41 +8,41 @@ import { GoldenLayoutWrapper } from '../libs/GoldenLayoutWrapper';
 let Layout = $state<GoldenLayoutWrapper | null>(null);
 
 const Layout_InitialComponents = {
-  testComponent: TestPanel,
-  myCustomComponent: CustomPanel,
+	testComponent: TestPanel,
+	myCustomComponent: CustomPanel,
 } satisfies LayoutContentRootConfig;
 
 const Layout_InitialContent: CustomRootContentItemsConfig<typeof Layout_InitialComponents> = {
-  type: 'row',
-  content: [
-    {
-      type: 'row',
-      content: [
-        {
-          type: 'component',
-          componentType: 'myCustomComponent',
-          componentState: { label: 'A' },
-          isClosable: false,
-          maximised: false,
-        },
-        {
-          type: 'column',
-          content: [
-            {
-              type: 'component',
-              componentType: 'testComponent',
-              componentState: { label: 'B' },
-            },
-            {
-              type: 'component',
-              componentType: 'testComponent',
-              componentState: { label: 'C' },
-            },
-          ],
-        },
-      ],
-    },
-  ],
+	type: 'row',
+	content: [
+		{
+			type: 'row',
+			content: [
+				{
+					type: 'component',
+					componentType: 'myCustomComponent',
+					componentState: { label: 'A' },
+					isClosable: false,
+					maximised: false,
+				},
+				{
+					type: 'column',
+					content: [
+						{
+							type: 'component',
+							componentType: 'testComponent',
+							componentState: { label: 'B' },
+						},
+						{
+							type: 'component',
+							componentType: 'testComponent',
+							componentState: { label: 'C' },
+						},
+					],
+				},
+			],
+		},
+	],
 };
 </script>
 

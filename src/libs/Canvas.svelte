@@ -7,11 +7,11 @@
  */
 
 import type { Snippet } from 'svelte';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { Log_Warn } from '../logic/logger';
-import type { CanvasNodeData, CanvasRegistry, CanvasClassNames, CanvasPersistence } from './Canvas.types';
+import type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry } from './Canvas.types';
 
-export type { CanvasNodeData, CanvasRegistry, CanvasClassNames, CanvasPersistence };
+export type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry };
 
 // CanvasNodeData is now imported from Canvas.types.ts to support mapped union types.
 
@@ -19,190 +19,183 @@ export type { CanvasNodeData, CanvasRegistry, CanvasClassNames, CanvasPersistenc
  * Props definition for the Canvas library component.
  */
 interface Props {
-  /**
-   * The horizontal pan translation in pixels.
-   * Supports Svelte 5 two-way binding.
-   * @default 0
-   */
-  x?: number;
-  /**
-   * The vertical pan translation in pixels.
-   * Supports Svelte 5 two-way binding.
-   * @default 0
-   */
-  y?: number;
-  /**
-   * The current zoom scale factor (e.g. 1.0 = 100%).
-   * Supports Svelte 5 two-way binding.
-   * @default 1.0
-   */
-  zoom?: number;
-  /**
-   * The minimum zoom scale level.
-   * @default 0.15
-   */
-  minZoom?: number;
-  /**
-   * The maximum zoom scale level.
-   * @default 8.0
-   */
-  maxZoom?: number;
-  /**
-   * The zoom change sensitivity when scrolling the mouse wheel.
-   * @default 0.0015
-   */
-  zoomSpeed?: number;
-  /**
-   * Whether panning is infinite. If false, panning clamps to boundaries.
-   * @default true
-   */
-  infinite?: boolean;
-  /**
-   * The minimum allowed horizontal coordinate when infinite is false.
-   * @default -5000
-   */
-  limitXMin?: number;
-  /**
-   * The maximum allowed horizontal coordinate when infinite is false.
-   * @default 5000
-   */
-  limitXMax?: number;
-  /**
-   * The minimum allowed vertical coordinate when infinite is false.
-   * @default -5000
-   */
-  limitYMin?: number;
-  /**
-   * The maximum allowed vertical coordinate when infinite is false.
-   * @default 5000
-   */
-  limitYMax?: number;
-  /**
-   * Whether double clicking on the canvas resets the pan and zoom values to default.
-   * @default true
-   */
-  doubleClickToReset?: boolean;
-  /**
-   * Whether to show the floating zoom/pan controls overlay.
-   * @default true
-   */
-  showControls?: boolean;
-  /**
-   * Whether nodes are resizable via a drag handle in the bottom-right corner.
-   * @default true
-   */
-  resizable?: boolean;
-  /**
-   * A bindable array of dynamic node configurations.
-   * Supports runtime additions, deletions, and modifications.
-   * @default []
-   */
-  nodes?: CanvasNodeData<Registry>[];
-  /**
-   * A registry mapping type strings to Svelte Component classes.
-   * @default {}
-   */
-  registry?: Registry;
-  /**
-   * Optional class name target for dragging nodes (e.g. "drag-handle").
-   * If specified, clicking outside the handle will not drag the node.
-   * @default ""
-   */
-  dragHandleClass?: string;
-  /**
-   * Optional callback function triggered when any node's position or size changes.
-   * Receives a clean, JSON-serializable copy of all nodes.
-   */
-  onNodeChange?: (nodes: CanvasNodeData<Registry>[]) => void;
-  /**
-   * Custom Tailwind CSS classes to override styling of individual canvas internal parts.
-   */
-  classNames?: CanvasClassNames;
-  /**
-   * A CSS class name applied directly to the outer canvas wrapper element.
-   */
-  /**
-   * A CSS class name applied directly to the outer canvas wrapper element.
-   */
-  class?: string;
-  /**
-   * Custom inline style rules applied directly to the outer canvas wrapper element.
-   */
-  style?: string;
-  /**
-   * The background color of the canvas workspace.
-   * @default "#242424"
-   */
-  bgColor?: string;
-  /**
-   * The color of the background grid dots.
-   * @default "rgb(58, 58, 58)"
-   */
-  dotColor?: string;
-  /**
-   * The radius of the background grid dots in pixels.
-   * @default 1.5
-   */
-  dotSize?: number;
-  /**
-   * Whether to show the background dot grid pattern.
-   * @default true
-   */
-  showDots?: boolean;
-  /**
-   * The display mode: 'normal' shows HUD controls, 'zen' hides HUD controls.
-   * @default "normal"
-   */
-  mode?: 'normal' | 'zen';
-  /**
-   * Static child Svelte components or HTML elements to render inside the transformed canvas container.
-   */
-  children?: Snippet;
-  /**
-   * Persistence configuration and callbacks for localStorage.
-   */
-  persistence?: CanvasPersistence<Registry> | null;
+	/**
+	 * The horizontal pan translation in pixels.
+	 * Supports Svelte 5 two-way binding.
+	 * @default 0
+	 */
+	x?: number;
+	/**
+	 * The vertical pan translation in pixels.
+	 * Supports Svelte 5 two-way binding.
+	 * @default 0
+	 */
+	y?: number;
+	/**
+	 * The current zoom scale factor (e.g. 1.0 = 100%).
+	 * Supports Svelte 5 two-way binding.
+	 * @default 1.0
+	 */
+	zoom?: number;
+	/**
+	 * The minimum zoom scale level.
+	 * @default 0.15
+	 */
+	minZoom?: number;
+	/**
+	 * The maximum zoom scale level.
+	 * @default 8.0
+	 */
+	maxZoom?: number;
+	/**
+	 * The zoom change sensitivity when scrolling the mouse wheel.
+	 * @default 0.0015
+	 */
+	zoomSpeed?: number;
+	/**
+	 * Whether panning is infinite. If false, panning clamps to boundaries.
+	 * @default true
+	 */
+	infinite?: boolean;
+	/**
+	 * The minimum allowed horizontal coordinate when infinite is false.
+	 * @default -5000
+	 */
+	limitXMin?: number;
+	/**
+	 * The maximum allowed horizontal coordinate when infinite is false.
+	 * @default 5000
+	 */
+	limitXMax?: number;
+	/**
+	 * The minimum allowed vertical coordinate when infinite is false.
+	 * @default -5000
+	 */
+	limitYMin?: number;
+	/**
+	 * The maximum allowed vertical coordinate when infinite is false.
+	 * @default 5000
+	 */
+	limitYMax?: number;
+
+	/**
+	 * Whether to show the floating zoom/pan controls overlay.
+	 * @default true
+	 */
+	showControls?: boolean;
+	/**
+	 * Whether nodes are resizable via a drag handle in the bottom-right corner.
+	 * @default true
+	 */
+	resizable?: boolean;
+	/**
+	 * A bindable array of dynamic node configurations.
+	 * Supports runtime additions, deletions, and modifications.
+	 * @default []
+	 */
+	nodes?: CanvasNodeData<Registry>[];
+	/**
+	 * A registry mapping type strings to Svelte Component classes.
+	 * @default {}
+	 */
+	registry?: Registry;
+	/**
+	 * Optional class name target for dragging nodes (e.g. "drag-handle").
+	 * If specified, clicking outside the handle will not drag the node.
+	 * @default ""
+	 */
+	dragHandleClass?: string;
+	/**
+	 * Optional callback function triggered when any node's position or size changes.
+	 * Receives a clean, JSON-serializable copy of all nodes.
+	 */
+	onNodeChange?: (nodes: CanvasNodeData<Registry>[]) => void;
+	/**
+	 * Custom Tailwind CSS classes to override styling of individual canvas internal parts.
+	 */
+	classNames?: CanvasClassNames;
+	/**
+	 * A CSS class name applied directly to the outer canvas wrapper element.
+	 */
+	/**
+	 * A CSS class name applied directly to the outer canvas wrapper element.
+	 */
+	class?: string;
+	/**
+	 * Custom inline style rules applied directly to the outer canvas wrapper element.
+	 */
+	style?: string;
+	/**
+	 * The background color of the canvas workspace.
+	 * @default "#242424"
+	 */
+	bgColor?: string;
+	/**
+	 * The color of the background grid dots.
+	 * @default "rgb(58, 58, 58)"
+	 */
+	dotColor?: string;
+	/**
+	 * The radius of the background grid dots in pixels.
+	 * @default 1.5
+	 */
+	dotSize?: number;
+	/**
+	 * Whether to show the background dot grid pattern.
+	 * @default true
+	 */
+	showDots?: boolean;
+	/**
+	 * The display mode: 'normal' shows HUD controls, 'zen' hides HUD controls.
+	 * @default "normal"
+	 */
+	mode?: 'normal' | 'zen';
+	/**
+	 * Static child Svelte components or HTML elements to render inside the transformed canvas container.
+	 */
+	children?: Snippet;
+	/**
+	 * Persistence configuration and callbacks for localStorage.
+	 */
+	persistence?: CanvasPersistence<Registry> | null;
 }
 
 let {
-  x = $bindable(0),
-  y = $bindable(0),
-  zoom = $bindable(1),
-  minZoom = 0.15,
-  maxZoom = 8.0,
-  zoomSpeed = 0.0015,
-  infinite = true,
-  limitXMin = -5000,
-  limitXMax = 5000,
-  limitYMin = -5000,
-  limitYMax = 5000,
-  doubleClickToReset = true,
-  showControls = true,
-  resizable = true,
-  nodes = $bindable([]),
-  registry = {} as Registry,
-  dragHandleClass = '',
-  onNodeChange,
-  classNames = {},
-  class: className = '',
-  style = '',
-  bgColor = '#242424',
-  dotColor = 'rgb(58, 58, 58)',
-  dotSize = 1.5,
-  showDots = true,
-  mode = 'normal',
-  children,
-  persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence<Registry> | null),
+	x = $bindable(0),
+	y = $bindable(0),
+	zoom = $bindable(1),
+	minZoom = 0.15,
+	maxZoom = 8.0,
+	zoomSpeed = 0.0015,
+	infinite = true,
+	limitXMin = -5000,
+	limitXMax = 5000,
+	limitYMin = -5000,
+	limitYMax = 5000,
+
+	showControls = true,
+	resizable = true,
+	nodes = $bindable([]),
+	registry = {} as Registry,
+	dragHandleClass = '',
+	onNodeChange,
+	classNames = {},
+	class: className = '',
+	style = '',
+	bgColor = '#242424',
+	dotColor = 'rgb(58, 58, 58)',
+	dotSize = 1.5,
+	showDots = true,
+	mode = 'normal',
+	children,
+	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence<Registry> | null),
 }: Props = $props();
 
 // Internal references
 let wrapperEl = $state<HTMLDivElement | null>(null);
 let isPanning = $state(false);
 
-const isPersistenceEnabled = $derived(
-  persistence !== null &&
-  (persistence.key !== 'canvas-persistence-default' || !onNodeChange)
-);
+const isPersistenceEnabled = $derived(persistence !== null && (persistence.key !== 'canvas-persistence-default' || !onNodeChange));
 
 // Drag variables
 let startMousePos = { x: 0, y: 0 };
@@ -217,555 +210,634 @@ let lastTouchPos = { x: 0, y: 0 };
 
 // Set initial position to center when wrapper element mounts
 onMount(() => {
-  if (isPersistenceEnabled && persistence?.key) {
-    const storage = localStorage.getItem(persistence.key);
-    if (storage) {
-      try {
-        nodes = JSON.parse(storage) as CanvasNodeData<Registry>[];
-      } catch (err) {
-        Log_Warn("Canvas -> Failed to parse persistent storage: " + err);
-      }
-    }
-  }
+	let hasSavedView = false;
+	if (isPersistenceEnabled && persistence?.key) {
+		const storage = localStorage.getItem(persistence.key);
+		if (storage) {
+			try {
+				const parsed = JSON.parse(storage);
+				let loadedNodes: CanvasNodeData<Registry>[] = [];
+				if (Array.isArray(parsed)) {
+					// Backward compatibility: old format was just an array of nodes
+					loadedNodes = parsed as CanvasNodeData<Registry>[];
+				} else if (parsed && typeof parsed === 'object') {
+					// New format: contains nodes and view properties
+					loadedNodes = (parsed.nodes || []) as CanvasNodeData<Registry>[];
+					if (parsed.view) {
+						const vx = Number(parsed.view.x);
+						const vy = Number(parsed.view.y);
+						const vz = Number(parsed.view.zoom);
+						if (!Number.isNaN(vx) && Number.isFinite(vx)) x = vx;
+						if (!Number.isNaN(vy) && Number.isFinite(vy)) y = vy;
+						if (!Number.isNaN(vz) && Number.isFinite(vz) && vz > 0) {
+							zoom = vz;
+							hasSavedView = true;
+						}
+					}
+				}
 
-  if (wrapperEl && x === 0 && y === 0) {
-    const rect = wrapperEl.getBoundingClientRect();
-    x = rect.width / 2;
-    y = rect.height / 2;
-  }
+				// Sanitize loaded nodes
+				nodes = loadedNodes.map((node) => {
+					if (typeof node.x !== 'number' || !Number.isFinite(node.x)) node.x = 0;
+					if (typeof node.y !== 'number' || !Number.isFinite(node.y)) node.y = 0;
+					if (node.width !== undefined && (typeof node.width !== 'number' || !Number.isFinite(node.width))) {
+						node.width = undefined;
+					}
+					if (node.height !== undefined && (typeof node.height !== 'number' || !Number.isFinite(node.height))) {
+						node.height = undefined;
+					}
+					return node;
+				});
+			} catch (err) {
+				Log_Warn(`Canvas -> Failed to parse persistent storage: ${err}`);
+			}
+		}
+	}
+
+	if (!hasSavedView && wrapperEl && x === 0 && y === 0) {
+		const rect = wrapperEl.getBoundingClientRect();
+		x = rect.width / 2;
+		y = rect.height / 2;
+	}
 });
 
-// Bind the persistence.clear method and dynamically keep it up-to-date
+// Bind the persistence methods and dynamically keep them up-to-date
 $effect(() => {
-  if (persistence) {
-    persistence.clear = () => {
-      nodes = [];
-      triggerChange();
-    };
-  }
+	if (persistence) {
+		persistence.clear = () => {
+			nodes = [];
+			triggerChange();
+		};
+		persistence.resetView = () => {
+			resetView();
+		};
+	}
+});
+
+// Persist viewport changes (pan and zoom) reactively
+$effect(() => {
+	if (isPersistenceEnabled && (x !== undefined || y !== undefined || zoom !== undefined)) {
+		triggerChange();
+	}
 });
 
 // Helper to detect interactive elements so we don't accidentally pan
 function isInteractive(target: HTMLElement | null): boolean {
-  if (!target) return false;
-  let current: HTMLElement | null = target;
-  while (current && current !== wrapperEl) {
-    const tagName = current.tagName;
-    if (
-      tagName === 'INPUT' ||
-      tagName === 'TEXTAREA' ||
-      tagName === 'SELECT' ||
-      tagName === 'BUTTON' ||
-      tagName === 'A' ||
-      current.classList.contains('interactive') ||
-      current.classList.contains('no-pan') ||
-      current.getAttribute('role') === 'button'
-    ) {
-      return true;
-    }
-    current = current.parentElement;
-  }
-  return false;
+	if (!target) return false;
+	let current: HTMLElement | null = target;
+	while (current && current !== wrapperEl) {
+		if (current.classList.contains('no-interactive')) {
+			return false;
+		}
+		const tagName = current.tagName;
+		if (
+			tagName === 'INPUT' ||
+			tagName === 'TEXTAREA' ||
+			tagName === 'SELECT' ||
+			tagName === 'BUTTON' ||
+			tagName === 'A' ||
+			current.classList.contains('interactive') ||
+			current.classList.contains('no-pan') ||
+			current.getAttribute('role') === 'button'
+		) {
+			return true;
+		}
+		current = current.parentElement;
+	}
+	return false;
 }
 
 // Wheel zoom handler
 function handleWheel(e: WheelEvent) {
-  if (!wrapperEl) return;
+	if (!wrapperEl) return;
 
-  // Calculate mouse position relative to wrapper element
-  const rect = wrapperEl.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+	// Calculate mouse position relative to wrapper element
+	const rect = wrapperEl.getBoundingClientRect();
+	const mx = e.clientX - rect.left;
+	const my = e.clientY - rect.top;
 
-  const oldZoom = zoom;
-  const factor = Math.exp(-e.deltaY * zoomSpeed);
-  let newZoom = zoom * factor;
-  newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+	const oldZoom = zoom;
+	const factor = Math.exp(-e.deltaY * zoomSpeed);
+	let newZoom = zoom * factor;
+	newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
 
-  if (newZoom === oldZoom) return;
+	if (newZoom === oldZoom) return;
 
-  // Zoom relative to the cursor position
-  let newX = mx - (mx - x) * (newZoom / oldZoom);
-  let newY = my - (my - y) * (newZoom / oldZoom);
+	// Zoom relative to the cursor position
+	let newX = mx - (mx - x) * (newZoom / oldZoom);
+	let newY = my - (my - y) * (newZoom / oldZoom);
 
-  if (!infinite) {
-    newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-    newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-  }
+	if (!infinite) {
+		newX = Math.max(limitXMin, Math.min(limitXMax, newX));
+		newY = Math.max(limitYMin, Math.min(limitYMax, newY));
+	}
 
-  zoom = newZoom;
-  x = newX;
-  y = newY;
+	zoom = newZoom;
+	x = newX;
+	y = newY;
 }
 
 // Effect to attach wheel handler with passive: false to allow e.preventDefault()
 $effect(() => {
-  if (!wrapperEl) return;
-  const element = wrapperEl;
-  const onWheel = (e: WheelEvent) => {
-    e.preventDefault();
-    handleWheel(e);
-  };
-  element.addEventListener('wheel', onWheel, { passive: false });
-  return () => {
-    element.removeEventListener('wheel', onWheel);
-  };
+	if (!wrapperEl) return;
+	const element = wrapperEl;
+	const onWheel = (e: WheelEvent) => {
+		e.preventDefault();
+		handleWheel(e);
+	};
+	element.addEventListener('wheel', onWheel, { passive: false });
+	return () => {
+		element.removeEventListener('wheel', onWheel);
+	};
 });
 
 // Mouse drag handlers
 function handleMouseDown(e: MouseEvent) {
-  const isMiddle = e.button === 1;
-  const isRight = e.button === 2;
+	const isMiddle = e.button === 1;
+	const isRight = e.button === 2;
 
-  if (!isMiddle && !isRight) {
-    // Left click only drags if not on an interactive element
-    if (isInteractive(e.target as HTMLElement)) return;
-  }
+	if (!isMiddle && !isRight) {
+		// Left click only drags if not on an interactive element
+		if (isInteractive(e.target as HTMLElement)) return;
+	}
 
-  if (isRight) {
-    e.preventDefault();
-  }
+	if (isRight) {
+		e.preventDefault();
+	}
 
-  isPanning = true;
-  panButton = e.button;
-  startMousePos = { x: e.clientX, y: e.clientY };
-  startPanPos = { x, y };
+	isPanning = true;
+	panButton = e.button;
+	startMousePos = { x: e.clientX, y: e.clientY };
+	startPanPos = { x, y };
 }
 
 function handleMouseMove(e: MouseEvent) {
-  if (!isPanning) return;
+	if (!isPanning) return;
 
-  const dx = e.clientX - startMousePos.x;
-  const dy = e.clientY - startMousePos.y;
+	const dx = e.clientX - startMousePos.x;
+	const dy = e.clientY - startMousePos.y;
 
-  let newX = startPanPos.x + dx;
-  let newY = startPanPos.y + dy;
+	let newX = startPanPos.x + dx;
+	let newY = startPanPos.y + dy;
 
-  if (!infinite) {
-    newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-    newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-  }
+	if (!infinite) {
+		newX = Math.max(limitXMin, Math.min(limitXMax, newX));
+		newY = Math.max(limitYMin, Math.min(limitYMax, newY));
+	}
 
-  x = newX;
-  y = newY;
+	x = newX;
+	y = newY;
 }
 
 function handleMouseUp(e: MouseEvent) {
-  if (isPanning && e.button === panButton) {
-    isPanning = false;
-    panButton = -1;
-  }
+	if (isPanning && e.button === panButton) {
+		isPanning = false;
+		panButton = -1;
+	}
 }
 
 function handleContextMenu(e: MouseEvent) {
-  if (panButton === 2) {
-    e.preventDefault();
-  }
+	if (panButton === 2) {
+		e.preventDefault();
+	}
 }
 
 // Double click reset
-function handleDoubleClick(e: MouseEvent) {
-  if (!doubleClickToReset) return;
-  if (isInteractive(e.target as HTMLElement)) return;
-  resetView();
+function handleDoubleClick(_e: MouseEvent) {
+	// double-click reset intentionally disabled
 }
 
 // Touch handlers
 function getTouchDistance(t1: Touch, t2: Touch) {
-  return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+	return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
 }
 
 function getTouchCenter(t1: Touch, t2: Touch, rect: DOMRect) {
-  return {
-    x: (t1.clientX + t2.clientX) / 2 - rect.left,
-    y: (t1.clientY + t2.clientY) / 2 - rect.top,
-  };
+	return {
+		x: (t1.clientX + t2.clientX) / 2 - rect.left,
+		y: (t1.clientY + t2.clientY) / 2 - rect.top,
+	};
 }
 
 // Touch triggers
 function handleTouchStart(e: TouchEvent) {
-  if (!wrapperEl) return;
-  const rect = wrapperEl.getBoundingClientRect();
+	if (!wrapperEl) return;
+	const rect = wrapperEl.getBoundingClientRect();
 
-  if (e.touches.length === 1) {
-    if (isInteractive(e.target as HTMLElement)) return;
-    isPanning = true;
-    lastTouchPos = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-  } else if (e.touches.length === 2) {
-    isPanning = false;
-    const t1 = e.touches[0];
-    const t2 = e.touches[1];
-    touchStartDist = getTouchDistance(t1, t2);
-    touchStartZoom = zoom;
-    touchStartCenter = getTouchCenter(t1, t2, rect);
-  }
+	if (e.touches.length === 1) {
+		if (isInteractive(e.target as HTMLElement)) return;
+		isPanning = true;
+		lastTouchPos = {
+			x: e.touches[0].clientX,
+			y: e.touches[0].clientY,
+		};
+	} else if (e.touches.length === 2) {
+		isPanning = false;
+		const t1 = e.touches[0];
+		const t2 = e.touches[1];
+		touchStartDist = getTouchDistance(t1, t2);
+		touchStartZoom = zoom;
+		touchStartCenter = getTouchCenter(t1, t2, rect);
+	}
 }
 
 function handleTouchMove(e: TouchEvent) {
-  if (!wrapperEl) return;
+	if (!wrapperEl) return;
 
-  if (e.touches.length === 1 && isPanning) {
-    e.preventDefault();
-    const t = e.touches[0];
-    const dx = t.clientX - lastTouchPos.x;
-    const dy = t.clientY - lastTouchPos.y;
+	if (e.touches.length === 1 && isPanning) {
+		e.preventDefault();
+		const t = e.touches[0];
+		const dx = t.clientX - lastTouchPos.x;
+		const dy = t.clientY - lastTouchPos.y;
 
-    let newX = x + dx;
-    let newY = y + dy;
+		let newX = x + dx;
+		let newY = y + dy;
 
-    if (!infinite) {
-      newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-      newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-    }
+		if (!infinite) {
+			newX = Math.max(limitXMin, Math.min(limitXMax, newX));
+			newY = Math.max(limitYMin, Math.min(limitYMax, newY));
+		}
 
-    x = newX;
-    y = newY;
-    lastTouchPos = { x: t.clientX, y: t.clientY };
-  } else if (e.touches.length === 2) {
-    e.preventDefault();
-    const t1 = e.touches[0];
-    const t2 = e.touches[1];
+		x = newX;
+		y = newY;
+		lastTouchPos = { x: t.clientX, y: t.clientY };
+	} else if (e.touches.length === 2) {
+		e.preventDefault();
+		const t1 = e.touches[0];
+		const t2 = e.touches[1];
 
-    const rect = wrapperEl.getBoundingClientRect();
-    const currentDist = getTouchDistance(t1, t2);
-    const currentCenter = getTouchCenter(t1, t2, rect);
+		const rect = wrapperEl.getBoundingClientRect();
+		const currentDist = getTouchDistance(t1, t2);
+		const currentCenter = getTouchCenter(t1, t2, rect);
 
-    if (touchStartDist > 0) {
-      const scale = currentDist / touchStartDist;
-      let newZoom = touchStartZoom * scale;
-      newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+		if (touchStartDist > 0) {
+			const scale = currentDist / touchStartDist;
+			let newZoom = touchStartZoom * scale;
+			newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
 
-      const s = zoom;
-      const sPrime = newZoom;
-      const cx = touchStartCenter.x;
-      const cy = touchStartCenter.y;
+			const s = zoom;
+			const sPrime = newZoom;
+			const cx = touchStartCenter.x;
+			const cy = touchStartCenter.y;
 
-      let nextX = cx - (cx - x) * (sPrime / s);
-      let nextY = cy - (cy - y) * (sPrime / s);
+			let nextX = cx - (cx - x) * (sPrime / s);
+			let nextY = cy - (cy - y) * (sPrime / s);
 
-      // Center shift
-      const centerDx = currentCenter.x - touchStartCenter.x;
-      const centerDy = currentCenter.y - touchStartCenter.y;
-      nextX += centerDx;
-      nextY += centerDy;
+			// Center shift
+			const centerDx = currentCenter.x - touchStartCenter.x;
+			const centerDy = currentCenter.y - touchStartCenter.y;
+			nextX += centerDx;
+			nextY += centerDy;
 
-      if (!infinite) {
-        nextX = Math.max(limitXMin, Math.min(limitXMax, nextX));
-        nextY = Math.max(limitYMin, Math.min(limitYMax, nextY));
-      }
+			if (!infinite) {
+				nextX = Math.max(limitXMin, Math.min(limitXMax, nextX));
+				nextY = Math.max(limitYMin, Math.min(limitYMax, nextY));
+			}
 
-      zoom = newZoom;
-      x = nextX;
-      y = nextY;
+			zoom = newZoom;
+			x = nextX;
+			y = nextY;
 
-      touchStartDist = currentDist;
-      touchStartZoom = zoom;
-      touchStartCenter = currentCenter;
-    }
-  }
+			touchStartDist = currentDist;
+			touchStartZoom = zoom;
+			touchStartCenter = currentCenter;
+		}
+	}
 }
 
 function handleTouchEnd(e: TouchEvent) {
-  if (e.touches.length === 0) {
-    isPanning = false;
-    touchStartDist = 0;
-  } else if (e.touches.length === 1) {
-    isPanning = true;
-    lastTouchPos = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-    touchStartDist = 0;
-  }
+	if (e.touches.length === 0) {
+		isPanning = false;
+		touchStartDist = 0;
+	} else if (e.touches.length === 1) {
+		isPanning = true;
+		lastTouchPos = {
+			x: e.touches[0].clientX,
+			y: e.touches[0].clientY,
+		};
+		touchStartDist = 0;
+	}
 }
 
 // Zoom control panel actions
 function zoomAtCenter(multiplier: number) {
-  if (!wrapperEl) return;
-  const rect = wrapperEl.getBoundingClientRect();
-  const cx = rect.width / 2;
-  const cy = rect.height / 2;
+	if (!wrapperEl) return;
+	const rect = wrapperEl.getBoundingClientRect();
+	const cx = rect.width / 2;
+	const cy = rect.height / 2;
 
-  const oldZoom = zoom;
-  let newZoom = zoom * multiplier;
-  newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+	const oldZoom = zoom;
+	let newZoom = zoom * multiplier;
+	newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
 
-  if (newZoom === oldZoom) return;
+	if (newZoom === oldZoom) return;
 
-  let newX = cx - (cx - x) * (newZoom / oldZoom);
-  let newY = cy - (cy - y) * (newZoom / oldZoom);
+	let newX = cx - (cx - x) * (newZoom / oldZoom);
+	let newY = cy - (cy - y) * (newZoom / oldZoom);
 
-  if (!infinite) {
-    newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-    newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-  }
+	if (!infinite) {
+		newX = Math.max(limitXMin, Math.min(limitXMax, newX));
+		newY = Math.max(limitYMin, Math.min(limitYMax, newY));
+	}
 
-  zoom = newZoom;
-  x = newX;
-  y = newY;
+	zoom = newZoom;
+	x = newX;
+	y = newY;
 }
 
 function zoomIn() {
-  zoomAtCenter(1.25);
+	zoomAtCenter(1.25);
 }
 
 function zoomOut() {
-  zoomAtCenter(1 / 1.25);
+	zoomAtCenter(1 / 1.25);
 }
 
 function resetView() {
-  if (!wrapperEl) return;
-  const rect = wrapperEl.getBoundingClientRect();
-  zoom = 1.0;
-  x = rect.width / 2;
-  y = rect.height / 2;
+	if (!wrapperEl) return;
+	const rect = wrapperEl.getBoundingClientRect();
+	zoom = 1.0;
+	x = rect.width / 2;
+	y = rect.height / 2;
 }
 
 // --- Svelte Actions for Node Dragging & Size Observation ---
 
-let changeTimeout: number | undefined;
+let changeTimeout: any;
 
 /**
  * Dispatches the changes callback, debounced to prevent spamming
  * multiple layout updates in the same tick.
  */
 function triggerChange() {
-  if (!onNodeChange && !isPersistenceEnabled) return;
+	if (!onNodeChange && !isPersistenceEnabled) return;
 
-  if (changeTimeout) cancelAnimationFrame(changeTimeout);
-  changeTimeout = requestAnimationFrame(() => {
-    const serialized = nodes.map((n) => ({
-      id: n.id,
-      type: n.type,
-      x: n.x,
-      y: n.y,
-      width: n.width,
-      height: n.height,
-      props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
-    })) as unknown as CanvasNodeData<Registry>[];
+	clearTimeout(changeTimeout);
+	changeTimeout = setTimeout(() => {
+		const serialized = nodes.map((n) => ({
+			id: n.id,
+			type: n.type,
+			x: n.x,
+			y: n.y,
+			width: n.width,
+			height: n.height,
+			props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
+		})) as unknown as CanvasNodeData<Registry>[];
 
-    let cancelled = false;
-    const cancel = () => {
-      cancelled = true;
-    };
+		let cancelled = false;
+		const cancel = () => {
+			cancelled = true;
+		};
 
-    if (isPersistenceEnabled && persistence?.beforeSave) {
-      persistence.beforeSave(serialized, cancel);
-    }
+		if (isPersistenceEnabled && persistence?.beforeSave) {
+			persistence.beforeSave(serialized, cancel);
+		}
 
-    if (cancelled) return;
+		if (cancelled) return;
 
-    if (isPersistenceEnabled && persistence?.key) {
-      try {
-        localStorage.setItem(persistence.key, JSON.stringify(serialized));
-      } catch (err) {
-        Log_Warn("Canvas -> Failed to save persistent storage: " + err);
-      }
-    }
+		if (isPersistenceEnabled && persistence?.key) {
+			try {
+				const payload = {
+					nodes: serialized,
+					view: { x, y, zoom },
+				};
+				localStorage.setItem(persistence.key, JSON.stringify(payload));
+			} catch (err) {
+				Log_Warn(`Canvas -> Failed to save persistent storage: ${err}`);
+			}
+		}
 
-    if (onNodeChange) {
-      onNodeChange(serialized);
-    }
+		if (onNodeChange) {
+			onNodeChange(serialized);
+		}
 
-    if (isPersistenceEnabled && persistence?.afterSave) {
-      persistence.afterSave(serialized);
-    }
-  });
+		if (isPersistenceEnabled && persistence?.afterSave) {
+			persistence.afterSave(serialized);
+		}
+	}, 250);
 }
+
+onDestroy(() => {
+	if (changeTimeout) clearTimeout(changeTimeout);
+});
 
 /**
  * Action to handle dragging individual nodes on the canvas.
  */
 function dragNode(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
-  let startX = 0;
-  let startY = 0;
-  let initialNodeX = 0;
-  let initialNodeY = 0;
-  let isDraggingNode = false;
+	let startX = 0;
+	let startY = 0;
+	let initialNodeX = 0;
+	let initialNodeY = 0;
+	let isDraggingNode = false;
 
-  function handlePointerDown(e: PointerEvent) {
-    // Drag on left click or touch/pointer
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
+	function handlePointerDown(e: PointerEvent) {
+		// Drag on left click or touch/pointer
+		if (e.button !== 0 && e.pointerType === 'mouse') return;
 
-    // Handle dragHandleClass filtering
-    if (dragHandleClass) {
-      const target = e.target as HTMLElement;
-      if (!target.closest(`.${dragHandleClass}`)) return;
-    } else {
-      // Prevent drag on standard interactive controls
-      if (isInteractive(e.target as HTMLElement)) return;
-    }
+		const target = e.target as HTMLElement;
+		if (dragHandleClass) {
+			if (!target.closest(`.${dragHandleClass}`)) return;
+		} else {
+			if (isInteractive(target)) return;
+		}
 
-    e.stopPropagation();
-    isDraggingNode = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    initialNodeX = node.x;
-    initialNodeY = node.y;
+		e.stopPropagation();
+		isDraggingNode = true;
+		startX = e.clientX;
+		startY = e.clientY;
+		initialNodeX = node.x;
+		initialNodeY = node.y;
 
-    nodeEl.setPointerCapture(e.pointerId);
-    nodeEl.addEventListener('pointermove', handlePointerMove);
-    nodeEl.addEventListener('pointerup', handlePointerUp);
-    nodeEl.addEventListener('pointercancel', handlePointerUp);
-  }
+		nodeEl.setPointerCapture(e.pointerId);
+		nodeEl.addEventListener('pointermove', handlePointerMove);
+		nodeEl.addEventListener('pointerup', handlePointerUp);
+		nodeEl.addEventListener('pointercancel', handlePointerUp);
+	}
 
-  function handlePointerMove(e: PointerEvent) {
-    if (!isDraggingNode) return;
-    e.stopPropagation();
+	function handlePointerMove(e: PointerEvent) {
+		if (!isDraggingNode) return;
+		e.stopPropagation();
 
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+		const dx = e.clientX - startX;
+		const dy = e.clientY - startY;
 
-    // Offset change divided by zoom level makes movement match pointer exactly
-    node.x = initialNodeX + dx / zoom;
-    node.y = initialNodeY + dy / zoom;
+		// Offset change divided by zoom level makes movement match pointer exactly
+		node.x = initialNodeX + dx / zoom;
+		node.y = initialNodeY + dy / zoom;
+	}
 
-    triggerChange();
-  }
+	function handlePointerUp(e: PointerEvent) {
+		if (!isDraggingNode) return;
+		isDraggingNode = false;
 
-  function handlePointerUp(e: PointerEvent) {
-    if (!isDraggingNode) return;
-    isDraggingNode = false;
+		try {
+			nodeEl.releasePointerCapture(e.pointerId);
+		} catch (err) {}
 
-    try {
-      nodeEl.releasePointerCapture(e.pointerId);
-    } catch (err) {}
+		nodeEl.removeEventListener('pointermove', handlePointerMove);
+		nodeEl.removeEventListener('pointerup', handlePointerUp);
+		nodeEl.removeEventListener('pointercancel', handlePointerUp);
 
-    nodeEl.removeEventListener('pointermove', handlePointerMove);
-    nodeEl.removeEventListener('pointerup', handlePointerUp);
-    nodeEl.removeEventListener('pointercancel', handlePointerUp);
+		triggerChange();
+	}
 
-    triggerChange();
-  }
+	nodeEl.addEventListener('pointerdown', handlePointerDown);
 
-  nodeEl.addEventListener('pointerdown', handlePointerDown);
+	const stopProp = (e: Event) => {
+		const target = e.target as HTMLElement;
+		if (dragHandleClass) {
+			// Always stop propagation for the resize handle, even when dragHandleClass is set
+			if (target.closest('.canvas-node-resize-handle')) {
+				e.stopPropagation();
+				return;
+			}
+			if (!target.closest(`.${dragHandleClass}`)) return;
+		} else {
+			if (isInteractive(target)) return;
+		}
+		e.stopPropagation();
+	};
 
-  // Stop propagation of mousedown and touchstart on the entire node wrapper
-  // to prevent canvas panning when clicking or dragging the node elements.
-  const stopProp = (e: Event) => {
-    if (dragHandleClass) {
-      const target = e.target as HTMLElement;
-      if (!target.closest(`.${dragHandleClass}`)) return;
-    } else {
-      if (isInteractive(e.target as HTMLElement)) return;
-    }
-    e.stopPropagation();
-  };
+	nodeEl.addEventListener('mousedown', stopProp);
+	nodeEl.addEventListener('touchstart', stopProp);
 
-  nodeEl.addEventListener('mousedown', stopProp);
-  nodeEl.addEventListener('touchstart', stopProp);
-
-  return {
-    destroy() {
-      nodeEl.removeEventListener('pointerdown', handlePointerDown);
-      nodeEl.removeEventListener('mousedown', stopProp);
-      nodeEl.removeEventListener('touchstart', stopProp);
-    },
-  };
+	return {
+		destroy() {
+			nodeEl.removeEventListener('pointerdown', handlePointerDown);
+			nodeEl.removeEventListener('mousedown', stopProp);
+			nodeEl.removeEventListener('touchstart', stopProp);
+		},
+	};
 }
 
 /**
  * Action to handle resizing individual nodes on the canvas.
  */
 function resizeNode(handleEl: HTMLElement, node: CanvasNodeData<any>) {
-  let startX = 0;
-  let startY = 0;
-  let startWidth = 0;
-  let startHeight = 0;
-  let isResizing = false;
+	let startX = 0;
+	let startY = 0;
+	let startWidth = 0;
+	let startHeight = 0;
+	let minWidth = 0;
+	let minHeight = 0;
+	let maxWidth = Number.MAX_VALUE;
+	let maxHeight = Number.MAX_VALUE;
+	let isResizing = false;
 
-  function handlePointerDown(e: PointerEvent) {
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
-    e.stopPropagation(); // prevent panning & dragging the node
+	function handlePointerDown(e: PointerEvent) {
+		if (e.button !== 0 && e.pointerType === 'mouse') return;
+		e.stopPropagation(); // prevent panning & dragging the node
 
-    isResizing = true;
-    startX = e.clientX;
-    startY = e.clientY;
+		isResizing = true;
+		startX = e.clientX;
+		startY = e.clientY;
 
-    const parent = handleEl.parentElement;
-    if (parent) {
-      startWidth = node.width ?? parent.offsetWidth;
-      startHeight = node.height ?? parent.offsetHeight;
-    } else {
-      Log_Warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
-    }
-    handleEl.setPointerCapture(e.pointerId);
-    handleEl.addEventListener('pointermove', handlePointerMove);
-    handleEl.addEventListener('pointerup', handlePointerUp);
-    handleEl.addEventListener('pointercancel', handlePointerUp);
-  }
+		const parent = handleEl.parentElement;
+		if (parent) {
+			startWidth = node.width ?? parent.offsetWidth;
+			startHeight = node.height ?? parent.offsetHeight;
 
-  function handlePointerMove(e: PointerEvent) {
-    if (!isResizing) return;
-    e.stopPropagation();
+			const targetEl = parent.firstElementChild as HTMLElement;
+			if (targetEl) {
+				const computed = window.getComputedStyle(targetEl);
+				minWidth = parseFloat(computed.minWidth) || 0;
+				minHeight = parseFloat(computed.minHeight) || 0;
 
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+				const parsedMaxW = parseFloat(computed.maxWidth);
+				maxWidth = Number.isNaN(parsedMaxW) ? Number.MAX_VALUE : parsedMaxW;
 
-    // Scale resize changes by the zoom factor
-    node.width = Math.max(80, startWidth + dx / zoom);
-    node.height = Math.max(50, startHeight + dy / zoom);
+				const parsedMaxH = parseFloat(computed.maxHeight);
+				maxHeight = Number.isNaN(parsedMaxH) ? Number.MAX_VALUE : parsedMaxH;
+			} else {
+				minWidth = 0;
+				minHeight = 0;
+				maxWidth = Number.MAX_VALUE;
+				maxHeight = Number.MAX_VALUE;
+			}
+		} else {
+			Log_Warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
+		}
+		handleEl.setPointerCapture(e.pointerId);
+		handleEl.addEventListener('pointermove', handlePointerMove);
+		handleEl.addEventListener('pointerup', handlePointerUp);
+		handleEl.addEventListener('pointercancel', handlePointerUp);
+	}
 
-    triggerChange();
-  }
+	function handlePointerMove(e: PointerEvent) {
+		if (!isResizing) return;
+		e.stopPropagation();
 
-  function handlePointerUp(e: PointerEvent) {
-    if (!isResizing) return;
-    isResizing = false;
+		const dx = e.clientX - startX;
+		const dy = e.clientY - startY;
 
-    try {
-      handleEl.releasePointerCapture(e.pointerId);
-    } catch (err) {}
+		// Scale resize changes by the zoom factor
+		let newWidth = startWidth + dx / zoom;
+		let newHeight = startHeight + dy / zoom;
 
-    handleEl.removeEventListener('pointermove', handlePointerMove);
-    handleEl.removeEventListener('pointerup', handlePointerUp);
-    handleEl.removeEventListener('pointercancel', handlePointerUp);
+		// Clamp based on computed styles of the child widget (e.g. min-width / min-height)
+		newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+		newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
 
-    triggerChange();
-  }
+		node.width = newWidth;
+		node.height = newHeight;
+	}
 
-  handleEl.addEventListener('pointerdown', handlePointerDown);
+	function handlePointerUp(e: PointerEvent) {
+		if (!isResizing) return;
+		isResizing = false;
 
-  // Explicitly block mousedown & touchstart propagation to prevent panning & dragging node
-  const block = (e: Event) => e.stopPropagation();
-  handleEl.addEventListener('mousedown', block);
-  handleEl.addEventListener('touchstart', block);
+		try {
+			handleEl.releasePointerCapture(e.pointerId);
+		} catch (err) {}
 
-  return {
-    destroy() {
-      handleEl.removeEventListener('pointerdown', handlePointerDown);
-      handleEl.removeEventListener('mousedown', block);
-      handleEl.removeEventListener('touchstart', block);
-    },
-  };
+		handleEl.removeEventListener('pointermove', handlePointerMove);
+		handleEl.removeEventListener('pointerup', handlePointerUp);
+		handleEl.removeEventListener('pointercancel', handlePointerUp);
+
+		triggerChange();
+	}
+
+	handleEl.addEventListener('pointerdown', handlePointerDown);
+
+	// Explicitly block mousedown & touchstart propagation to prevent panning & dragging node
+	const block = (e: Event) => e.stopPropagation();
+	handleEl.addEventListener('mousedown', block);
+	handleEl.addEventListener('touchstart', block);
+
+	return {
+		destroy() {
+			handleEl.removeEventListener('pointerdown', handlePointerDown);
+			handleEl.removeEventListener('mousedown', block);
+			handleEl.removeEventListener('touchstart', block);
+		},
+	};
 }
 
 /**
  * Action using ResizeObserver to measure and bind node dimensions.
  */
 function observeSize(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
-  const observer = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const width = entry.borderBoxSize?.[0]?.inlineSize ?? nodeEl.offsetWidth;
-      const height = entry.borderBoxSize?.[0]?.blockSize ?? nodeEl.offsetHeight;
+	const targetEl = (nodeEl.firstElementChild as HTMLElement) || nodeEl;
+	const observer = new ResizeObserver((entries) => {
+		for (const entry of entries) {
+			const width = entry.borderBoxSize?.[0]?.inlineSize ?? targetEl.offsetWidth;
+			const height = entry.borderBoxSize?.[0]?.blockSize ?? targetEl.offsetHeight;
 
-      if (node.width !== width || node.height !== height) {
-        node.width = width;
-        node.height = height;
-        triggerChange();
-      }
-    }
-  });
+			if (node.width !== width || node.height !== height) {
+				node.width = width;
+				node.height = height;
+				triggerChange();
+			}
+		}
+	});
 
-  observer.observe(nodeEl);
-  return {
-    destroy() {
-      observer.disconnect();
-    },
-  };
+	observer.observe(targetEl);
+	return {
+		destroy() {
+			observer.disconnect();
+		},
+	};
 }
 </script>
 
@@ -950,7 +1022,12 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
     z-index: 10;
     border-right: 2px solid rgba(255, 255, 255, 0.4);
     border-bottom: 2px solid rgba(255, 255, 255, 0.4);
-    transition: border-color 0.15s;
+    opacity: 0;
+    transition: opacity 0.15s, border-color 0.15s;
+  }
+
+  .canvas-node-wrapper:hover .canvas-node-resize-handle {
+    opacity: 1;
   }
 
   .canvas-node-resize-handle:hover {

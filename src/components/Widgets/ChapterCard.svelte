@@ -1,11 +1,11 @@
 <script lang="ts">
 type Props = {
-  number: string;
-  title: string;
-  status: 'completed' | 'progress' | 'locked';
-  berries: string;
-  cassette: string;
-  heart: string;
+	number: string;
+	title: string;
+	status: 'completed' | 'progress' | 'locked';
+	berries: string;
+	cassette: string;
+	heart: string;
 };
 
 let { number, title, status, berries, cassette, heart }: Props = $props();

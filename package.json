@@ -1,33 +1,33 @@
 {
-  "name": "neutralinojs-svelte-template",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "neu run -- --window-enable-inspector",
-    "build:frontend": "vite build",
-    "build": "neu build --embed-resources",
-    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
-    "lint": "biome check . --write --unsafe"
-  },
-  "dependencies": {
-    "@neutralinojs/lib": "6.8.0",
-    "@panzoom/panzoom": "^4.6.2",
-    "@tailwindcss/vite": "4.3.2",
-    "golden-layout": "2.6.0",
-    "hotkeys-js": "^4.0.4",
-    "interactjs": "1.10.27",
-    "tailwindcss": "4.3.2"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.5.3",
-    "@sveltejs/vite-plugin-svelte": "7.1.2",
-    "@tsconfig/svelte": "5.0.8",
-    "@types/node": "24.13.2",
-    "cross-env": "10.1.0",
-    "svelte": "5.56.4",
-    "svelte-check": "4.7.1",
-    "typescript": "6.0.2",
-    "vite": "8.1.1"
-  }
+	"name": "neutralinojs-svelte-template",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "neu run -- --window-enable-inspector",
+		"build:frontend": "vite build",
+		"build": "neu build --embed-resources",
+		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+		"lint": "biome check . --write --unsafe"
+	},
+	"dependencies": {
+		"@neutralinojs/lib": "6.8.0",
+		"@panzoom/panzoom": "^4.6.2",
+		"@tailwindcss/vite": "4.3.2",
+		"golden-layout": "2.6.0",
+		"hotkeys-js": "^4.0.4",
+		"interactjs": "1.10.27",
+		"tailwindcss": "4.3.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.3",
+		"@sveltejs/vite-plugin-svelte": "7.1.2",
+		"@tsconfig/svelte": "5.0.8",
+		"@types/node": "24.13.2",
+		"cross-env": "10.1.0",
+		"svelte": "5.56.4",
+		"svelte-check": "4.7.1",
+		"typescript": "6.0.2",
+		"vite": "8.1.1"
+	}
 }
