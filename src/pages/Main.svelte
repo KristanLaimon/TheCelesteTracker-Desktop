@@ -1,16 +1,18 @@
 <script lang="ts">
-import { type RootItemConfig } from 'golden-layout';
 import GoldenLayout from '../components/Main/GoldenLayout.svelte';
+import type { CustomRootContentItemsConfig, LayoutContentRootConfig } from '../components/Main/GoldenLayout.types';
 import { GoldenLayoutWrapper } from '../components/Main/GoldenLayoutWrapper';
-import CustomPanel from './CustomPanel.svelte';
-import TestPanel from './TestPanel.svelte';
+import CustomPanel from '../components/Widgets/CustomPanel.svelte';
+import TestPanel from '../components/Widgets/TestPanel.svelte';
 
-// import 'golden-layout/dist/css/goldenlayout-base.css';
-// import 'golden-layout/dist/css/themes/goldenlayout-dark-theme.css';
+let Layout = $state<GoldenLayoutWrapper | null>(null);
 
-let layout = $state<GoldenLayoutWrapper | null>(null);
+const Layout_InitialComponents = {
+  testComponent: TestPanel,
+  myCustomComponent: CustomPanel,
+} satisfies LayoutContentRootConfig;
 
-const Content: RootItemConfig = {
+const Layout_InitialContent: CustomRootContentItemsConfig<typeof Layout_InitialComponents> = {
   type: 'row',
   content: [
     {
@@ -46,12 +48,9 @@ const Content: RootItemConfig = {
 
 <div class="layout-wrapper">
   <GoldenLayout
-    bind:layout
-    {Content}
-    components={{
-      testComponent: TestPanel,
-      myCustomComponent: CustomPanel,
-    }}
+    bind:layout={Layout}
+    content={Layout_InitialContent}
+    components={Layout_InitialComponents}
     defaultComponent={TestPanel}
     // componentParts={{
     //   header: 'bg-slate-900 border-b border-slate-700/50',

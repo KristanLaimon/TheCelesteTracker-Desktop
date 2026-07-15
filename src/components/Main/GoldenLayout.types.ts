@@ -1,8 +1,35 @@
 import type { ComponentItemConfig, RowOrColumnItemConfig, StackItemConfig } from 'golden-layout';
+import type { Component } from 'svelte';
 
 export type GoldenLayoutContent = RowOrColumnItemConfig | StackItemConfig | ComponentItemConfig;
 
-export interface GoldenLayoutTheme {
+// Custom recursive generic types to constrain componentType to a specific union of strings
+export type CustomComponentItemConfig<ComponentTypes extends string> = Omit<ComponentItemConfig, 'componentType'> & {
+  componentType: ComponentTypes;
+};
+
+export type CustomRowOrColumnItemConfig<ComponentTypes extends string> = Omit<RowOrColumnItemConfig, 'content'> & {
+  content: CustomChildItemConfig<ComponentTypes>[];
+};
+
+export type CustomStackItemConfig<ComponentTypes extends string> = Omit<StackItemConfig, 'content'> & {
+  content: CustomComponentItemConfig<ComponentTypes>[];
+};
+
+export type CustomChildItemConfig<ComponentTypes extends string> =
+  | CustomRowOrColumnItemConfig<ComponentTypes>
+  | CustomStackItemConfig<ComponentTypes>
+  | CustomComponentItemConfig<ComponentTypes>;
+
+// export type CustomRootContentItemsConfig<ComponentTypes extends string> =
+export type CustomRootContentItemsConfig<ComponentTypes extends LayoutContentRootConfig> =
+  | CustomRowOrColumnItemConfig<keyof ComponentTypes & string>
+  | CustomStackItemConfig<keyof ComponentTypes & string>
+  | CustomComponentItemConfig<keyof ComponentTypes & string>;
+
+export type LayoutContentRootConfig = Record<string, Component>;
+
+export interface GoldenLayoutThemeCssColorsOverrides {
   layoutBg?: string;
   contentBg?: string;
   contentBorder?: string;
@@ -19,7 +46,7 @@ export interface GoldenLayoutTheme {
   dragProxyBorder?: string;
 }
 
-export interface GoldenLayoutComponentParts {
+export interface GoldenLayoutComponentPartsTailwindCssOverrides {
   layout?: string;
   content?: string;
   header?: string;

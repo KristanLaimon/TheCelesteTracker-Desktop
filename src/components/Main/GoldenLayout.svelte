@@ -1,8 +1,13 @@
-<script lang="ts">
-import { GoldenLayout, type RootItemConfig, Stack } from 'golden-layout';
+<script lang="ts" generics="ComponentTypes extends LayoutContentRootConfig & string">
+import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
 import { Log_Throw } from '../../logic/logger';
-import type { GoldenLayoutComponentParts, GoldenLayoutTheme } from './GoldenLayout.types';
+import type {
+  GoldenLayoutComponentPartsTailwindCssOverrides,
+  GoldenLayoutThemeCssColorsOverrides,
+  CustomRootContentItemsConfig,
+  LayoutContentRootConfig,
+} from './GoldenLayout.types';
 import { GoldenLayoutWrapper } from './GoldenLayoutWrapper';
 
 import './GoldenLayoutThemes/goldenlayout-base.css';
@@ -11,19 +16,19 @@ import './GoldenLayoutThemes/predefined/goldenlayout-dark-theme.css';
 // PUBLIC-PROPS
 type Props = {
   // 1. Content: Defines the initial structural content of the layout grid.
-  Content: RootItemConfig;
+  content: CustomRootContentItemsConfig<ComponentTypes>;
 
   // 2. components: Maps Svelte component classes to Golden Layout names.
-  components?: Record<string, Component<Record<string, unknown>>>;
+  components?: Record<ComponentTypes, Component<Record<string, unknown>>>;
 
   // 3. layout: Binds the custom Golden Layout Wrapper instance back to the parent.
   layout?: GoldenLayoutWrapper | null;
 
   // 4. componentParts: Custom Tailwind CSS classes to style layout sections.
-  componentParts?: GoldenLayoutComponentParts;
+  componentParts?: GoldenLayoutComponentPartsTailwindCssOverrides;
 
   // 5. theme: Dynamic color mapping using CSS custom variables.
-  theme?: GoldenLayoutTheme;
+  theme?: GoldenLayoutThemeCssColorsOverrides;
 
   // 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
   defaultComponent: Component<Record<string, unknown>>;
@@ -33,8 +38,8 @@ type Props = {
 };
 
 let {
-  Content,
-  components = {},
+  content: Content,
+  components = {} as Record<ComponentTypes, Component<Record<string, unknown>>>,
   layout = $bindable(null),
   componentParts = {},
   theme = {},
@@ -160,7 +165,7 @@ onMount(() => {
 
     // Register Svelte components
     if (components) {
-      for (const [name, component] of Object.entries(components)) {
+      for (const [name, component] of Object.entries(components) as [string, Component<Record<string, unknown>>][]) {
         console.log(`GoldenLayout Wrapper: Registering component "${name}"`);
         LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
           try {
