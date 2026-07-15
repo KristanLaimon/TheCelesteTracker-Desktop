@@ -40,9 +40,15 @@ export interface CanvasPersistence<Registry extends CanvasRegistry = CanvasRegis
 	beforeSave?: (nodes: CanvasNodeData<Registry>[], cancel: () => void) => void;
 	/** Callback fired after the canvas state is saved. */
 	afterSave?: (nodes: CanvasNodeData<Registry>[]) => void;
-	/** Method dynamically bound by the Canvas component. Call to clear all nodes. */
+	/** Method dynamically bound by the Canvas component. Call to clear all components. */
+	clearComponents?: () => void;
+	/** Method dynamically bound by the Canvas component. Call to clear viewport pan/zoom. */
+	clearView?: () => void;
+	/** Method dynamically bound by the Canvas component. Call to clear both components and viewport. */
+	clearAll?: () => void;
+	/** Deprecated method. Use clearComponents instead. */
 	clear?: () => void;
-	/** Method dynamically bound by the Canvas component. Call to reset viewport pan/zoom. */
+	/** Deprecated method. Use clearView instead. */
 	resetView?: () => void;
 }
 

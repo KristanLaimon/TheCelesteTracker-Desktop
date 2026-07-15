@@ -29,11 +29,12 @@ let persistence = $state<CanvasPersistence<typeof registry>>({
 	},
 	afterSave: (nodes) => {
 		console.log('Canvas saved successfully:', nodes);
-	},
+	}
 });
 
 function clearPersistence() {
-	localStorage.removeItem('test-canvas-persistence');
+	localStorage.removeItem('test-canvas-persistence_nodes');
+	localStorage.removeItem('test-canvas-persistence_view');
 	window.location.reload();
 }
 </script>

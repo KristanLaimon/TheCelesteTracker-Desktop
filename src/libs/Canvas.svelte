@@ -212,45 +212,78 @@ let lastTouchPos = { x: 0, y: 0 };
 onMount(() => {
 	let hasSavedView = false;
 	if (isPersistenceEnabled && persistence?.key) {
-		const storage = localStorage.getItem(persistence.key);
-		if (storage) {
+		const nodesStorage = localStorage.getItem(`${persistence.key}_nodes`);
+		const viewStorage = localStorage.getItem(`${persistence.key}_view`);
+		let loadedNodes: CanvasNodeData<Registry>[] | null = null;
+
+		if (nodesStorage) {
 			try {
-				const parsed = JSON.parse(storage);
-				let loadedNodes: CanvasNodeData<Registry>[] = [];
-				if (Array.isArray(parsed)) {
-					// Backward compatibility: old format was just an array of nodes
-					loadedNodes = parsed as CanvasNodeData<Registry>[];
-				} else if (parsed && typeof parsed === 'object') {
-					// New format: contains nodes and view properties
-					loadedNodes = (parsed.nodes || []) as CanvasNodeData<Registry>[];
-					if (parsed.view) {
-						const vx = Number(parsed.view.x);
-						const vy = Number(parsed.view.y);
-						const vz = Number(parsed.view.zoom);
-						if (!Number.isNaN(vx) && Number.isFinite(vx)) x = vx;
-						if (!Number.isNaN(vy) && Number.isFinite(vy)) y = vy;
-						if (!Number.isNaN(vz) && Number.isFinite(vz) && vz > 0) {
-							zoom = vz;
-							hasSavedView = true;
-						}
+				loadedNodes = JSON.parse(nodesStorage);
+			} catch (err) {
+				Log_Warn(`Canvas -> Failed to parse persistent nodes: ${err}`);
+			}
+		}
+
+		if (viewStorage) {
+			try {
+				const parsedView = JSON.parse(viewStorage);
+				if (parsedView) {
+					const vx = Number(parsedView.x);
+					const vy = Number(parsedView.y);
+					const vz = Number(parsedView.zoom);
+					if (!Number.isNaN(vx) && Number.isFinite(vx)) x = vx;
+					if (!Number.isNaN(vy) && Number.isFinite(vy)) y = vy;
+					if (!Number.isNaN(vz) && Number.isFinite(vz) && vz > 0) {
+						zoom = vz;
+						hasSavedView = true;
 					}
 				}
-
-				// Sanitize loaded nodes
-				nodes = loadedNodes.map((node) => {
-					if (typeof node.x !== 'number' || !Number.isFinite(node.x)) node.x = 0;
-					if (typeof node.y !== 'number' || !Number.isFinite(node.y)) node.y = 0;
-					if (node.width !== undefined && (typeof node.width !== 'number' || !Number.isFinite(node.width))) {
-						node.width = undefined;
-					}
-					if (node.height !== undefined && (typeof node.height !== 'number' || !Number.isFinite(node.height))) {
-						node.height = undefined;
-					}
-					return node;
-				});
 			} catch (err) {
-				Log_Warn(`Canvas -> Failed to parse persistent storage: ${err}`);
+				Log_Warn(`Canvas -> Failed to parse persistent view: ${err}`);
 			}
+		}
+
+		// Fallback for backward compatibility (single key payload)
+		if (!nodesStorage && !viewStorage) {
+			const storage = localStorage.getItem(persistence.key);
+			if (storage) {
+				try {
+					const parsed = JSON.parse(storage);
+					if (Array.isArray(parsed)) {
+						loadedNodes = parsed as CanvasNodeData<Registry>[];
+					} else if (parsed && typeof parsed === 'object') {
+						loadedNodes = (parsed.nodes || []) as CanvasNodeData<Registry>[];
+						if (parsed.view) {
+							const vx = Number(parsed.view.x);
+							const vy = Number(parsed.view.y);
+							const vz = Number(parsed.view.zoom);
+							if (!Number.isNaN(vx) && Number.isFinite(vx)) x = vx;
+							if (!Number.isNaN(vy) && Number.isFinite(vy)) y = vy;
+							if (!Number.isNaN(vz) && Number.isFinite(vz) && vz > 0) {
+								zoom = vz;
+								hasSavedView = true;
+							}
+						}
+					}
+				} catch (err) {
+					Log_Warn(`Canvas -> Failed to parse fallback persistent storage: ${err}`);
+				}
+			}
+		}
+
+		// Sanitize loaded nodes
+		if (loadedNodes !== null) {
+			nodes = loadedNodes.map((node) => {
+				if (typeof node.x !== 'number' || !Number.isFinite(node.x)) node.x = 0;
+				if (typeof node.y !== 'number' || !Number.isFinite(node.y)) node.y = 0;
+				if (node.width !== undefined && (typeof node.width !== 'number' || !Number.isFinite(node.width))) {
+					node.width = undefined;
+				}
+				if (node.height !== undefined && (typeof node.height !== 'number' || !Number.isFinite(node.height))) {
+					node.height = undefined;
+				}
+				return node;
+			});
 		}
 	}
 
@@ -259,18 +292,36 @@ onMount(() => {
 		x = rect.width / 2;
 		y = rect.height / 2;
 	}
-});
 
-// Bind the persistence methods and dynamically keep them up-to-date
-$effect(() => {
+	// Bind the persistence methods safely here on mount to prevent reactive $effect loops
 	if (persistence) {
-		persistence.clear = () => {
+		persistence.clearComponents = () => {
 			nodes = [];
+			if (isPersistenceEnabled && persistence.key) {
+				localStorage.removeItem(`${persistence.key}_nodes`);
+			}
 			triggerChange();
 		};
-		persistence.resetView = () => {
+		persistence.clearView = () => {
 			resetView();
+			if (isPersistenceEnabled && persistence.key) {
+				localStorage.removeItem(`${persistence.key}_view`);
+			}
 		};
+		persistence.clearAll = () => {
+			nodes = [];
+			resetView();
+			if (isPersistenceEnabled && persistence.key) {
+				localStorage.removeItem(`${persistence.key}_nodes`);
+				localStorage.removeItem(`${persistence.key}_view`);
+				localStorage.removeItem(persistence.key);
+			}
+			triggerChange();
+		};
+
+		// Map deprecated/compatibility properties
+		persistence.clear = persistence.clearComponents;
+		persistence.resetView = persistence.clearView;
 	}
 });
 
@@ -597,11 +648,9 @@ function triggerChange() {
 
 		if (isPersistenceEnabled && persistence?.key) {
 			try {
-				const payload = {
-					nodes: serialized,
-					view: { x, y, zoom },
-				};
-				localStorage.setItem(persistence.key, JSON.stringify(payload));
+				localStorage.setItem(`${persistence.key}_nodes`, JSON.stringify(serialized));
+				localStorage.setItem(`${persistence.key}_view`, JSON.stringify({ x, y, zoom }));
+				localStorage.removeItem(persistence.key); // clean legacy key
 			} catch (err) {
 				Log_Warn(`Canvas -> Failed to save persistent storage: ${err}`);
 			}
@@ -624,7 +673,8 @@ onDestroy(() => {
 /**
  * Action to handle dragging individual nodes on the canvas.
  */
-function dragNode(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
+function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
+	let node = initialNode;
 	let startX = 0;
 	let startY = 0;
 	let initialNodeX = 0;
@@ -703,6 +753,11 @@ function dragNode(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
 	nodeEl.addEventListener('touchstart', stopProp);
 
 	return {
+		update(newNode: CanvasNodeData<any>) {
+			// Refresh the node reference when the nodes array is replaced
+			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
+			node = newNode;
+		},
 		destroy() {
 			nodeEl.removeEventListener('pointerdown', handlePointerDown);
 			nodeEl.removeEventListener('mousedown', stopProp);
@@ -714,7 +769,8 @@ function dragNode(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
 /**
  * Action to handle resizing individual nodes on the canvas.
  */
-function resizeNode(handleEl: HTMLElement, node: CanvasNodeData<any>) {
+function resizeNode(handleEl: HTMLElement, initialNode: CanvasNodeData<any>) {
+	let node = initialNode;
 	let startX = 0;
 	let startY = 0;
 	let startWidth = 0;
@@ -806,6 +862,11 @@ function resizeNode(handleEl: HTMLElement, node: CanvasNodeData<any>) {
 	handleEl.addEventListener('touchstart', block);
 
 	return {
+		update(newNode: CanvasNodeData<any>) {
+			// Refresh the node reference when the nodes array is replaced
+			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
+			node = newNode;
+		},
 		destroy() {
 			handleEl.removeEventListener('pointerdown', handlePointerDown);
 			handleEl.removeEventListener('mousedown', block);
@@ -816,10 +877,24 @@ function resizeNode(handleEl: HTMLElement, node: CanvasNodeData<any>) {
 
 /**
  * Action using ResizeObserver to measure and bind node dimensions.
+ * Skips the first observation callback if the node already has saved
+ * dimensions (i.e. was deserialized), so we don't overwrite persisted
+ * width/height before the wrapper's explicit style has been applied.
  */
-function observeSize(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
+function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
+	let node = initialNode;
 	const targetEl = (nodeEl.firstElementChild as HTMLElement) || nodeEl;
+
+	// If the node already has saved dimensions, skip the very first
+	// ResizeObserver callback to avoid clobbering them with raw DOM
+	// measurements taken before the wrapper style has been applied.
+	let skipFirst = node.width !== undefined && node.height !== undefined;
+
 	const observer = new ResizeObserver((entries) => {
+		if (skipFirst) {
+			skipFirst = false;
+			return;
+		}
 		for (const entry of entries) {
 			const width = entry.borderBoxSize?.[0]?.inlineSize ?? targetEl.offsetWidth;
 			const height = entry.borderBoxSize?.[0]?.blockSize ?? targetEl.offsetHeight;
@@ -834,6 +909,13 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
 
 	observer.observe(targetEl);
 	return {
+		update(newNode: CanvasNodeData<any>) {
+			// Refresh the node reference when the nodes array is replaced
+			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
+			node = newNode;
+			// Reset skipFirst — the new node may or may not have saved dimensions
+			skipFirst = newNode.width !== undefined && newNode.height !== undefined;
+		},
 		destroy() {
 			observer.disconnect();
 		},

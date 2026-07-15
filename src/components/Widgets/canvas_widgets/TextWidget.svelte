@@ -11,7 +11,7 @@ let isInteractive = $state<boolean>(false);
 </script>
 
 <article id="text-widget-wrapper">
-<p>hola</p>
+<p>Hola</p>
   <!-- <textarea
     value={text}
     oninput={(e) => onChange?.({ text: e.currentTarget.value })}
@@ -27,8 +27,6 @@ let isInteractive = $state<boolean>(false);
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    min-width: 200px;
-    min-height: 100px;
     background: rgba(30, 30, 32, 0.7);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -36,7 +34,7 @@ let isInteractive = $state<boolean>(false);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     color: #e0e0e0;
   }
-  /* textarea {
+  textarea {
     width: 100%;
     height: 100%;
     background: transparent;
@@ -46,5 +44,5 @@ let isInteractive = $state<boolean>(false);
     font-family: inherit;
     font-size: inherit;
     outline: none;
-  } */
+  }
 </style>
