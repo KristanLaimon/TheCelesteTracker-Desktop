@@ -27,7 +27,8 @@ export type CustomRootContentItemsConfig<ComponentTypes extends LayoutContentRoo
   | CustomStackItemConfig<keyof ComponentTypes & string>
   | CustomComponentItemConfig<keyof ComponentTypes & string>;
 
-export type LayoutContentRootConfig = Record<string, Component>;
+// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+export type LayoutContentRootConfig = Record<string, Component<any, any, any>>;
 
 export interface GoldenLayoutThemeCssColorsOverrides {
   layoutBg?: string;

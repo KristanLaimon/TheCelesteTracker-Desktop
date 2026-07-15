@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts" generics="Registry extends CanvasRegistry = CanvasRegistry">
 /**
  * @module Canvas
  * @description A fully encapsulated, portable, zoomable, and pannable 2D canvas workspace for Svelte 5.
@@ -6,52 +6,14 @@
  * @license MIT
  */
 
-import type { Component, Snippet } from 'svelte';
+import type { Snippet } from 'svelte';
 import { onMount } from 'svelte';
-import { Log_Warn } from "../logic/logger";
+import { Log_Warn } from '../logic/logger';
+import type { CanvasNodeData, CanvasRegistry, CanvasClassNames, CanvasPersistence } from './Canvas.types';
 
-// biome-ignore lint/suspicious/noExplicitAny: Needed to create this type
-type AnySvelteComponent = Component<any,any,any>;
+export type { CanvasNodeData, CanvasRegistry, CanvasClassNames, CanvasPersistence };
 
-/**
- * Tailwind CSS class names for styling specific parts of the Canvas component.
- */
-export interface CanvasClassNames {
-  /** Custom CSS classes for the outer wrapper container. */
-  wrapper?: string;
-  /** Custom CSS classes for the inner transformed content container. */
-  content?: string;
-  /** Custom CSS classes for the floating controls bar. */
-  controls?: string;
-  /** Custom CSS classes for the control buttons (Zoom In, Zoom Out, Reset). */
-  controlButton?: string;
-  /** Custom CSS classes for the zoom level percentage readout. */
-  zoomValue?: string;
-}
-
-/**
- * Represents a single node configuration in the canvas.
- * This structure can be JSON-serializable if using `type` + `registry`,
- * or can render custom Svelte components directly using the `component` property.
- */
-export interface CanvasNodeData {
-  /** Unique identifier for the node. */
-  id: string;
-  /** The registered type of Svelte component to render for this node. */
-  type?: string;
-  /** Direct Svelte component class to render for this node (non-serializable). */
-  component?: AnySvelteComponent;
-  /** Horizontal position of the node in the canvas world space. */
-  x: number;
-  /** Vertical position of the node in the canvas world space. */
-  y: number;
-  /** Measured width of the node (automatically populated/updated). */
-  width?: number;
-  /** Measured height of the node (automatically populated/updated). */
-  height?: number;
-  /** Optional custom serializable props passed to the Svelte component. */
-  props?: Record<string, unknown>;
-}
+// CanvasNodeData is now imported from Canvas.types.ts to support mapped union types.
 
 /**
  * Props definition for the Canvas library component.
@@ -135,12 +97,12 @@ interface Props {
    * Supports runtime additions, deletions, and modifications.
    * @default []
    */
-  nodes?: CanvasNodeData[];
+  nodes?: CanvasNodeData<Registry>[];
   /**
    * A registry mapping type strings to Svelte Component classes.
    * @default {}
    */
-  registry?: Record<string, AnySvelteComponent>;
+  registry?: Registry;
   /**
    * Optional class name target for dragging nodes (e.g. "drag-handle").
    * If specified, clicking outside the handle will not drag the node.
@@ -151,7 +113,7 @@ interface Props {
    * Optional callback function triggered when any node's position or size changes.
    * Receives a clean, JSON-serializable copy of all nodes.
    */
-  onNodeChange?: (nodes: CanvasNodeData[]) => void;
+  onNodeChange?: (nodes: CanvasNodeData<Registry>[]) => void;
   /**
    * Custom Tailwind CSS classes to override styling of individual canvas internal parts.
    */
@@ -159,11 +121,47 @@ interface Props {
   /**
    * A CSS class name applied directly to the outer canvas wrapper element.
    */
+  /**
+   * A CSS class name applied directly to the outer canvas wrapper element.
+   */
   class?: string;
+  /**
+   * Custom inline style rules applied directly to the outer canvas wrapper element.
+   */
+  style?: string;
+  /**
+   * The background color of the canvas workspace.
+   * @default "#242424"
+   */
+  bgColor?: string;
+  /**
+   * The color of the background grid dots.
+   * @default "rgb(58, 58, 58)"
+   */
+  dotColor?: string;
+  /**
+   * The radius of the background grid dots in pixels.
+   * @default 1.5
+   */
+  dotSize?: number;
+  /**
+   * Whether to show the background dot grid pattern.
+   * @default true
+   */
+  showDots?: boolean;
+  /**
+   * The display mode: 'normal' shows HUD controls, 'zen' hides HUD controls.
+   * @default "normal"
+   */
+  mode?: 'normal' | 'zen';
   /**
    * Static child Svelte components or HTML elements to render inside the transformed canvas container.
    */
   children?: Snippet;
+  /**
+   * Persistence configuration and callbacks for localStorage.
+   */
+  persistence?: CanvasPersistence<Registry> | null;
 }
 
 let {
@@ -182,17 +180,29 @@ let {
   showControls = true,
   resizable = true,
   nodes = $bindable([]),
-  registry = {},
+  registry = {} as Registry,
   dragHandleClass = '',
   onNodeChange,
   classNames = {},
   class: className = '',
+  style = '',
+  bgColor = '#242424',
+  dotColor = 'rgb(58, 58, 58)',
+  dotSize = 1.5,
+  showDots = true,
+  mode = 'normal',
   children,
+  persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence<Registry> | null),
 }: Props = $props();
 
 // Internal references
 let wrapperEl = $state<HTMLDivElement | null>(null);
 let isPanning = $state(false);
+
+const isPersistenceEnabled = $derived(
+  persistence !== null &&
+  (persistence.key !== 'canvas-persistence-default' || !onNodeChange)
+);
 
 // Drag variables
 let startMousePos = { x: 0, y: 0 };
@@ -207,10 +217,31 @@ let lastTouchPos = { x: 0, y: 0 };
 
 // Set initial position to center when wrapper element mounts
 onMount(() => {
+  if (isPersistenceEnabled && persistence?.key) {
+    const storage = localStorage.getItem(persistence.key);
+    if (storage) {
+      try {
+        nodes = JSON.parse(storage) as CanvasNodeData<Registry>[];
+      } catch (err) {
+        Log_Warn("Canvas -> Failed to parse persistent storage: " + err);
+      }
+    }
+  }
+
   if (wrapperEl && x === 0 && y === 0) {
     const rect = wrapperEl.getBoundingClientRect();
     x = rect.width / 2;
     y = rect.height / 2;
+  }
+});
+
+// Bind the persistence.clear method and dynamically keep it up-to-date
+$effect(() => {
+  if (persistence) {
+    persistence.clear = () => {
+      nodes = [];
+      triggerChange();
+    };
   }
 });
 
@@ -502,27 +533,53 @@ let changeTimeout: number | undefined;
  * multiple layout updates in the same tick.
  */
 function triggerChange() {
-  if (onNodeChange) {
-    if (changeTimeout) cancelAnimationFrame(changeTimeout);
-    changeTimeout = requestAnimationFrame(() => {
-      const serialized = nodes.map((n) => ({
-        id: n.id,
-        type: n.type,
-        x: n.x,
-        y: n.y,
-        width: n.width,
-        height: n.height,
-        props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
-      }));
+  if (!onNodeChange && !isPersistenceEnabled) return;
+
+  if (changeTimeout) cancelAnimationFrame(changeTimeout);
+  changeTimeout = requestAnimationFrame(() => {
+    const serialized = nodes.map((n) => ({
+      id: n.id,
+      type: n.type,
+      x: n.x,
+      y: n.y,
+      width: n.width,
+      height: n.height,
+      props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
+    })) as unknown as CanvasNodeData<Registry>[];
+
+    let cancelled = false;
+    const cancel = () => {
+      cancelled = true;
+    };
+
+    if (isPersistenceEnabled && persistence?.beforeSave) {
+      persistence.beforeSave(serialized, cancel);
+    }
+
+    if (cancelled) return;
+
+    if (isPersistenceEnabled && persistence?.key) {
+      try {
+        localStorage.setItem(persistence.key, JSON.stringify(serialized));
+      } catch (err) {
+        Log_Warn("Canvas -> Failed to save persistent storage: " + err);
+      }
+    }
+
+    if (onNodeChange) {
       onNodeChange(serialized);
-    });
-  }
+    }
+
+    if (isPersistenceEnabled && persistence?.afterSave) {
+      persistence.afterSave(serialized);
+    }
+  });
 }
 
 /**
  * Action to handle dragging individual nodes on the canvas.
  */
-function dragNode(nodeEl: HTMLElement, node: CanvasNodeData) {
+function dragNode(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
   let startX = 0;
   let startY = 0;
   let initialNodeX = 0;
@@ -613,7 +670,7 @@ function dragNode(nodeEl: HTMLElement, node: CanvasNodeData) {
 /**
  * Action to handle resizing individual nodes on the canvas.
  */
-function resizeNode(handleEl: HTMLElement, node: CanvasNodeData) {
+function resizeNode(handleEl: HTMLElement, node: CanvasNodeData<any>) {
   let startX = 0;
   let startY = 0;
   let startWidth = 0;
@@ -629,10 +686,10 @@ function resizeNode(handleEl: HTMLElement, node: CanvasNodeData) {
     startY = e.clientY;
 
     const parent = handleEl.parentElement;
-    if (parent){
+    if (parent) {
       startWidth = node.width ?? parent.offsetWidth;
       startHeight = node.height ?? parent.offsetHeight;
-    }else {
+    } else {
       Log_Warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
     }
     handleEl.setPointerCapture(e.pointerId);
@@ -689,7 +746,7 @@ function resizeNode(handleEl: HTMLElement, node: CanvasNodeData) {
 /**
  * Action using ResizeObserver to measure and bind node dimensions.
  */
-function observeSize(nodeEl: HTMLElement, node: CanvasNodeData) {
+function observeSize(nodeEl: HTMLElement, node: CanvasNodeData<any>) {
   const observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const width = entry.borderBoxSize?.[0]?.inlineSize ?? nodeEl.offsetWidth;
@@ -717,7 +774,7 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData) {
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   bind:this={wrapperEl}
-  class="canvas-wrapper {classNames.wrapper ?? ''} {className}"
+  class="canvas-wrapper {className} {classNames.wrapper ?? ''}"
   class:panning={isPanning}
   onmousedown={handleMouseDown}
   oncontextmenu={handleContextMenu}
@@ -725,8 +782,7 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData) {
   ontouchmove={handleTouchMove}
   ontouchend={handleTouchEnd}
   ondblclick={handleDoubleClick}
-  style="background-size: {50 * zoom}px {50 *
-    zoom}px; background-position: {x}px {y}px;"
+  style="--canvas-bg-color: {bgColor}; --canvas-dot-color: {dotColor}; --canvas-dot-size: {dotSize}px; --canvas-bg-image: {showDots ? 'radial-gradient(circle, var(--canvas-dot-color) var(--canvas-dot-size), transparent var(--canvas-dot-size))' : 'none'}; {style}; background-size: {50 * zoom}px {50 * zoom}px; background-position: {x}px {y}px;"
 >
   <div
     class="canvas-content {classNames.content ?? ''}"
@@ -750,7 +806,13 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData) {
           use:dragNode={node}
           use:observeSize={node}
         >
-          <Component {...node.props || {}} />
+          <Component 
+            {...node.props || {}} 
+            onChange={(updatedProps: any) => {
+              node.props = { ...node.props, ...updatedProps };
+              triggerChange();
+            }}
+          />
 
           <!-- nwse-resize handle rendered if resizable is true -->
           {#if resizable}
@@ -762,7 +824,7 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData) {
     {/each}
   </div>
 
-  {#if showControls}
+  {#if showControls && mode !== 'zen'}
     <div class="canvas-controls {classNames.controls ?? ''}">
       <div class="zoom-value {classNames.zoomValue ?? ''}">
         {Math.round(zoom * 100)}%
@@ -829,18 +891,21 @@ function observeSize(nodeEl: HTMLElement, node: CanvasNodeData) {
 </div>
 
 <style>
+  :where(.canvas-wrapper) {
+    width: 100%;
+    height: 100%;
+  }
+
   .canvas-wrapper {
     position: relative;
     overflow: hidden;
-    width: 100%;
-    height: 100%;
 
-    background-color: #242424;
-    background-image: radial-gradient(
+    background-color: var(--canvas-bg-color, #242424);
+    background-image: var(--canvas-bg-image, radial-gradient(
       circle,
-      rgb(58, 58, 58) 1.5px,
-      transparent 1.5px
-    );
+      var(--canvas-dot-color, rgb(58, 58, 58)) var(--canvas-dot-size, 1.5px),
+      transparent var(--canvas-dot-size, 1.5px)
+    ));
     background-repeat: repeat;
 
     cursor: grab;

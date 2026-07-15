@@ -1,0 +1,2 @@
+- DO NOT REMOVE MY BIOME-IGNORE COMMENTS
+- SVELTE 5 (Runes Sintax Modern)

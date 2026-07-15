@@ -20,7 +20,8 @@ export class GoldenLayoutWrapper {
   /**
    * Dynamically registers a Svelte component class and returns its unique registered type name.
    */
-  private registerDynamicSvelteComponent(component: Component<Record<string, unknown>>): string {
+  // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+  private registerDynamicSvelteComponent(component: Component<any, any, any>): string {
     this.svelteComponentCounter++;
     const uniqueTypeName = `dyn_svelte_comp_${this.svelteComponentCounter}`;
 
@@ -42,7 +43,8 @@ export class GoldenLayoutWrapper {
    * Dynamically adds a Svelte component as a tab.
    * Registers the Svelte component dynamically under a unique ID.
    */
-  addSvelteTab(component: Component<Record<string, unknown>>, props: Record<string, unknown> = {}, title: string = 'New Tab'): void {
+  // biome-ignore lint/suspicious/noExplicitAny: Needed for component type and, props a prop could be anything ofc.
+  addSvelteTab(component: Component<any, any, any>, props: Record<string, any> = {}, title: string = 'New Tab'): void {
     const typeName = this.registerDynamicSvelteComponent(component);
     this.rawLayout.addComponent(typeName, props, title);
   }
@@ -52,8 +54,10 @@ export class GoldenLayoutWrapper {
    * Registers the Svelte component dynamically under a unique ID.
    */
   addSvelteTabAtLocation(
-    component: Component<Record<string, unknown>>,
-    props: Record<string, unknown> = {},
+    // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+    component: Component<any, any, any>,
+    // biome-ignore lint/suspicious/noExplicitAny: A prop could be anything really (json serializable ofc)
+    props: Record<string, any> = {},
     title: string,
     locationSelectors: LayoutManager.LocationSelector[],
   ): void {

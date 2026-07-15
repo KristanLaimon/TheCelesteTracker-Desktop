@@ -41,6 +41,12 @@
 | **`onNodeChange`** | `function` | `undefined` | Callback fired when a node is moved or resized. Receives a clean JSON-serializable array of all nodes. |
 | **`classNames`** | `CanvasClassNames` | `{}` | Tailored Tailwind CSS override classes for internal canvas elements. |
 | **`class`** | `string` | `""` | CSS class applied directly to the outer canvas wrapper element. |
+| **`style`** | `string` | `""` | Custom inline style rules applied directly to the outer canvas wrapper element. |
+| **`bgColor`** | `string` | `"#242424"` | The background color of the canvas workspace. |
+| **`dotColor`** | `string` | `"rgb(58, 58, 58)"` | The color of the background grid dots. |
+| **`dotSize`** | `number` | `1.5` | The radius of the background grid dots in pixels. |
+| **`showDots`** | `boolean` | `true` | Whether to show the background dot grid pattern. |
+| **`mode`** | `'normal' \| 'zen'` | `"normal"` | Display mode: `'normal'` shows HUD controls, while `'zen'` hides them. |
 | **`children`** | `Snippet` | `undefined` | Static children nodes / HTML snippet. |
 
 ---

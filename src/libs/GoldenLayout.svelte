@@ -19,7 +19,8 @@ type Props = {
   content: CustomRootContentItemsConfig<ComponentTypes>;
 
   // 2. components: Maps Svelte component classes to Golden Layout names.
-  components?: Record<ComponentTypes, Component<Record<string, unknown>>>;
+  // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+  components?: Record<ComponentTypes, Component<any, any, any>>;
 
   // 3. layout: Binds the custom Golden Layout Wrapper instance back to the parent.
   layout?: GoldenLayoutWrapper | null;
@@ -31,7 +32,8 @@ type Props = {
   theme?: GoldenLayoutThemeCssColorsOverrides;
 
   // 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
-  defaultComponent: Component<Record<string, unknown>>;
+  // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+  defaultComponent: Component<any, any, any>;
 
   // 7. class: Optional CSS class names to apply to the root wrapper element.
   class?: string;
@@ -39,7 +41,8 @@ type Props = {
 
 let {
   content: Content,
-  components = {} as Record<ComponentTypes, Component<Record<string, unknown>>>,
+  // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+  components = {} as Record<ComponentTypes, Component<any, any, any>>,
   layout = $bindable(null),
   componentParts = {},
   theme = {},
@@ -165,7 +168,8 @@ onMount(() => {
 
     // Register Svelte components
     if (components) {
-      for (const [name, component] of Object.entries(components) as [string, Component<Record<string, unknown>>][]) {
+      // biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+      for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
         console.log(`GoldenLayout Wrapper: Registering component "${name}"`);
         LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
           try {

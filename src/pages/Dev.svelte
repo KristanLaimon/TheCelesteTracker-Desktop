@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 import ChapterCard from '../components/Widgets/ChapterCard.svelte';
 import TaskNode from '../components/Widgets/TaskNode.svelte';
-import type { CanvasNodeData } from '../libs/Canvas.svelte';
+import type { CanvasNodeData } from '../libs/Canvas.types';
 import Canvas from '../libs/Canvas.svelte';
 
 // Map type strings to Svelte Components
@@ -17,7 +17,7 @@ let y = $state(0);
 let zoom = $state(1);
 
 // Dynamic nodes list state demonstrating serializable registry type AND direct Svelte component class injection
-let nodes = $state<CanvasNodeData[]>([
+let nodes = $state<CanvasNodeData<typeof registry>[]>([
   {
     id: 'chap-1',
     type: 'chapterNode',
@@ -67,12 +67,12 @@ onMount(() => {
     try {
       const parsed = JSON.parse(savedNodes);
       // Re-map the parsed JSON array back to Svelte components if they are direct
-      nodes = parsed.map((n: CanvasNodeData) => {
-        if (n.id === 'custom-node') {
-          n.component = ChapterCard;
-        }
-        return n;
-      });
+        nodes = parsed.map((n: CanvasNodeData<typeof registry>) => {
+          if (n.id === "custom-node") {
+            (n as any).component = ChapterCard;
+          }
+          return n;
+        });
     } catch (err) {
       console.error('Failed to parse saved nodes:', err);
     }
