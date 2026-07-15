@@ -10,13 +10,12 @@ export interface SQLiteResult {
 }
 
 export class SQLiteExtension {
-    private extensionId: string;
+    private extensionId: string = "sqlite"; //Must be synced with neutralino.configjson extension id
     private dbPath: string;
     // Un mapa para guardar las promesas en espera, indexadas por su ID
     private pendingRequests: Map<string, { resolve: Function, reject: Function }>;
 
-    constructor(extensionId: string, dbPath: string) {
-        this.extensionId = extensionId;
+    constructor(dbPath: string) {
         this.dbPath = dbPath;
         this.pendingRequests = new Map();
 

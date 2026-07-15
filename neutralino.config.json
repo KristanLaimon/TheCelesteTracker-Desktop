@@ -10,6 +10,10 @@
 	"enableNativeAPI": true,
 	"tokenSecurity": "none",
 	"port": 6767,
+	"logging": {
+		"enabled": true,
+		"writeToLogFile": true
+	},
 	"nativeAllowList": [
 		"app.*",
 		"filesystem.readDirectory",
@@ -17,7 +21,8 @@
 		"os.setTray",
 		"os.open",
 		"os.showNotification",
-		"os.showMessageBox"
+		"os.showMessageBox",
+		"extensions.*"
 	],
 	"modes": {
 		"window": {
@@ -32,9 +37,9 @@
 	"extensions": [
 		{
 			"id": "sqlite",
-			"commandLinux": "${NL_PATH}/extensions/sqlite/sqlite-linux_x64",
-			"commandDarwin": "${NL_PATH}/extensions/sqlite/sqlite-mac_x64",
-			"commandWindows": "${NL_PATH}/extensions/sqlite/sqlite-win_x64.exe"
+			"commandLinux": "extensions/sqlite/sqlite-linux_x64",
+			"commandDarwin": "extensions/sqlite/sqlite-mac_x64",
+			"commandWindows": "extensions/sqlite/sqlite-win_x64.exe"
 		}
 	],
 	"cli": {

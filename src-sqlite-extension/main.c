@@ -21,6 +21,47 @@ char nl_ext_id[256];
 char nl_connect_token[256];
 bool keep_running = true;
 
+#include <stdarg.h>
+
+// Helper to write to a log file in the user's home directory
+void write_log(const char *format, ...) {
+    char log_path[1024] = "sqlite_extension.log";
+    char *home = getenv("USERPROFILE");
+    if (!home) {
+        home = getenv("HOME");
+    }
+    if (home) {
+        snprintf(log_path, sizeof(log_path), "%s/sqlite_extension.log", home);
+    }
+    
+    FILE *f = fopen(log_path, "a");
+    if (f) {
+        va_list args;
+        va_start(args, format);
+        vfprintf(f, format, args);
+        va_end(args);
+        fclose(f);
+    }
+}
+
+// Helper to safely extract keys from cJSON without crashing if types differ or keys are missing
+void get_json_string(cJSON *obj, const char *key, char *dest, size_t dest_len) {
+    cJSON *item = cJSON_GetObjectItem(obj, key);
+    if (!item) {
+        write_log("[DEBUG] Key '%s' not found in JSON\n", key);
+        dest[0] = '\0';
+        return;
+    }
+    if (item->type == cJSON_Number) {
+        snprintf(dest, dest_len, "%d", item->valueint);
+    } else if (item->valuestring) {
+        strncpy(dest, item->valuestring, dest_len - 1);
+        dest[dest_len - 1] = '\0';
+    } else {
+        dest[0] = '\0';
+    }
+}
+
 // Función principal de SQLite 
 char* execute_sqlite_query(const char* db_path, const char* sql) {
     sqlite3 *db;
@@ -90,15 +131,16 @@ char* execute_sqlite_query(const char* db_path, const char* sql) {
 // Callback de Mongoose para manejar eventos del WebSocket
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_WS_OPEN) {
-        printf("[%s] INFO: Conectado a NeutralinoJS via Mongoose\n", nl_ext_id);
+        write_log("[INFO] Connected to NeutralinoJS via Mongoose\n");
     } 
     else if (ev == MG_EV_WS_MSG) {
         struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
         
-        // Crear un string terminado en null para cJSON
         char *msg_str = malloc(wm->data.len + 1);
         memcpy(msg_str, wm->data.buf, wm->data.len);
         msg_str[wm->data.len] = '\0';
+
+        write_log("[DEBUG] WebSocket msg received: %s\n", msg_str);
 
         cJSON *msg = cJSON_Parse(msg_str);
         free(msg_str);
@@ -110,9 +152,12 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
             if (event && strcmp(event->valuestring, "executeSql") == 0 && data) {
                 cJSON *db_path = cJSON_GetObjectItem(data, "db");
                 cJSON *sql = cJSON_GetObjectItem(data, "sql");
+                cJSON *req_id = cJSON_GetObjectItem(data, "reqId");
 
                 if (db_path && sql) {
+                    write_log("[INFO] Executing query: %s (db: %s)\n", sql->valuestring, db_path->valuestring);
                     char *sql_result = execute_sqlite_query(db_path->valuestring, sql->valuestring);
+                    write_log("[DEBUG] Query result size: %zu bytes\n", strlen(sql_result));
 
                     cJSON *response = cJSON_CreateObject();
                     cJSON_AddStringToObject(response, "id", "uuid-placeholder"); 
@@ -121,13 +166,19 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
                     
                     cJSON *res_data = cJSON_CreateObject();
                     cJSON_AddStringToObject(res_data, "event", "sqlResult");
-                    cJSON_AddRawToObject(res_data, "data", sql_result); 
                     
+                    cJSON *payload = cJSON_CreateObject();
+                    if (req_id) {
+                        cJSON_AddStringToObject(payload, "reqId", req_id->valuestring);
+                    }
+                    cJSON_AddRawToObject(payload, "result", sql_result);
+                    
+                    cJSON_AddItemToObject(res_data, "data", payload);
                     cJSON_AddItemToObject(response, "data", res_data);
 
                     char *out_msg = cJSON_PrintUnformatted(response);
+                    write_log("[DEBUG] Sending response to app\n");
                     
-                    // Enviar respuesta por WebSocket usando Mongoose
                     mg_ws_send(c, out_msg, strlen(out_msg), WEBSOCKET_OP_TEXT);
                     
                     free(sql_result);
@@ -138,49 +189,66 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
             cJSON_Delete(msg);
         }
     } 
-    else if (ev == MG_EV_ERROR || ev == MG_EV_CLOSE) {
-        printf("[%s] INFO: Conexion cerrada o error. Saliendo...\n", nl_ext_id);
-        keep_running = false; // Rompe el bucle principal
+    else if (ev == MG_EV_ERROR) {
+        write_log("[ERROR] Connection error encountered\n");
+        keep_running = false;
+    }
+    else if (ev == MG_EV_CLOSE) {
+        write_log("[INFO] Connection closed. Exiting...\n");
+        keep_running = false;
     }
 }
 
 int main() {
+    write_log("[INFO] SQLite C extension starting up...\n");
+
     // 1. Leer parámetros de Neutralino
     char stdin_buf[1024];
     if (fgets(stdin_buf, sizeof(stdin_buf), stdin) == NULL) {
-        fprintf(stderr, "Error leyendo stdin\n");
+        write_log("[ERROR] Failed to read stdin\n");
         return 1;
     }
+
+    write_log("[DEBUG] Stdin read: %s\n", stdin_buf);
 
     cJSON *config = cJSON_Parse(stdin_buf);
     if (!config) {
-        fprintf(stderr, "JSON invalido\n");
+        write_log("[ERROR] Invalid JSON in stdin\n");
         return 1;
     }
 
-    strcpy(nl_port, cJSON_GetObjectItem(config, "nlPort")->valuestring);
-    strcpy(nl_token, cJSON_GetObjectItem(config, "nlToken")->valuestring);
-    strcpy(nl_ext_id, cJSON_GetObjectItem(config, "nlExtensionId")->valuestring);
-    strcpy(nl_connect_token, cJSON_GetObjectItem(config, "nlConnectToken")->valuestring);
+    get_json_string(config, "nlPort", nl_port, sizeof(nl_port));
+    get_json_string(config, "nlToken", nl_token, sizeof(nl_token));
+    get_json_string(config, "nlExtensionId", nl_ext_id, sizeof(nl_ext_id));
+    get_json_string(config, "nlConnectToken", nl_connect_token, sizeof(nl_connect_token));
     cJSON_Delete(config);
+
+    write_log("[DEBUG] Configuration parsed: port=%s, ext_id=%s\n", nl_port, nl_ext_id);
 
     // 2. Inicializar Mongoose
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
 
-    // 3. Construir URL de conexión
+    // 3. Construir URL de conexión (Try localhost first, fallback to 127.0.0.1 if needed, but let's log it)
     char ws_url[1024];
-    snprintf(ws_url, sizeof(ws_url), "ws://localhost:%s/?extensionId=%s&connectToken=%s", 
+    snprintf(ws_url, sizeof(ws_url), "ws://127.0.0.1:%s/?extensionId=%s&connectToken=%s", 
              nl_port, nl_ext_id, nl_connect_token);
+    write_log("[INFO] Connecting to Neutralino at: %s\n", ws_url);
 
     // 4. Conectar
-    mg_ws_connect(&mgr, ws_url, fn, NULL, NULL);
+    struct mg_connection *conn = mg_ws_connect(&mgr, ws_url, fn, NULL, NULL);
+    if (!conn) {
+        write_log("[ERROR] mg_ws_connect returned NULL\n");
+        mg_mgr_free(&mgr);
+        return 1;
+    }
 
     // 5. Bucle de eventos
     while (keep_running) {
-        mg_mgr_poll(&mgr, 1000);
+        mg_mgr_poll(&mgr, 100);
     }
 
+    write_log("[INFO] SQLite C extension cleaning up and shutting down...\n");
     mg_mgr_free(&mgr);
     return 0;
 }

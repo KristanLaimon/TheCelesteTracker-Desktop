@@ -6,13 +6,23 @@ import { join } from "node:path";
 const SRC = import.meta.dir;
 const ROOT = join(SRC, "..");
 const BUILD_DIR = join(SRC, "build");
-const EXT_OUT = join(ROOT, "extensions", "sqlite");
 
 console.log("🔨 Building SQLite extension...");
 
-// Ensure extensions output directory exists
-if (!existsSync(EXT_OUT)) {
-	mkdirSync(EXT_OUT, { recursive: true });
+// Helper to copy binary to both project-level and bin-level extension directories
+async function copyBinary(srcFile: string, destFilename: string) {
+	const paths = [
+		join(ROOT, "extensions", "sqlite"),
+		join(ROOT, "bin", "extensions", "sqlite")
+	];
+	for (const p of paths) {
+		if (!existsSync(p)) {
+			mkdirSync(p, { recursive: true });
+		}
+		const destFile = join(p, destFilename);
+		await $`cp ${srcFile} ${destFile}`;
+		console.log(`   ✅ Copied to: ${destFile}`);
+	}
 }
 
 // ----------------------------------------------------
@@ -32,10 +42,8 @@ if (platform === "win32") {
 	await $`cmake --build build --config Release`.cwd(SRC);
 
 	const winSource = join(BUILD_DIR, "Release", "ext_bin.exe");
-	const winDest = join(EXT_OUT, "sqlite-win_x64.exe");
 	if (existsSync(winSource)) {
-		await $`cp ${winSource} ${winDest}`;
-		console.log(`   ✅ Windows binary copied to extensions/sqlite/sqlite-win_x64.exe`);
+		await copyBinary(winSource, "sqlite-win_x64.exe");
 	} else {
 		console.error("   ❌ Windows build output not found!");
 	}
@@ -57,10 +65,8 @@ if (platform === "win32") {
 		try {
 			await $`wsl gcc -O3 -std=c99 -Wall -Wextra -D_GNU_SOURCE main.c dependencies/cjson/cJSON.c dependencies/sqlite3/sqlite3.c dependencies/mongoose/mongoose.c -Idependencies/cjson -Idependencies/sqlite3 -Idependencies/mongoose -lpthread -ldl -lm -o build/ext_bin_linux`.cwd(SRC);
 			const linuxSource = join(BUILD_DIR, "ext_bin_linux");
-			const linuxDest = join(EXT_OUT, "sqlite-linux_x64");
 			if (existsSync(linuxSource)) {
-				await $`cp ${linuxSource} ${linuxDest}`;
-				console.log(`   ✅ Linux binary copied to extensions/sqlite/sqlite-linux_x64`);
+				await copyBinary(linuxSource, "sqlite-linux_x64");
 			} else {
 				console.error("   ❌ Linux build output from WSL not found!");
 			}
@@ -82,10 +88,8 @@ if (platform === "win32") {
 	await $`cmake --build build --config Release`.cwd(SRC);
 
 	const linuxSource = join(BUILD_DIR, "ext_bin");
-	const linuxDest = join(EXT_OUT, "sqlite-linux_x64");
 	if (existsSync(linuxSource)) {
-		await $`cp ${linuxSource} ${linuxDest}`;
-		console.log(`   ✅ Linux binary copied to extensions/sqlite/sqlite-linux_x64`);
+		await copyBinary(linuxSource, "sqlite-linux_x64");
 	} else {
 		console.error("   ❌ Linux build output not found!");
 	}
@@ -101,10 +105,8 @@ if (platform === "win32") {
 	await $`cmake --build build --config Release`.cwd(SRC);
 
 	const macSource = join(BUILD_DIR, "ext_bin");
-	const macDest = join(EXT_OUT, "sqlite-mac_x64");
 	if (existsSync(macSource)) {
-		await $`cp ${macSource} ${macDest}`;
-		console.log(`   ✅ macOS binary copied to extensions/sqlite/sqlite-mac_x64`);
+		await copyBinary(macSource, "sqlite-mac_x64");
 	} else {
 		console.error("   ❌ macOS build output not found!");
 	}

@@ -34,3 +34,4 @@ neutralino.js
 *.sw?
 
 src-sqlite-extension/build/
+extensions/sqlite/*
