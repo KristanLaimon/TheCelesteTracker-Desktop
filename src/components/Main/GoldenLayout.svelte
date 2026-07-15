@@ -1,36 +1,45 @@
 <script lang="ts">
   import {
     GoldenLayout,
+    Stack,
     type RootItemConfig,
   } from "golden-layout";
   import { onMount, mount, unmount, type Component } from "svelte";
   import { Log_Throw } from "../../logic/logger";
-  import type { GoldenLayoutThemeCssColorsObject, GoldenLayoutComponentPartsTailwindStylesObject } from "./GoldenLayout.types";
+  import { GoldenLayoutWrapper } from "./GoldenLayoutWrapper";
+  import type {
+    GoldenLayoutThemeCssColorsStyles,
+    GoldenLayoutComponentPartsTailwindStyles,
+  } from "./GoldenLayout.types";
 
   // PUBLIC-PROPS
   type Props = {
-    // 1. Content: Defines the initial structural content (rows, columns, stacks, components) of the layout grid.
+    // 1. Content: Defines the initial structural content of the layout grid.
     Content: RootItemConfig;
 
-    // 2. components: Maps Svelte component classes to Golden Layout names so they can be mounted inside panels.
-    components?: Record<string, Component>;
+    // 2. components: Maps Svelte component classes to Golden Layout names.
+    components?: Record<string, Component<Record<string, unknown>>>;
 
-    // 3. layout: Binds the underlying Golden Layout instance back to the parent for programmatic control.
-    layout?: GoldenLayout | null;
+    // 3. layout: Binds the custom Golden Layout Wrapper instance back to the parent.
+    layout?: GoldenLayoutWrapper | null;
 
-    // 4. componentParts: Custom Tailwind CSS classes to style layout sections (header, tab, splitter, content, etc.).
-    componentParts?: GoldenLayoutComponentPartsTailwindStylesObject;
+    // 4. componentParts: Custom Tailwind CSS classes to style layout sections.
+    customLayoutTailwindStyles?: GoldenLayoutComponentPartsTailwindStyles;
 
-    // 5. theme: Dynamic color mapping using CSS custom variables supporting hex/rgba color strings.
-    theme?: GoldenLayoutThemeCssColorsObject;
+    // 5. theme: Dynamic color mapping using CSS custom variables.
+    theme?: GoldenLayoutThemeCssColorsStyles;
+
+    // 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
+    defaultComponent: Component<Record<string, unknown>>;
   };
 
   let {
     Content,
     components = {},
     layout = $bindable(null),
-    componentParts = {},
+    customLayoutTailwindStyles: componentParts = {},
     theme = {},
+    defaultComponent,
   }: Props = $props();
 
   // Satisfy TypeScript unused variable check
@@ -41,6 +50,9 @@
   let LAYOUT: GoldenLayout | null = null;
   let resizeObserver: ResizeObserver | null = null;
   let mutationObserver: MutationObserver | null = null;
+
+  // WeakMap to associate HTML header elements to their Stack instances cleanly
+  const headerStackMap = new WeakMap<HTMLElement, Stack>();
 
   // DERIVED VALUES
   const hasTheme = $derived(theme && Object.keys(theme).length > 0);
@@ -84,8 +96,8 @@
       const add = (isAct ? componentParts.activeTab : componentParts.tab) || "";
       const remove = (isAct ? componentParts.tab : componentParts.activeTab) || "";
 
-      if (remove) remove.split(/\s+/).forEach((c) => c && tabEl.classList.remove(c));
-      if (add) add.split(/\s+/).forEach((c) => c && tabEl.classList.add(c));
+      if (remove) remove.split(/\s+/).forEach((c: string) => c && tabEl.classList.remove(c));
+      if (add) add.split(/\s+/).forEach((c: string) => c && tabEl.classList.add(c));
     });
 
     if (mutationObserver && layoutContainerEl) {
@@ -98,6 +110,39 @@
     }
   }
 
+  // ponytail: appends a custom "+" button next to the tabs in the header
+  function appendPlusButton(stack: Stack) {
+    const tabsContainer = stack.header.tabsContainerElement;
+    if (!tabsContainer) return;
+
+    if (!tabsContainer.querySelector(".gl-add-tab-btn")) {
+      const btn = document.createElement("button");
+      btn.textContent = "+";
+      btn.className = "gl-add-tab-btn lm_tab";
+      btn.style.cursor = "pointer";
+      btn.style.padding = "0 10px";
+      btn.style.fontWeight = "bold";
+      btn.style.border = "none";
+      btn.style.height = "100%";
+      btn.style.display = "inline-flex";
+      btn.style.alignItems = "center";
+      btn.style.justifyContent = "center";
+      btn.title = "Add new tab";
+
+      btn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        stack.newComponent("__defaultComponent", {}, "New Tab");
+      };
+
+      tabsContainer.appendChild(btn);
+
+      if (componentParts && Object.keys(componentParts).length > 0) {
+        applyTailwindClasses(layoutContainerEl);
+      }
+    }
+  }
+
   // LIFECYCLE
   onMount(() => {
     if (!layoutContainerEl) {
@@ -106,15 +151,15 @@
     }
 
     LAYOUT = new GoldenLayout(layoutContainerEl);
-    layout = LAYOUT;
+    layout = new GoldenLayoutWrapper(LAYOUT);
 
+    // Register Svelte components
     if (components) {
       for (const [name, component] of Object.entries(components)) {
         LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
           const componentInstance = mount(component, {
             target: container.element,
-          // biome-ignore lint/suspicious/noExplicitAny: A prop can be literally anything. Exception case.
-            props: (state as Record<string, any>) || {},
+            props: (state as Record<string, unknown>) || {},
           });
 
           container.on("destroy", () => {
@@ -124,7 +169,31 @@
       }
     }
 
-    // ponytail: load layout config directly with optimal default settings
+    // Register the mandatory default Svelte component
+    LAYOUT.registerComponentFactoryFunction("__defaultComponent", (container, state) => {
+      const componentInstance = mount(defaultComponent, {
+        target: container.element,
+        props: (state as Record<string, unknown>) || {},
+      });
+
+      container.on("destroy", () => {
+        unmount(componentInstance);
+      });
+    });
+
+    // Bind event to track and store stack references on headers for self-healing "+" button
+    LAYOUT.on("itemCreated", (event) => {
+      const item = event.target;
+      if (item instanceof Stack) {
+        setTimeout(() => {
+          if (item.header.element) {
+            headerStackMap.set(item.header.element, item);
+            appendPlusButton(item);
+          }
+        }, 50);
+      }
+    });
+
     LAYOUT.loadLayout({
       settings: {
         constrainDragToContainer: true,
@@ -150,11 +219,14 @@
       root: Content,
     });
 
-    // ponytail: only observe DOM changes if Tailwind classes (componentParts) are specified
     if (componentParts && Object.keys(componentParts).length > 0) {
       applyTailwindClasses(layoutContainerEl);
+    }
 
-      mutationObserver = new MutationObserver((mutations) => {
+    // ponytail: simplified observer to detect layout changes and ensure self-healing "+" button
+    mutationObserver = new MutationObserver((mutations) => {
+      // Re-apply classes if layout DOM changes
+      if (componentParts && Object.keys(componentParts).length > 0) {
         const shouldSync = mutations.some((m) => 
           m.addedNodes.length > 0 || 
           (m.type === "attributes" && m.target instanceof HTMLElement && 
@@ -164,15 +236,25 @@
         if (shouldSync && layoutContainerEl) {
           applyTailwindClasses(layoutContainerEl);
         }
-      });
+      }
 
-      mutationObserver.observe(layoutContainerEl, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["class"],
+      // Check and restore "+" buttons if they were removed during layout updates
+      layoutContainerEl.querySelectorAll(".lm_header").forEach((headerEl) => {
+        if (headerEl instanceof HTMLElement) {
+          const stack = headerStackMap.get(headerEl);
+          if (stack) {
+            appendPlusButton(stack);
+          }
+        }
       });
-    }
+    });
+
+    mutationObserver.observe(layoutContainerEl, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
     resizeObserver = new ResizeObserver(() => {
       if (LAYOUT && layoutContainerEl) {
@@ -199,7 +281,6 @@
 </div>
 
 <style>
-  /* ponytail: container fills 100% of parent by default, letting parent style container size */
   .container-wrapper {
     position: relative;
     overflow: hidden;
