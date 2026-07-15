@@ -1,4 +1,4 @@
-import GlobalWindow from './pages/GlobalWindow.svelte';
+import GlobalWindow from './pages/Main.svelte';
 import { router } from './router.svelte';
 
 router.register([

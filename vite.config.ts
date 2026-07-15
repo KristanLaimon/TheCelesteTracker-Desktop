@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 // Custom plugin to ensure production build uses the relative Neutralino globals path
+/*
 function _neutralinoBuildPlugin() {
   return {
     name: 'neutralino-build-plugin',
@@ -14,6 +15,7 @@ function _neutralinoBuildPlugin() {
     },
   };
 }
+*/
 
 // https://vite.dev/config/
 export default defineConfig({

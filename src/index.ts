@@ -1,6 +1,6 @@
 import { init } from '@neutralinojs/lib';
 import { mount } from 'svelte';
-import App from './main.svelte';
+import App from './index.svelte';
 
 const target = document.getElementById('app');
 
