@@ -1,17 +1,13 @@
-import { GoldenLayout, LayoutManager } from 'golden-layout';
+import type { GoldenLayout, LayoutManager } from 'golden-layout';
 import { type Component, mount, unmount } from 'svelte';
-import { Log_Throw } from '../../logic/logger';
 
 export class GoldenLayoutWrapper {
-  private readonly rawLayout: GoldenLayout;
   private svelteComponentCounter = 0;
 
-  constructor(layout: GoldenLayout) {
-    if (!layout) {
-      Log_Throw('GoldenLayout instance is mandatory for GoldenLayoutWrapper injection.');
-      return;
+  constructor(private readonly rawLayout: GoldenLayout) {
+    if (!rawLayout) {
+      throw new Error('GoldenLayout instance is mandatory for GoldenLayoutWrapper injection.');
     }
-    this.rawLayout = layout;
   }
 
   /**

@@ -2,7 +2,7 @@ import type { ComponentItemConfig, RowOrColumnItemConfig, StackItemConfig } from
 
 export type GoldenLayoutContent = RowOrColumnItemConfig | StackItemConfig | ComponentItemConfig;
 
-export interface GoldenLayoutThemeCssColorsStyles {
+export interface GoldenLayoutTheme {
   layoutBg?: string;
   contentBg?: string;
   contentBorder?: string;
@@ -19,7 +19,7 @@ export interface GoldenLayoutThemeCssColorsStyles {
   dragProxyBorder?: string;
 }
 
-export interface GoldenLayoutComponentPartsTailwindStyles {
+export interface GoldenLayoutComponentParts {
   layout?: string;
   content?: string;
   header?: string;

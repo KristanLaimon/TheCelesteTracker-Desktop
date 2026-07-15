@@ -93,7 +93,7 @@ async function setupTray() {
   }
 }
 
-async function onTrayMenuItemClicked(event: any) {
+async function onTrayMenuItemClicked(event: CustomEvent) {
   const id = event.detail?.id || event.detail; // Handle string ID or object
   switch (id) {
     case 'VERSION':

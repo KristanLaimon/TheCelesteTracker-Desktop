@@ -1,199 +1,221 @@
 <script lang="ts">
-  import {
-    GoldenLayout,
-    Stack,
-    type RootItemConfig,
-  } from "golden-layout";
-  import { onMount, mount, unmount, type Component } from "svelte";
-  import { Log_Throw } from "../../logic/logger";
-  import { GoldenLayoutWrapper } from "./GoldenLayoutWrapper";
-  import type {
-    GoldenLayoutThemeCssColorsStyles,
-    GoldenLayoutComponentPartsTailwindStyles,
-  } from "./GoldenLayout.types";
+import { GoldenLayout, type RootItemConfig, Stack } from 'golden-layout';
+import { type Component, mount, onMount, unmount } from 'svelte';
+import { Log_Throw } from '../../logic/logger';
+import type { GoldenLayoutComponentParts, GoldenLayoutTheme } from './GoldenLayout.types';
+import { GoldenLayoutWrapper } from './GoldenLayoutWrapper';
 
-  // PUBLIC-PROPS
-  type Props = {
-    // 1. Content: Defines the initial structural content of the layout grid.
-    Content: RootItemConfig;
+import './GoldenLayoutThemes/goldenlayout-base.css';
+import './GoldenLayoutThemes/predefined/goldenlayout-dark-theme.css';
 
-    // 2. components: Maps Svelte component classes to Golden Layout names.
-    components?: Record<string, Component<Record<string, unknown>>>;
+// PUBLIC-PROPS
+type Props = {
+  // 1. Content: Defines the initial structural content of the layout grid.
+  Content: RootItemConfig;
 
-    // 3. layout: Binds the custom Golden Layout Wrapper instance back to the parent.
-    layout?: GoldenLayoutWrapper | null;
+  // 2. components: Maps Svelte component classes to Golden Layout names.
+  components?: Record<string, Component<Record<string, unknown>>>;
 
-    // 4. componentParts: Custom Tailwind CSS classes to style layout sections.
-    customLayoutTailwindStyles?: GoldenLayoutComponentPartsTailwindStyles;
+  // 3. layout: Binds the custom Golden Layout Wrapper instance back to the parent.
+  layout?: GoldenLayoutWrapper | null;
 
-    // 5. theme: Dynamic color mapping using CSS custom variables.
-    theme?: GoldenLayoutThemeCssColorsStyles;
+  // 4. componentParts: Custom Tailwind CSS classes to style layout sections.
+  componentParts?: GoldenLayoutComponentParts;
 
-    // 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
-    defaultComponent: Component<Record<string, unknown>>;
+  // 5. theme: Dynamic color mapping using CSS custom variables.
+  theme?: GoldenLayoutTheme;
+
+  // 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
+  defaultComponent: Component<Record<string, unknown>>;
+
+  // 7. class: Optional CSS class names to apply to the root wrapper element.
+  class?: string;
+};
+
+let {
+  Content,
+  components = {},
+  layout = $bindable(null),
+  componentParts = {},
+  theme = {},
+  defaultComponent,
+  class: className = '',
+}: Props = $props();
+
+// Satisfy TypeScript unused variable check
+void layout;
+
+// INTERNAL VARIABLES
+let layoutContainerEl: HTMLDivElement;
+let LAYOUT: GoldenLayout | null = null;
+let resizeObserver: ResizeObserver | null = null;
+let mutationObserver: MutationObserver | null = null;
+
+// WeakMap to associate HTML header elements to their Stack instances cleanly
+const headerStackMap = new WeakMap<HTMLElement, Stack>();
+
+// DERIVED VALUES
+const hasTheme = $derived(theme && Object.keys(theme).length > 0);
+const cssVariables = $derived(
+  Object.entries(theme)
+    .filter(([_, val]) => val)
+    .map(([key, val]) => `--gl-${key}:${val}`)
+    .join(';'),
+);
+
+// ponytail: simplified class applier using standard DOM dataset caching
+function applyTailwindClasses(root: HTMLElement) {
+  if (!componentParts || Object.keys(componentParts).length === 0) return;
+
+  mutationObserver?.disconnect();
+
+  const selectors: Record<string, string> = {
+    layout: '.lm_goldenlayout',
+    content: '.lm_content',
+    header: '.lm_header',
+    splitter: '.lm_splitter',
+    dragProxy: '.lm_dragProxy',
   };
 
-  let {
-    Content,
-    components = {},
-    layout = $bindable(null),
-    customLayoutTailwindStyles: componentParts = {},
-    theme = {},
-    defaultComponent,
-  }: Props = $props();
+  for (const [part, selector] of Object.entries(selectors)) {
+    const classes = componentParts[part as keyof typeof componentParts];
+    if (!classes) continue;
 
-  // Satisfy TypeScript unused variable check
-  void layout;
+    root.querySelectorAll(selector).forEach((el) => {
+      const htmlEl = el as HTMLElement;
+      if (!htmlEl.dataset.originalClass) {
+        htmlEl.dataset.originalClass = htmlEl.className;
+      }
+      htmlEl.className = `${htmlEl.dataset.originalClass} ${classes}`;
+    });
+  }
 
-  // INTERNAL VARIABLES
-  let layoutContainerEl: HTMLDivElement;
-  let LAYOUT: GoldenLayout | null = null;
-  let resizeObserver: ResizeObserver | null = null;
-  let mutationObserver: MutationObserver | null = null;
+  root.querySelectorAll('.lm_tab').forEach((el) => {
+    const tabEl = el as HTMLElement;
+    const isAct = tabEl.classList.contains('lm_active');
+    const add = (isAct ? componentParts.activeTab : componentParts.tab) || '';
+    const remove = (isAct ? componentParts.tab : componentParts.activeTab) || '';
 
-  // WeakMap to associate HTML header elements to their Stack instances cleanly
-  const headerStackMap = new WeakMap<HTMLElement, Stack>();
+    if (remove) remove.split(/\s+/).forEach((c: string) => c && tabEl.classList.remove(c));
+    if (add) add.split(/\s+/).forEach((c: string) => c && tabEl.classList.add(c));
+  });
 
-  // DERIVED VALUES
-  const hasTheme = $derived(theme && Object.keys(theme).length > 0);
-  const cssVariables = $derived(
-    Object.entries(theme)
-      .filter(([_, val]) => val)
-      .map(([key, val]) => `--gl-${key}:${val}`)
-      .join(";")
-  );
+  if (mutationObserver && layoutContainerEl) {
+    mutationObserver.observe(layoutContainerEl, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+}
 
-  // ponytail: simplified class applier using standard DOM dataset caching
-  function applyTailwindClasses(root: HTMLElement) {
-    if (!componentParts || Object.keys(componentParts).length === 0) return;
+// ponytail: appends a custom "+" button next to the tabs in the header
+function appendPlusButton(stack: Stack) {
+  if (!stack.header) return;
+  const tabsContainer = stack.header.tabsContainerElement;
+  if (!tabsContainer) return;
 
-    mutationObserver?.disconnect();
+  if (!tabsContainer.querySelector('.gl-add-tab-btn')) {
+    const btn = document.createElement('button');
+    btn.textContent = '+';
+    btn.className = 'gl-add-tab-btn lm_tab';
+    btn.style.cursor = 'pointer';
+    btn.style.padding = '0 10px';
+    btn.style.fontWeight = 'bold';
+    btn.style.border = 'none';
+    btn.style.height = '100%';
+    btn.style.display = 'inline-flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'center';
+    btn.title = 'Add new tab';
 
-    const selectors: Record<string, string> = {
-      layout: ".lm_goldenlayout",
-      content: ".lm_content",
-      header: ".lm_header",
-      splitter: ".lm_splitter",
-      dragProxy: ".lm_dragProxy",
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      stack.newComponent('__defaultComponent', {}, 'New Tab');
     };
 
-    for (const [part, selector] of Object.entries(selectors)) {
-      const classes = componentParts[part as keyof typeof componentParts];
-      if (!classes) continue;
+    tabsContainer.appendChild(btn);
 
-      root.querySelectorAll(selector).forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        if (!htmlEl.dataset.originalClass) {
-          htmlEl.dataset.originalClass = htmlEl.className;
-        }
-        htmlEl.className = `${htmlEl.dataset.originalClass} ${classes}`;
-      });
-    }
-
-    root.querySelectorAll(".lm_tab").forEach((el) => {
-      const tabEl = el as HTMLElement;
-      const isAct = tabEl.classList.contains("lm_active");
-      const add = (isAct ? componentParts.activeTab : componentParts.tab) || "";
-      const remove = (isAct ? componentParts.tab : componentParts.activeTab) || "";
-
-      if (remove) remove.split(/\s+/).forEach((c: string) => c && tabEl.classList.remove(c));
-      if (add) add.split(/\s+/).forEach((c: string) => c && tabEl.classList.add(c));
-    });
-
-    if (mutationObserver && layoutContainerEl) {
-      mutationObserver.observe(layoutContainerEl, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["class"],
-      });
+    if (componentParts && Object.keys(componentParts).length > 0) {
+      applyTailwindClasses(layoutContainerEl);
     }
   }
+}
 
-  // ponytail: appends a custom "+" button next to the tabs in the header
-  function appendPlusButton(stack: Stack) {
-    const tabsContainer = stack.header.tabsContainerElement;
-    if (!tabsContainer) return;
+// LIFECYCLE
+onMount(() => {
+  try {
+    console.log('GoldenLayout Wrapper: Mounting Svelte Component...');
 
-    if (!tabsContainer.querySelector(".gl-add-tab-btn")) {
-      const btn = document.createElement("button");
-      btn.textContent = "+";
-      btn.className = "gl-add-tab-btn lm_tab";
-      btn.style.cursor = "pointer";
-      btn.style.padding = "0 10px";
-      btn.style.fontWeight = "bold";
-      btn.style.border = "none";
-      btn.style.height = "100%";
-      btn.style.display = "inline-flex";
-      btn.style.alignItems = "center";
-      btn.style.justifyContent = "center";
-      btn.title = "Add new tab";
-
-      btn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        stack.newComponent("__defaultComponent", {}, "New Tab");
-      };
-
-      tabsContainer.appendChild(btn);
-
-      if (componentParts && Object.keys(componentParts).length > 0) {
-        applyTailwindClasses(layoutContainerEl);
-      }
-    }
-  }
-
-  // LIFECYCLE
-  onMount(() => {
     if (!layoutContainerEl) {
-      Log_Throw("Layout HTML element not found to inject Golden-Layout dependency.");
+      Log_Throw('Layout HTML element not found to inject Golden-Layout dependency.');
       return;
     }
 
+    console.log('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
     LAYOUT = new GoldenLayout(layoutContainerEl);
     layout = new GoldenLayoutWrapper(LAYOUT);
 
     // Register Svelte components
     if (components) {
       for (const [name, component] of Object.entries(components)) {
+        console.log(`GoldenLayout Wrapper: Registering component "${name}"`);
         LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
-          const componentInstance = mount(component, {
-            target: container.element,
-            props: (state as Record<string, unknown>) || {},
-          });
+          try {
+            console.log(`GoldenLayout Wrapper: Factory function called for "${name}"`);
+            const componentInstance = mount(component, {
+              target: container.element,
+              props: (state as Record<string, unknown>) || {},
+            });
 
-          container.on("destroy", () => {
-            unmount(componentInstance);
-          });
+            container.on('destroy', () => {
+              unmount(componentInstance);
+            });
+          } catch (err) {
+            console.error(`GoldenLayout Wrapper: Error mounting component "${name}":`, err);
+          }
         });
       }
     }
 
     // Register the mandatory default Svelte component
-    LAYOUT.registerComponentFactoryFunction("__defaultComponent", (container, state) => {
-      const componentInstance = mount(defaultComponent, {
-        target: container.element,
-        props: (state as Record<string, unknown>) || {},
-      });
+    console.log('GoldenLayout Wrapper: Registering default component');
+    LAYOUT.registerComponentFactoryFunction('__defaultComponent', (container, state) => {
+      try {
+        console.log('GoldenLayout Wrapper: Factory function called for defaultComponent');
+        const componentInstance = mount(defaultComponent, {
+          target: container.element,
+          props: (state as Record<string, unknown>) || {},
+        });
 
-      container.on("destroy", () => {
-        unmount(componentInstance);
-      });
+        container.on('destroy', () => {
+          unmount(componentInstance);
+        });
+      } catch (err) {
+        console.error('GoldenLayout Wrapper: Error mounting defaultComponent:', err);
+      }
     });
 
     // Bind event to track and store stack references on headers for self-healing "+" button
-    LAYOUT.on("itemCreated", (event) => {
+    LAYOUT.on('itemCreated', (event) => {
       const item = event.target;
       if (item instanceof Stack) {
         setTimeout(() => {
-          if (item.header.element) {
-            headerStackMap.set(item.header.element, item);
-            appendPlusButton(item);
+          try {
+            if (item.header?.element) {
+              headerStackMap.set(item.header.element, item);
+              appendPlusButton(item);
+            }
+          } catch (err) {
+            console.error('GoldenLayout Wrapper: Error in stack itemCreated handler:', err);
           }
         }, 50);
       }
     });
 
+    console.log('GoldenLayout Wrapper: Loading layout structure...');
     LAYOUT.loadLayout({
       settings: {
         constrainDragToContainer: true,
@@ -204,20 +226,22 @@
       },
       dimensions: {
         borderWidth: 4,
-        defaultMinItemHeight: "50px",
-        defaultMinItemWidth: "50px",
+        defaultMinItemHeight: '50px',
+        defaultMinItemWidth: '50px',
         headerHeight: 28,
         dragProxyWidth: 300,
         dragProxyHeight: 200,
       },
       header: {
-        show: "top",
-        popout: "Open in new window",
-        maximise: "Maximise",
-        close: "Close",
+        show: 'top',
+        popout: 'Open in new window',
+        maximise: 'Maximise',
+        close: 'Close',
       },
       root: Content,
     });
+
+    console.log('GoldenLayout Wrapper: Layout loaded successfully.');
 
     if (componentParts && Object.keys(componentParts).length > 0) {
       applyTailwindClasses(layoutContainerEl);
@@ -225,35 +249,43 @@
 
     // ponytail: simplified observer to detect layout changes and ensure self-healing "+" button
     mutationObserver = new MutationObserver((mutations) => {
-      // Re-apply classes if layout DOM changes
-      if (componentParts && Object.keys(componentParts).length > 0) {
-        const shouldSync = mutations.some((m) => 
-          m.addedNodes.length > 0 || 
-          (m.type === "attributes" && m.target instanceof HTMLElement && 
-           ["lm_goldenlayout", "lm_content", "lm_header", "lm_splitter", "lm_dragProxy", "lm_tab"].some(cls => (m.target as HTMLElement).classList.contains(cls)))
-        );
+      try {
+        // Re-apply classes if layout DOM changes
+        if (componentParts && Object.keys(componentParts).length > 0) {
+          const shouldSync = mutations.some(
+            (m) =>
+              m.addedNodes.length > 0 ||
+              (m.type === 'attributes' &&
+                m.target instanceof HTMLElement &&
+                ['lm_goldenlayout', 'lm_content', 'lm_header', 'lm_splitter', 'lm_dragProxy', 'lm_tab'].some((cls) =>
+                  (m.target as HTMLElement).classList.contains(cls),
+                )),
+          );
 
-        if (shouldSync && layoutContainerEl) {
-          applyTailwindClasses(layoutContainerEl);
-        }
-      }
-
-      // Check and restore "+" buttons if they were removed during layout updates
-      layoutContainerEl.querySelectorAll(".lm_header").forEach((headerEl) => {
-        if (headerEl instanceof HTMLElement) {
-          const stack = headerStackMap.get(headerEl);
-          if (stack) {
-            appendPlusButton(stack);
+          if (shouldSync && layoutContainerEl) {
+            applyTailwindClasses(layoutContainerEl);
           }
         }
-      });
+
+        // Check and restore "+" buttons if they were removed during layout updates
+        layoutContainerEl.querySelectorAll('.lm_header').forEach((headerEl) => {
+          if (headerEl instanceof HTMLElement) {
+            const stack = headerStackMap.get(headerEl);
+            if (stack) {
+              appendPlusButton(stack);
+            }
+          }
+        });
+      } catch (err) {
+        console.error('GoldenLayout Wrapper: Error in mutationObserver callback:', err);
+      }
     });
 
     mutationObserver.observe(layoutContainerEl, {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ["class"],
+      attributeFilter: ['class'],
     });
 
     resizeObserver = new ResizeObserver(() => {
@@ -263,21 +295,27 @@
     });
     resizeObserver.observe(layoutContainerEl);
 
-    return () => {
+    const cleanup = () => {
       if (resizeObserver) resizeObserver.disconnect();
       if (mutationObserver) mutationObserver.disconnect();
       if (LAYOUT) LAYOUT.destroy();
       layout = null;
     };
-  });
+
+    return cleanup;
+  } catch (err) {
+    console.error('GoldenLayout Wrapper: Fatal error in onMount:', err);
+    return () => {};
+  }
+});
 </script>
 
 <div
-  class="container-wrapper"
+  class="container-wrapper {className}"
   class:has-custom-theme={hasTheme}
-  style="{cssVariables}"
+  style="width: 100%; height: 100%; position: relative; overflow: hidden; {cssVariables}"
 >
-  <div id="the-layout" bind:this={layoutContainerEl}></div>
+  <div id="the-layout" style="width: 100%; height: 100%;" bind:this={layoutContainerEl}></div>
 </div>
 
 <style>

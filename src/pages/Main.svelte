@@ -1,13 +1,12 @@
 <script lang="ts">
-import { LayoutManager, type RootItemConfig } from 'golden-layout';
+import { type RootItemConfig } from 'golden-layout';
 import GoldenLayout from '../components/Main/GoldenLayout.svelte';
 import { GoldenLayoutWrapper } from '../components/Main/GoldenLayoutWrapper';
-import TestPanel from './TestPanel.svelte';
 import CustomPanel from './CustomPanel.svelte';
+import TestPanel from './TestPanel.svelte';
 
-// Import Golden Layout styles
-import 'golden-layout/dist/css/goldenlayout-base.css';
-import 'golden-layout/dist/css/themes/goldenlayout-dark-theme.css';
+// import 'golden-layout/dist/css/goldenlayout-base.css';
+// import 'golden-layout/dist/css/themes/goldenlayout-dark-theme.css';
 
 let layout = $state<GoldenLayoutWrapper | null>(null);
 
@@ -46,42 +45,32 @@ const Content: RootItemConfig = {
 </script>
 
 <div class="layout-wrapper">
-  <div class="layout-container">
-    <GoldenLayout
-      bind:layout
-      {Content}
-      components={{
-        testComponent: TestPanel,
-        myCustomComponent: CustomPanel,
-      }}
-      defaultComponent={TestPanel}
-      customLayoutTailwindStyles={{
-        header: 'bg-slate-900 border-b border-slate-700/50',
-        tab: 'bg-slate-800 text-slate-400 hover:bg-slate-700/80 transition-colors',
-        activeTab: 'bg-slate-750 text-blue-400 font-semibold border-t-2 border-blue-500',
-        content: 'bg-slate-950 text-slate-200 border border-slate-800',
-        splitter: 'bg-slate-900 hover:bg-blue-600/80 transition-colors duration-200',
-      }}
-      theme={{
-        layoutBg: '#0f172a',      // Slate-900
-        splitterBg: '#1e293b',    // Slate-800
-        splitterHoverBg: '#3b82f6', // Blue-500
-      }}
-    />
-  </div>
+  <GoldenLayout
+    bind:layout
+    {Content}
+    components={{
+      testComponent: TestPanel,
+      myCustomComponent: CustomPanel,
+    }}
+    defaultComponent={TestPanel}
+    // componentParts={{
+    //   header: 'bg-slate-900 border-b border-slate-700/50',
+    //   tab: 'bg-slate-800 text-slate-400 hover:bg-slate-700/80 transition-colors',
+    //   activeTab: 'bg-slate-750 text-blue-400 font-semibold border-t-2 border-blue-500',
+    //   content: 'bg-slate-950 text-slate-200 border border-slate-800',
+    //   splitter: 'bg-slate-900 hover:bg-blue-600/80 transition-colors duration-200',
+    // }}
+    // theme={{
+    //   layoutBg: '#0f172a',      // Slate-900
+    //   splitterBg: '#1e293b',    // Slate-800
+    //   splitterHoverBg: '#3b82f6', // Blue-500
+    // }}
+  />
 </div>
 
-<!-- <style>
+<style>
   .layout-wrapper {
-    width: 95%;
-    height: 95%;
-    display: flex;
-    flex-direction: column;
+    width: 95vw;
+    height: 95vh;
   }
-
-  .layout-container {
-    flex: 1;
-    width: 100%;
-    height: 100%;
-  }
-</style> -->
+</style>
