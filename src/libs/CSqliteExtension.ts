@@ -12,32 +12,34 @@ export interface SQLiteResult {
 export class SQLiteExtension {
     private extensionId: string = "sqlite"; //Must be synced with neutralino.configjson extension id
     private dbPath: string;
-    // Un mapa para guardar las promesas en espera, indexadas por su ID
-    private pendingRequests: Map<string, { resolve: Function, reject: Function }>;
-
+    private pendingRequests: Map<string /* Request ID */, { resolve: Function, reject: Function }>;
     constructor(dbPath: string) {
         this.dbPath = dbPath;
         this.pendingRequests = new Map();
-
-        // 1. Escuchar el evento que emite nuestra extensión en C
         events.on('sqlResult', this.handleExtensionMessage.bind(this));
     }
-
-    // 2. Manejador de las respuestas de la extensión
     private handleExtensionMessage(evt: CustomEvent) {
-        // Neutralino envuelve la respuesta en evt.detail
-        let payload = evt.detail;
+        console.log('CSqliteExtension: Received window event [sqlResult]', evt);
+        let payload = evt.detail; //Neutralino specifics
+        console.log('CSqliteExtension: Raw payload detail:', payload);
         
-        // Si el payload viene como string (por cómo lo enviamos desde C), lo parseamos
+        //C send us back the response as plain text
         if (typeof payload === 'string') {
-            payload = JSON.parse(payload);
+            try {
+                payload = JSON.parse(payload);
+                console.log('CSqliteExtension: Parsed string payload:', payload);
+            } catch (err) {
+                console.error('CSqliteExtension: Failed to parse payload string:', err);
+                return;
+            }
         }
 
-        const reqId = payload.reqId;
-        const result = payload.result; // Los datos del SQL
+        const reqId = payload?.reqId;
+        const result = payload?.result;
+        console.log('SqliteExtension: Extracted reqId:', reqId, 'result:', result);
 
-        // Si existe una promesa esperando este ID, la resolvemos
         if (reqId && this.pendingRequests.has(reqId)) {
+            console.log(`CSqliteExtension: Resolving pending request for reqId [${reqId}]`);
             const promise = this.pendingRequests.get(reqId)!;
             
             if (result && result.success) {
@@ -46,28 +48,31 @@ export class SQLiteExtension {
                 promise.reject(new Error(result?.error || "Error desconocido en SQLite"));
             }
             
-            // Limpiamos el mapa
             this.pendingRequests.delete(reqId);
+        } else {
+            console.warn(`CSqliteExtension: No pending request found for reqId [${reqId}]`, Array.from(this.pendingRequests.keys()));
         }
     }
 
-    // 3. Método público para ejecutar SQL de forma limpia
     public async execute(sql: string): Promise<SQLiteResult> {
         return new Promise(async (resolve, reject) => {
-            // Generamos un ID único para esta consulta
             const reqId = crypto.randomUUID();
+            console.log(`CSqliteExtension: Creating request [${reqId}] for query: ${sql}`);
             
             // Guardamos las funciones resolve/reject en el mapa
             this.pendingRequests.set(reqId, { resolve, reject });
 
             try {
+                console.log(`CSqliteExtension: Dispatching query [${reqId}] to extension ${this.extensionId}`);
                 // Enviamos el mensaje a la extensión de C
                 await extensions.dispatch(this.extensionId, 'executeSql', {
                     reqId: reqId,      // <- ID vital para rastrear la respuesta
                     db: this.dbPath,
                     sql: sql
                 });
+                console.log(`CSqliteExtension: Dispatch resolved for request [${reqId}]`);
             } catch (error) {
+                console.error(`CSqliteExtension: Dispatch failed for request [${reqId}]:`, error);
                 this.pendingRequests.delete(reqId);
                 reject(error);
             }

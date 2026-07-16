@@ -14,7 +14,6 @@
 #include "dependencies/cjson/cJSON.h"
 #include "dependencies/mongoose/mongoose.h"
 
-// Variables globales para Neutralino
 char nl_port[32];
 char nl_token[256];
 char nl_ext_id[256];
@@ -23,16 +22,8 @@ bool keep_running = true;
 
 #include <stdarg.h>
 
-// Helper to write to a log file in the user's home directory
 void write_log(const char *format, ...) {
-    char log_path[1024] = "sqlite_extension.log";
-    char *home = getenv("USERPROFILE");
-    if (!home) {
-        home = getenv("HOME");
-    }
-    if (home) {
-        snprintf(log_path, sizeof(log_path), "%s/sqlite_extension.log", home);
-    }
+    const char *log_path = "sqlite_extension.log";
     
     FILE *f = fopen(log_path, "a");
     if (f) {
@@ -44,7 +35,6 @@ void write_log(const char *format, ...) {
     }
 }
 
-// Helper to safely extract keys from cJSON without crashing if types differ or keys are missing
 void get_json_string(cJSON *obj, const char *key, char *dest, size_t dest_len) {
     cJSON *item = cJSON_GetObjectItem(obj, key);
     if (!item) {
@@ -62,7 +52,6 @@ void get_json_string(cJSON *obj, const char *key, char *dest, size_t dest_len) {
     }
 }
 
-// Función principal de SQLite 
 char* execute_sqlite_query(const char* db_path, const char* sql) {
     sqlite3 *db;
     sqlite3_stmt *stmt;
@@ -128,10 +117,9 @@ char* execute_sqlite_query(const char* db_path, const char* sql) {
     return json_result;
 }
 
-// Callback de Mongoose para manejar eventos del WebSocket
 static void fn(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_WS_OPEN) {
-        write_log("[INFO] Connected to NeutralinoJS via Mongoose\n");
+        write_log("[INFO] Connected to NeutralinoJS\n");
     } 
     else if (ev == MG_EV_WS_MSG) {
         struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
@@ -200,12 +188,30 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
 }
 
 int main() {
+    // Make standard streams unbuffered (Thanks windows...)
+    setvbuf(stdin, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
+
     write_log("[INFO] SQLite C extension starting up...\n");
 
-    // 1. Leer parámetros de Neutralino
     char stdin_buf[1024];
-    if (fgets(stdin_buf, sizeof(stdin_buf), stdin) == NULL) {
-        write_log("[ERROR] Failed to read stdin\n");
+    int ch;
+    int index = 0;
+    while (index < sizeof(stdin_buf) - 1) {
+        ch = fgetc(stdin);
+        if (ch == EOF) {
+            break;
+        }
+        stdin_buf[index++] = ch;
+        if (ch == '}') {
+            break;
+        }
+    }
+    stdin_buf[index] = '\0';
+
+    if (index == 0) {
+        write_log("[ERROR] Failed to read stdin (empty or EOF)\n");
         return 1;
     }
 
@@ -225,11 +231,9 @@ int main() {
 
     write_log("[DEBUG] Configuration parsed: port=%s, ext_id=%s\n", nl_port, nl_ext_id);
 
-    // 2. Inicializar Mongoose
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);
 
-    // 3. Construir URL de conexión (Try localhost first, fallback to 127.0.0.1 if needed, but let's log it)
     char ws_url[1024];
     snprintf(ws_url, sizeof(ws_url), "ws://127.0.0.1:%s/?extensionId=%s&connectToken=%s", 
              nl_port, nl_ext_id, nl_connect_token);

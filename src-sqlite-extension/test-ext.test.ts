@@ -1,8 +1,8 @@
-import { expect, test, describe, beforeAll } from "bun:test";
+import { $ } from "bun";
+import { beforeAll, describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { $ } from "bun";
 
 const ROOT = join(import.meta.dir, "..");
 const platform = process.platform;
@@ -23,7 +23,7 @@ describe("SQLite Extension Integration Tests", () => {
 	beforeAll(async () => {
 		// Verify if binary exists, if not build it
 		if (!existsSync(EXT_PATH)) {
-			console.log(`\n⚠️ SQLite Extension binary not found at: ${EXT_PATH}`);
+			console.log(`\n  SQLite Extension binary not found at: ${EXT_PATH}`);
 			console.log("🛠️ Building C extension first...");
 			await $`bun run build:extension`.cwd(ROOT);
 		}
@@ -76,7 +76,7 @@ function runExtensionQuery(sql: string, reqId: string) {
 						data: { reqId, db: DB_PATH, sql }
 					}));
 				},
-				message(ws, message) {
+				message(_ws, message) {
 					try {
 						const response = JSON.parse(message as string);
 						if (response.method === "app.broadcast" && response.data?.event === "sqlResult") {

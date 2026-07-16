@@ -3,6 +3,8 @@ import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
 import Canvas from "../libs/Wanvas/Canvas.svelte";
 import type { CanvasNodeData, CanvasPersistence, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+import {onMount} from "svelte";
+import { SQLiteExtension } from "../libs/CSqliteExtension";
 
 const registry = {
 	textWidget: TextWidget,
@@ -26,6 +28,8 @@ function AddNewTextWidget(text:string = ""){
     id: nodes.length.toString(),
     x: 100,
     y: 150,
+    height: 150,
+    width: 150,
     type: "textWidget",
     props:{
       text: text
@@ -66,6 +70,19 @@ function clearAll() {
 	canvasY = 0;
 	canvasZoom = 1;
 }
+
+onMount(async () => {
+  console.log("about to execute! DB")
+  try {
+    const db = new SQLiteExtension("TheCelesteTrackerTestDb.db");
+    const res = await db.execute("SELECT * from Campaigns LIMIT 5;");
+    console.log("executed DB successfully:", res)
+    AddNewTextWidget(JSON.stringify(res, null, 2));
+  } catch (error: any) {
+    console.error("❌ DB execution failed:", error);
+    AddNewTextWidget(`DB Error: ${error.message}`);
+  }
+});
 </script>
 
 <CenteredLayout>

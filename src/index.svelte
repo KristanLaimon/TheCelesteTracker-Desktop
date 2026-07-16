@@ -3,6 +3,7 @@
 import { router } from './router.svelte';
 import './router_setup';
 import './logic/hotkeys_setup';
+
 </script>
 
 {#if router.page.component}
