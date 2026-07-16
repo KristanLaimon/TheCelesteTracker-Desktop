@@ -31,7 +31,8 @@
 			"height": 500,
 			"minWidth": 400,
 			"minHeight": 200,
-			"hidden": false
+			"hidden": true,
+      "icon": "src/assets/straw_berry_icon.png"
 		}
 	},
 	"extensions": [

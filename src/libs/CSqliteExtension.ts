@@ -1,12 +1,5 @@
 import { events, extensions } from '@neutralinojs/lib';
 
-// Interfaz para definir la estructura de la respuesta de tu extensión en C
-// export interface SQLiteResult<T> {
-// 	success: boolean;
-// 	error?: string;
-// 	changes?: number;
-// 	lastInsertRowId?: number;
-// 	rows?: T[];
 export type SQLiteQueryResult<T> =
 	| {
 			success: true;

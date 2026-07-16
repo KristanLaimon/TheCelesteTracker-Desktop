@@ -8,6 +8,9 @@ function registerHotkey(key: string, callback: () => void) {
 		Hotkeys(key, callback);
 	}
 }
+registerHotkey('ctrl+n', () => {
+	router.navigate('/database');
+});
 
 registerHotkey('ctrl+d', () => {
 	router.navigate('/dev');

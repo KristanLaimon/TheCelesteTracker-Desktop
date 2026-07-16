@@ -8,7 +8,7 @@
 
 import type { Snippet } from 'svelte';
 import { onDestroy, onMount } from 'svelte';
-import { Log_Warn } from '../../logic/logger';
+import { Log_Warn } from '../Logger';
 import type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry } from './Canvas.types';
 
 export type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry };

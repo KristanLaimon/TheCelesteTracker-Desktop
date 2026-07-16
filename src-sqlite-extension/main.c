@@ -137,7 +137,11 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
             cJSON *event = cJSON_GetObjectItem(msg, "event");
             cJSON *data = cJSON_GetObjectItem(msg, "data");
 
-            if (event && strcmp(event->valuestring, "executeSql") == 0 && data) {
+            if (event && strcmp(event->valuestring, "appClientDisconnect") == 0) {
+                write_log("[INFO] appClientDisconnect received. Exiting...\n");
+                keep_running = false;
+            }
+            else if (event && strcmp(event->valuestring, "executeSql") == 0 && data) {
                 cJSON *db_path = cJSON_GetObjectItem(data, "db");
                 cJSON *sql = cJSON_GetObjectItem(data, "sql");
                 cJSON *req_id = cJSON_GetObjectItem(data, "reqId");

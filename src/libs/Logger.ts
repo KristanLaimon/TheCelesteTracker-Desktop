@@ -12,3 +12,7 @@ export function Log_Info(infoMsg: string): void {
 export function Log_Warn(infoMsg: string): void {
 	console.info(`[${APP_NAME}- WARN]: ${infoMsg}`);
 }
+
+export function Log_Error(errorMsg: string): void {
+	console.info(`[${APP_NAME}- ERROR]: ${errorMsg}`);
+}
