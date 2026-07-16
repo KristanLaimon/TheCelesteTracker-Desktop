@@ -10,6 +10,7 @@
 		"build:noextensions": "neu build --embed-resources",
 		"build": "bun run build:extension && neu build --embed-resources",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+		"test": "bun test",
 		"lint": "biome check . --write --unsafe"
 	},
 	"dependencies": {
@@ -28,7 +29,8 @@
 		"@biomejs/biome": "2.5.3",
 		"@sveltejs/vite-plugin-svelte": "7.1.2",
 		"@tsconfig/svelte": "5.0.8",
-		"@types/node": "24.13.2",
+		"@types/bun": "1.3.14",
+		"@types/node": "26.1.1",
 		"cross-env": "10.1.0",
 		"svelte": "5.56.4",
 		"svelte-check": "4.7.1",
