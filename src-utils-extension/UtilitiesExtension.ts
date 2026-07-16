@@ -5,7 +5,7 @@ import { injectable } from 'tsyringe';
 @injectable()
 export class UtilitiesExtension {
 	private extensionId: string = 'utilities';
-	private pendingRequests: Map<string, { resolve: Function; reject: Function }>;
+	private pendingRequests: Map<string, { resolve: (value: unknown) => void; reject: (reason: unknown) => void }>;
 
 	public constructor() {
 		this.pendingRequests = new Map();
@@ -30,7 +30,8 @@ export class UtilitiesExtension {
 		const result = payload?.result;
 
 		if (reqId && this.pendingRequests.has(reqId)) {
-			const promise = this.pendingRequests.get(reqId)!;
+			const promise = this.pendingRequests.get(reqId);
+			if (!promise) return;
 			if (result?.success) {
 				promise.resolve(result);
 			} else {
@@ -40,7 +41,7 @@ export class UtilitiesExtension {
 		}
 	}
 
-	private executeInternal<T>(event: string, data: any): Promise<T> {
+	private executeInternal<T>(event: string, data: Record<string, unknown>): Promise<T> {
 		return new Promise((resolve, reject) => {
 			const reqId = crypto.randomUUID();
 			this.pendingRequests.set(reqId, { resolve, reject });

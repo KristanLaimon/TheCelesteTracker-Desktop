@@ -9,13 +9,19 @@ interface ModMetadata {
 	name: string;
 	version: string;
 	dependencies: { name: string; version: string }[];
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 interface InstalledMod {
 	fileName: string;
 	isZip: boolean;
 	metadata: ModMetadata[];
+}
+
+interface EverestDep {
+	Name?: string | number;
+	Version?: string | number;
+	[key: string]: unknown;
 }
 
 function parseEverestYaml(content: string, fileName: string): ModMetadata[] {
@@ -25,28 +31,28 @@ function parseEverestYaml(content: string, fileName: string): ModMetadata[] {
 	try {
 		const parsed = yaml.load(cleanContent);
 		if (Array.isArray(parsed)) {
-			return parsed.map((item) => ({
-				name: item.Name || '',
-				version: item.Version ? String(item.Version) : '',
+			return parsed.map((item: Record<string, unknown>) => ({
+				name: typeof item.Name === 'string' ? item.Name : '',
+				version: item.Version != null ? String(item.Version) : '',
 				dependencies: Array.isArray(item.Dependencies)
-					? item.Dependencies.map((dep: any) => ({
-							name: dep.Name || '',
-							version: dep.Version ? String(dep.Version) : '',
+					? item.Dependencies.map((dep: EverestDep) => ({
+							name: typeof dep.Name === 'string' ? dep.Name : '',
+							version: dep.Version != null ? String(dep.Version) : '',
 						}))
 					: [],
 				...item,
 			}));
 		} else if (parsed && typeof parsed === 'object') {
 			// fallback if it's a single object instead of an array
-			const item = parsed as any;
+			const item = parsed as Record<string, unknown>;
 			return [
 				{
-					name: item.Name || '',
-					version: item.Version ? String(item.Version) : '',
+					name: typeof item.Name === 'string' ? item.Name : '',
+					version: item.Version != null ? String(item.Version) : '',
 					dependencies: Array.isArray(item.Dependencies)
-						? item.Dependencies.map((dep: any) => ({
-								name: dep.Name || '',
-								version: dep.Version ? String(dep.Version) : '',
+						? item.Dependencies.map((dep: EverestDep) => ({
+								name: typeof dep.Name === 'string' ? dep.Name : '',
+								version: dep.Version != null ? String(dep.Version) : '',
 							}))
 						: [],
 					...item,

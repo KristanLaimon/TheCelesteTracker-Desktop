@@ -104,7 +104,7 @@ export class NeutralinoFileSystem {
 	 * @param action The action to perform.
 	 * @param data Action parameters (buffer size for read, cursor position for seek).
 	 */
-	public async updateOpenedFile(id: number, action: string, data?: any): Promise<void> {
+	public async updateOpenedFile(id: number, action: string, data?: number): Promise<void> {
 		return filesystem.updateOpenedFile(id, action, data);
 	}
 

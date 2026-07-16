@@ -42,10 +42,10 @@ const myappPath = join(distPath, 'myapp');
 
 if (fs.existsSync(myappPath)) {
 	console.log('\n--- 4. Organizing Build Binaries ---');
-	
+
 	const windowsDist = join(distPath, 'windows');
 	const linuxDist = join(distPath, 'linux');
-	
+
 	// Helper to recursively delete a directory
 	function removeDir(dirPath) {
 		if (fs.existsSync(dirPath)) {

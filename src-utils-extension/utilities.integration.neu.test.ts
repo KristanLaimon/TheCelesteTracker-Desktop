@@ -1,7 +1,7 @@
-import AdmZip from 'adm-zip';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import AdmZip from 'adm-zip';
 import { runNeutralinoExtensionTest } from '../src/extensions/neutralinoTestHelper';
 
 const TMP_DIR = join(import.meta.dir, '../../.tmp/tests');

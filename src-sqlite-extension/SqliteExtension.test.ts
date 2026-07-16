@@ -1,4 +1,3 @@
-
 /** biome-ignore-all lint/complexity/noBannedTypes: Function is ok, we're just using it here */
 /** biome-ignore-all lint/suspicious/noExplicitAny: These are tests-only files, no need to be that strict */
 /** biome-ignore-all assist/source/organizeImports: To mock before important imports  */

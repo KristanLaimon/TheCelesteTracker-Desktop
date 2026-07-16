@@ -19,14 +19,14 @@ export interface CanvasClassNames {
 /**
  * A registry mapping type strings to Svelte Component classes.
  */
-export type CanvasRegistry = Record<string, Component<any, any, any>>;
+export type CanvasRegistry = Record<string, Component<Record<string, unknown>>>;
 
 /**
  * Interface that all components rendered on the canvas should satisfy
  * to support updating their internal properties reactively.
  */
-export type ICanvasWidgetProps<T = Record<string, any>> = IRawInternalCanvasWidgetPropsHelper<T> & T;
-interface IRawInternalCanvasWidgetPropsHelper<T = Record<string, any>> {
+export type ICanvasWidgetProps<T = Record<string, unknown>> = IRawInternalCanvasWidgetPropsHelper<T> & T;
+interface IRawInternalCanvasWidgetPropsHelper<T = Record<string, unknown>> {
 	onChange?: (updatedProps: Partial<T>) => void;
 }
 
@@ -44,6 +44,7 @@ export interface CanvasPersistence<Registry extends CanvasRegistry = CanvasRegis
 
 // Helper to determine the required keys of a Svelte component's props interface
 type RequiredKeys<T> = {
+	// biome-ignore lint/complexity/noBannedTypes: `{}` is the canonical TS idiom for "optional property" detection in mapped types
 	[K in keyof T]-?: {} extends Pick<T, K> ? never : K;
 }[keyof T];
 
@@ -72,7 +73,7 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 				height?: number;
 				/** Whether the node is pinned in place on the canvas. */
 				isPinned?: boolean;
-			} & NodeProps<Registry[K] extends Component<infer P, any, any> ? P : Record<string, any>>;
+			} & NodeProps<Registry[K] extends Component<infer P> ? P : Record<string, unknown>>;
 	  }[keyof Registry & string]
 	| {
 			/** Unique identifier for the node. */
@@ -80,7 +81,7 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 			/** Registry type is not allowed when using direct component reference. */
 			type?: never;
 			/** Direct Svelte component class to render for this node (non-serializable). */
-			component: Component<any, any, any>;
+			component: Component<Record<string, unknown>>;
 			/** Horizontal position of the node in the canvas world space. */
 			x: number;
 			/** Vertical position of the node in the canvas world space. */
@@ -92,7 +93,7 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 			/** Whether the node is pinned in place on the canvas. */
 			isPinned?: boolean;
 			/** Custom props passed to the direct component. */
-			props?: Record<string, any>;
+			props?: Record<string, unknown>;
 	  };
 
 /**

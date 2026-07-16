@@ -437,7 +437,7 @@ function resetView() {
 
 // --- Svelte Actions for Node Dragging & Size Observation ---
 
-let changeTimeout: any;
+let changeTimeout: ReturnType<typeof setTimeout>;
 
 /**
  * Dispatches the changes callback, debounced to prevent spamming
@@ -496,7 +496,7 @@ onDestroy(() => {
 /**
  * Action to handle dragging individual nodes on the canvas.
  */
-function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
+function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegistry>) {
 	let node = initialNode;
 	let startX = 0;
 	let startY = 0;
@@ -578,7 +578,7 @@ function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
 	nodeEl.addEventListener('touchstart', stopProp);
 
 	return {
-		update(newNode: CanvasNodeData<any>) {
+		update(newNode: CanvasNodeData<CanvasRegistry>) {
 			// Refresh the node reference when the nodes array is replaced
 			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
 			node = newNode;
@@ -594,7 +594,7 @@ function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
 /**
  * Action to handle resizing individual nodes on the canvas.
  */
-function resizeNode(handleEl: HTMLElement, initialNode: CanvasNodeData<any>) {
+function resizeNode(handleEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegistry>) {
 	let node = initialNode;
 	let startX = 0;
 	let startY = 0;
@@ -687,7 +687,7 @@ function resizeNode(handleEl: HTMLElement, initialNode: CanvasNodeData<any>) {
 	handleEl.addEventListener('touchstart', block);
 
 	return {
-		update(newNode: CanvasNodeData<any>) {
+		update(newNode: CanvasNodeData<CanvasRegistry>) {
 			// Refresh the node reference when the nodes array is replaced
 			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
 			node = newNode;
@@ -706,7 +706,7 @@ function resizeNode(handleEl: HTMLElement, initialNode: CanvasNodeData<any>) {
  * dimensions (i.e. was deserialized), so we don't overwrite persisted
  * width/height before the wrapper's explicit style has been applied.
  */
-function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
+function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegistry>) {
 	let node = initialNode;
 	const targetEl = (nodeEl.firstElementChild as HTMLElement) || nodeEl;
 
@@ -734,7 +734,7 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
 
 	observer.observe(targetEl);
 	return {
-		update(newNode: CanvasNodeData<any>) {
+		update(newNode: CanvasNodeData<CanvasRegistry>) {
 			// Refresh the node reference when the nodes array is replaced
 			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
 			node = newNode;

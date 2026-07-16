@@ -5,6 +5,9 @@ import TaskNode from '../components/TaskNode.svelte';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
 import type { CanvasNodeData } from '../libs/Wanvas/Canvas.types';
 
+// Type alias for the direct-component union branch (has `component`, no `type`)
+type DirectComponentNode = Extract<CanvasNodeData<typeof registry>, { component: unknown }>;
+
 // Map type strings to Svelte Components
 const registry = {
 	chapterNode: ChapterCard,
@@ -70,7 +73,7 @@ onMount(() => {
 			// Re-map the parsed JSON array back to Svelte components if they are direct
 			nodes = parsed.map((n: CanvasNodeData<typeof registry>) => {
 				if (n.id === 'custom-node') {
-					(n as any).component = ChapterCard;
+					(n as DirectComponentNode).component = ChapterCard;
 				}
 				return n;
 			});
