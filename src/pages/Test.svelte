@@ -1,6 +1,7 @@
 <script lang="ts">
 // import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
+import { Log_Info } from '../libs/Logger';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
 import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
@@ -76,10 +77,10 @@ function clearAll() {
     persistence={{
       key: 'test-canvas-persistence',
       beforeSave: (nodes, _cancel) => {
-        console.log('Canvas is about to save nodes:', nodes);
+        Log_Info('Canvas is about to save nodes:', nodes);
       },
       afterSave: (nodes) => {
-        console.log('Canvas saved successfully:', nodes);
+       Log_Info('Canvas saved successfully:', nodes);
       },
     }}
     showDots={true}

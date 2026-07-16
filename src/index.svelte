@@ -1,10 +1,9 @@
 <script lang="ts">
 // import Neutralino from '@neutralinojs/lib';
-import "reflect-metadata";
+import 'reflect-metadata';
 import { router } from './router.svelte';
 import './router_setup';
 import './libs/Hotkeys';
-
 </script>
 
 {#if router.page.component}

@@ -11,6 +11,7 @@ import { GoldenLayoutWrapper } from './GoldenLayoutWrapper';
 
 import './goldenlayout-base.css';
 import './predefined/goldenlayout-dark-theme.css';
+import { Log_Info } from '../Logger';
 
 // PUBLIC-PROPS
 type Props = {
@@ -154,14 +155,14 @@ function appendPlusButton(stack: Stack) {
 // LIFECYCLE
 onMount(() => {
 	try {
-		console.log('GoldenLayout Wrapper: Mounting Svelte Component...');
+		Log_Info('GoldenLayout Wrapper: Mounting Svelte Component...');
 
 		if (!layoutContainerEl) {
 			console.error('Layout HTML element not found to inject Golden-Layout dependency.');
 			return;
 		}
 
-		console.log('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
+		Log_Info('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
 		LAYOUT = new GoldenLayout(layoutContainerEl);
 		layout = new GoldenLayoutWrapper(LAYOUT);
 
@@ -169,10 +170,10 @@ onMount(() => {
 		if (components) {
 			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 			for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
-				console.log(`GoldenLayout Wrapper: Registering component "${name}"`);
+				Log_Info(`GoldenLayout Wrapper: Registering component "${name}"`);
 				LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
 					try {
-						console.log(`GoldenLayout Wrapper: Factory function called for "${name}"`);
+						Log_Info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
 						const componentInstance = mount(component, {
 							target: container.element,
 							props: (state as Record<string, unknown>) || {},
@@ -189,10 +190,10 @@ onMount(() => {
 		}
 
 		// Register the mandatory default Svelte component
-		console.log('GoldenLayout Wrapper: Registering default component');
+		Log_Info('GoldenLayout Wrapper: Registering default component');
 		LAYOUT.registerComponentFactoryFunction('__defaultComponent', (container, state) => {
 			try {
-				console.log('GoldenLayout Wrapper: Factory function called for defaultComponent');
+				Log_Info('GoldenLayout Wrapper: Factory function called for defaultComponent');
 				const componentInstance = mount(defaultComponent, {
 					target: container.element,
 					props: (state as Record<string, unknown>) || {},
@@ -223,7 +224,7 @@ onMount(() => {
 			}
 		});
 
-		console.log('GoldenLayout Wrapper: Loading layout structure...');
+		Log_Info('GoldenLayout Wrapper: Loading layout structure...');
 		LAYOUT.loadLayout({
 			settings: {
 				constrainDragToContainer: true,
@@ -249,7 +250,7 @@ onMount(() => {
 			root: Content,
 		});
 
-		console.log('GoldenLayout Wrapper: Layout loaded successfully.');
+		Log_Info('GoldenLayout Wrapper: Layout loaded successfully.');
 
 		if (componentParts && Object.keys(componentParts).length > 0) {
 			applyTailwindClasses(layoutContainerEl);

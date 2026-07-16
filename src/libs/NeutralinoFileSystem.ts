@@ -11,11 +11,13 @@ import type {
 	Watcher,
 } from '@neutralinojs/lib';
 import { filesystem } from '@neutralinojs/lib';
+import { injectable } from 'tsyringe';
 
 /**
  * FileSystem is a robust, type-safe wrapper around the Neutralino.filesystem API.
  * Provides easy access to local file operations, directory reading, file watching, and statistics.
  */
+@injectable()
 export class NeutralinoFileSystem {
 	/**
 	 * Creates a directory or multiple directories recursively.

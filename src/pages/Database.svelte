@@ -1,14 +1,15 @@
 <script lang="ts">
-  import CTDB from "../db/index";
-  import { get } from "../libs/DI";
-  import { onMount } from "svelte";
+import { onMount } from 'svelte';
+import CTDB from '../db/index';
+import { get } from '../libs/DI';
+import { Log_Info } from '../libs/Logger';
 
-  const db = get(CTDB);
+const db = get(CTDB);
 
-  onMount(async () => {
-    const res = await db.Campaigns.GetAll();
-    console.log(res);
-  });
+onMount(async () => {
+	const res = await db.Campaigns.GetAll();
+	Log_Info(res);
+});
 </script>
 
 <p>Hola</p>
