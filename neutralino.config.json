@@ -16,13 +16,15 @@
 	},
 	"nativeAllowList": [
 		"app.*",
-    "filesystem.readDirectory",
-    "filesystem.getStats",
+		"filesystem.readDirectory",
+		"filesystem.getStats",
+		"filesystem.readFile",
 		"window.show",
 		"os.setTray",
 		"os.open",
 		"os.showNotification",
 		"os.showMessageBox",
+		"os.getPath",
 		"extensions.*"
 	],
 	"modes": {
@@ -42,6 +44,12 @@
 			"commandLinux": "${NL_PATH}/extensions/sqlite/sqlite-linux_x64",
 			"commandDarwin": "${NL_PATH}/extensions/sqlite/sqlite-mac_x64",
 			"commandWindows": "\"${NL_PATH}/extensions/sqlite/sqlite-win_x64.exe\""
+		},
+		{
+			"id": "utilities",
+			"commandLinux": "${NL_PATH}/extensions/utilities/utilities-linux_x64",
+			"commandDarwin": "${NL_PATH}/extensions/utilities/utilities-mac_x64",
+			"commandWindows": "\"${NL_PATH}/extensions/utilities/utilities-win_x64.exe\""
 		}
 	],
 	"cli": {

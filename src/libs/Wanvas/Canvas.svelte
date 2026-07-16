@@ -6,159 +6,13 @@
  * @license MIT
  */
 
-import type { Snippet } from 'svelte';
 import { onDestroy, onMount } from 'svelte';
 import { Log_Warn } from '../Logger';
-import type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry } from './Canvas.types';
+import type { CanvasNodeData, CanvasPersistence, CanvasProps, CanvasRegistry } from './Canvas.types';
 
-export type { CanvasClassNames, CanvasNodeData, CanvasPersistence, CanvasRegistry };
+export type { CanvasNodeData, CanvasPersistence, CanvasProps, CanvasRegistry };
 
 // CanvasNodeData is now imported from Canvas.types.ts to support mapped union types.
-
-/**
- * Props definition for the Canvas library component.
- */
-interface Props {
-	/**
-	 * The horizontal pan translation in pixels.
-	 * Supports Svelte 5 two-way binding.
-	 * @default 0
-	 */
-	x?: number;
-	/**
-	 * The vertical pan translation in pixels.
-	 * Supports Svelte 5 two-way binding.
-	 * @default 0
-	 */
-	y?: number;
-	/**
-	 * The current zoom scale factor (e.g. 1.0 = 100%).
-	 * Supports Svelte 5 two-way binding.
-	 * @default 1.0
-	 */
-	zoom?: number;
-	/**
-	 * The minimum zoom scale level.
-	 * @default 0.15
-	 */
-	minZoom?: number;
-	/**
-	 * The maximum zoom scale level.
-	 * @default 8.0
-	 */
-	maxZoom?: number;
-	/**
-	 * The zoom change sensitivity when scrolling the mouse wheel.
-	 * @default 0.0015
-	 */
-	zoomSpeed?: number;
-	/**
-	 * Whether panning is infinite. If false, panning clamps to boundaries.
-	 * @default true
-	 */
-	infinite?: boolean;
-	/**
-	 * The minimum allowed horizontal coordinate when infinite is false.
-	 * @default -5000
-	 */
-	limitXMin?: number;
-	/**
-	 * The maximum allowed horizontal coordinate when infinite is false.
-	 * @default 5000
-	 */
-	limitXMax?: number;
-	/**
-	 * The minimum allowed vertical coordinate when infinite is false.
-	 * @default -5000
-	 */
-	limitYMin?: number;
-	/**
-	 * The maximum allowed vertical coordinate when infinite is false.
-	 * @default 5000
-	 */
-	limitYMax?: number;
-
-	/**
-	 * Whether to show the floating zoom/pan controls overlay.
-	 * @default true
-	 */
-	showControls?: boolean;
-	/**
-	 * Whether nodes are resizable via a drag handle in the bottom-right corner.
-	 * @default true
-	 */
-	resizable?: boolean;
-	/**
-	 * A bindable array of dynamic node configurations.
-	 * Supports runtime additions, deletions, and modifications.
-	 * @default []
-	 */
-	nodes?: CanvasNodeData<Registry>[];
-	/**
-	 * A registry mapping type strings to Svelte Component classes.
-	 * @default {}
-	 */
-	registry?: Registry;
-	/**
-	 * Optional class name target for dragging nodes (e.g. "drag-handle").
-	 * If specified, clicking outside the handle will not drag the node.
-	 * @default ""
-	 */
-	dragHandleClass?: string;
-	/**
-	 * Optional callback function triggered when any node's position or size changes.
-	 * Receives a clean, JSON-serializable copy of all nodes.
-	 */
-	onNodeChange?: (nodes: CanvasNodeData<Registry>[]) => void;
-	/**
-	 * Custom Tailwind CSS classes to override styling of individual canvas internal parts.
-	 */
-	classNames?: CanvasClassNames;
-	/**
-	 * A CSS class name applied directly to the outer canvas wrapper element.
-	 */
-	/**
-	 * A CSS class name applied directly to the outer canvas wrapper element.
-	 */
-	class?: string;
-	/**
-	 * Custom inline style rules applied directly to the outer canvas wrapper element.
-	 */
-	style?: string;
-	/**
-	 * The background color of the canvas workspace.
-	 * @default "#242424"
-	 */
-	bgColor?: string;
-	/**
-	 * The color of the background grid dots.
-	 * @default "rgb(58, 58, 58)"
-	 */
-	dotColor?: string;
-	/**
-	 * The radius of the background grid dots in pixels.
-	 * @default 1.5
-	 */
-	dotSize?: number;
-	/**
-	 * Whether to show the background dot grid pattern.
-	 * @default true
-	 */
-	showDots?: boolean;
-	/**
-	 * The display mode: 'normal' shows HUD controls, 'zen' hides HUD controls.
-	 * @default "normal"
-	 */
-	mode?: 'normal' | 'zen';
-	/**
-	 * Static child Svelte components or HTML elements to render inside the transformed canvas container.
-	 */
-	children?: Snippet;
-	/**
-	 * Persistence configuration and callbacks for localStorage.
-	 */
-	persistence?: CanvasPersistence<Registry> | null;
-}
 
 let {
 	x = $bindable(0),
@@ -189,7 +43,7 @@ let {
 	mode = 'normal',
 	children,
 	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence<Registry> | null),
-}: Props = $props();
+}: CanvasProps<Registry> = $props();
 
 // Internal references
 let wrapperEl = $state<HTMLDivElement | null>(null);

@@ -9,8 +9,6 @@ lerna-debug.log*
 .tmp
 .tmp/*
 
-# bun.lock
-
 # Neutralinojs and Svelte dependencies/builds
 node_modules
 /bin
@@ -33,5 +31,8 @@ neutralino.js
 *.sln
 *.sw?
 
+# Extensions build and temporal files related
 src-sqlite-extension/build/
+src-utils-extension/build/
 extensions/sqlite/*
+extensions/utilities/*

@@ -1,3 +1,7 @@
+/** biome-ignore-all lint/complexity/noBannedTypes: Function is ok, we're just using it here */
+/** biome-ignore-all lint/suspicious/noExplicitAny: These are tests-only files, no need to be that strict */
+/** biome-ignore-all assist/source/organizeImports: To mock before important imports  */
+// TODO: Add bun:test linting to this file
 import { describe, expect, mock, test } from 'bun:test';
 
 // 1. Mock @neutralinojs/lib BEFORE importing the target class
@@ -36,26 +40,31 @@ mock.module('@neutralinojs/lib', () => ({
 }));
 
 // 2. Import the SQLiteExtension class
-import { SQLiteExtension } from '../src/libs/CSqliteExtension';
+import { get } from '../src/libs/DI';
+import { SQLiteExtension } from './CSqliteExtension';
 
 describe('SQLiteExtension TS Wrapper Unit Tests', () => {
 	test('should successfully run query and resolve the promise', async () => {
-		const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
+		const db = get(SQLiteExtension);
 
-		const res = await db.query<{ version: string }>('SELECT sqlite_version();');
+		const res = await db.Query<{ version: string }>('SELECT sqlite_version();');
 
 		expect(res.success).toBe(true);
-		expect(res.rows).toBeArray();
-		expect(res.rows?.[0].version).toBe('3.53.3');
+		if (res.success) {
+			expect(res.rows).toBeArray();
+			expect(res.rows?.[0].version).toBe('3.53.3');
+		}
 	});
 
 	test('should successfully run exec and resolve the promise', async () => {
-		const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
+		const db = get(SQLiteExtension);
 
-		const res = await db.exec('INSERT INTO my_table VALUES(1);');
+		const res = await db.Exec('INSERT INTO my_table VALUES(1);');
 
 		expect(res.success).toBe(true);
-		expect(res.changes).toBe(0);
+		if (res.success) {
+			expect(res.changes).toBe(0);
+		}
 	});
 
 	test('should handle error rejection when query fails', async () => {
@@ -89,10 +98,11 @@ describe('SQLiteExtension TS Wrapper Unit Tests', () => {
 			},
 		}));
 
-		const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
+		const db = get(SQLiteExtension);
 
 		try {
-			await db.query('SELECT * FROM missing_table;');
+			await db.Query('SELECT * FROM missing_table;');
+			//@ts-expect-error Made on purpose to forze an exception, should never reach here
 			expect().unreachable(); // Should not reach here //expected error
 		} catch (error: any) {
 			expect(error.message).toBe('no such table: missing_table');

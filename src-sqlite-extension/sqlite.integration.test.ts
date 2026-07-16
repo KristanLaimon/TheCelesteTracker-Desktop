@@ -1,7 +1,9 @@
 import { beforeAll, describe, expect, test } from 'bun:test';
+import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import type { ServerWebSocket } from 'bun';
 import { $ } from 'bun';
 
 const ROOT = join(import.meta.dir, '..');
@@ -18,6 +20,23 @@ if (platform === 'linux') {
 const EXT_PATH = join(ROOT, 'extensions', 'sqlite', binaryName);
 const DB_PATH = 'TheCelesteTrackerTestDb.db';
 
+interface SqlResult {
+	success: boolean;
+	rows?: Record<string, string | number | null>[];
+	error?: string;
+}
+
+interface ExtensionWSResponse {
+	method: string;
+	data?: {
+		event: string;
+		data: {
+			reqId: string;
+			result: SqlResult;
+		};
+	};
+}
+
 describe('SQLite Extension Integration Tests', () => {
 	beforeAll(async () => {
 		// Verify if binary exists, if not build it
@@ -33,19 +52,19 @@ describe('SQLite Extension Integration Tests', () => {
 		const reqId = 'test-query-success';
 		const sql = 'SELECT sqlite_version() AS version;';
 
-		const result: any = await runExtensionQuery(sql, reqId);
+		const result = await runExtensionQuery(sql, reqId);
 
 		expect(result.success).toBe(true);
 		expect(result.rows).toBeArray();
-		expect(result.rows.length).toBeGreaterThan(0);
-		expect(result.rows[0].version).toBeString();
+		expect(result.rows?.length).toBeGreaterThan(0);
+		expect(result.rows?.[0].version).toBeString();
 	});
 
 	test('Should handle SQL syntax errors gracefully', async () => {
 		const reqId = 'test-query-error';
 		const sql = 'SELECT * FROM non_existent_table_xyz;';
 
-		const result: any = await runExtensionQuery(sql, reqId);
+		const result = await runExtensionQuery(sql, reqId);
 
 		expect(result.success).toBe(false);
 		expect(result.error).toBeString();
@@ -54,20 +73,20 @@ describe('SQLite Extension Integration Tests', () => {
 });
 
 // Helper to run query via WebSocket connection to the extension
-function runExtensionQuery(sql: string, reqId: string) {
+function runExtensionQuery(sql: string, reqId: string): Promise<SqlResult> {
 	return new Promise((resolve, reject) => {
-		let extensionProcess: any = null;
-		let wsConnection: any = null;
+		let extensionProcess: ChildProcess | null = null;
+		let wsConnection: ServerWebSocket<unknown> | null = null;
 		let queryResolved = false;
 
 		const server = Bun.serve({
 			port: 0, // ephemeral port
 			fetch(req, server) {
-				if (server.upgrade(req)) return;
+				if (server.upgrade(req, { data: undefined })) return;
 				return new Response('Upgrade failed', { status: 400 });
 			},
 			websocket: {
-				open(ws) {
+				open(ws: ServerWebSocket<unknown>) {
 					wsConnection = ws;
 					// Send the query
 					ws.send(
@@ -79,7 +98,7 @@ function runExtensionQuery(sql: string, reqId: string) {
 				},
 				message(_ws, message) {
 					try {
-						const response = JSON.parse(message as string);
+						const response = JSON.parse(message as string) as ExtensionWSResponse;
 						if (response.method === 'app.broadcast' && response.data?.event === 'sqlResult') {
 							const payload = response.data.data;
 							if (payload.reqId === reqId) {
@@ -107,7 +126,7 @@ function runExtensionQuery(sql: string, reqId: string) {
 				stdio: ['pipe', 'ignore', 'ignore'],
 			});
 
-			extensionProcess.on('error', (err: any) => {
+			extensionProcess.on('error', (err: Error) => {
 				cleanup();
 				reject(err);
 			});
@@ -119,7 +138,9 @@ function runExtensionQuery(sql: string, reqId: string) {
 				nlExtensionId: 'sqlite',
 				nlConnectToken: 'mock-connect-token',
 			};
-			extensionProcess.stdin.write(`${JSON.stringify(config)}\n`);
+			if (extensionProcess.stdin) {
+				extensionProcess.stdin.write(`${JSON.stringify(config)}\n`);
+			}
 		} catch (err) {
 			cleanup();
 			reject(err);

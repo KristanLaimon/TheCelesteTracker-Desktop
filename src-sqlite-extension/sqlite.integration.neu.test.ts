@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
+import type { ChildProcess } from 'node:child_process';
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,12 +19,35 @@ const NEU_PATH = join(ROOT, 'bin', neuBinary);
 const AUTH_INFO_PATH = join(ROOT, '.tmp', 'auth_info.json');
 const DB_PATH = 'TheCelesteTrackerTestDb.db';
 
+interface NeutralinoAuthInfo {
+	nlPort: number | string;
+	nlConnectToken: string;
+	nlToken: string;
+}
+
+interface SqlResult {
+	success: boolean;
+	rows?: Record<string, string | number | null>[];
+	error?: string;
+}
+
+interface NeutralinoWSResponse {
+	event: string;
+	data: {
+		reqId: string;
+		result: SqlResult;
+	};
+}
+
 describe('Real Neutralino Integration Tests', () => {
-	let neuProcess: any = null;
+	let neuProcess: ChildProcess | null = null;
 	let wsClient: WebSocket | null = null;
-	let authInfo: any = null;
+	let authInfo: NeutralinoAuthInfo | null = null;
 
 	beforeAll(async () => {
+		// Wait 1 second to ensure OS releases ports from any concurrent or previous runs
+		await new Promise((r) => setTimeout(r, 1000));
+
 		// 1. Ensure the SQLite extension binary is built
 		const extBinary = platform === 'win32' ? 'sqlite-win_x64.exe' : 'sqlite-linux_x64';
 		const extPath = join(ROOT, 'extensions', 'sqlite', extBinary);
@@ -47,6 +71,7 @@ describe('Real Neutralino Integration Tests', () => {
 				'--export-auth-info',
 				'--neu-dev-extension',
 				'--window-hidden', // Start window hidden to avoid popping up GUI during tests
+				'--port=0',
 			],
 			{
 				cwd: ROOT,
@@ -67,7 +92,7 @@ describe('Real Neutralino Integration Tests', () => {
 		}
 
 		// 5. Parse auth details
-		authInfo = JSON.parse(readFileSync(AUTH_INFO_PATH, 'utf-8'));
+		authInfo = JSON.parse(readFileSync(AUTH_INFO_PATH, 'utf-8')) as NeutralinoAuthInfo;
 		console.log(`🔌 Neutralino server started on port ${authInfo.nlPort}`);
 	});
 
@@ -87,10 +112,14 @@ describe('Real Neutralino Integration Tests', () => {
 	test('Should communicate with C extension through the real Neutralino server', async () => {
 		const reqId = 'real-neu-test-uuid';
 
+		if (!authInfo) {
+			throw new Error('Neutralino authInfo was not parsed');
+		}
+
 		// Connect WebSocket client to Neutralino server
 		const wsUrl = `ws://127.0.0.1:${authInfo.nlPort}/?connectToken=${authInfo.nlConnectToken}`;
 
-		const result: any = await new Promise((resolve, reject) => {
+		const result = await new Promise<SqlResult>((resolve, reject) => {
 			wsClient = new WebSocket(wsUrl);
 
 			wsClient.onopen = () => {
@@ -99,7 +128,7 @@ describe('Real Neutralino Integration Tests', () => {
 				const dispatchPayload = {
 					id: crypto.randomUUID(),
 					method: 'extensions.dispatch',
-					accessToken: authInfo.nlToken,
+					accessToken: authInfo?.nlToken,
 					data: {
 						extensionId: 'sqlite',
 						event: 'executeSql',
@@ -117,7 +146,7 @@ describe('Real Neutralino Integration Tests', () => {
 			wsClient.onmessage = (event) => {
 				console.log('  Raw WS message received from Neutralino:', event.data);
 				try {
-					const response = JSON.parse(event.data);
+					const response = JSON.parse(event.data as string) as NeutralinoWSResponse;
 					// Neutralino broadcasts event to all clients
 					if (response.event === 'sqlResult') {
 						const payload = response.data;
@@ -144,8 +173,8 @@ describe('Real Neutralino Integration Tests', () => {
 
 		expect(result.success).toBe(true);
 		expect(result.rows).toBeArray();
-		expect(result.rows.length).toBeGreaterThan(0);
-		expect(result.rows[0].version).toBeString();
-		console.log(` Real Neutralino query result verified: SQLite Version ${result.rows[0].version}`);
+		expect(result.rows?.length).toBeGreaterThan(0);
+		expect(result.rows?.[0].version).toBeString();
+		console.log(` Real Neutralino query result verified: SQLite Version ${result.rows?.[0].version}`);
 	});
 });

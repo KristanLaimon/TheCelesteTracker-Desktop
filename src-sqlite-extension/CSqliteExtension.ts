@@ -1,8 +1,9 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
+/** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
 import { events, extensions } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
-import { Log_Info, Log_Throw } from './Logger';
-import { NeutralinoFileSystem } from './NeutralinoFileSystem';
+import { Log_Info, Log_Throw } from '../src/libs/Logger';
+import { NeutralinoFileSystem } from '../src/libs/NeutralinoFileSystem';
 
 export type SQLiteQueryResult<T> =
 	| {
@@ -64,12 +65,14 @@ export class SQLiteExtension {
 
 		if (reqId && this.pendingRequests.has(reqId)) {
 			Log_Info(`CSqliteExtension: Resolving pending request for reqId [${reqId}]`);
-			const promise = this.pendingRequests.get(reqId)!;
+			const promise = this.pendingRequests.get(reqId);
 
-			if (result?.success) {
-				promise.resolve(result);
-			} else {
-				promise.reject(new Error(result?.error || 'Error desconocido en SQLite'));
+			if (promise) {
+				if (result?.success) {
+					promise.resolve(result);
+				} else {
+					promise.reject(new Error(result?.error || 'Error desconocido en SQLite'));
+				}
 			}
 
 			this.pendingRequests.delete(reqId);

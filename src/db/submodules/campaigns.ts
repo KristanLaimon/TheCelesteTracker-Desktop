@@ -1,6 +1,6 @@
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 import { injectable } from 'tsyringe';
-import { SQLiteExtension } from '../../libs/CSqliteExtension';
+import { SQLiteExtension } from '../../../src-sqlite-extension/CSqliteExtension';
 import { Log_Error } from '../../libs/Logger';
 import type { Campaign } from '../db.types';
 

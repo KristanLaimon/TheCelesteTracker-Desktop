@@ -1,4 +1,4 @@
-import type { Component } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 
 /**
  * Tailwind CSS class names for styling specific parts of the Canvas component.
@@ -51,18 +51,16 @@ type RequiredKeys<T> = {
 type NodeProps<P> = [RequiredKeys<P>] extends [never] ? { props?: P } : { props: P };
 
 /**
- * Mapped Type representing a single Canvas node.
- * Automatically validates components registered in the canvas's registry,
- * enforcing that props are specified if the component has required parameters.
+ * Structural definition of a node on the canvas workspace.
  */
 export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 	| {
 			[K in keyof Registry & string]: {
 				/** Unique identifier for the node. */
 				id: string;
-				/** The registered type of Svelte component to render for this node. */
+				/** Registered component type to render. Must match a key in the registry object. */
 				type: K;
-				/** Direct component reference is not allowed when using registry type. */
+				/** Direct Svelte component is not allowed when using registry mapping. */
 				component?: never;
 				/** Horizontal position of the node in the canvas world space. */
 				x: number;
@@ -96,3 +94,36 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 			/** Custom props passed to the direct component. */
 			props?: Record<string, any>;
 	  };
+
+/**
+ * Props definition for the Canvas library component.
+ */
+export interface CanvasProps<Registry extends CanvasRegistry = CanvasRegistry> {
+	x?: number;
+	y?: number;
+	zoom?: number;
+	minZoom?: number;
+	maxZoom?: number;
+	zoomSpeed?: number;
+	infinite?: boolean;
+	limitXMin?: number;
+	limitXMax?: number;
+	limitYMin?: number;
+	limitYMax?: number;
+	showControls?: boolean;
+	resizable?: boolean;
+	nodes?: CanvasNodeData<Registry>[];
+	registry?: Registry;
+	dragHandleClass?: string;
+	onNodeChange?: (nodes: CanvasNodeData<Registry>[]) => void;
+	classNames?: CanvasClassNames;
+	class?: string;
+	style?: string;
+	bgColor?: string;
+	dotColor?: string;
+	dotSize?: number;
+	showDots?: boolean;
+	mode?: 'normal' | 'zen';
+	children?: Snippet;
+	persistence?: CanvasPersistence<Registry> | null;
+}
