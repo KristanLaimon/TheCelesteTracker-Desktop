@@ -25,7 +25,7 @@ mock.module('@neutralinojs/lib', () => ({
 	},
 	extensions: {
 		dispatch: async (_extId: string, _event: string, data: any) => {
-			// Simulate the SQLite C extension returning the data asynchronously
+			// Simulate the Go extension returning the data asynchronously
 			setTimeout(() => {
 				const handler = mockHandlers.get('sqlResult');
 				if (handler) {
@@ -60,7 +60,7 @@ mock.module('@neutralinojs/lib', () => ({
 
 // 2. Import the SQLiteExtension class using require to preserve mock execution order
 const { get } = await import('../src/libs/DI');
-const { SQLiteExtension } = await import('./CSqliteExtension');
+const { SQLiteExtension } = await import('../src-utils-extension/SqliteExtension');
 
 describe('SQLiteExtension TS Wrapper Unit Tests', () => {
 	test('should successfully run query and resolve the promise', async () => {

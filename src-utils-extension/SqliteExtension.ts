@@ -28,9 +28,10 @@ export type SqliteExecResult =
 
 @injectable()
 export class SQLiteExtension {
-	private extensionId: string = 'sqlite'; //Must be synced with neutralino.configjson extension id
+	private extensionId: string = 'utilities'; // Handled by the unified Go extension
 	private dbPath: string;
 	private pendingRequests: Map<string /* Request ID */, { resolve: Function; reject: Function }>;
+
 	public constructor(dbPath: string, fs: NeutralinoFileSystem) {
 		this.dbPath = dbPath;
 		this.pendingRequests = new Map();
@@ -44,17 +45,16 @@ export class SQLiteExtension {
 	}
 
 	private handleExtensionMessage(evt: CustomEvent) {
-		Log_Info('CSqliteExtension: Received window event [sqlResult]', evt);
-		let payload = evt.detail; //Neutralino specifics
-		Log_Info('CSqliteExtension: Raw payload detail:', payload);
+		Log_Info('SqliteExtension: Received window event [sqlResult]', evt);
+		let payload = evt.detail; // Neutralino specifics
+		Log_Info('SqliteExtension: Raw payload detail:', payload);
 
-		//C send us back the response as plain text
 		if (typeof payload === 'string') {
 			try {
 				payload = JSON.parse(payload);
-				Log_Info('CSqliteExtension: Parsed string payload:', payload);
+				Log_Info('SqliteExtension: Parsed string payload:', payload);
 			} catch (err) {
-				console.error('CSqliteExtension: Failed to parse payload string:', err);
+				console.error('SqliteExtension: Failed to parse payload string:', err);
 				return;
 			}
 		}
@@ -64,42 +64,42 @@ export class SQLiteExtension {
 		Log_Info('SqliteExtension: Extracted reqId:', reqId, 'result:', result);
 
 		if (reqId && this.pendingRequests.has(reqId)) {
-			Log_Info(`CSqliteExtension: Resolving pending request for reqId [${reqId}]`);
+			Log_Info(`SqliteExtension: Resolving pending request for reqId [${reqId}]`);
 			const promise = this.pendingRequests.get(reqId);
 
 			if (promise) {
 				if (result?.success) {
 					promise.resolve(result);
 				} else {
-					promise.reject(new Error(result?.error || 'Error desconocido en SQLite'));
+					promise.reject(new Error(result?.error || 'Unknown SQLite error'));
 				}
 			}
 
 			this.pendingRequests.delete(reqId);
 		} else {
-			console.warn(`CSqliteExtension: No pending request found for reqId [${reqId}]`, Array.from(this.pendingRequests.keys()));
+			console.warn(`SqliteExtension: No pending request found for reqId [${reqId}]`, Array.from(this.pendingRequests.keys()));
 		}
 	}
 
 	private executeInternal<R>(sql: string): Promise<R> {
 		return new Promise((resolve, reject) => {
 			const reqId = crypto.randomUUID();
-			Log_Info(`CSqliteExtension: Creating request [${reqId}] for query: ${sql}`);
+			Log_Info(`SqliteExtension: Creating request [${reqId}] for query: ${sql}`);
 
 			this.pendingRequests.set(reqId, { resolve, reject });
 
-			Log_Info(`CSqliteExtension: Dispatching query [${reqId}] to extension ${this.extensionId}`);
+			Log_Info(`SqliteExtension: Dispatching query [${reqId}] to extension ${this.extensionId}`);
 			extensions
 				.dispatch(this.extensionId, 'executeSql', {
-					reqId: reqId, // To track the request. Otherwise, weird happens could happen.
+					reqId,
 					db: this.dbPath,
-					sql: sql,
+					sql,
 				})
 				.then(() => {
-					Log_Info(`CSqliteExtension: Dispatch resolved for request [${reqId}]`);
+					Log_Info(`SqliteExtension: Dispatch resolved for request [${reqId}]`);
 				})
 				.catch((error) => {
-					console.error(`CSqliteExtension: Dispatch failed for request [${reqId}]:`, error);
+					console.error(`SqliteExtension: Dispatch failed for request [${reqId}]:`, error);
 					this.pendingRequests.delete(reqId);
 					reject(error);
 				});

@@ -10,16 +10,8 @@ const args = process.argv.slice(2);
 
 console.log('🏁 Running global extensions build...');
 
-// Build SQLite
-console.log('\n--- 1. Building SQLite Extension ---');
-const sqliteRes = spawnSync('bun', [join(__dirname, 'src-sqlite-extension', 'build.ts'), ...args], { stdio: 'inherit' });
-if (sqliteRes.status !== 0) {
-	console.error('❌ SQLite Extension build failed');
-	process.exit(sqliteRes.status || 1);
-}
-
-// Build Utilities
-console.log('\n--- 2. Building Utilities Extension ---');
+// Build Utilities (Go — handles both zip and SQLite)
+console.log('\n--- 1. Building Utilities Go Extension ---');
 const utilsRes = spawnSync('bun', [join(__dirname, 'src-utils-extension', 'build.ts'), ...args], { stdio: 'inherit' });
 if (utilsRes.status !== 0) {
 	console.error('❌ Utilities Extension build failed');
@@ -27,6 +19,7 @@ if (utilsRes.status !== 0) {
 }
 
 console.log('\n🎉 All extensions built successfully!');
+
 
 // Run Neutralino Build
 console.log('\n--- 3. Running Neutralino Build ---');

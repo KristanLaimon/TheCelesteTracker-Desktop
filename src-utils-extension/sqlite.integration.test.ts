@@ -9,15 +9,15 @@ import { $ } from 'bun';
 const ROOT = join(import.meta.dir, '..');
 const platform = process.platform;
 
-// Determine binary name based on platform
-let binaryName = 'sqlite-win_x64.exe';
+// Determine Go binary name based on platform
+let binaryName = 'utilities-win_x64.exe';
 if (platform === 'linux') {
-	binaryName = 'sqlite-linux_x64';
+	binaryName = 'utilities-linux_x64';
 } else if (platform === 'darwin') {
-	binaryName = 'sqlite-mac_x64';
+	binaryName = 'utilities-mac_x64';
 }
 
-const EXT_PATH = join(ROOT, 'extensions', 'sqlite', binaryName);
+const EXT_PATH = join(ROOT, 'extensions', 'utilities', binaryName);
 const DB_PATH = 'TheCelesteTrackerTestDb.db';
 
 interface SqlResult {
@@ -37,13 +37,13 @@ interface ExtensionWSResponse {
 	};
 }
 
-describe('SQLite Extension Integration Tests', () => {
+describe('SQLite via Go Utilities Extension — Integration Tests', () => {
 	beforeAll(async () => {
 		// Verify if binary exists, if not build it
 		if (!existsSync(EXT_PATH)) {
-			console.log(`\n  SQLite Extension binary not found at: ${EXT_PATH}`);
-			console.log('🛠️ Building C extension first...');
-			await $`bun run build:extension`.cwd(ROOT);
+			console.log(`\n  Utilities Extension binary not found at: ${EXT_PATH}`);
+			console.log('🛠️ Building Go extension first...');
+			await $`bun run build`.cwd(ROOT);
 		}
 		expect(existsSync(EXT_PATH)).toBe(true);
 	});
@@ -60,7 +60,7 @@ describe('SQLite Extension Integration Tests', () => {
 		expect(result.rows?.[0].version).toBeString();
 	});
 
-	test('Should handle SQL syntax errors gracefully', async () => {
+	test('Should handle SQL errors gracefully', async () => {
 		const reqId = 'test-query-error';
 		const sql = 'SELECT * FROM non_existent_table_xyz;';
 
@@ -72,7 +72,7 @@ describe('SQLite Extension Integration Tests', () => {
 	});
 });
 
-// Helper to run query via WebSocket connection to the extension
+// Helper to run query via WebSocket connection to the Go extension
 function runExtensionQuery(sql: string, reqId: string): Promise<SqlResult> {
 	return new Promise((resolve, reject) => {
 		let extensionProcess: ChildProcess | null = null;
@@ -135,7 +135,7 @@ function runExtensionQuery(sql: string, reqId: string): Promise<SqlResult> {
 			const config = {
 				nlPort: String(PORT),
 				nlToken: 'mock-token',
-				nlExtensionId: 'sqlite',
+				nlExtensionId: 'utilities',
 				nlConnectToken: 'mock-connect-token',
 			};
 			if (extensionProcess.stdin) {

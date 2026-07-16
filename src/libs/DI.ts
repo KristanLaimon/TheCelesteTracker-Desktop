@@ -1,5 +1,5 @@
 import { container } from 'tsyringe';
-import { SQLiteExtension } from '../../src-sqlite-extension/CSqliteExtension';
+import { SQLiteExtension } from '../../src-utils-extension/SqliteExtension';
 import { UtilitiesExtension } from '../../src-utils-extension/UtilitiesExtension';
 import { NeutralinoFileSystem } from './NeutralinoFileSystem';
 

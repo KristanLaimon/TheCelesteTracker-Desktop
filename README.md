@@ -40,13 +40,13 @@ The Celeste community uses **spreadsheets** for pretty much everything: achievem
 
 Note: While there are mods to track this info, they are all in-game, limited by the interface, and sometimes have a learning curve that makes them hard to use.
 
-## Key Features
+<!-- ## Key Features
 
 - **🔄 Real-time Sync**: Auto-connect to Everest WebSocket server.
 - **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
 - **🎭 Live Overlay**: Immersive HUD triggers on level entry.
 - **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
-- **🐹 Go-Backed**: Fast and reliable event handling via Wails.
+- **🐹 Go-Backed**: Fast and reliable event handling via Wails. -->
 
 ## Preview
 
@@ -63,7 +63,12 @@ https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
 ## Tech Stack
 - **Framework**: [Neutralinojs](https://neutralino.js.org/) (Lightweight portable desktop application framework)
 - **Frontend**: [Svelte 5](https://svelte.dev/) + [Vite](https://vite.dev/) + TypeScript
-- **Package Manager**: [Bun](https://bun.sh/) (Fast dependency management and runner)
+- **Package Manager**: [Bun](https://bun.sh/) (Runner + Dev tooling)
+
+## Why are you using C and Go as separated extensions?
+For fun. I wanted to learn how to package and code very small-easy (except C) programs. Also, gaining a little performance in
+final binary size and speed. Perfectly the C extension could be written in Go or Rust + sqlitelib or direct sqlite .h-.c files.
+Just wanted to challenge myself
 
 ## Getting Started
 

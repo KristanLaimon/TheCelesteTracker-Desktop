@@ -6,10 +6,9 @@
 	"scripts": {
 		"dev": "neu run -- --window-enable-inspector",
 		"build:frontend": "vite build",
-		"build:extension": "node build.js",
-		"build:windows": "node build.js --skip-linux",
+		"build:windows": "bun run build --skip-linux",
 		"build:noextensions": "neu build --embed-resources",
-		"build": "node build.js",
+		"build": "bun build.js",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
 		"test": "bun test",
 		"lint": "biome check . --write --unsafe"
