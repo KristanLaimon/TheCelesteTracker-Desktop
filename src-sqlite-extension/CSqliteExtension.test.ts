@@ -39,14 +39,23 @@ mock.module('@neutralinojs/lib', () => ({
 import { SQLiteExtension } from '../src/libs/CSqliteExtension';
 
 describe('SQLiteExtension TS Wrapper Unit Tests', () => {
-	test('should successfully execute query and resolve the promise', async () => {
+	test('should successfully run query and resolve the promise', async () => {
 		const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
 
-		const res = await db.execute('SELECT sqlite_version();');
+		const res = await db.query<{ version: string }>('SELECT sqlite_version();');
 
 		expect(res.success).toBe(true);
 		expect(res.rows).toBeArray();
 		expect(res.rows?.[0].version).toBe('3.53.3');
+	});
+
+	test('should successfully run exec and resolve the promise', async () => {
+		const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
+
+		const res = await db.exec('INSERT INTO my_table VALUES(1);');
+
+		expect(res.success).toBe(true);
+		expect(res.changes).toBe(0);
 	});
 
 	test('should handle error rejection when query fails', async () => {
@@ -83,7 +92,7 @@ describe('SQLiteExtension TS Wrapper Unit Tests', () => {
 		const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
 
 		try {
-			await db.execute('SELECT * FROM missing_table;');
+			await db.query('SELECT * FROM missing_table;');
 			expect().unreachable(); // Should not reach here //expected error
 		} catch (error: any) {
 			expect(error.message).toBe('no such table: missing_table');

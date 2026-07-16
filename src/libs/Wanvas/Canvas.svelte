@@ -942,6 +942,31 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
 
           <button
             type="button"
+            class="canvas-node-close-button"
+            onclick={(e) => {
+              e.stopPropagation();
+              nodes = nodes.filter((n) => n.id !== node.id);
+              triggerChange();
+            }}
+            title="Delete Node"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+
+          <button
+            type="button"
             class="canvas-node-pin-button"
             class:pinned={node.isPinned}
             onclick={(e) => {
@@ -1095,6 +1120,43 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
   .canvas-node-wrapper.pinned,
   .canvas-node-wrapper.pinned :global(.drag-handle) {
     cursor: default !important;
+  }
+
+  .canvas-node-close-button {
+    position: absolute;
+    top: 8px;
+    right: 40px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(30, 30, 32, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #b0b0b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s, transform 0.15s;
+    padding: 0;
+  }
+
+  .canvas-node-wrapper:hover .canvas-node-close-button {
+    opacity: 1;
+  }
+
+  .canvas-node-close-button:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+    transform: scale(1.05);
+  }
+
+  .canvas-node-close-button:active {
+    transform: scale(0.95);
   }
 
   .canvas-node-pin-button {

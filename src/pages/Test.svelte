@@ -3,15 +3,14 @@
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasNodeData, CanvasPersistence, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
 import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 
 const registry = {
 	textWidget: TextWidget,
 } satisfies CanvasRegistry;
 
-// Initialize nodes with default starting items (overwritten if localStorage has data)
-let nodes = $state<CanvasNodeData<typeof registry>[]>([
+let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
 	{
 		id: '1',
 		type: 'textWidget',
@@ -24,8 +23,8 @@ let nodes = $state<CanvasNodeData<typeof registry>[]>([
 ]);
 
 function AddNewTextWidget(text: string = '') {
-	nodes.push({
-		id: nodes.length.toString(),
+	defaultNodes.push({
+		id: defaultNodes.length.toString(),
 		x: 100,
 		y: 150,
 		height: 150,
@@ -37,24 +36,12 @@ function AddNewTextWidget(text: string = '') {
 	} satisfies CanvasNodeData<typeof registry>);
 }
 
-// Bindable view state — set directly to reset the viewport
 let canvasX = $state(0);
 let canvasY = $state(0);
 let canvasZoom = $state(1);
 
-// Setup the persistence configuration object
-let persistence = $state<CanvasPersistence<typeof registry>>({
-	key: 'test-canvas-persistence',
-	beforeSave: (nodes, _cancel) => {
-		console.log('Canvas is about to save nodes:', nodes);
-	},
-	afterSave: (nodes) => {
-		console.log('Canvas saved successfully:', nodes);
-	},
-});
-
 function clearNodes() {
-	nodes = [];
+	defaultNodes = [];
 }
 
 function clearView() {
@@ -64,24 +51,11 @@ function clearView() {
 }
 
 function clearAll() {
-	nodes = [];
+	defaultNodes = [];
 	canvasX = 0;
 	canvasY = 0;
 	canvasZoom = 1;
 }
-
-// onMount(async () => {
-// 	console.log('about to execute! DB');
-// 	// try {
-// 		// const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
-// 		// const res = await db.execute('SELECT * from Campaigns LIMIT 5;');
-// 		// console.log('executed DB successfully:', res);
-// 		// AddNewTextWidget(JSON.stringify(res, null, 2));
-// 	// } catch (error: any) {
-// 		// console.error('❌ DB execution failed:', error);
-// 		// AddNewTextWidget(`DB Error: ${error.message}`);
-// 	// }
-// });
 </script>
 
 <CenteredLayout>
@@ -95,11 +69,19 @@ function clearAll() {
   <Canvas {registry}
     classNames={{wrapper: "w-[80vw] h-[80vh]"}}
     mode="normal"
-    bind:nodes
+    bind:nodes={defaultNodes}
     bind:x={canvasX}
     bind:y={canvasY}
     bind:zoom={canvasZoom}
-    bind:persistence
+    persistence={{
+      key: 'test-canvas-persistence',
+      beforeSave: (nodes, _cancel) => {
+        console.log('Canvas is about to save nodes:', nodes);
+      },
+      afterSave: (nodes) => {
+        console.log('Canvas saved successfully:', nodes);
+      },
+    }}
     showDots={true}
   />
 </CenteredLayout>

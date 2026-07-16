@@ -54,7 +54,7 @@ export class SQLiteExtension {
 		}
 	}
 
-	public execute<T>(sql: string): Promise<SQLiteResult<T>> {
+	private executeInternal<T>(sql: string): Promise<SQLiteResult<T>> {
 		return new Promise((resolve, reject) => {
 			const reqId = crypto.randomUUID();
 			console.log(`CSqliteExtension: Creating request [${reqId}] for query: ${sql}`);
@@ -64,7 +64,7 @@ export class SQLiteExtension {
 			console.log(`CSqliteExtension: Dispatching query [${reqId}] to extension ${this.extensionId}`);
 			extensions
 				.dispatch(this.extensionId, 'executeSql', {
-					reqId: reqId, // <- ID vital para rastrear la respuesta
+					reqId: reqId, // To track the request. Otherwise, weird happens could happen.
 					db: this.dbPath,
 					sql: sql,
 				})
@@ -77,5 +77,26 @@ export class SQLiteExtension {
 					reject(error);
 				});
 		});
+	}
+
+	/**
+	 * Runs a SQL query that returns rows (e.g. SELECT).
+	 */
+	public query<T>(sql: string): Promise<SQLiteResult<T>> {
+		return this.executeInternal<T>(sql);
+	}
+
+	/**
+	 * Executes a SQL statement that does not return rows (e.g. INSERT, UPDATE, DELETE).
+	 */
+	public exec(sql: string): Promise<SQLiteResult<unknown>> {
+		return this.executeInternal<unknown>(sql);
+	}
+
+	/**
+	 * Deprecated: Use query() or exec() instead.
+	 */
+	public execute<T>(sql: string): Promise<SQLiteResult<T>> {
+		return this.executeInternal<T>(sql);
 	}
 }
