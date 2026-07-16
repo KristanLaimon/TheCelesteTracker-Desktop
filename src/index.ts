@@ -2,10 +2,7 @@ import neutralino from '@neutralinojs/lib';
 import { mount } from 'svelte';
 import App from './index.svelte';
 
-
 neutralino.init();
-
-
 
 const target = document.getElementById('app');
 

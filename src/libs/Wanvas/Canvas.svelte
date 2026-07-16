@@ -661,6 +661,8 @@ function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
 			if (isInteractive(target)) return;
 		}
 
+		if (node.isPinned) return;
+
 		e.stopPropagation();
 		isDraggingNode = true;
 		startX = e.clientX;
@@ -923,6 +925,7 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           class="canvas-node-wrapper"
+          class:pinned={node.isPinned}
           style="left: {node.x}px; top: {node.y}px; width: {node.width
             ? node.width + 'px'
             : 'auto'}; height: {node.height ? node.height + 'px' : 'auto'};"
@@ -936,6 +939,33 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
               triggerChange();
             }}
           />
+
+          <button
+            type="button"
+            class="canvas-node-pin-button"
+            class:pinned={node.isPinned}
+            onclick={(e) => {
+              e.stopPropagation();
+              node.isPinned = !node.isPinned;
+              triggerChange();
+            }}
+            title={node.isPinned ? "Unpin Node" : "Pin Node"}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill={node.isPinned ? "currentColor" : "none"}
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon"
+              style="transform: rotate({node.isPinned ? '0deg' : '45deg'}); transition: transform 0.2s;"
+            >
+              <line x1="12" y1="17" x2="12" y2="22"></line>
+              <path d="M5 17h14v-1.76a2 2 0 0 0-.44-1.24l-2.78-3.48A2 2 0 0 1 15 9.28V5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v4.28c0 .4-.12.8-.38 1.1l-2.78 3.48a2 2 0 0 0-.44 1.24Z"></path>
+            </svg>
+          </button>
 
           <!-- nwse-resize handle rendered if resizable is true -->
           {#if resizable}
@@ -1060,6 +1090,58 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<any>) {
     touch-action: none;
     user-select: none;
     display: block;
+  }
+
+  .canvas-node-wrapper.pinned,
+  .canvas-node-wrapper.pinned :global(.drag-handle) {
+    cursor: default !important;
+  }
+
+  .canvas-node-pin-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(30, 30, 32, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #b0b0b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s, color 0.15s, transform 0.15s;
+    padding: 0;
+  }
+
+  .canvas-node-wrapper:hover .canvas-node-pin-button {
+    opacity: 1;
+  }
+
+  .canvas-node-wrapper.pinned .canvas-node-pin-button {
+    opacity: 1;
+    color: #a855f7;
+    background: rgba(30, 30, 32, 0.85);
+    border-color: rgba(168, 85, 247, 0.4);
+  }
+
+  .canvas-node-pin-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: scale(1.05);
+  }
+
+  .canvas-node-pin-button:active {
+    transform: scale(0.95);
+  }
+
+  .canvas-node-pin-button.pinned:hover {
+    color: #c084fc;
   }
 
   /* Diagonal resize corner styling */

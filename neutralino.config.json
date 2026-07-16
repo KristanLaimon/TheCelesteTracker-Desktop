@@ -6,7 +6,7 @@
 	"documentRoot": "/resources",
 	"url": "/",
 	"enableServer": true,
-  "enableExtensions": true,
+	"enableExtensions": true,
 	"enableNativeAPI": true,
 	"tokenSecurity": "none",
 	"port": 6767,

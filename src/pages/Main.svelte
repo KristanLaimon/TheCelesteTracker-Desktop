@@ -1,7 +1,7 @@
 <script lang="ts">
-import CustomPanel from "../components/CustomPanel.svelte";
-import TestPanel from "../components/TestPanel.svelte";
-import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
+import CustomPanel from '../components/CustomPanel.svelte';
+import TestPanel from '../components/TestPanel.svelte';
+import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { CustomRootContentItemsConfig, LayoutContentRootConfig } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
 import { GoldenLayoutWrapper } from '../libs/GoldenLayoutThemes/GoldenLayoutWrapper';
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 import { onMount } from 'svelte';
-import ChapterCard from "../components/ChapterCard.svelte";
-import TaskNode from "../components/TaskNode.svelte";
-import Canvas from "../libs/Wanvas/Canvas.svelte";
-import type {CanvasNodeData} from "../libs/Wanvas/Canvas.types";
+import ChapterCard from '../components/ChapterCard.svelte';
+import TaskNode from '../components/TaskNode.svelte';
+import Canvas from '../libs/Wanvas/Canvas.svelte';
+import type { CanvasNodeData } from '../libs/Wanvas/Canvas.types';
 
 // Map type strings to Svelte Components
 const registry = {
@@ -23,6 +23,7 @@ let nodes = $state<CanvasNodeData<typeof registry>[]>([
 		type: 'chapterNode',
 		x: 100,
 		y: 150,
+		isPinned: true,
 		props: {
 			number: '01',
 			title: 'Forsaken City',

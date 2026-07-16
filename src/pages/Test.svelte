@@ -1,10 +1,10 @@
 <script lang="ts">
-import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
+// import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import Canvas from "../libs/Wanvas/Canvas.svelte";
+// import { SQLiteExtension } from '../libs/CSqliteExtension';
+import Canvas from '../libs/Wanvas/Canvas.svelte';
 import type { CanvasNodeData, CanvasPersistence, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
-import {onMount} from "svelte";
-import { SQLiteExtension } from "../libs/CSqliteExtension";
+import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 
 const registry = {
 	textWidget: TextWidget,
@@ -23,19 +23,18 @@ let nodes = $state<CanvasNodeData<typeof registry>[]>([
 	},
 ]);
 
-function AddNewTextWidget(text:string = ""){
-  nodes.push({
-    id: nodes.length.toString(),
-    x: 100,
-    y: 150,
-    height: 150,
-    width: 150,
-    type: "textWidget",
-    props:{
-      text: text
-    }
- 
-  } satisfies CanvasNodeData<typeof registry>)
+function AddNewTextWidget(text: string = '') {
+	nodes.push({
+		id: nodes.length.toString(),
+		x: 100,
+		y: 150,
+		height: 150,
+		width: 150,
+		type: 'textWidget',
+		props: {
+			text: text,
+		},
+	} satisfies CanvasNodeData<typeof registry>);
 }
 
 // Bindable view state — set directly to reset the viewport
@@ -51,7 +50,7 @@ let persistence = $state<CanvasPersistence<typeof registry>>({
 	},
 	afterSave: (nodes) => {
 		console.log('Canvas saved successfully:', nodes);
-	}
+	},
 });
 
 function clearNodes() {
@@ -71,18 +70,18 @@ function clearAll() {
 	canvasZoom = 1;
 }
 
-onMount(async () => {
-  console.log("about to execute! DB")
-  try {
-    const db = new SQLiteExtension("TheCelesteTrackerTestDb.db");
-    const res = await db.execute("SELECT * from Campaigns LIMIT 5;");
-    console.log("executed DB successfully:", res)
-    AddNewTextWidget(JSON.stringify(res, null, 2));
-  } catch (error: any) {
-    console.error("❌ DB execution failed:", error);
-    AddNewTextWidget(`DB Error: ${error.message}`);
-  }
-});
+// onMount(async () => {
+// 	console.log('about to execute! DB');
+// 	// try {
+// 		// const db = new SQLiteExtension('TheCelesteTrackerTestDb.db');
+// 		// const res = await db.execute('SELECT * from Campaigns LIMIT 5;');
+// 		// console.log('executed DB successfully:', res);
+// 		// AddNewTextWidget(JSON.stringify(res, null, 2));
+// 	// } catch (error: any) {
+// 		// console.error('❌ DB execution failed:', error);
+// 		// AddNewTextWidget(`DB Error: ${error.message}`);
+// 	// }
+// });
 </script>
 
 <CenteredLayout>

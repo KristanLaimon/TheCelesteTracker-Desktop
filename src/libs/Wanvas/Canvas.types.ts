@@ -72,6 +72,8 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 				width?: number;
 				/** Measured height of the node. */
 				height?: number;
+				/** Whether the node is pinned in place on the canvas. */
+				isPinned?: boolean;
 			} & NodeProps<Registry[K] extends Component<infer P, any, any> ? P : Record<string, any>>;
 	  }[keyof Registry & string]
 	| {
@@ -89,6 +91,8 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 			width?: number;
 			/** Measured height of the node. */
 			height?: number;
+			/** Whether the node is pinned in place on the canvas. */
+			isPinned?: boolean;
 			/** Custom props passed to the direct component. */
 			props?: Record<string, any>;
 	  };

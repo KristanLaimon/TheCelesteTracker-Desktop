@@ -1,14 +1,14 @@
 import type {
-  CopyOptions,
-  DirectoryEntry,
-  DirectoryReaderOptions,
-  FileReaderOptions,
-  OpenedFile,
-  PathParts,
-  Permissions,
-  PermissionsMode,
-  Stats,
-  Watcher
+	CopyOptions,
+	DirectoryEntry,
+	DirectoryReaderOptions,
+	FileReaderOptions,
+	OpenedFile,
+	PathParts,
+	Permissions,
+	PermissionsMode,
+	Stats,
+	Watcher,
 } from '@neutralinojs/lib';
 import { filesystem } from '@neutralinojs/lib';
 
@@ -21,7 +21,7 @@ export class NeutralinoFileSystem {
 	 * Creates a directory or multiple directories recursively.
 	 * @param path New directory path.
 	 */
-	public  async createDirectory(path: string): Promise<void> {
+	public async createDirectory(path: string): Promise<void> {
 		return filesystem.createDirectory(path);
 	}
 
@@ -29,7 +29,7 @@ export class NeutralinoFileSystem {
 	 * Removes a directory or file. Recursively removes directory contents.
 	 * @param path Directory or file path.
 	 */
-	public  async remove(path: string): Promise<void> {
+	public async remove(path: string): Promise<void> {
 		return filesystem.remove(path);
 	}
 
@@ -38,7 +38,7 @@ export class NeutralinoFileSystem {
 	 * @param filename File path.
 	 * @param data Content string to write.
 	 */
-	public  async writeFile(filename: string, data: string): Promise<void> {
+	public async writeFile(filename: string, data: string): Promise<void> {
 		return filesystem.writeFile(filename, data);
 	}
 
