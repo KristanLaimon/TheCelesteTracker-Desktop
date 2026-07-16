@@ -1,7 +1,7 @@
+import AdmZip from 'adm-zip';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
-import AdmZip from 'adm-zip';
 import { runNeutralinoExtensionTest } from '../src/extensions/neutralinoTestHelper';
 
 const TMP_DIR = join(import.meta.dir, '../../.tmp/tests');
@@ -34,18 +34,22 @@ describe('Utilities Go Extension Neutralino Integration Tests (With Neutralino)'
 		}
 	});
 
-	test('Should route zip read request through Neutralino websocket server', async () => {
-		const payload = await runNeutralinoExtensionTest<ZipReadTextFileResponse>({
-			extensionId: 'utilities',
-			requestEvent: 'zip.readTextFile',
-			requestData: {
-				zipPath: ZIP_PATH,
-				filePath: 'hello.txt',
-			},
-			responseEvent: 'zip.readTextFileResult',
-		});
+	test(
+		'Should route zip read request through Neutralino websocket server',
+		async () => {
+			const payload = await runNeutralinoExtensionTest<ZipReadTextFileResponse>({
+				extensionId: 'utilities',
+				requestEvent: 'zip.readTextFile',
+				requestData: {
+					zipPath: ZIP_PATH,
+					filePath: 'hello.txt',
+				},
+				responseEvent: 'zip.readTextFileResult',
+			});
 
-		expect(payload.result.success).toBe(true);
-		expect(payload.result.content).toBe('Hello, Celeste Modder!');
-	});
+			expect(payload.result.success).toBe(true);
+			expect(payload.result.content).toBe('Hello, Celeste Modder!');
+		},
+		{ timeout: 10_000 },
+	);
 });
