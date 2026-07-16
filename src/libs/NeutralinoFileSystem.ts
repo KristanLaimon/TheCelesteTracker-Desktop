@@ -186,7 +186,8 @@ export class NeutralinoFileSystem {
 		try {
 			await filesystem.getStats(path);
 			return true;
-		} catch {
+		} catch (e: unknown) {
+			console.error(e);
 			return false;
 		}
 	}

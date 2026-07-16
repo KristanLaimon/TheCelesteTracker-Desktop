@@ -16,7 +16,8 @@
 	},
 	"nativeAllowList": [
 		"app.*",
-		"filesystem.readDirectory",
+    "filesystem.readDirectory",
+    "filesystem.getStats",
 		"window.show",
 		"os.setTray",
 		"os.open",

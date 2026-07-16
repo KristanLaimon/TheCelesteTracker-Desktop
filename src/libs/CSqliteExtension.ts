@@ -35,11 +35,6 @@ export class SQLiteExtension {
 		this.pendingRequests = new Map();
 		events.on('sqlResult', this.handleExtensionMessage.bind(this));
 
-		fs.readDirectory('./').then((dirs) => {
-			Log_Info(this.dbPath);
-			Log_Info(dirs);
-		});
-
 		fs.exists(this.dbPath).then((exists) => {
 			if (!exists) {
 				Log_Throw(`Database DOESN'T EXIST!, not found. Should be in '${this.dbPath}'. Creating a new empty database as default...`);
