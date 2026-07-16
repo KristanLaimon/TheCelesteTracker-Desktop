@@ -1,13 +1,32 @@
 import { events, extensions } from '@neutralinojs/lib';
 
 // Interfaz para definir la estructura de la respuesta de tu extensión en C
-export interface SQLiteResult<T> {
-	success: boolean;
-	error?: string;
-	changes?: number;
-	lastInsertRowId?: number;
-	rows?: T[];
-}
+// export interface SQLiteResult<T> {
+// 	success: boolean;
+// 	error?: string;
+// 	changes?: number;
+// 	lastInsertRowId?: number;
+// 	rows?: T[];
+export type SQLiteQueryResult<T> =
+	| {
+			success: true;
+			rows: T[];
+	  }
+	| {
+			success: false;
+			error: string;
+	  };
+
+export type SqliteExecResult =
+	| {
+			success: true;
+			changes: number;
+			lastInsertRowId: number;
+	  }
+	| {
+			success: false;
+			error: string;
+	  };
 
 export class SQLiteExtension {
 	private extensionId: string = 'sqlite'; //Must be synced with neutralino.configjson extension id
@@ -54,7 +73,7 @@ export class SQLiteExtension {
 		}
 	}
 
-	private executeInternal<T>(sql: string): Promise<SQLiteResult<T>> {
+	private executeInternal<R>(sql: string): Promise<R> {
 		return new Promise((resolve, reject) => {
 			const reqId = crypto.randomUUID();
 			console.log(`CSqliteExtension: Creating request [${reqId}] for query: ${sql}`);
@@ -82,21 +101,21 @@ export class SQLiteExtension {
 	/**
 	 * Runs a SQL query that returns rows (e.g. SELECT).
 	 */
-	public query<T>(sql: string): Promise<SQLiteResult<T>> {
-		return this.executeInternal<T>(sql);
+	public query<T>(sql: string): Promise<SQLiteQueryResult<T>> {
+		return this.executeInternal<SQLiteQueryResult<T>>(sql);
 	}
 
 	/**
 	 * Executes a SQL statement that does not return rows (e.g. INSERT, UPDATE, DELETE).
 	 */
-	public exec(sql: string): Promise<SQLiteResult<unknown>> {
-		return this.executeInternal<unknown>(sql);
+	public exec(sql: string): Promise<SqliteExecResult> {
+		return this.executeInternal<SqliteExecResult>(sql);
 	}
 
 	/**
 	 * Deprecated: Use query() or exec() instead.
 	 */
-	public execute<T>(sql: string): Promise<SQLiteResult<T>> {
-		return this.executeInternal<T>(sql);
+	public execute<T>(sql: string): Promise<SQLiteQueryResult<T>> {
+		return this.executeInternal<SQLiteQueryResult<T>>(sql);
 	}
 }
