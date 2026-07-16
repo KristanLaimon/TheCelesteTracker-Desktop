@@ -18,7 +18,7 @@ char nl_port[32];
 char nl_token[256];
 char nl_ext_id[256];
 char nl_connect_token[256];
-bool keep_running = true;
+volatile bool keep_running = true;
 
 #include <stdarg.h>
 
@@ -191,6 +191,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
+
 int main() {
     // Make standard streams unbuffered (Thanks windows...)
     setvbuf(stdin, NULL, _IONBF, 0);
@@ -234,6 +235,7 @@ int main() {
     cJSON_Delete(config);
 
     write_log("[DEBUG] Configuration parsed: port=%s, ext_id=%s\n", nl_port, nl_ext_id);
+
 
     struct mg_mgr mgr;
     mg_mgr_init(&mgr);

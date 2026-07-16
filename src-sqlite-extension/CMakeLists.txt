@@ -20,14 +20,14 @@ target_include_directories(ext_bin PRIVATE
 
 if(WIN32)
     target_link_libraries(ext_bin ws2_32)
-    message(STATUS "Configurado para compilación en Windows")
+    message(STATUS "Windows config applied")
 
 elseif(APPLE)
     target_link_libraries(ext_bin pthread)
-    message(STATUS "Configurado para compilación en macOS")
+    message(STATUS "MacOS config applied")
 
 elseif(UNIX AND NOT APPLE)
     # Linux necesita hilos y carga dinámica para SQLite
     target_link_libraries(ext_bin pthread dl m)
-    message(STATUS "Configurado para compilación en Linux")
+    message(STATUS "Linux (not MacOS) config applied")
 endif()

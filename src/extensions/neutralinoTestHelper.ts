@@ -48,18 +48,10 @@ export function runNeutralinoExtensionTest<T = unknown>(options: NeutralinoTestO
 			let wsClient: WebSocket | null = null;
 
 			try {
-				neuProcess = spawn(
-					neuPath,
-					[
-						'--load-dir-res',
-						'--path=.',
-						'--export-auth-info',
-						'--neu-dev-extension',
-						'--window-hidden',
-						'--port=0',
-					],
-					{ cwd: root, stdio: ['ignore', 'ignore', 'ignore'] }
-				);
+				neuProcess = spawn(neuPath, ['--load-dir-res', '--path=.', '--export-auth-info', '--neu-dev-extension', '--window-hidden', '--port=0'], {
+					cwd: root,
+					stdio: ['ignore', 'ignore', 'ignore'],
+				});
 
 				// Wait up to 6 seconds for auth_info.json to be exported
 				let attempts = 0;

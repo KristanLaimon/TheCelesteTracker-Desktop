@@ -28,8 +28,8 @@ type Config struct {
 }
 
 type ExtensionRequest struct {
-	Event string                 `json:"event"`
-	Data  map[string]interface{} `json:"data"`
+	Event string      `json:"event"`
+	Data  interface{} `json:"data"`
 }
 
 type BroadcastPayload struct {
@@ -112,12 +112,16 @@ func main() {
 }
 
 func handleRequest(conn *websocket.Conn, req ExtensionRequest) {
-	reqId, _ := req.Data["reqId"].(string)
+	dataMap, _ := req.Data.(map[string]interface{})
+	if dataMap == nil {
+		dataMap = make(map[string]interface{})
+	}
+	reqId, _ := dataMap["reqId"].(string)
 
 	switch req.Event {
 	case "zip.readTextFile":
-		zipPath, _ := req.Data["zipPath"].(string)
-		filePath, _ := req.Data["filePath"].(string)
+		zipPath, _ := dataMap["zipPath"].(string)
+		filePath, _ := dataMap["filePath"].(string)
 
 		content, err := zipReadTextFile(zipPath, filePath)
 		if err != nil {
@@ -140,7 +144,7 @@ func handleRequest(conn *websocket.Conn, req ExtensionRequest) {
 		})
 
 	case "zip.list":
-		zipPath, _ := req.Data["zipPath"].(string)
+		zipPath, _ := dataMap["zipPath"].(string)
 		files, err := zipList(zipPath)
 		if err != nil {
 			sendBroadcast(conn, "zip.listResult", map[string]interface{}{
@@ -162,8 +166,8 @@ func handleRequest(conn *websocket.Conn, req ExtensionRequest) {
 		})
 
 	case "zip.unzip":
-		zipPath, _ := req.Data["zipPath"].(string)
-		destPath, _ := req.Data["destPath"].(string)
+		zipPath, _ := dataMap["zipPath"].(string)
+		destPath, _ := dataMap["destPath"].(string)
 		err := unzip(zipPath, destPath)
 		if err != nil {
 			sendBroadcast(conn, "zip.unzipResult", map[string]interface{}{
@@ -184,8 +188,8 @@ func handleRequest(conn *websocket.Conn, req ExtensionRequest) {
 		})
 
 	case "zip.zip":
-		srcPath, _ := req.Data["srcPath"].(string)
-		zipPath, _ := req.Data["zipPath"].(string)
+		srcPath, _ := dataMap["srcPath"].(string)
+		zipPath, _ := dataMap["zipPath"].(string)
 		err := zipFolder(srcPath, zipPath)
 		if err != nil {
 			sendBroadcast(conn, "zip.zipResult", map[string]interface{}{

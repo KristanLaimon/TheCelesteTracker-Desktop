@@ -7,10 +7,9 @@
 		"dev": "neu run -- --window-enable-inspector",
 		"build:frontend": "vite build",
 		"build:extension": "node build.js",
-		"build:windows": "node build.js --skip-linux && neu build --embed-resources && bun run cleanup:mac",
+		"build:windows": "node build.js --skip-linux",
 		"build:noextensions": "neu build --embed-resources",
-		"build": "node build.js && neu build --embed-resources && bun run cleanup:mac",
-		"cleanup:mac": "bun -e \"const fs = require('fs'); if (fs.existsSync('dist/myapp')) { fs.readdirSync('dist/myapp').filter(f => f.includes('-mac_')).forEach(f => { fs.unlinkSync('dist/myapp/' + f); console.log('🗑️ Deleted macOS binary:', f) }) }\"",
+		"build": "node build.js",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
 		"test": "bun test",
 		"lint": "biome check . --write --unsafe"

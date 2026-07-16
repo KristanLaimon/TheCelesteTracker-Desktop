@@ -1,8 +1,19 @@
+
 /** biome-ignore-all lint/complexity/noBannedTypes: Function is ok, we're just using it here */
 /** biome-ignore-all lint/suspicious/noExplicitAny: These are tests-only files, no need to be that strict */
 /** biome-ignore-all assist/source/organizeImports: To mock before important imports  */
-// TODO: Add bun:test linting to this file
+import 'reflect-metadata';
+
 import { describe, expect, mock, test } from 'bun:test';
+
+// Define window mock on globalThis before any modules are evaluated
+(globalThis as any).window = {
+	location: { href: 'http://localhost:5173', hostname: 'localhost' },
+	addEventListener: () => {},
+	removeEventListener: () => {},
+	dispatchEvent: () => {},
+	CustomEvent: class {},
+};
 
 // 1. Mock @neutralinojs/lib BEFORE importing the target class
 const mockHandlers = new Map<string, Function>();
@@ -37,11 +48,20 @@ mock.module('@neutralinojs/lib', () => ({
 			return Promise.resolve({ success: true, message: 'Dispatched' });
 		},
 	},
+	filesystem: {
+		getStats: async (_path: string) => ({
+			size: 100,
+			isFile: true,
+			isDirectory: false,
+			createdAt: 0,
+			modifiedAt: 0,
+		}),
+	},
 }));
 
-// 2. Import the SQLiteExtension class
-import { get } from '../src/libs/DI';
-import { SQLiteExtension } from './CSqliteExtension';
+// 2. Import the SQLiteExtension class using require to preserve mock execution order
+const { get } = await import('../src/libs/DI');
+const { SQLiteExtension } = await import('./CSqliteExtension');
 
 describe('SQLiteExtension TS Wrapper Unit Tests', () => {
 	test('should successfully run query and resolve the promise', async () => {
@@ -95,6 +115,15 @@ describe('SQLiteExtension TS Wrapper Unit Tests', () => {
 					}, 20);
 					return Promise.resolve({ success: true, message: 'Dispatched' });
 				},
+			},
+			filesystem: {
+				getStats: async (_path: string) => ({
+					size: 100,
+					isFile: true,
+					isDirectory: false,
+					createdAt: 0,
+					modifiedAt: 0,
+				}),
 			},
 		}));
 
