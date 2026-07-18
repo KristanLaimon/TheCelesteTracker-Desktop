@@ -10,4 +10,3 @@ container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.d
 const get = container.resolve.bind(container);
 
 export { get };
-

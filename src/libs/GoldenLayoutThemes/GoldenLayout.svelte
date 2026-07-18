@@ -196,6 +196,22 @@ onMount(() => {
 				return;
 			}
 
+			function parseDimension(val: any, containerSize: number): number | undefined {
+				if (val === undefined || val === null) return undefined;
+				if (typeof val === 'number') return val;
+				if (typeof val === 'string') {
+					if (val.endsWith('%')) {
+						return parseFloat(val);
+					}
+					if (val.endsWith('px')) {
+						return (parseFloat(val) / containerSize) * 100;
+					}
+					const num = parseFloat(val);
+					if (!Number.isNaN(num)) return num;
+				}
+				return undefined;
+			}
+
 			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 			function preprocessLayoutContent(item: any): any {
 				if (!item) return item;
@@ -205,22 +221,35 @@ onMount(() => {
 				}
 
 				if (typeof item === 'object') {
-					if (item.type && item.type !== 'row' && item.type !== 'column' && item.type !== 'stack') {
+					const containerWidth = layoutContainerEl?.clientWidth || 800;
+					const containerHeight = layoutContainerEl?.clientHeight || 600;
+
+					const processed = { ...item };
+					if ('width' in processed) {
+						processed.width = parseDimension(processed.width, containerWidth);
+					}
+					if ('height' in processed) {
+						processed.height = parseDimension(processed.height, containerHeight);
+					}
+
+					if (processed.type && processed.type !== 'row' && processed.type !== 'column' && processed.type !== 'stack') {
 						return {
 							type: 'component',
-							componentType: item.type,
-							componentState: item.props || {},
-							title: item.title || item.type,
-							...Object.fromEntries(Object.entries(item).filter(([k]) => k !== 'type' && k !== 'props' && k !== 'title')),
+							componentType: processed.type,
+							componentState: processed.props || {},
+							title: processed.title || processed.type,
+							...Object.fromEntries(Object.entries(processed).filter(([k]) => k !== 'type' && k !== 'props' && k !== 'title')),
 						};
 					}
 
-					if (item.content) {
+					if (processed.content) {
 						return {
-							...item,
-							content: preprocessLayoutContent(item.content),
+							...processed,
+							content: preprocessLayoutContent(processed.content),
 						};
 					}
+
+					return processed;
 				}
 
 				return item;

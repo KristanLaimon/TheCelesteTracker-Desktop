@@ -47,6 +47,7 @@
 		"extensionsPath": "/extensions/",
 		"binaryVersion": "6.8.0",
 		"clientVersion": "6.8.0",
+		"autoReloadExclude": "(\\.git|node_modules|\\.tmp|dist|.*\\.log)",
 		"frontendLibrary": {
 			"patchFile": "/index.html",
 			"devUrl": "http://localhost:5173",
