@@ -27,7 +27,8 @@
 		"os.showMessageBox",
 		"os.getPath",
     "extensions.getStats",
-    "server.mount"
+    "server.mount",
+    "server.getMounts"
 	],
 	"modes": {
 		"window": {

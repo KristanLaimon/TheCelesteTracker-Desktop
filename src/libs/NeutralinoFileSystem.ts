@@ -12,8 +12,8 @@ import type {
 } from '@neutralinojs/lib';
 import { filesystem, server } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
+import Path from './BrowserPath';
 import { Log_Info } from './Logger';
-import Path from './Path';
 
 /**
  * FileSystem is a robust, type-safe wrapper around the Neutralino.filesystem API.
@@ -22,11 +22,13 @@ import Path from './Path';
 @injectable()
 export class NeutralinoFileSystem {
 	/** If *null*, local folders hasn't been mounted by neutralino. Mount using {@link NeutralinoFileSystem.MountLocalFolders()} function  */
-	public static ResourcesFolderPath: string | null = null;
+	public static ResourcesFolderNameOnly: string = 'data';
+	public static ResourcesFolderPath_Backend: string | null = null;
+	public static ResourcesFolderPath_Frontend = `/${NeutralinoFileSystem.ResourcesFolderNameOnly}`;
 	public static async MountLocalFolders(): Promise<void> {
-		if (NeutralinoFileSystem.ResourcesFolderPath === null) {
+		if (NeutralinoFileSystem.ResourcesFolderPath_Backend === null) {
 			const currentExePath: string = await filesystem.getAbsolutePath('.');
-			const resourcesFolderPath = Path.join(currentExePath, 'data');
+			const resourcesFolderPath = Path.join(currentExePath, NeutralinoFileSystem.ResourcesFolderNameOnly);
 			const resourcesFolderExists = await (async () => {
 				try {
 					await filesystem.getStats(resourcesFolderPath);
@@ -43,9 +45,19 @@ export class NeutralinoFileSystem {
 				await filesystem.createDirectory(resourcesFolderPath);
 				Log_Info('NeutralinoFileSystem:', "Resources folder not found, creating empty directory at exe's path.");
 			}
-			await server.mount('/resources', resourcesFolderPath);
-			NeutralinoFileSystem.ResourcesFolderPath = resourcesFolderPath;
-			Log_Info('NeutralinoFileSystem:', 'Mounted and loaded local folder:', NeutralinoFileSystem.ResourcesFolderPath);
+			NeutralinoFileSystem.ResourcesFolderPath_Backend = resourcesFolderPath;
+			const res = await server.getMounts();
+			if (Object.keys(res).length > 0) {
+				if (res[NeutralinoFileSystem.ResourcesFolderPath_Frontend]) {
+					Log_Info('NeutralinoFileSystem:', '| Already Mounted Paths.. Skiping the following remounts |', res);
+				} else {
+					await server.mount(NeutralinoFileSystem.ResourcesFolderPath_Frontend, NeutralinoFileSystem.ResourcesFolderPath_Backend);
+					Log_Info('NeutralinoFileSystem:', 'Mounted and loaded local folder:', NeutralinoFileSystem.ResourcesFolderPath_Backend);
+				}
+			} else {
+				await server.mount(NeutralinoFileSystem.ResourcesFolderPath_Frontend, NeutralinoFileSystem.ResourcesFolderPath_Backend);
+				Log_Info('NeutralinoFileSystem:', 'Mounted and loaded local folder:', NeutralinoFileSystem.ResourcesFolderPath_Backend);
+			}
 		}
 	}
 
