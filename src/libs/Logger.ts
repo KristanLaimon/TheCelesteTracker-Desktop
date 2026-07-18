@@ -1,6 +1,6 @@
 const APP_NAME: string = 'TheCelesteTracker';
 
-const silentLogsNamespaces: string[] = ['SqliteExtension', 'GoldenLayout'].map((a) => a.toLocaleLowerCase());
+const silentLogsNamespaces: string[] = ['Canvas'].map((a) => a.toLocaleLowerCase());
 
 export function Log_Throw(throwErrorMsg: string): void {
 	console.error(`[${APP_NAME}- FATALERROR]: ${throwErrorMsg}`);

@@ -124,7 +124,7 @@ function isInteractive(target: HTMLElement | null): boolean {
 	if (!target) return false;
 	let current: HTMLElement | null = target;
 	while (current && current !== wrapperEl) {
-		if (current.classList.contains('no-interactive')) {
+		if (current.hasAttribute('data-canvas-is-draggable')) {
 			return false;
 		}
 		const tagName = current.tagName;

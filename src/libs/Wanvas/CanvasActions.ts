@@ -30,6 +30,7 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 	let initialNodeX = 0;
 	let initialNodeY = 0;
 	let isDraggingNode = false;
+	let hasCaptured = false;
 
 	function handlePointerDown(e: PointerEvent) {
 		// Drag on left click or touch/pointer
@@ -45,25 +46,36 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 
 		if (options.node.isPinned) return;
 
-		e.stopPropagation();
-		isDraggingNode = true;
 		startX = e.clientX;
 		startY = e.clientY;
 		initialNodeX = options.node.x;
 		initialNodeY = options.node.y;
+		isDraggingNode = false;
+		hasCaptured = false;
 
-		nodeEl.setPointerCapture(e.pointerId);
 		nodeEl.addEventListener('pointermove', handlePointerMove);
 		nodeEl.addEventListener('pointerup', handlePointerUp);
 		nodeEl.addEventListener('pointercancel', handlePointerUp);
 	}
 
 	function handlePointerMove(e: PointerEvent) {
-		if (!isDraggingNode) return;
-		e.stopPropagation();
-
 		const dx = e.clientX - startX;
 		const dy = e.clientY - startY;
+
+		if (!isDraggingNode) {
+			// ponytail: 3px threshold allows click events through
+			if (Math.hypot(dx, dy) > 3) {
+				isDraggingNode = true;
+				try {
+					nodeEl.setPointerCapture(e.pointerId);
+					hasCaptured = true;
+				} catch (_err) {}
+			} else {
+				return;
+			}
+		}
+
+		e.stopPropagation();
 
 		// Offset change divided by zoom level makes movement match pointer exactly
 		options.node.x = initialNodeX + dx / options.getZoom();
@@ -71,18 +83,19 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 	}
 
 	function handlePointerUp(e: PointerEvent) {
-		if (!isDraggingNode) return;
-		isDraggingNode = false;
-
-		try {
-			nodeEl.releasePointerCapture(e.pointerId);
-		} catch (_err) {}
-
 		nodeEl.removeEventListener('pointermove', handlePointerMove);
 		nodeEl.removeEventListener('pointerup', handlePointerUp);
 		nodeEl.removeEventListener('pointercancel', handlePointerUp);
 
-		options.triggerChange();
+		if (isDraggingNode) {
+			isDraggingNode = false;
+			if (hasCaptured) {
+				try {
+					nodeEl.releasePointerCapture(e.pointerId);
+				} catch (_err) {}
+			}
+			options.triggerChange();
+		}
 	}
 
 	nodeEl.addEventListener('pointerdown', handlePointerDown);
