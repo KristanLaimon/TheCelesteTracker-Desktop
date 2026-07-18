@@ -22,7 +22,7 @@ function showWindowIfReady() {
 neutralino.events.on('ready', () => {
 	Log_Info('Neutralino: Ready');
 	isNeutralinoReady = true;
-  NeutralinoFileSystem.MountLocalFolders();
+	NeutralinoFileSystem.MountLocalFolders();
 	showWindowIfReady();
 });
 

@@ -20,7 +20,6 @@ if (utilsRes.status !== 0) {
 
 console.log('\n🎉 All extensions built successfully!');
 
-
 // Run Neutralino Build
 console.log('\n--- 3. Running Neutralino Build ---');
 const neuRes = spawnSync('neu', ['build', '--embed-resources'], { stdio: 'inherit', shell: true });

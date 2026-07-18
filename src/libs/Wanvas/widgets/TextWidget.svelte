@@ -1,5 +1,6 @@
 <script lang="ts">
-import type { ICanvasWidgetProps } from '../../../libs/Wanvas/Canvas.types';
+import type { ICanvasWidgetProps } from '../Canvas.types';
+import BaseGlassWidget from './BaseGlassWidget.svelte';
 
 type TextProps = {
 	text: string;
@@ -10,28 +11,21 @@ let { text, onChange }: Props = $props();
 let isInteractive = $state<boolean>(false);
 </script>
 
-<article id="text-widget-wrapper">
+<!-- ponytail: reuse BaseGlassWidget to keep UI consistent and glassmorphic -->
+<BaseGlassWidget id="text-widget-wrapper" baseColor="rgba(30, 30, 32, 0.7)">
   <textarea
     value={text}
     oninput={(e) => onChange?.({ text: e.currentTarget.value })}
     placeholder="Type here..."
     class:no-interactive={!isInteractive}
   ></textarea>
-</article>
+</BaseGlassWidget>
 
 <style>
-  #text-widget-wrapper {
-    display: flex;
-    padding: 0.8rem;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    background: rgba(30, 30, 32, 0.7);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    color: #e0e0e0;
+  :global(#text-widget-wrapper) {
+    display: flex !important;
+    padding: 0.8rem !important;
+    color: #e0e0e0 !important;
   }
   textarea {
     width: 100%;

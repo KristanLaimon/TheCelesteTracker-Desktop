@@ -18,17 +18,17 @@
 		"filesystem.readDirectory",
 		"filesystem.getStats",
 		"filesystem.readFile",
-    "filesystem.getAbsolutePath",
-    "filesystem.createDirectory",
+		"filesystem.getAbsolutePath",
+		"filesystem.createDirectory",
 		"window.show",
 		"os.setTray",
 		"os.open",
 		"os.showNotification",
 		"os.showMessageBox",
 		"os.getPath",
-    "extensions.getStats",
-    "server.mount",
-    "server.getMounts"
+		"extensions.getStats",
+		"server.mount",
+		"server.getMounts"
 	],
 	"modes": {
 		"window": {

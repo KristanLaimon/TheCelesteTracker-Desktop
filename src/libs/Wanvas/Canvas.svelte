@@ -7,12 +7,12 @@
  */
 
 import { onDestroy, onMount } from 'svelte';
-import { Log_Warn } from '../Logger';
 import type { CanvasNodeData, CanvasPersistence, CanvasProps, CanvasRegistry } from './Canvas.types';
+import { dragNode, observeSize, resizeNode } from './CanvasActions';
+import { calculateZoomOffset, clampX, clampY, clampZoom, getTouchCenter, getTouchDistance } from './CanvasMath';
+import { loadPersistentState, savePersistentState } from './CanvasPersistence';
 
 export type { CanvasNodeData, CanvasPersistence, CanvasProps, CanvasRegistry };
-
-// CanvasNodeData is now imported from Canvas.types.ts to support mapped union types.
 
 let {
 	x = $bindable(0),
@@ -45,6 +45,18 @@ let {
 	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence<Registry> | null),
 }: CanvasProps<Registry> = $props();
 
+// ponytail: consolidated reactive canvas limits configuration
+const limits = $derived({
+	minZoom,
+	maxZoom,
+	zoomSpeed,
+	infinite,
+	limitXMin,
+	limitXMax,
+	limitYMin,
+	limitYMax,
+});
+
 // Internal references
 let wrapperEl = $state<HTMLDivElement | null>(null);
 let isPanning = $state(false);
@@ -66,79 +78,15 @@ let lastTouchPos = { x: 0, y: 0 };
 onMount(() => {
 	let hasSavedView = false;
 	if (isPersistenceEnabled && persistence?.key) {
-		const nodesStorage = localStorage.getItem(`${persistence.key}_nodes`);
-		const viewStorage = localStorage.getItem(`${persistence.key}_view`);
-		let loadedNodes: CanvasNodeData<Registry>[] | null = null;
-
-		if (nodesStorage) {
-			try {
-				loadedNodes = JSON.parse(nodesStorage);
-			} catch (err) {
-				Log_Warn(`Canvas -> Failed to parse persistent nodes: ${err}`);
-			}
+		const state = loadPersistentState<Registry>(persistence.key);
+		if (state.nodes !== null) {
+			nodes = state.nodes;
 		}
-
-		if (viewStorage) {
-			try {
-				const parsedView = JSON.parse(viewStorage);
-				if (parsedView) {
-					const vx = Number(parsedView.x);
-					const vy = Number(parsedView.y);
-					const vz = Number(parsedView.zoom);
-					if (!Number.isNaN(vx) && Number.isFinite(vx)) x = vx;
-					if (!Number.isNaN(vy) && Number.isFinite(vy)) y = vy;
-					if (!Number.isNaN(vz) && Number.isFinite(vz) && vz > 0) {
-						zoom = vz;
-						hasSavedView = true;
-					}
-				}
-			} catch (err) {
-				Log_Warn(`Canvas -> Failed to parse persistent view: ${err}`);
-			}
-		}
-
-		// Fallback for backward compatibility (single key payload)
-		if (!nodesStorage && !viewStorage) {
-			const storage = localStorage.getItem(persistence.key);
-			if (storage) {
-				try {
-					const parsed = JSON.parse(storage);
-					if (Array.isArray(parsed)) {
-						loadedNodes = parsed as CanvasNodeData<Registry>[];
-					} else if (parsed && typeof parsed === 'object') {
-						loadedNodes = (parsed.nodes || []) as CanvasNodeData<Registry>[];
-						if (parsed.view) {
-							const vx = Number(parsed.view.x);
-							const vy = Number(parsed.view.y);
-							const vz = Number(parsed.view.zoom);
-							if (!Number.isNaN(vx) && Number.isFinite(vx)) x = vx;
-							if (!Number.isNaN(vy) && Number.isFinite(vy)) y = vy;
-							if (!Number.isNaN(vz) && Number.isFinite(vz) && vz > 0) {
-								zoom = vz;
-								hasSavedView = true;
-							}
-						}
-					}
-				} catch (err) {
-					Log_Warn(`Canvas -> Failed to parse fallback persistent storage: ${err}`);
-				}
-			}
-		}
-
-		// Sanitize loaded nodes
-		if (loadedNodes !== null) {
-			nodes = loadedNodes.map((node) => {
-				if (!node.id) node.id = crypto.randomUUID();
-				if (typeof node.x !== 'number' || !Number.isFinite(node.x)) node.x = 0;
-				if (typeof node.y !== 'number' || !Number.isFinite(node.y)) node.y = 0;
-				if (node.width !== undefined && (typeof node.width !== 'number' || !Number.isFinite(node.width))) {
-					node.width = undefined;
-				}
-				if (node.height !== undefined && (typeof node.height !== 'number' || !Number.isFinite(node.height))) {
-					node.height = undefined;
-				}
-				return node;
-			});
+		if (state.view) {
+			x = state.view.x;
+			y = state.view.y;
+			zoom = state.view.zoom;
+			hasSavedView = true;
 		}
 	}
 
@@ -208,23 +156,15 @@ function handleWheel(e: WheelEvent) {
 
 	const oldZoom = zoom;
 	const factor = Math.exp(-e.deltaY * zoomSpeed);
-	let newZoom = zoom * factor;
-	newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+	const newZoom = clampZoom(zoom * factor, limits);
 
 	if (newZoom === oldZoom) return;
 
 	// Zoom relative to the cursor position
-	let newX = mx - (mx - x) * (newZoom / oldZoom);
-	let newY = my - (my - y) * (newZoom / oldZoom);
-
-	if (!infinite) {
-		newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-		newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-	}
-
+	const newPos = calculateZoomOffset({ x: mx, y: my }, { x, y }, newZoom / oldZoom, limits);
 	zoom = newZoom;
-	x = newX;
-	y = newY;
+	x = newPos.x;
+	y = newPos.y;
 }
 
 // Effect to attach wheel handler with passive: false to allow e.preventDefault()
@@ -267,16 +207,8 @@ function handleMouseMove(e: MouseEvent) {
 	const dx = e.clientX - startMousePos.x;
 	const dy = e.clientY - startMousePos.y;
 
-	let newX = startPanPos.x + dx;
-	let newY = startPanPos.y + dy;
-
-	if (!infinite) {
-		newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-		newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-	}
-
-	x = newX;
-	y = newY;
+	x = clampX(startPanPos.x + dx, limits);
+	y = clampY(startPanPos.y + dy, limits);
 }
 
 function handleMouseUp(e: MouseEvent) {
@@ -295,18 +227,6 @@ function handleContextMenu(e: MouseEvent) {
 // Double click reset
 function handleDoubleClick(_e: MouseEvent) {
 	// double-click reset intentionally disabled
-}
-
-// Touch handlers
-function getTouchDistance(t1: Touch, t2: Touch) {
-	return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
-}
-
-function getTouchCenter(t1: Touch, t2: Touch, rect: DOMRect) {
-	return {
-		x: (t1.clientX + t2.clientX) / 2 - rect.left,
-		y: (t1.clientY + t2.clientY) / 2 - rect.top,
-	};
 }
 
 // Touch triggers
@@ -340,16 +260,8 @@ function handleTouchMove(e: TouchEvent) {
 		const dx = t.clientX - lastTouchPos.x;
 		const dy = t.clientY - lastTouchPos.y;
 
-		let newX = x + dx;
-		let newY = y + dy;
-
-		if (!infinite) {
-			newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-			newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-		}
-
-		x = newX;
-		y = newY;
+		x = clampX(x + dx, limits);
+		y = clampY(y + dy, limits);
 		lastTouchPos = { x: t.clientX, y: t.clientY };
 	} else if (e.touches.length === 2) {
 		e.preventDefault();
@@ -362,31 +274,15 @@ function handleTouchMove(e: TouchEvent) {
 
 		if (touchStartDist > 0) {
 			const scale = currentDist / touchStartDist;
-			let newZoom = touchStartZoom * scale;
-			newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+			const newZoom = clampZoom(touchStartZoom * scale, limits);
 
-			const s = zoom;
-			const sPrime = newZoom;
-			const cx = touchStartCenter.x;
-			const cy = touchStartCenter.y;
-
-			let nextX = cx - (cx - x) * (sPrime / s);
-			let nextY = cy - (cy - y) * (sPrime / s);
-
-			// Center shift
-			const centerDx = currentCenter.x - touchStartCenter.x;
-			const centerDy = currentCenter.y - touchStartCenter.y;
-			nextX += centerDx;
-			nextY += centerDy;
-
-			if (!infinite) {
-				nextX = Math.max(limitXMin, Math.min(limitXMax, nextX));
-				nextY = Math.max(limitYMin, Math.min(limitYMax, nextY));
-			}
+			const ratio = newZoom / zoom;
+			const nextX = touchStartCenter.x - (touchStartCenter.x - x) * ratio + (currentCenter.x - touchStartCenter.x);
+			const nextY = touchStartCenter.y - (touchStartCenter.y - y) * ratio + (currentCenter.y - touchStartCenter.y);
 
 			zoom = newZoom;
-			x = nextX;
-			y = nextY;
+			x = clampX(nextX, limits);
+			y = clampY(nextY, limits);
 
 			touchStartDist = currentDist;
 			touchStartZoom = zoom;
@@ -417,24 +313,17 @@ function zoomAtCenter(multiplier: number) {
 	const cy = rect.height / 2;
 
 	const oldZoom = zoom;
-	let newZoom = zoom * multiplier;
-	newZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+	const newZoom = clampZoom(zoom * multiplier, limits);
 
 	if (newZoom === oldZoom) return;
 
-	let newX = cx - (cx - x) * (newZoom / oldZoom);
-	let newY = cy - (cy - y) * (newZoom / oldZoom);
-
-	if (!infinite) {
-		newX = Math.max(limitXMin, Math.min(limitXMax, newX));
-		newY = Math.max(limitYMin, Math.min(limitYMax, newY));
-	}
-
+	const newPos = calculateZoomOffset({ x: cx, y: cy }, { x, y }, newZoom / oldZoom, limits);
 	zoom = newZoom;
-	x = newX;
-	y = newY;
+	x = newPos.x;
+	y = newPos.y;
 }
 
+// ponytail: simplified zoom-in / zoom-out wrappers
 function zoomIn() {
 	zoomAtCenter(1.25);
 }
@@ -450,8 +339,6 @@ function resetView() {
 	x = rect.width / 2;
 	y = rect.height / 2;
 }
-
-// --- Svelte Actions for Node Dragging & Size Observation ---
 
 let changeTimeout: ReturnType<typeof setTimeout>;
 
@@ -486,13 +373,7 @@ function triggerChange() {
 		if (cancelled) return;
 
 		if (isPersistenceEnabled && persistence?.key) {
-			try {
-				localStorage.setItem(`${persistence.key}_nodes`, JSON.stringify(serialized));
-				localStorage.setItem(`${persistence.key}_view`, JSON.stringify({ x, y, zoom }));
-				localStorage.removeItem(persistence.key); // clean legacy key
-			} catch (err) {
-				Log_Warn(`Canvas -> Failed to save persistent storage: ${err}`);
-			}
+			savePersistentState(persistence.key, serialized, { x, y, zoom });
 		}
 
 		if (onNodeChange) {
@@ -508,260 +389,6 @@ function triggerChange() {
 onDestroy(() => {
 	if (changeTimeout) clearTimeout(changeTimeout);
 });
-
-/**
- * Action to handle dragging individual nodes on the canvas.
- */
-function dragNode(nodeEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegistry>) {
-	let node = initialNode;
-	let startX = 0;
-	let startY = 0;
-	let initialNodeX = 0;
-	let initialNodeY = 0;
-	let isDraggingNode = false;
-
-	function handlePointerDown(e: PointerEvent) {
-		// Drag on left click or touch/pointer
-		if (e.button !== 0 && e.pointerType === 'mouse') return;
-
-		const target = e.target as HTMLElement;
-		if (dragHandleClass) {
-			if (!target.closest(`.${dragHandleClass}`)) return;
-		} else {
-			if (isInteractive(target)) return;
-		}
-
-		if (node.isPinned) return;
-
-		e.stopPropagation();
-		isDraggingNode = true;
-		startX = e.clientX;
-		startY = e.clientY;
-		initialNodeX = node.x;
-		initialNodeY = node.y;
-
-		nodeEl.setPointerCapture(e.pointerId);
-		nodeEl.addEventListener('pointermove', handlePointerMove);
-		nodeEl.addEventListener('pointerup', handlePointerUp);
-		nodeEl.addEventListener('pointercancel', handlePointerUp);
-	}
-
-	function handlePointerMove(e: PointerEvent) {
-		if (!isDraggingNode) return;
-		e.stopPropagation();
-
-		const dx = e.clientX - startX;
-		const dy = e.clientY - startY;
-
-		// Offset change divided by zoom level makes movement match pointer exactly
-		node.x = initialNodeX + dx / zoom;
-		node.y = initialNodeY + dy / zoom;
-	}
-
-	function handlePointerUp(e: PointerEvent) {
-		if (!isDraggingNode) return;
-		isDraggingNode = false;
-
-		try {
-			nodeEl.releasePointerCapture(e.pointerId);
-		} catch (err) {}
-
-		nodeEl.removeEventListener('pointermove', handlePointerMove);
-		nodeEl.removeEventListener('pointerup', handlePointerUp);
-		nodeEl.removeEventListener('pointercancel', handlePointerUp);
-
-		triggerChange();
-	}
-
-	nodeEl.addEventListener('pointerdown', handlePointerDown);
-
-	const stopProp = (e: Event) => {
-		const target = e.target as HTMLElement;
-		if (dragHandleClass) {
-			// Always stop propagation for the resize handle, even when dragHandleClass is set
-			if (target.closest('.canvas-node-resize-handle')) {
-				e.stopPropagation();
-				return;
-			}
-			if (!target.closest(`.${dragHandleClass}`)) return;
-		} else {
-			if (isInteractive(target)) return;
-		}
-		e.stopPropagation();
-	};
-
-	nodeEl.addEventListener('mousedown', stopProp);
-	nodeEl.addEventListener('touchstart', stopProp);
-
-	return {
-		update(newNode: CanvasNodeData<CanvasRegistry>) {
-			// Refresh the node reference when the nodes array is replaced
-			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
-			node = newNode;
-		},
-		destroy() {
-			nodeEl.removeEventListener('pointerdown', handlePointerDown);
-			nodeEl.removeEventListener('mousedown', stopProp);
-			nodeEl.removeEventListener('touchstart', stopProp);
-		},
-	};
-}
-
-/**
- * Action to handle resizing individual nodes on the canvas.
- */
-function resizeNode(handleEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegistry>) {
-	let node = initialNode;
-	let startX = 0;
-	let startY = 0;
-	let startWidth = 0;
-	let startHeight = 0;
-	let minWidth = 0;
-	let minHeight = 0;
-	let maxWidth = Number.MAX_VALUE;
-	let maxHeight = Number.MAX_VALUE;
-	let isResizing = false;
-
-	function handlePointerDown(e: PointerEvent) {
-		if (e.button !== 0 && e.pointerType === 'mouse') return;
-		e.stopPropagation(); // prevent panning & dragging the node
-
-		isResizing = true;
-		startX = e.clientX;
-		startY = e.clientY;
-
-		const parent = handleEl.parentElement;
-		if (parent) {
-			startWidth = node.width ?? parent.offsetWidth;
-			startHeight = node.height ?? parent.offsetHeight;
-
-			const targetEl = parent.firstElementChild as HTMLElement;
-			if (targetEl) {
-				const computed = window.getComputedStyle(targetEl);
-				minWidth = parseFloat(computed.minWidth) || 0;
-				minHeight = parseFloat(computed.minHeight) || 0;
-
-				const parsedMaxW = parseFloat(computed.maxWidth);
-				maxWidth = Number.isNaN(parsedMaxW) ? Number.MAX_VALUE : parsedMaxW;
-
-				const parsedMaxH = parseFloat(computed.maxHeight);
-				maxHeight = Number.isNaN(parsedMaxH) ? Number.MAX_VALUE : parsedMaxH;
-			} else {
-				minWidth = 0;
-				minHeight = 0;
-				maxWidth = Number.MAX_VALUE;
-				maxHeight = Number.MAX_VALUE;
-			}
-		} else {
-			Log_Warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
-		}
-		handleEl.setPointerCapture(e.pointerId);
-		handleEl.addEventListener('pointermove', handlePointerMove);
-		handleEl.addEventListener('pointerup', handlePointerUp);
-		handleEl.addEventListener('pointercancel', handlePointerUp);
-	}
-
-	function handlePointerMove(e: PointerEvent) {
-		if (!isResizing) return;
-		e.stopPropagation();
-
-		const dx = e.clientX - startX;
-		const dy = e.clientY - startY;
-
-		// Scale resize changes by the zoom factor
-		let newWidth = startWidth + dx / zoom;
-		let newHeight = startHeight + dy / zoom;
-
-		// Clamp based on computed styles of the child widget (e.g. min-width / min-height)
-		newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-		newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
-
-		node.width = newWidth;
-		node.height = newHeight;
-	}
-
-	function handlePointerUp(e: PointerEvent) {
-		if (!isResizing) return;
-		isResizing = false;
-
-		try {
-			handleEl.releasePointerCapture(e.pointerId);
-		} catch (err) {}
-
-		handleEl.removeEventListener('pointermove', handlePointerMove);
-		handleEl.removeEventListener('pointerup', handlePointerUp);
-		handleEl.removeEventListener('pointercancel', handlePointerUp);
-
-		triggerChange();
-	}
-
-	handleEl.addEventListener('pointerdown', handlePointerDown);
-
-	// Explicitly block mousedown & touchstart propagation to prevent panning & dragging node
-	const block = (e: Event) => e.stopPropagation();
-	handleEl.addEventListener('mousedown', block);
-	handleEl.addEventListener('touchstart', block);
-
-	return {
-		update(newNode: CanvasNodeData<CanvasRegistry>) {
-			// Refresh the node reference when the nodes array is replaced
-			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
-			node = newNode;
-		},
-		destroy() {
-			handleEl.removeEventListener('pointerdown', handlePointerDown);
-			handleEl.removeEventListener('mousedown', block);
-			handleEl.removeEventListener('touchstart', block);
-		},
-	};
-}
-
-/**
- * Action using ResizeObserver to measure and bind node dimensions.
- * Skips the first observation callback if the node already has saved
- * dimensions (i.e. was deserialized), so we don't overwrite persisted
- * width/height before the wrapper's explicit style has been applied.
- */
-function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegistry>) {
-	let node = initialNode;
-	const targetEl = (nodeEl.firstElementChild as HTMLElement) || nodeEl;
-
-	// If the node already has saved dimensions, skip the very first
-	// ResizeObserver callback to avoid clobbering them with raw DOM
-	// measurements taken before the wrapper style has been applied.
-	let skipFirst = node.width !== undefined && node.height !== undefined;
-
-	const observer = new ResizeObserver((entries) => {
-		if (skipFirst) {
-			skipFirst = false;
-			return;
-		}
-		for (const entry of entries) {
-			const width = entry.borderBoxSize?.[0]?.inlineSize ?? targetEl.offsetWidth;
-			const height = entry.borderBoxSize?.[0]?.blockSize ?? targetEl.offsetHeight;
-
-			if (node.width !== width || node.height !== height) {
-				node.width = width;
-				node.height = height;
-				triggerChange();
-			}
-		}
-	});
-
-	observer.observe(targetEl);
-	return {
-		update(newNode: CanvasNodeData<CanvasRegistry>) {
-			// Refresh the node reference when the nodes array is replaced
-			// (e.g. deserialization in onMount with same IDs reuses DOM elements)
-			node = newNode;
-			// Reset skipFirst — the new node may or may not have saved dimensions
-			skipFirst = newNode.width !== undefined && newNode.height !== undefined;
-		},
-		destroy() {
-			observer.disconnect();
-		},
-	};
-}
 </script>
 
 <svelte:window onmousemove={handleMouseMove} onmouseup={handleMouseUp} />
@@ -799,8 +426,17 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegi
           style="left: {node.x}px; top: {node.y}px; width: {node.width
             ? node.width + 'px'
             : 'auto'}; height: {node.height ? node.height + 'px' : 'auto'};"
-          use:dragNode={node}
-          use:observeSize={node}
+          use:dragNode={{
+            node,
+            getZoom: () => zoom,
+            getDragHandleClass: () => dragHandleClass,
+            isInteractive,
+            triggerChange
+          }}
+          use:observeSize={{
+            node,
+            triggerChange
+          }}
         >
           <Component 
             {...node.props || {}} 
@@ -865,7 +501,11 @@ function observeSize(nodeEl: HTMLElement, initialNode: CanvasNodeData<CanvasRegi
           <!-- nwse-resize handle rendered if resizable is true -->
           {#if resizable}
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div class="canvas-node-resize-handle" use:resizeNode={node}></div>
+            <div class="canvas-node-resize-handle" use:resizeNode={{
+              node,
+              getZoom: () => zoom,
+              triggerChange
+            }}></div>
           {/if}
         </div>
       {/if}

@@ -71,6 +71,8 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 				height?: number;
 				/** Whether the node is pinned in place on the canvas. */
 				isPinned?: boolean;
+				/** Whether to keep the initial aspect ratio when resizing. */
+				keepAspectRatio?: boolean;
 			} & NodeProps<Registry[K] extends Component<infer P> ? P : Record<string, unknown>>;
 	  }[keyof Registry & string]
 	| {
@@ -90,6 +92,8 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 			height?: number;
 			/** Whether the node is pinned in place on the canvas. */
 			isPinned?: boolean;
+			/** Whether to keep the initial aspect ratio when resizing. */
+			keepAspectRatio?: boolean;
 			/** Custom props passed to the direct component. */
 			props?: Record<string, unknown>;
 	  };

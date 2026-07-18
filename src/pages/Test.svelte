@@ -45,6 +45,7 @@ function AddNewImgWidget(srcUrl: string = '') {
 		y: 200,
 		height: 200,
 		width: 300,
+		//keep-aspect-ratio: boolean
 		type: 'imgWidget',
 		props: {
 			srcUrl: srcUrl,

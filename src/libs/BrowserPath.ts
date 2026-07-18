@@ -1,4 +1,4 @@
- /**
+/**
  * @module Path.ts
  * @description 'path' module extracted from Node.js (POSIX implementation)
  *  Adapted for TypeScript and ECMA-sh browser environments.
