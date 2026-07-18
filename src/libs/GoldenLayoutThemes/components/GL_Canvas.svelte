@@ -38,7 +38,7 @@ function AddNewTextWidget(text: string = '') {
 	});
 }
 
-function AddNewImgWidget(srcUrl: string = '') {
+async function AddNewImgWidget(srcUrl: string = '') {
 	defaultNodes.push({
 		x: 150,
 		y: 200,

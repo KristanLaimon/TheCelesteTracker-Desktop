@@ -1,5 +1,5 @@
 <script lang="ts" generics="ComponentsMap extends GoldenLayoutRegistry">
-import { GoldenLayout, Stack } from 'golden-layout';
+import { GoldenLayout, LayoutConfig, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
 import type {
 	CSSProperties,
@@ -29,6 +29,8 @@ type Props = {
 	// 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
 	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 	defaultComponent: Component<any, any, any>;
+
+	persistence?: { localStorageKey: string };
 };
 
 let {
@@ -37,6 +39,7 @@ let {
 	overrideComponentStyles = {},
 	theme = {},
 	defaultComponent,
+	persistence = { localStorageKey: 'main-layout' },
 }: Props = $props();
 
 // INTERNAL VARIABLES
@@ -319,30 +322,47 @@ onMount(() => {
 			});
 
 			Log_Info('GoldenLayout Wrapper: Loading layout structure...');
-			LAYOUT.loadLayout({
-				settings: {
-					constrainDragToContainer: true,
-					reorderEnabled: true,
-					popoutWholeStack: false,
-					blockedPopoutsThrowError: true,
-					closePopoutsOnUnload: true,
-				},
-				dimensions: {
-					borderWidth: 4,
-					defaultMinItemHeight: '50px',
-					defaultMinItemWidth: '50px',
-					headerHeight: 28,
-					dragProxyWidth: 300,
-					dragProxyHeight: 200,
-				},
-				header: {
-					show: 'top',
-					popout: 'Open in new window',
-					maximise: 'Maximise',
-					close: 'Close',
-				},
-				root: processedContent,
-			});
+			const storedPreviousLayout = localStorage.getItem(persistence.localStorageKey);
+			let loadedFromCache = false;
+
+			if (storedPreviousLayout && storedPreviousLayout !== '') {
+				try {
+					const resolvedConfig = JSON.parse(storedPreviousLayout);
+					const previousLayout = LayoutConfig.fromResolved(resolvedConfig);
+					LAYOUT.loadLayout(previousLayout);
+					loadedFromCache = true;
+				} catch (err) {
+					console.error('GoldenLayout Wrapper: Error loading stored layout, falling back to default:', err);
+					localStorage.removeItem(persistence.localStorageKey);
+				}
+			}
+
+			if (!loadedFromCache) {
+				LAYOUT.loadLayout({
+					settings: {
+						constrainDragToContainer: true,
+						reorderEnabled: true,
+						popoutWholeStack: false,
+						blockedPopoutsThrowError: true,
+						closePopoutsOnUnload: true,
+					},
+					dimensions: {
+						borderWidth: 4,
+						defaultMinItemHeight: '50px',
+						defaultMinItemWidth: '50px',
+						headerHeight: 28,
+						dragProxyWidth: 300,
+						dragProxyHeight: 200,
+					},
+					header: {
+						show: 'top',
+						popout: 'Open in new window',
+						maximise: 'Maximise',
+						close: 'Close',
+					},
+					root: processedContent,
+				});
+			}
 
 			Log_Info('GoldenLayout Wrapper: Layout loaded successfully.');
 
@@ -397,6 +417,14 @@ onMount(() => {
 				}
 			});
 			resizeObserver.observe(layoutContainerEl);
+
+			LAYOUT.on('stateChanged', () => {
+				if (!LAYOUT) {
+					throw new Error('Strange error: stateChanged but layout undefined, not expected');
+				}
+				var layoutState = JSON.stringify(LAYOUT.saveLayout());
+				localStorage.setItem(persistence.localStorageKey, layoutState);
+			});
 
 			cleanupFn = () => {
 				if (resizeObserver) resizeObserver.disconnect();
