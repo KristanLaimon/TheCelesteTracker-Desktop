@@ -1,6 +1,6 @@
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 import { injectable } from 'tsyringe';
-import { SQLiteExtension } from '../../../src-utils-extension/SqliteExtension';
+import { Sqlite_Go } from '../../../src-utils/Sqlite';
 import { Log_Error } from '../../libs/Logger';
 import type { Campaign } from '../db.types';
 
@@ -8,7 +8,7 @@ import type { Campaign } from '../db.types';
 export default class _submodule_service_Campaigns {
 	private readonly tablename: string = 'Campaigns';
 
-	constructor(private con: SQLiteExtension) {}
+	constructor(private con: Sqlite_Go) {}
 
 	public async GetAll(): Promise<Campaign[]> {
 		const res = await this.con.Query<Campaign>(`SELECT * FROM ${this.tablename}`);

@@ -1,7 +1,7 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 import * as yaml from 'js-yaml';
 import { injectable } from 'tsyringe';
-import { UtilitiesExtension } from '../../src-utils-extension/UtilitiesExtension';
+import { Zip_Go } from '../../src-utils/Zip';
 import Celeste from './Celeste';
 
 export interface ModDependency {
@@ -86,7 +86,7 @@ function parseEverestYaml(content: string, fileName: string): ModMetadata[] {
 export default class Everest {
 	constructor(
 		private celesteDep: Celeste,
-		private utilsExt: UtilitiesExtension,
+		private utilsExt: Zip_Go,
 	) {}
 
 	public GetModsFolderPath(): string {

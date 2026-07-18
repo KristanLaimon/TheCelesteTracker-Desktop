@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 
-	"github.com/gorilla/websocket"
 	_ "modernc.org/sqlite"
 )
 
@@ -13,23 +12,6 @@ type SqliteQueryResult struct {
 	Changes         int64                    `json:"changes,omitempty"`
 	LastInsertRowId int64                    `json:"lastInsertRowId,omitempty"`
 	Error           string                   `json:"error,omitempty"`
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Event handler
-// ─────────────────────────────────────────────────────────────────────────────
-
-func handleExecuteSql(conn *websocket.Conn, reqId string, dataMap map[string]interface{}) {
-	dbPath, _ := dataMap["db"].(string)
-	sqlQuery, _ := dataMap["sql"].(string)
-
-	writeLog("[INFO] Executing SQL query: %s (db: %s)\n", sqlQuery, dbPath)
-	result := executeSqliteQuery(dbPath, sqlQuery)
-
-	sendBroadcast(conn, "sqlResult", map[string]interface{}{
-		"reqId":  reqId,
-		"result": result,
-	})
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

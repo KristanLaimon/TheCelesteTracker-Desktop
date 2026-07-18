@@ -32,11 +32,8 @@ neutralino.js
 *.sw?
 
 # Extensions build and temporal files related
-src-sqlite-extension/build/
-src-utils-extension/build/
-src-utils-extension/temp/
-extensions/sqlite/*
-extensions/utilities/*
+src-utils/temp
+src-utils/build
 
 # Specific apps folder to store all data and info
 data/

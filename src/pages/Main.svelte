@@ -27,6 +27,7 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
 							props: { htmlContent: 'Hola, raw HTML 2' },
 						},
 					],
+          width: "60%"
 				},
 				{
 					type: 'column',

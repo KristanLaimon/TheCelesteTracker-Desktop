@@ -8,20 +8,20 @@ const __dirname = dirname(__filename);
 
 const args = process.argv.slice(2);
 
-console.log('🏁 Running global extensions build...');
+console.log('🏁 Running global CLI helpers build...');
 
 // Build Utilities (Go — handles both zip and SQLite)
-console.log('\n--- 1. Building Utilities Go Extension ---');
-const utilsRes = spawnSync('bun', [join(__dirname, 'src-utils-extension', 'build.ts'), ...args], { stdio: 'inherit' });
+console.log('\n--- 1. Building Utilities Go CLI Helper ---');
+const utilsRes = spawnSync('bun', [join(__dirname, 'src-utils', 'build.ts'), ...args], { stdio: 'inherit' });
 if (utilsRes.status !== 0) {
-	console.error('❌ Utilities Extension build failed');
+	console.error('❌ Utilities Go CLI Helper build failed');
 	process.exit(utilsRes.status || 1);
 }
 
-console.log('\n🎉 All extensions built successfully!');
+console.log('\n🎉 Go CLI Helper built successfully!');
 
 // Run Neutralino Build
-console.log('\n--- 3. Running Neutralino Build ---');
+console.log('\n--- 2. Running Neutralino Build ---');
 const neuRes = spawnSync('neu', ['build', '--embed-resources'], { stdio: 'inherit', shell: true });
 if (neuRes.status !== 0) {
 	console.error('❌ Neutralino Build failed');
@@ -33,10 +33,11 @@ const distPath = join(__dirname, 'dist');
 const myappPath = join(distPath, 'myapp');
 
 if (fs.existsSync(myappPath)) {
-	console.log('\n--- 4. Organizing Build Binaries ---');
+	console.log('\n--- 3. Organizing Build Binaries ---');
 
 	const windowsDist = join(distPath, 'windows');
 	const linuxDist = join(distPath, 'linux');
+	const macDist = join(distPath, 'mac');
 
 	// Helper to recursively delete a directory
 	function removeDir(dirPath) {
@@ -55,8 +56,10 @@ if (fs.existsSync(myappPath)) {
 	// Clean previous distributions
 	removeDir(windowsDist);
 	removeDir(linuxDist);
+	removeDir(macDist);
 	ensureDir(windowsDist);
 	ensureDir(linuxDist);
+	ensureDir(macDist);
 
 	const items = fs.readdirSync(myappPath);
 	for (const item of items) {
@@ -64,10 +67,9 @@ if (fs.existsSync(myappPath)) {
 		const stat = fs.statSync(itemPath);
 
 		if (stat.isFile()) {
-			// Delete macOS binaries or move others
-			if (item.includes('mac')) {
-				// console.log(` Deleting macOS binary: ${item}`);
-				fs.unlinkSync(itemPath);
+			if (item.includes('mac') || item.includes('universal')) {
+				console.log(`  Moving macOS binary: ${item}`);
+				fs.renameSync(itemPath, join(macDist, item));
 			} else if (item.includes('win')) {
 				console.log(`  Moving Windows binary: ${item}`);
 				fs.renameSync(itemPath, join(windowsDist, item));
@@ -82,36 +84,38 @@ if (fs.existsSync(myappPath)) {
 		}
 	}
 
-	// Now handle extensions
-	const srcExtensionsDir = join(myappPath, 'extensions');
-	if (fs.existsSync(srcExtensionsDir)) {
-		const extFolders = fs.readdirSync(srcExtensionsDir);
-		for (const ext of extFolders) {
-			const extSrcPath = join(srcExtensionsDir, ext);
-			if (fs.statSync(extSrcPath).isDirectory()) {
-				const extFiles = fs.readdirSync(extSrcPath);
-				for (const file of extFiles) {
-					const filePath = join(extSrcPath, file);
-					if (file.includes('mac')) {
-						console.log(`     Deleting macOS extension binary: ${ext}/${file}`);
-						fs.unlinkSync(filePath);
-					} else if (file.includes('win')) {
-						const destDir = join(windowsDist, 'extensions', ext);
-						ensureDir(destDir);
-						console.log(`     Moving Windows extension binary: ${ext}/${file}`);
-						fs.renameSync(filePath, join(destDir, file));
-					} else if (file.includes('linux')) {
-						const destDir = join(linuxDist, 'extensions', ext);
-						ensureDir(destDir);
-						console.log(`     Moving Linux extension binary: ${ext}/${file}`);
-						fs.renameSync(filePath, join(destDir, file));
-					}
-				}
-			}
-		}
+	// Copy CLI helpers directly along the main executables
+	console.log('\n--- 4. Copying CLI helpers along the executables ---');
+	const binPath = join(__dirname, 'bin');
+
+	// Copy Windows CLI helper
+	const winCliHelper = join(binPath, 'utilities-win_x64.exe');
+	if (fs.existsSync(winCliHelper)) {
+		fs.copyFileSync(winCliHelper, join(windowsDist, 'utilities-win_x64.exe'));
+		console.log('   ✅ Copied Windows CLI helper to dist/windows/');
+	} else {
+		console.warn('   ⚠️ Windows CLI helper not found in bin/');
+	}
+
+	// Copy Linux CLI helper
+	const linuxCliHelper = join(binPath, 'utilities-linux_x64');
+	if (fs.existsSync(linuxCliHelper)) {
+		fs.copyFileSync(linuxCliHelper, join(linuxDist, 'utilities-linux_x64'));
+		console.log('   ✅ Copied Linux CLI helper to dist/linux/');
+	} else {
+		console.warn('   ⚠️ Linux CLI helper not found in bin/');
+	}
+
+	// Copy macOS CLI helper
+	const macCliHelper = join(binPath, 'utilities-mac_x64');
+	if (fs.existsSync(macCliHelper)) {
+		fs.copyFileSync(macCliHelper, join(macDist, 'utilities-mac_x64'));
+		console.log('   ✅ Copied macOS CLI helper to dist/mac/');
+	} else {
+		console.warn('   ⚠️ macOS CLI helper not found in bin/');
 	}
 
 	// Delete temporary / source directory myapp if empty
 	removeDir(myappPath);
-	console.log('Build organization completed');
+	console.log('\n🎉 Build organization completed successfully!');
 }

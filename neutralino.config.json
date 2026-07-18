@@ -6,7 +6,7 @@
 	"documentRoot": "/resources",
 	"url": "/",
 	"enableServer": true,
-	"enableExtensions": true,
+	"enableExtensions": false,
 	"enableNativeAPI": true,
 	"tokenSecurity": "none",
 	"port": 6767,
@@ -26,7 +26,7 @@
 		"os.showNotification",
 		"os.showMessageBox",
 		"os.getPath",
-		"extensions.getStats",
+		"os.execCommand",
 		"server.mount",
 		"server.getMounts"
 	],
@@ -41,14 +41,6 @@
 			"icon": "src/assets/straw_berry_icon.png"
 		}
 	},
-	"extensions": [
-		{
-			"id": "utilities",
-			"commandLinux": "${NL_PATH}/extensions/utilities/utilities-linux_x64",
-			"commandDarwin": "${NL_PATH}/extensions/utilities/utilities-mac_x64",
-			"commandWindows": "\"${NL_PATH}/extensions/utilities/utilities-win_x64.exe\""
-		}
-	],
 	"cli": {
 		"binaryName": "myapp",
 		"resourcesPath": "/resources",
