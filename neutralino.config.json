@@ -15,17 +15,17 @@
 		"writeToLogFile": true
 	},
 	"nativeAllowList": [
-		"app.*",
 		"filesystem.readDirectory",
 		"filesystem.getStats",
 		"filesystem.readFile",
+    "filesystem.getAbsolutePath",
 		"window.show",
 		"os.setTray",
 		"os.open",
 		"os.showNotification",
 		"os.showMessageBox",
 		"os.getPath",
-		"extensions.*"
+    "extensions.getStats"
 	],
 	"modes": {
 		"window": {

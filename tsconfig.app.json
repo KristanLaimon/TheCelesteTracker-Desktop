@@ -28,13 +28,8 @@
 		"src/**/*.ts",
 		"src/**/*.js",
 		"src/**/*.svelte",
-		"src-sqlite-extension/CSqliteExtension.ts",
-		"src-sqlite-extension/sqlite.integration.test.ts",
-		"src-sqlite-extension/sqlite.integration.neu.test.ts",
-		"src-utils-extension/UtilitiesExtension.ts",
+		"src-utils-extension/**/*.ts",
 		"src/extensions/directTestHelper.ts",
-		"src/extensions/neutralinoTestHelper.ts",
-		"src-utils-extension/utilities.integration.test.ts",
-		"src-utils-extension/utilities.integration.neu.test.ts"
+		"src/extensions/neutralinoTestHelper.ts"
 	]
 }

@@ -26,6 +26,7 @@ export type SqliteExecResult =
 			error: string;
 	  };
 
+
 @injectable()
 export class SQLiteExtension {
 	private extensionId: string = 'utilities'; // Handled by the unified Go extension
