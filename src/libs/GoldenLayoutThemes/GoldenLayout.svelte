@@ -1,10 +1,10 @@
-<script lang="ts" generics="ComponentTypes extends LayoutContentRootConfig & string">
+<script lang="ts" generics="ComponentsMap extends LayoutContentRootConfig">
 import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
 import type {
 	CSSProperties,
-	CustomRootContentItemsConfig,
 	GoldenLayoutComponentStylesOverrides,
+	GoldenLayoutContent,
 	GoldenLayoutThemeCssColorsOverrides,
 	LayoutContentRootConfig,
 } from './GoldenLayout.types';
@@ -16,18 +16,16 @@ import { Log_Info } from '../Logger';
 // PUBLIC-PROPS
 type Props = {
 	// 1. Content: Defines the initial structural content of the layout grid.
-	content: CustomRootContentItemsConfig<ComponentTypes>;
+	content: GoldenLayoutContent<ComponentsMap>;
 
 	// 2. components: Maps Svelte component classes to Golden Layout names.
-	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
-	components?: Record<ComponentTypes, Component<any, any, any>>;
+	components?: ComponentsMap;
 
 	// 4. overrideComponentStyles: Custom CSS style object overrides for layout parts.
-	overrideStyles?: GoldenLayoutComponentStylesOverrides;
+	overrideComponentStyles?: GoldenLayoutComponentStylesOverrides;
 
 	// 5. theme: Dynamic color mapping using CSS custom variables.
 	theme?: GoldenLayoutThemeCssColorsOverrides;
-
 	// 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
 	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 	defaultComponent: Component<any, any, any>;
@@ -35,9 +33,8 @@ type Props = {
 
 let {
 	content: Content,
-	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
-	components = $bindable<Record<ComponentTypes, Component<any, any, any>>>({} as Record<ComponentTypes, Component<any, any, any>>),
-	overrideStyles: overrideComponentStyles = {},
+	components = $bindable<ComponentsMap>({} as ComponentsMap),
+	overrideComponentStyles = {},
 	theme = {},
 	defaultComponent,
 }: Props = $props();
@@ -77,7 +74,7 @@ function styleObjectToString(styles?: CSSProperties): string {
 		.join(';');
 }
 
-const containerStyles = $derived(styleObjectToString(overrideComponentStyles.rootContainer));
+const containerStyles = $derived(styleObjectToString(overrideComponentStyles.container || overrideComponentStyles.rootContainer));
 
 function applyStyles(el: HTMLElement, styles?: CSSProperties) {
 	if (!styles) return;
@@ -92,7 +89,7 @@ function applyStyles(el: HTMLElement, styles?: CSSProperties) {
 // ponytail: simplified style applier using direct inline styling
 function applyComponentStyles(root: HTMLElement) {
 	if (!overrideComponentStyles || Object.keys(overrideComponentStyles).length === 0) return;
-   mutationObserver?.disconnect();
+	mutationObserver?.disconnect();
 
 	const selectors: Record<string, string> = {
 		layout: '.lm_goldenlayout',
@@ -176,25 +173,102 @@ function appendPlusButton(stack: Stack) {
 
 // LIFECYCLE
 onMount(() => {
-	try {
-		Log_Info('GoldenLayout Wrapper: Mounting Svelte Component...');
+	let cleanupFn: (() => void) | null = null;
 
-		if (!layoutContainerEl) {
-			console.error('Layout HTML element not found to inject Golden-Layout dependency.');
-			return;
-		}
+	const init = async () => {
+		try {
+			// Dynamically load jQuery to prevent TS compile-time inclusion and declaration emit errors
+			// biome-ignore lint/suspicious/noExplicitAny: Needed for global window check
+			if (!(window as any).$) {
+				await new Promise<void>((resolve, reject) => {
+					const script = document.createElement('script');
+					script.src = new URL('./jquery_1.11.1.min.js', import.meta.url).href;
+					script.onload = () => resolve();
+					script.onerror = () => reject(new Error('Failed to load jQuery'));
+					document.head.appendChild(script);
+				});
+			}
 
-		Log_Info('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
-		LAYOUT = new GoldenLayout(layoutContainerEl);
+			Log_Info('GoldenLayout Wrapper: Mounting Svelte Component...');
 
-		// Register Svelte components
-		if (components) {
+			if (!layoutContainerEl) {
+				console.error('Layout HTML element not found to inject Golden-Layout dependency.');
+				return;
+			}
+
+			let inlineComponentCounter = 0;
 			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
-			for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
-				Log_Info(`GoldenLayout Wrapper: Registering component "${name}"`);
+			const inlineComponentsMap = new Map<string, Component<any, any, any>>();
+
+			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+			function preprocessLayoutContent(item: any): any {
+				if (!item) return item;
+
+				if (Array.isArray(item)) {
+					return item.map(preprocessLayoutContent);
+				}
+
+				if (typeof item === 'object') {
+					if (item.type === 'component') {
+						if (item.componentSvelte) {
+							inlineComponentCounter++;
+							const uniqueName = `__inline_svelte_component_${inlineComponentCounter}`;
+							inlineComponentsMap.set(uniqueName, item.componentSvelte);
+							return {
+								...item,
+								componentType: uniqueName,
+								componentState: item.componentProps || {},
+								componentSvelte: undefined,
+								componentProps: undefined,
+							};
+						}
+					}
+
+					if (item.content) {
+						return {
+							...item,
+							content: preprocessLayoutContent(item.content),
+						};
+					}
+				}
+
+				return item;
+			}
+
+			const processedContent = preprocessLayoutContent(Content);
+
+			Log_Info('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
+			LAYOUT = new GoldenLayout(layoutContainerEl);
+
+			// Register Svelte components from components registry prop
+			if (components) {
+				// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+				for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
+					Log_Info(`GoldenLayout Wrapper: Registering component "${name}"`);
+					LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
+						try {
+							Log_Info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
+							const componentInstance = mount(component, {
+								target: container.element,
+								props: (state as Record<string, unknown>) || {},
+							});
+
+							container.on('destroy', () => {
+								unmount(componentInstance);
+							});
+						} catch (err) {
+							console.error(`GoldenLayout Wrapper: Error mounting component "${name}":`, err);
+						}
+					});
+				}
+			}
+
+			// Register dynamically found inline components
+			for (const [name, component] of inlineComponentsMap.entries()) {
+				Log_Info(`GoldenLayout Wrapper: Registering inline component "${name}"`);
 				LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
 					try {
-						Log_Info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
+						Log_Info(`GoldenLayout Wrapper: Factory function called for inline "${name}"`);
 						const componentInstance = mount(component, {
 							target: container.element,
 							props: (state as Record<string, unknown>) || {},
@@ -204,138 +278,141 @@ onMount(() => {
 							unmount(componentInstance);
 						});
 					} catch (err) {
-						console.error(`GoldenLayout Wrapper: Error mounting component "${name}":`, err);
+						console.error(`GoldenLayout Wrapper: Error mounting inline component "${name}":`, err);
 					}
 				});
 			}
-		}
 
-		// Register the mandatory default Svelte component
-		Log_Info('GoldenLayout Wrapper: Registering default component');
-		LAYOUT.registerComponentFactoryFunction('__defaultComponent', (container, state) => {
-			try {
-				Log_Info('GoldenLayout Wrapper: Factory function called for defaultComponent');
-				const componentInstance = mount(defaultComponent, {
-					target: container.element,
-					props: (state as Record<string, unknown>) || {},
-				});
+			// Register the mandatory default Svelte component
+			Log_Info('GoldenLayout Wrapper: Registering default component');
+			LAYOUT.registerComponentFactoryFunction('__defaultComponent', (container, state) => {
+				try {
+					Log_Info('GoldenLayout Wrapper: Factory function called for defaultComponent');
+					const componentInstance = mount(defaultComponent, {
+						target: container.element,
+						props: (state as Record<string, unknown>) || {},
+					});
 
-				container.on('destroy', () => {
-					unmount(componentInstance);
-				});
-			} catch (err) {
-				console.error('GoldenLayout Wrapper: Error mounting defaultComponent:', err);
-			}
-		});
-
-		// Bind event to track and store stack references on headers for self-healing "+" button
-		LAYOUT.on('itemCreated', (event) => {
-			const item = event.target;
-			if (item instanceof Stack) {
-				setTimeout(() => {
-					try {
-						if (item.header?.element) {
-							headerStackMap.set(item.header.element, item);
-							appendPlusButton(item);
-						}
-					} catch (err) {
-						console.error('GoldenLayout Wrapper: Error in stack itemCreated handler:', err);
-					}
-				}, 50);
-			}
-		});
-
-		Log_Info('GoldenLayout Wrapper: Loading layout structure...');
-		LAYOUT.loadLayout({
-			settings: {
-				constrainDragToContainer: true,
-				reorderEnabled: true,
-				popoutWholeStack: false,
-				blockedPopoutsThrowError: true,
-				closePopoutsOnUnload: true,
-			},
-			dimensions: {
-				borderWidth: 4,
-				defaultMinItemHeight: '50px',
-				defaultMinItemWidth: '50px',
-				headerHeight: 28,
-				dragProxyWidth: 300,
-				dragProxyHeight: 200,
-			},
-			header: {
-				show: 'top',
-				popout: 'Open in new window',
-				maximise: 'Maximise',
-				close: 'Close',
-			},
-			root: Content,
-		});
-
-		Log_Info('GoldenLayout Wrapper: Layout loaded successfully.');
-
-		if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
-			applyComponentStyles(layoutContainerEl);
-		}
-
-		// ponytail: simplified observer to detect layout changes and ensure self-healing "+" button
-		mutationObserver = new MutationObserver((mutations) => {
-			try {
-				// Re-apply styles if layout DOM changes
-				if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
-					const shouldSync = mutations.some(
-						(m) =>
-							m.addedNodes.length > 0 ||
-							(m.type === 'attributes' &&
-								m.target instanceof HTMLElement &&
-								['lm_goldenlayout', 'lm_content', 'lm_header', 'lm_splitter', 'lm_dragProxy', 'lm_tab'].some((cls) =>
-									(m.target as HTMLElement).classList.contains(cls),
-								)),
-					);
-
-					if (shouldSync && layoutContainerEl) {
-						applyComponentStyles(layoutContainerEl);
-					}
+					container.on('destroy', () => {
+						unmount(componentInstance);
+					});
+				} catch (err) {
+					console.error('GoldenLayout Wrapper: Error mounting defaultComponent:', err);
 				}
+			});
 
-				// Check and restore "+" buttons if they were removed during layout updates
-				layoutContainerEl.querySelectorAll('.lm_header').forEach((headerEl) => {
-					if (headerEl instanceof HTMLElement) {
-						const stack = headerStackMap.get(headerEl);
-						if (stack) {
-							appendPlusButton(stack);
+			// Bind event to track and store stack references on headers for self-healing "+" button
+			LAYOUT.on('itemCreated', (event) => {
+				const item = event.target;
+				if (item instanceof Stack) {
+					setTimeout(() => {
+						try {
+							if (item.header?.element) {
+								headerStackMap.set(item.header.element, item);
+								appendPlusButton(item);
+							}
+						} catch (err) {
+							console.error('GoldenLayout Wrapper: Error in stack itemCreated handler:', err);
+						}
+					}, 50);
+				}
+			});
+
+			Log_Info('GoldenLayout Wrapper: Loading layout structure...');
+			LAYOUT.loadLayout({
+				settings: {
+					constrainDragToContainer: true,
+					reorderEnabled: true,
+					popoutWholeStack: false,
+					blockedPopoutsThrowError: true,
+					closePopoutsOnUnload: true,
+				},
+				dimensions: {
+					borderWidth: 4,
+					defaultMinItemHeight: '50px',
+					defaultMinItemWidth: '50px',
+					headerHeight: 28,
+					dragProxyWidth: 300,
+					dragProxyHeight: 200,
+				},
+				header: {
+					show: 'top',
+					popout: 'Open in new window',
+					maximise: 'Maximise',
+					close: 'Close',
+				},
+				root: processedContent,
+			});
+
+			Log_Info('GoldenLayout Wrapper: Layout loaded successfully.');
+
+			if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
+				applyComponentStyles(layoutContainerEl);
+			}
+
+			// ponytail: simplified observer to detect layout changes and ensure self-healing "+" button
+			mutationObserver = new MutationObserver((mutations) => {
+				try {
+					// Re-apply styles if layout DOM changes
+					if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
+						const shouldSync = mutations.some(
+							(m) =>
+								m.addedNodes.length > 0 ||
+								(m.type === 'attributes' &&
+									m.target instanceof HTMLElement &&
+									['lm_goldenlayout', 'lm_content', 'lm_header', 'lm_splitter', 'lm_dragProxy', 'lm_tab'].some((cls) =>
+										(m.target as HTMLElement).classList.contains(cls),
+									)),
+						);
+
+						if (shouldSync && layoutContainerEl) {
+							applyComponentStyles(layoutContainerEl);
 						}
 					}
-				});
-			} catch (err) {
-				console.error('GoldenLayout Wrapper: Error in mutationObserver callback:', err);
-			}
-		});
 
-		mutationObserver.observe(layoutContainerEl, {
-			childList: true,
-			subtree: true,
-			attributes: true,
-			attributeFilter: ['class'],
-		});
+					// Check and restore "+" buttons if they were removed during layout updates
+					layoutContainerEl.querySelectorAll('.lm_header').forEach((headerEl) => {
+						if (headerEl instanceof HTMLElement) {
+							const stack = headerStackMap.get(headerEl);
+							if (stack) {
+								appendPlusButton(stack);
+							}
+						}
+					});
+				} catch (err) {
+					console.error('GoldenLayout Wrapper: Error in mutationObserver callback:', err);
+				}
+			});
 
-		resizeObserver = new ResizeObserver(() => {
-			if (LAYOUT && layoutContainerEl) {
-				LAYOUT.setSize(layoutContainerEl.clientWidth, layoutContainerEl.clientHeight);
-			}
-		});
-		resizeObserver.observe(layoutContainerEl);
+			mutationObserver.observe(layoutContainerEl, {
+				childList: true,
+				subtree: true,
+				attributes: true,
+				attributeFilter: ['class'],
+			});
 
-		const cleanup = () => {
-			if (resizeObserver) resizeObserver.disconnect();
-			if (mutationObserver) mutationObserver.disconnect();
-			if (LAYOUT) LAYOUT.destroy();
-		};
+			resizeObserver = new ResizeObserver(() => {
+				if (LAYOUT && layoutContainerEl) {
+					LAYOUT.setSize(layoutContainerEl.clientWidth, layoutContainerEl.clientHeight);
+				}
+			});
+			resizeObserver.observe(layoutContainerEl);
 
-		return cleanup;
-	} catch (err) {
-		console.error('GoldenLayout Wrapper: Fatal error in onMount:', err);
-		return () => {};
-	}
+			cleanupFn = () => {
+				if (resizeObserver) resizeObserver.disconnect();
+				if (mutationObserver) mutationObserver.disconnect();
+				if (LAYOUT) LAYOUT.destroy();
+			};
+		} catch (err) {
+			console.error('GoldenLayout Wrapper: Fatal error in onMount:', err);
+		}
+	};
+
+	init();
+
+	return () => {
+		if (cleanupFn) cleanupFn();
+	};
 });
 </script>
 

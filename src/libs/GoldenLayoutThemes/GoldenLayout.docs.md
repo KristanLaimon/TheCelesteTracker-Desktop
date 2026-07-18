@@ -20,7 +20,7 @@
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| **`content`** | `CustomRootContentItemsConfig<ComponentTypes>` | *Required* | Defines the initial layout structure of splitters, columns, rows, and component tabs. |
+| **`content`** | `GoldenLayoutContent<ComponentTypes>` | *Required* | Defines the initial layout structure of splitters, columns, rows, and component tabs. |
 | **`components`** | `Record<ComponentTypes, Component>` | `{}` | Key-value mapping of type string names to Svelte Component classes. |
 | **`layout`** | `GoldenLayoutWrapper \| null` | `null` | Bindable wrapper instance returned back to the parent to interact with Golden Layout programmatically (bindable). |
 | **`defaultComponent`** | `Component` | *Required* | Svelte Component class mounted when the "+" button is clicked in stack headers. |
@@ -71,7 +71,7 @@ This example demonstrates how to configure, style, and mount the Svelte 5 Golden
 ```svelte
 <script lang="ts">
   import GoldenLayout from "../libs/GoldenLayout.svelte";
-  import type { CustomRootContentItemsConfig } from "../libs/GoldenLayout.types";
+  import type { GoldenLayoutContent } from "../libs/GoldenLayout.types";
   import { GoldenLayoutWrapper } from "../libs/GoldenLayoutWrapper";
   
   // Custom Svelte Panels
@@ -85,7 +85,7 @@ This example demonstrates how to configure, style, and mount the Svelte 5 Golden
     tasklistPanel: TaskNode
   };
 
-  const initialLayoutContent: CustomRootContentItemsConfig<typeof componentsRegistry> = {
+  const initialLayoutContent: GoldenLayoutContent<typeof componentsRegistry> = {
     type: 'row',
     content: [
       {

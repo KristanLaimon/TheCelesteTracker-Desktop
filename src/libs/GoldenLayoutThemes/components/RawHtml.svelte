@@ -1,7 +1,7 @@
 <script lang="ts">
 import DOMPurify from 'dompurify';
 
-let { htmlContent = '<p>Empty content....</p>' } = $props<{ htmlContent: string }>();
+let { htmlContent = '<p>Empty content....</p>' } = $props<{ htmlContent?: string }>();
 
 const htmlPurified = $derived(DOMPurify.sanitize(htmlContent));
 </script>

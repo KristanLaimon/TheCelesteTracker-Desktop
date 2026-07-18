@@ -33,5 +33,6 @@
 		"src/extensions/neutralinoTestHelper.ts",
 		"src/libs/GoldenLayoutThemes/GoldenLayoutWrapper.disabled",
 		"src/libs/GoldenLayoutThemes/GoldenLayoutWrapper.disabled"
-	]
+	],
+	"exclude": ["**/*.min.js"]
 }

@@ -6,7 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"includes": ["**", "!!**/dist", "!**/*.css", "!src/dependencies/*", "!documentation/*"]
+		"includes": ["**", "!!**/dist", "!**/*.css", "!src/dependencies/*", "!documentation/*", "!**/*.min.js"]
 	},
 	"formatter": {
 		"enabled": true,
