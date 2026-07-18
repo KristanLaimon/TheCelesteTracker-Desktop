@@ -3,22 +3,27 @@ import { onMount } from 'svelte';
 import ChapterCard from '../components/ChapterCard.svelte';
 import TaskNode from '../components/TaskNode.svelte';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasNodeData } from '../libs/Wanvas/Canvas.types';
+import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+
+const registry = {
+	chapterCard: ChapterCard,
+	taskNode: TaskNode,
+} satisfies CanvasRegistry;
 
 // State: zoom and pan coordinates (with persistence)
 let x = $state(0);
 let y = $state(0);
 let zoom = $state(1);
 
-// Dynamic nodes list state demonstrating direct Svelte component class injection
-let nodes = $state<CanvasNodeData[]>([
+// Dynamic nodes list state demonstrating registry type and props pattern
+let nodes = $state<CanvasNodeData<typeof registry>[]>([
 	{
 		id: 'chap-1',
-		componentSvelte: ChapterCard,
+		type: 'chapterCard',
 		x: 100,
 		y: 150,
 		isPinned: true,
-		componentProps: {
+		props: {
 			number: '01',
 			title: 'Forsaken City',
 			status: 'completed',
@@ -29,21 +34,21 @@ let nodes = $state<CanvasNodeData[]>([
 	},
 	{
 		id: 'todo-list',
-		componentSvelte: TaskNode,
+		type: 'taskNode',
 		x: 500,
 		y: 150,
 		width: 250,
 		height: 250,
-		componentProps: {
+		props: {
 			title: 'Modding Checklist',
 		},
 	},
 	{
 		id: 'custom-node',
-		componentSvelte: ChapterCard,
+		type: 'chapterCard',
 		x: 900,
 		y: 150,
-		componentProps: {
+		props: {
 			number: '03',
 			title: 'Celestial Resort',
 			status: 'locked',
@@ -60,16 +65,17 @@ onMount(() => {
 	if (savedNodes) {
 		try {
 			const parsed = JSON.parse(savedNodes);
-			// Re-map the parsed JSON array back to Svelte components based on ID prefix or ID match
-			nodes = parsed.map((n: CanvasNodeData) => {
-				if (n.id?.startsWith('chap-') || n.id === 'custom-node') {
-					n.componentSvelte = ChapterCard;
-				} else if (n.id?.startsWith('todo-') || n.id === 'todo-list') {
-					n.componentSvelte = TaskNode;
+			// Re-map the parsed JSON array back to new type/props shape for backward compatibility
+			nodes = parsed.map((n: any) => {
+				if (n.componentProps && !n.props) {
+					n.props = n.componentProps;
 				}
-				// Map old props property if loaded from legacy storage
-				if (n.props && !n.componentProps) {
-					n.componentProps = n.props;
+				if (!n.type) {
+					if (n.id?.startsWith('chap-') || n.id === 'custom-node') {
+						n.type = 'chapterCard';
+					} else if (n.id?.startsWith('todo-') || n.id === 'todo-list') {
+						n.type = 'taskNode';
+					}
 				}
 				return n;
 			});
@@ -120,16 +126,17 @@ function getCenterWorldCoords() {
 }
 
 // Add a new Chapter Card node
+// ponytail: simplified push logic for new nodes
 function addChapterNode() {
 	const id = `chap-${Date.now()}`;
 	const coords = getCenterWorldCoords();
 
 	nodes.push({
 		id,
-		componentSvelte: ChapterCard,
+		type: 'chapterCard',
 		x: coords.x,
 		y: coords.y,
-		componentProps: {
+		props: {
 			number: 'New',
 			title: `Custom Chapter ${nodes.length + 1}`,
 			status: 'locked',
@@ -149,12 +156,12 @@ function addTaskNode() {
 
 	nodes.push({
 		id,
-		componentSvelte: TaskNode,
+		type: 'taskNode',
 		x: coords.x,
 		y: coords.y,
 		width: 250,
 		height: 250,
-		componentProps: {
+		props: {
 			title: 'Mod Tasks list',
 		},
 	});
@@ -183,6 +190,7 @@ function clearPersistence() {
     bind:y
     bind:zoom
     bind:nodes
+    {registry}
     dragHandleClass="drag-handle"
     onNodeChange={handleNodeChange}
   >

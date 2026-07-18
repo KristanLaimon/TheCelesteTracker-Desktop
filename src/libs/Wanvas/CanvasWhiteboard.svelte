@@ -10,7 +10,7 @@ import { onDestroy, onMount } from 'svelte';
 import type { CanvasNodeData, CanvasPersistence, CanvasProps } from './Canvas.types';
 import { dragNode, observeSize, resizeNode } from './CanvasActions';
 import { calculateZoomOffset, clampX, clampY, clampZoom, getTouchCenter, getTouchDistance } from './CanvasMath';
-import { getComponentKey, loadPersistentState, savePersistentState } from './CanvasPersistence';
+import { loadPersistentState, savePersistentState } from './CanvasPersistence';
 
 export type { CanvasNodeData, CanvasPersistence, CanvasProps };
 
@@ -40,6 +40,7 @@ let {
 	showDots = true,
 	children,
 	controls,
+	registry = {},
 	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence | null),
 	wrapperEl = $bindable(null),
 }: CanvasProps = $props();
@@ -357,9 +358,8 @@ function triggerChange() {
 	changeTimeout = setTimeout(() => {
 		const serialized = nodes.map((n) => ({
 			id: n.id,
-			componentSvelte: n.componentSvelte,
-			componentSvelteName: n.componentSvelteName || (n.componentSvelte ? getComponentKey(n.componentSvelte) : ''),
-			componentProps: n.componentProps ? JSON.parse(JSON.stringify(n.componentProps)) : {},
+			type: n.type,
+			props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
 			x: n.x,
 			y: n.y,
 			width: n.width,
@@ -425,7 +425,7 @@ onDestroy(() => {
 
     <!-- Render Dynamic Serializable Nodes -->
     {#each nodes as node (node.id)}
-      {@const Component = node.componentSvelte}
+      {@const Component = registry[node.type]}
       {#if Component}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
@@ -448,9 +448,9 @@ onDestroy(() => {
           }}
         >
           <Component 
-            {...node.componentProps || {}} 
+            {...node.props || {}} 
             onChange={(updatedProps: any) => {
-              node.componentProps = { ...node.componentProps, ...updatedProps };
+              node.props = { ...node.props, ...updatedProps };
               triggerChange();
             }}
           />

@@ -39,6 +39,7 @@ let {
 	showDots = true,
 	mode = 'normal',
 	children,
+	registry = {},
 	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence | null),
 }: CanvasProps = $props();
 
@@ -156,6 +157,7 @@ function zoomAtCenter(multiplier: number) {
   bind:persistence
   bind:wrapperEl={canvasWrapperEl}
   controls={controlsSnippet}
+  {registry}
 >
   {#if children}
     {@render children()}

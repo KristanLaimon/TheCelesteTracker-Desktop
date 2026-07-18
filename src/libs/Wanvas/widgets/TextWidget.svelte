@@ -7,8 +7,8 @@ import type { ICanvasWidgetProps } from '../Canvas.types';
 import BaseGlassWidget from './BaseGlassWidget.svelte';
 
 type TextProps = {
-	rawTextContent: string /**Treated always as markdown content. Html rendered only in frontend, but stored as markdown*/;
-	displayMode: 'markdown-rendered' | 'raw';
+	rawTextContent?: string /**Treated always as markdown content. Html rendered only in frontend, but stored as markdown*/;
+	displayMode?: 'markdown-rendered' | 'raw';
 };
 type Props = ICanvasWidgetProps<TextProps>;
 let { rawTextContent = $bindable<string>(''), displayMode = $bindable('raw'), onChange }: Props = $props();

@@ -1,11 +1,15 @@
 <script lang="ts">
-import type { ComponentProps } from 'svelte';
 import Canvas from '../libs/GoldenLayoutThemes/components/GL_Canvas.svelte';
 import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
-import type { GoldenLayoutContent } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
+import type { GoldenLayoutContent, GoldenLayoutRegistry } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
 
-const Layout_InitialContent: GoldenLayoutContent = {
+const registry = {
+	canvas: Canvas,
+	rawHtml: RawHtml,
+} satisfies GoldenLayoutRegistry;
+
+const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
 	type: 'row',
 	content: [
 		{
@@ -15,14 +19,12 @@ const Layout_InitialContent: GoldenLayoutContent = {
 					type: 'stack',
 					content: [
 						{
-							type: 'component',
-							componentSvelte: Canvas,
-							componentProps: { localStorageKey: 'canvas-1' } satisfies ComponentProps<typeof Canvas>,
+							type: 'canvas',
+							props: { localStorageKey: 'canvas-1' },
 						},
 						{
-							type: 'component',
-							componentSvelte: RawHtml,
-							componentProps: { htmlContent: 'Hola, raw HTML 2' } satisfies ComponentProps<typeof RawHtml>,
+							type: 'rawHtml',
+							props: { htmlContent: 'Hola, raw HTML 2' },
 						},
 					],
 				},
@@ -30,19 +32,16 @@ const Layout_InitialContent: GoldenLayoutContent = {
 					type: 'column',
 					content: [
 						{
-							type: 'component',
-							componentSvelte: RawHtml,
-							componentProps: {},
+							type: 'rawHtml',
+							props: { htmlContent: 'Hola, default raw HTML' },
 						},
 						{
-							type: 'component',
-							componentSvelte: RawHtml,
-							componentProps: { htmlContent: 'Hola, raw HTML 3' } satisfies ComponentProps<typeof RawHtml>,
+							type: 'rawHtml',
+							props: { htmlContent: 'Hola, raw HTML 3' },
 						},
 						{
-							type: 'component',
-							componentSvelte: Canvas,
-							componentProps: { localStorageKey: 'canvas-2' } satisfies ComponentProps<typeof Canvas>,
+							type: 'canvas',
+							props: { localStorageKey: 'canvas-2' },
 						},
 					],
 				},
@@ -56,6 +55,7 @@ const Layout_InitialContent: GoldenLayoutContent = {
   <div class="layout-wrapper">
     <GoldenLayout
       content={Layout_InitialContent}
+      components={registry}
       defaultComponent={RawHtml}
     />
   </div>

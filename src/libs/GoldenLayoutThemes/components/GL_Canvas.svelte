@@ -6,7 +6,7 @@ import { Log_Info } from '../../Logger';
 import { NeutralinoFileSystem } from '../../NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../../Wanvas/Canvas.svelte';
-import type { CanvasNodeData } from '../../Wanvas/Canvas.types';
+import type { CanvasNodeData, CanvasRegistry } from '../../Wanvas/Canvas.types';
 import ImgWidget from '../../Wanvas/widgets/ImgWidget.svelte';
 import TextWidget from '../../Wanvas/widgets/TextWidget.svelte';
 
@@ -16,7 +16,12 @@ type Props = {
 
 const { localStorageKey }: Props = $props();
 
-let defaultNodes = $state<CanvasNodeData[]>([]);
+const registry = {
+	textWidget: TextWidget,
+	imgWidget: ImgWidget,
+} satisfies CanvasRegistry;
+
+let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([]);
 
 function AddNewTextWidget(text: string = '') {
 	defaultNodes.push({
@@ -24,8 +29,8 @@ function AddNewTextWidget(text: string = '') {
 		y: 150,
 		height: 150,
 		width: 150,
-		componentSvelte: TextWidget,
-		componentProps: {
+		type: 'textWidget',
+		props: {
 			rawTextContent: text,
 		},
 	});
@@ -37,8 +42,8 @@ function AddNewImgWidget(srcUrl: string = '') {
 		y: 200,
 		height: 200,
 		width: 300,
-		componentSvelte: ImgWidget,
-		componentProps: {
+		type: 'imgWidget',
+		props: {
 			srcUrl: srcUrl,
 			size: {
 				mode: 'keep-aspect-ratio-always',
@@ -100,6 +105,7 @@ function clearAll() {
     bind:x={canvasX}
     bind:y={canvasY}
     bind:zoom={canvasZoom}
+    {registry}
     persistence={{
       key: localStorageKey,
       beforeSave: (nodes, _cancel) => {

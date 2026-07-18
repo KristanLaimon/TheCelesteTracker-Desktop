@@ -1,12 +1,12 @@
-<script lang="ts" generics="ComponentsMap extends LayoutContentRootConfig">
+<script lang="ts" generics="ComponentsMap extends GoldenLayoutRegistry">
 import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
 import type {
 	CSSProperties,
 	GoldenLayoutComponentStylesOverrides,
 	GoldenLayoutContent,
+	GoldenLayoutRegistry,
 	GoldenLayoutThemeCssColorsOverrides,
-	LayoutContentRootConfig,
 } from './GoldenLayout.types';
 
 import './goldenlayout-base.css';
@@ -196,10 +196,6 @@ onMount(() => {
 				return;
 			}
 
-			let inlineComponentCounter = 0;
-			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
-			const inlineComponentsMap = new Map<string, Component<any, any, any>>();
-
 			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 			function preprocessLayoutContent(item: any): any {
 				if (!item) return item;
@@ -209,19 +205,14 @@ onMount(() => {
 				}
 
 				if (typeof item === 'object') {
-					if (item.type === 'component') {
-						if (item.componentSvelte) {
-							inlineComponentCounter++;
-							const uniqueName = `__inline_svelte_component_${inlineComponentCounter}`;
-							inlineComponentsMap.set(uniqueName, item.componentSvelte);
-							return {
-								...item,
-								componentType: uniqueName,
-								componentState: item.componentProps || {},
-								componentSvelte: undefined,
-								componentProps: undefined,
-							};
-						}
+					if (item.type && item.type !== 'row' && item.type !== 'column' && item.type !== 'stack') {
+						return {
+							type: 'component',
+							componentType: item.type,
+							componentState: item.props || {},
+							title: item.title || item.type,
+							...Object.fromEntries(Object.entries(item).filter(([k]) => k !== 'type' && k !== 'props' && k !== 'title')),
+						};
 					}
 
 					if (item.content) {
@@ -261,26 +252,6 @@ onMount(() => {
 						}
 					});
 				}
-			}
-
-			// Register dynamically found inline components
-			for (const [name, component] of inlineComponentsMap.entries()) {
-				Log_Info(`GoldenLayout Wrapper: Registering inline component "${name}"`);
-				LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
-					try {
-						Log_Info(`GoldenLayout Wrapper: Factory function called for inline "${name}"`);
-						const componentInstance = mount(component, {
-							target: container.element,
-							props: (state as Record<string, unknown>) || {},
-						});
-
-						container.on('destroy', () => {
-							unmount(componentInstance);
-						});
-					} catch (err) {
-						console.error(`GoldenLayout Wrapper: Error mounting inline component "${name}":`, err);
-					}
-				});
 			}
 
 			// Register the mandatory default Svelte component

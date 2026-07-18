@@ -1,5 +1,8 @@
 import type { Component, ComponentProps, Snippet } from 'svelte';
 
+// biome-ignore lint/suspicious/noExplicitAny: generic component parameters require any
+export type CanvasRegistry = Record<string, Component<any, any, any>>;
+
 /**
  * Tailwind CSS class names for styling specific parts of the Canvas component.
  */
@@ -40,13 +43,9 @@ export interface CanvasPersistence {
 /**
  * Structural definition of a node on the canvas workspace.
  */
-export type CanvasNodeData<C extends Component<any, any, any> = Component<any, any, any>> = {
+export type CanvasNodeData<R extends CanvasRegistry = CanvasRegistry> = {
 	/** Unique identifier for the node. If not specified, Canvas will automatically generate a unique UUID. */
 	id?: string;
-	/** Direct Svelte component class to render for this node. */
-	componentSvelte: C;
-	/** Custom props passed to the direct component. */
-	componentProps?: ComponentProps<C>;
 	/** Horizontal position of the node in the canvas world space. */
 	x: number;
 	/** Vertical position of the node in the canvas world space. */
@@ -63,7 +62,12 @@ export type CanvasNodeData<C extends Component<any, any, any> = Component<any, a
 	layer?: number;
 	// biome-ignore lint/suspicious/noExplicitAny: Needed to support custom configuration fields
 	[key: string]: any;
-};
+} & {
+	[K in keyof R]: {
+		type: K;
+		props?: ComponentProps<R[K]>;
+	};
+}[keyof R];
 
 /**
  * Props definition for the Canvas library component.
@@ -83,6 +87,7 @@ export interface CanvasProps {
 	showControls?: boolean;
 	resizable?: boolean;
 	nodes?: CanvasNodeData<any>[];
+	registry?: CanvasRegistry;
 	dragHandleClass?: string;
 	onNodeChange?: (nodes: CanvasNodeData<any>[]) => void;
 	classNames?: CanvasClassNames;
