@@ -16,10 +16,8 @@ export interface CanvasClassNames {
 	zoomValue?: string;
 }
 
-/**
- * A registry mapping type strings to Svelte Component classes.
- */
-export type CanvasRegistry = Record<string, Component<Record<string, unknown>>>;
+// biome-ignore lint/suspicious/noExplicitAny: generic component parameters require any
+export type CanvasRegistry = Record<string, Component<any, any, any>>;
 
 /**
  * Interface that all components rendered on the canvas should satisfy
@@ -57,8 +55,8 @@ type NodeProps<P> = [RequiredKeys<P>] extends [never] ? { props?: P } : { props:
 export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 	| {
 			[K in keyof Registry & string]: {
-				/** Unique identifier for the node. */
-				id: string;
+				/** Unique identifier for the node. If not specified, Canvas will automatically generate a unique UUID. */
+				id?: string;
 				/** Registered component type to render. Must match a key in the registry object. */
 				type: K;
 				/** Direct Svelte component is not allowed when using registry mapping. */
@@ -76,8 +74,8 @@ export type CanvasNodeData<Registry extends CanvasRegistry = CanvasRegistry> =
 			} & NodeProps<Registry[K] extends Component<infer P> ? P : Record<string, unknown>>;
 	  }[keyof Registry & string]
 	| {
-			/** Unique identifier for the node. */
-			id: string;
+			/** Unique identifier for the node. If not specified, Canvas will automatically generate a unique UUID. */
+			id?: string;
 			/** Registry type is not allowed when using direct component reference. */
 			type?: never;
 			/** Direct Svelte component class to render for this node (non-serializable). */

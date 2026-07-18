@@ -128,6 +128,7 @@ onMount(() => {
 		// Sanitize loaded nodes
 		if (loadedNodes !== null) {
 			nodes = loadedNodes.map((node) => {
+				if (!node.id) node.id = crypto.randomUUID();
 				if (typeof node.x !== 'number' || !Number.isFinite(node.x)) node.x = 0;
 				if (typeof node.y !== 'number' || !Number.isFinite(node.y)) node.y = 0;
 				if (node.width !== undefined && (typeof node.width !== 'number' || !Number.isFinite(node.width))) {
@@ -145,6 +146,21 @@ onMount(() => {
 		const rect = wrapperEl.getBoundingClientRect();
 		x = rect.width / 2;
 		y = rect.height / 2;
+	}
+});
+
+// Ensure all nodes have a unique ID reactively
+$effect.pre(() => {
+	let changed = false;
+	const sanitized = nodes.map((node) => {
+		if (!node.id) {
+			changed = true;
+			return { ...node, id: crypto.randomUUID() };
+		}
+		return node;
+	});
+	if (changed) {
+		nodes = sanitized;
 	}
 });
 

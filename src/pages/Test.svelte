@@ -1,19 +1,22 @@
 <script lang="ts">
 // import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
+import Path from '../libs/BrowserPath';
 import { Log_Info } from '../libs/Logger';
+import { NeutralinoFileSystem } from '../libs/NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
 import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+import ImgWidget from '../libs/Wanvas/widgets/ImgWidget.svelte';
 import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 
 const registry = {
 	textWidget: TextWidget,
+	imgWidget: ImgWidget,
 } satisfies CanvasRegistry;
 
 let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
 	{
-		id: '1',
 		type: 'textWidget',
 		x: 100,
 		y: 150,
@@ -25,7 +28,6 @@ let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
 
 function AddNewTextWidget(text: string = '') {
 	defaultNodes.push({
-		id: defaultNodes.length.toString(),
 		x: 100,
 		y: 150,
 		height: 150,
@@ -33,6 +35,22 @@ function AddNewTextWidget(text: string = '') {
 		type: 'textWidget',
 		props: {
 			text: text,
+		},
+	} satisfies CanvasNodeData<typeof registry>);
+}
+
+function AddNewImgWidget(srcUrl: string = '') {
+	defaultNodes.push({
+		x: 150,
+		y: 200,
+		height: 200,
+		width: 300,
+		type: 'imgWidget',
+		props: {
+			srcUrl: srcUrl,
+			size: {
+				mode: 'keep-aspect-ratio-always',
+			},
 		},
 	} satisfies CanvasNodeData<typeof registry>);
 }
@@ -65,6 +83,7 @@ function clearAll() {
     <button class="hud-btn" onclick={clearView}>Reset View</button>
     <button class="hud-btn danger" onclick={clearAll}>Clear All</button>
     <button class="hud-btn" onclick={() => {AddNewTextWidget("default text!!")}}>Add new txt widget</button>
+    <button class="hud-btn" onclick={() => {AddNewImgWidget(Path.join(NeutralinoFileSystem.ResourcesFolderPath_Frontend, "fox.png"))}}>Add new img widget</button>
   </div>
 
   <Canvas {registry}

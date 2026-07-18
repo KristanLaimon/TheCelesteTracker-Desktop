@@ -74,7 +74,7 @@ All nodes inside the canvas are rendered inside an absolute-positioned container
 `Canvas.svelte` gives you two ways to add functional components:
 
 ### Option A: Registry Pattern (Recommended for Serialization & Persistence)
-Map your Svelte components inside a registry object. The nodes array then remains fully JSON-serializable, storing only component identifiers (`type`) and configuration parameter values (`props`).
+Map your Svelte components inside a registry object. The nodes array then remains fully JSON-serializable, storing only component identifiers (`type`) and configuration parameter values (`props`). Note that the `id` property of each node is optional; if omitted, `Canvas` will automatically generate a unique UUID for it.
 
 ```svelte
 <script lang="ts">
