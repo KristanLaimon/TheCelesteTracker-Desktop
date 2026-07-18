@@ -1,14 +1,20 @@
 <script lang="ts">
 // import { onMount } from 'svelte';
-import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import Path from '../libs/BrowserPath';
-import { Log_Info } from '../libs/Logger';
-import { NeutralinoFileSystem } from '../libs/NeutralinoFileSystem';
+import CenteredLayout from '../../../layouts/CenteredLayout.svelte';
+import Path from '../../BrowserPath';
+import { Log_Info } from '../../Logger';
+import { NeutralinoFileSystem } from '../../NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
-import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasNodeData } from '../libs/Wanvas/Canvas.types';
-import ImgWidget from '../libs/Wanvas/widgets/ImgWidget.svelte';
-import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
+import Canvas from '../../Wanvas/Canvas.svelte';
+import type { CanvasNodeData } from '../../Wanvas/Canvas.types';
+import ImgWidget from '../../Wanvas/widgets/ImgWidget.svelte';
+import TextWidget from '../../Wanvas/widgets/TextWidget.svelte';
+
+type Props = {
+	localStorageKey: string;
+};
+
+const { localStorageKey }: Props = $props();
 
 let defaultNodes = $state<CanvasNodeData[]>([]);
 
@@ -63,29 +69,50 @@ function clearAll() {
 }
 </script>
 
-<CenteredLayout>
+<CenteredLayout width="100%" height="100%">
   <div class="hud">
     <button class="hud-btn danger" onclick={clearNodes}>Clear Nodes</button>
     <button class="hud-btn" onclick={clearView}>Reset View</button>
     <button class="hud-btn danger" onclick={clearAll}>Clear All</button>
-    <button class="hud-btn" onclick={() => {AddNewTextWidget("default text!!")}}>Add new txt widget</button>
-    <button class="hud-btn" onclick={() => {AddNewImgWidget(Path.join(NeutralinoFileSystem.ResourcesFolderPath_Frontend, "fox.png"))}}>Add new img widget</button>
+    <button
+      class="hud-btn"
+      onclick={() => {
+        AddNewTextWidget("default text!!");
+      }}>Add new txt widget</button
+    >
+    <button
+      class="hud-btn"
+      onclick={() => {
+        AddNewImgWidget(
+          Path.join(
+            NeutralinoFileSystem.ResourcesFolderPath_Frontend,
+            "fox.png",
+          ),
+        );
+      }}>Add new img widget</button
+    >
   </div>
 
   <Canvas
-    classNames={{wrapper: "w-[80vw] h-[80vh]"}}
+    classNames={{ wrapper: "w-full h-full" }}
     mode="normal"
     bind:nodes={defaultNodes}
     bind:x={canvasX}
     bind:y={canvasY}
     bind:zoom={canvasZoom}
     persistence={{
-      key: 'test-canvas-persistence',
+      key: localStorageKey,
       beforeSave: (nodes, _cancel) => {
-        Log_Info('Canvas is about to save nodes:', nodes);
+        Log_Info(
+          `Canvas with key [${localStorageKey}] is about to save nodes:`,
+          nodes,
+        );
       },
       afterSave: (nodes) => {
-       Log_Info('Canvas saved successfully:', nodes);
+        Log_Info(
+          `Canvas with key [${localStorageKey}] saved successfully:`,
+          nodes,
+        );
       },
     }}
     showDots={true}
@@ -116,7 +143,9 @@ function clearAll() {
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
+    transition:
+      background 0.15s,
+      border-color 0.15s;
   }
 
   .hud-btn:hover {

@@ -1,9 +1,9 @@
 <script lang="ts">
-import RawHtml from '../libs/GoldenLayoutThemes/components/RawHtml.svelte';
+import type { ComponentProps } from 'svelte';
+import Canvas from '../libs/GoldenLayoutThemes/components/GL_Canvas.svelte';
+import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { GoldenLayoutContent } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
-import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasProps } from '../libs/Wanvas/Canvas.types';
 
 const Layout_InitialContent: GoldenLayoutContent = {
 	type: 'row',
@@ -11,21 +11,18 @@ const Layout_InitialContent: GoldenLayoutContent = {
 		{
 			type: 'row',
 			content: [
-				// {
-				// 	type: 'component',
-				// 	componentSvelte: RawHtml,
-				// 	componentProps: { htmlContent: 'Hola, raw HTML' },
-				// 	isClosable: false,
-				// 	maximised: false,
-				//   title: "My First tab!"
-				// },
 				{
 					type: 'stack',
 					content: [
 						{
 							type: 'component',
 							componentSvelte: Canvas,
-							componentProps: {} satisfies CanvasProps,
+							componentProps: { localStorageKey: 'canvas-1' } satisfies ComponentProps<typeof Canvas>,
+						},
+						{
+							type: 'component',
+							componentSvelte: RawHtml,
+							componentProps: { htmlContent: 'Hola, raw HTML 2' } satisfies ComponentProps<typeof RawHtml>,
 						},
 					],
 				},
@@ -35,12 +32,17 @@ const Layout_InitialContent: GoldenLayoutContent = {
 						{
 							type: 'component',
 							componentSvelte: RawHtml,
-							componentProps: { htmlContent: 'Hola, raw HTML 2' },
+							componentProps: {},
 						},
 						{
 							type: 'component',
 							componentSvelte: RawHtml,
-							componentProps: { htmlContent: 'Hola, raw HTML 3' },
+							componentProps: { htmlContent: 'Hola, raw HTML 3' } satisfies ComponentProps<typeof RawHtml>,
+						},
+						{
+							type: 'component',
+							componentSvelte: Canvas,
+							componentProps: { localStorageKey: 'canvas-2' } satisfies ComponentProps<typeof Canvas>,
 						},
 					],
 				},

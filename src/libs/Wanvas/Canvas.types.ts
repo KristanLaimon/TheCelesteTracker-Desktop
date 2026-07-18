@@ -94,5 +94,7 @@ export interface CanvasProps {
 	showDots?: boolean;
 	mode?: 'normal' | 'zen';
 	children?: Snippet;
+	controls?: Snippet;
 	persistence?: CanvasPersistence | null;
+	wrapperEl?: HTMLDivElement | null;
 }

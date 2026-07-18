@@ -1,5 +1,28 @@
+import type { Component } from 'svelte';
 import { Log_Warn } from '../Logger';
 import type { CanvasNodeData } from './Canvas.types';
+import BaseGlassWidget from './widgets/BaseGlassWidget.svelte';
+import BaseWidget from './widgets/BaseWidget.svelte';
+import ImgWidget from './widgets/ImgWidget.svelte';
+import TextWidget from './widgets/TextWidget.svelte';
+
+const componentRegistry: Array<{ key: string; component: Component<never, never, string> }> = [
+	{ key: 'TextWidget', component: TextWidget as unknown as Component<never, never, string> },
+	{ key: 'ImgWidget', component: ImgWidget as unknown as Component<never, never, string> },
+	{ key: 'BaseGlassWidget', component: BaseGlassWidget as unknown as Component<never, never, string> },
+	{ key: 'BaseWidget', component: BaseWidget as unknown as Component<never, never, string> },
+];
+
+export function getComponentKey(component: Component<never, never, string> | null): string | null {
+	if (!component) return null;
+	const match = componentRegistry.find((item) => item.component === component);
+	return match ? match.key : ((component as unknown as Record<string, unknown>).name as string | null) || null;
+}
+
+export function getComponentFromKey(key: string): Component<never, never, string> | null {
+	const match = componentRegistry.find((item) => item.key === key);
+	return match ? match.component : null;
+}
 
 /**
  * Interface representing the deserialized view configuration.
@@ -31,6 +54,9 @@ export function sanitizeNodes(loadedNodes: CanvasNodeData<any>[]): CanvasNodeDat
 		}
 		if (sanitized.height !== undefined && (typeof sanitized.height !== 'number' || !Number.isFinite(sanitized.height))) {
 			sanitized.height = undefined;
+		}
+		if (!sanitized.componentSvelte && sanitized.componentSvelteName) {
+			sanitized.componentSvelte = getComponentFromKey(sanitized.componentSvelteName);
 		}
 		return sanitized;
 	});
