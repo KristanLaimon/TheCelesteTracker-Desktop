@@ -2,12 +2,12 @@
 import { GoldenLayout, Stack } from 'golden-layout';
 import { type Component, mount, onMount, unmount } from 'svelte';
 import type {
+	CSSProperties,
 	CustomRootContentItemsConfig,
-	GoldenLayoutComponentPartsTailwindCssOverrides,
+	GoldenLayoutComponentStylesOverrides,
 	GoldenLayoutThemeCssColorsOverrides,
 	LayoutContentRootConfig,
 } from './GoldenLayout.types';
-import { GoldenLayoutWrapper } from './GoldenLayoutWrapper';
 
 import './goldenlayout-base.css';
 import './predefined/goldenlayout-dark-theme.css';
@@ -22,11 +22,8 @@ type Props = {
 	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 	components?: Record<ComponentTypes, Component<any, any, any>>;
 
-	// 3. layout: Binds the custom Golden Layout Wrapper instance back to the parent.
-	layout?: GoldenLayoutWrapper | null;
-
-	// 4. componentParts: Custom Tailwind CSS classes to style layout sections.
-	componentParts?: GoldenLayoutComponentPartsTailwindCssOverrides;
+	// 4. overrideComponentStyles: Custom CSS style object overrides for layout parts.
+	overrideStyles?: GoldenLayoutComponentStylesOverrides;
 
 	// 5. theme: Dynamic color mapping using CSS custom variables.
 	theme?: GoldenLayoutThemeCssColorsOverrides;
@@ -34,24 +31,16 @@ type Props = {
 	// 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
 	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 	defaultComponent: Component<any, any, any>;
-
-	// 7. class: Optional CSS class names to apply to the root wrapper element.
-	class?: string;
 };
 
 let {
 	content: Content,
 	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
-	components = {} as Record<ComponentTypes, Component<any, any, any>>,
-	layout = $bindable(null),
-	componentParts = {},
+	components = $bindable<Record<ComponentTypes, Component<any, any, any>>>({} as Record<ComponentTypes, Component<any, any, any>>),
+	overrideStyles: overrideComponentStyles = {},
 	theme = {},
 	defaultComponent,
-	class: className = '',
 }: Props = $props();
-
-// Satisfy TypeScript unused variable check
-void layout;
 
 // INTERNAL VARIABLES
 let layoutContainerEl: HTMLDivElement;
@@ -71,11 +60,39 @@ const cssVariables = $derived(
 		.join(';'),
 );
 
-// ponytail: simplified class applier using standard DOM dataset caching
-function applyTailwindClasses(root: HTMLElement) {
-	if (!componentParts || Object.keys(componentParts).length === 0) return;
+function kebabCase(str: string): string {
+	return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}
 
-	mutationObserver?.disconnect();
+function styleObjectToString(styles?: CSSProperties): string {
+	if (!styles) return '';
+	return Object.entries(styles)
+		.map(([key, val]) => {
+			if (val === undefined || val === null || typeof val === 'function') return '';
+			const cssKey = key.startsWith('--') ? key : kebabCase(key);
+			const cssVal = typeof val === 'number' && val !== 0 ? `${val}px` : String(val);
+			return `${cssKey}:${cssVal}`;
+		})
+		.filter(Boolean)
+		.join(';');
+}
+
+const containerStyles = $derived(styleObjectToString(overrideComponentStyles.rootContainer));
+
+function applyStyles(el: HTMLElement, styles?: CSSProperties) {
+	if (!styles) return;
+	for (const [key, val] of Object.entries(styles)) {
+		if (val === undefined || val === null || typeof val === 'function') continue;
+		const cssKey = key.startsWith('--') ? key : kebabCase(key);
+		const cssVal = typeof val === 'number' && val !== 0 ? `${val}px` : String(val);
+		el.style.setProperty(cssKey, cssVal);
+	}
+}
+
+// ponytail: simplified style applier using direct inline styling
+function applyComponentStyles(root: HTMLElement) {
+	if (!overrideComponentStyles || Object.keys(overrideComponentStyles).length === 0) return;
+   mutationObserver?.disconnect();
 
 	const selectors: Record<string, string> = {
 		layout: '.lm_goldenlayout',
@@ -86,26 +103,31 @@ function applyTailwindClasses(root: HTMLElement) {
 	};
 
 	for (const [part, selector] of Object.entries(selectors)) {
-		const classes = componentParts[part as keyof typeof componentParts];
-		if (!classes) continue;
+		const styles = overrideComponentStyles[part as keyof typeof overrideComponentStyles];
+		if (!styles) continue;
 
 		root.querySelectorAll(selector).forEach((el) => {
-			const htmlEl = el as HTMLElement;
-			if (!htmlEl.dataset.originalClass) {
-				htmlEl.dataset.originalClass = htmlEl.className;
-			}
-			htmlEl.className = `${htmlEl.dataset.originalClass} ${classes}`;
+			applyStyles(el as HTMLElement, styles);
 		});
 	}
 
 	root.querySelectorAll('.lm_tab').forEach((el) => {
 		const tabEl = el as HTMLElement;
 		const isAct = tabEl.classList.contains('lm_active');
-		const add = (isAct ? componentParts.activeTab : componentParts.tab) || '';
-		const remove = (isAct ? componentParts.tab : componentParts.activeTab) || '';
 
-		if (remove) remove.split(/\s+/).forEach((c: string) => c && tabEl.classList.remove(c));
-		if (add) add.split(/\s+/).forEach((c: string) => c && tabEl.classList.add(c));
+		const addStyles = isAct ? overrideComponentStyles.activeTab : overrideComponentStyles.tab;
+		const removeStyles = isAct ? overrideComponentStyles.tab : overrideComponentStyles.activeTab;
+
+		if (removeStyles) {
+			for (const key of Object.keys(removeStyles)) {
+				const cssKey = key.startsWith('--') ? key : kebabCase(key);
+				tabEl.style.removeProperty(cssKey);
+			}
+		}
+
+		if (addStyles) {
+			applyStyles(tabEl, addStyles);
+		}
 	});
 
 	if (mutationObserver && layoutContainerEl) {
@@ -146,8 +168,8 @@ function appendPlusButton(stack: Stack) {
 
 		tabsContainer.appendChild(btn);
 
-		if (componentParts && Object.keys(componentParts).length > 0) {
-			applyTailwindClasses(layoutContainerEl);
+		if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
+			applyComponentStyles(layoutContainerEl);
 		}
 	}
 }
@@ -164,7 +186,6 @@ onMount(() => {
 
 		Log_Info('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
 		LAYOUT = new GoldenLayout(layoutContainerEl);
-		layout = new GoldenLayoutWrapper(LAYOUT);
 
 		// Register Svelte components
 		if (components) {
@@ -252,15 +273,15 @@ onMount(() => {
 
 		Log_Info('GoldenLayout Wrapper: Layout loaded successfully.');
 
-		if (componentParts && Object.keys(componentParts).length > 0) {
-			applyTailwindClasses(layoutContainerEl);
+		if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
+			applyComponentStyles(layoutContainerEl);
 		}
 
 		// ponytail: simplified observer to detect layout changes and ensure self-healing "+" button
 		mutationObserver = new MutationObserver((mutations) => {
 			try {
-				// Re-apply classes if layout DOM changes
-				if (componentParts && Object.keys(componentParts).length > 0) {
+				// Re-apply styles if layout DOM changes
+				if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
 					const shouldSync = mutations.some(
 						(m) =>
 							m.addedNodes.length > 0 ||
@@ -272,7 +293,7 @@ onMount(() => {
 					);
 
 					if (shouldSync && layoutContainerEl) {
-						applyTailwindClasses(layoutContainerEl);
+						applyComponentStyles(layoutContainerEl);
 					}
 				}
 
@@ -308,7 +329,6 @@ onMount(() => {
 			if (resizeObserver) resizeObserver.disconnect();
 			if (mutationObserver) mutationObserver.disconnect();
 			if (LAYOUT) LAYOUT.destroy();
-			layout = null;
 		};
 
 		return cleanup;
@@ -320,9 +340,9 @@ onMount(() => {
 </script>
 
 <div
-  class="container-wrapper {className}"
+  class="container-wrapper"
   class:has-custom-theme={hasTheme}
-  style="width: 100%; height: 100%; position: relative; overflow: hidden; {cssVariables}"
+  style="width: 100%; height: 100%; position: relative; overflow: hidden; {cssVariables}; {containerStyles}"
 >
   <div id="the-layout" style="width: 100%; height: 100%;" bind:this={layoutContainerEl}></div>
 </div>

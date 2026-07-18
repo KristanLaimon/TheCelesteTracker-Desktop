@@ -30,6 +30,8 @@
 		"src/**/*.svelte",
 		"src-utils-extension/**/*.ts",
 		"src/extensions/directTestHelper.ts",
-		"src/extensions/neutralinoTestHelper.ts"
+		"src/extensions/neutralinoTestHelper.ts",
+		"src/libs/GoldenLayoutThemes/GoldenLayoutWrapper.disabled",
+		"src/libs/GoldenLayoutThemes/GoldenLayoutWrapper.disabled"
 	]
 }

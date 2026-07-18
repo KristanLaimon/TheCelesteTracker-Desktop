@@ -47,12 +47,17 @@ export interface GoldenLayoutThemeCssColorsOverrides {
 	dragProxyBorder?: string;
 }
 
-export interface GoldenLayoutComponentPartsTailwindCssOverrides {
-	layout?: string;
-	content?: string;
-	header?: string;
-	tab?: string;
-	activeTab?: string;
-	splitter?: string;
-	dragProxy?: string;
-}
+export type CSSProperties = Partial<CSSStyleDeclaration>;
+
+export interface GoldenLayoutComponentStylesOverrides {
+		rootContainer?: CSSProperties;
+		layout?: CSSProperties;
+		content?: CSSProperties;
+		header?: CSSProperties;
+		tab?: CSSProperties;
+		activeTab?: CSSProperties;
+		splitter?: CSSProperties;
+		dragProxy?: CSSProperties;
+	}
+
+export type GoldenLayoutComponentPartsTailwindCssOverrides = GoldenLayoutComponentStylesOverrides;

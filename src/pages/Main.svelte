@@ -1,14 +1,11 @@
 <script lang="ts">
 import CustomPanel from '../components/CustomPanel.svelte';
-import TestPanel from '../components/TestPanel.svelte';
+import RawHtml from '../libs/GoldenLayoutThemes/components/RawHtml.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { CustomRootContentItemsConfig, LayoutContentRootConfig } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
-import { GoldenLayoutWrapper } from '../libs/GoldenLayoutThemes/GoldenLayoutWrapper';
-
-let Layout = $state<GoldenLayoutWrapper | null>(null);
 
 const Layout_InitialComponents = {
-	testComponent: TestPanel,
+	testComponent: RawHtml,
 	myCustomComponent: CustomPanel,
 } satisfies LayoutContentRootConfig;
 
@@ -49,10 +46,10 @@ const Layout_InitialContent: CustomRootContentItemsConfig<typeof Layout_InitialC
 <main id="root-app">
   <div class="layout-wrapper">
     <GoldenLayout
-      bind:layout={Layout}
       content={Layout_InitialContent}
       components={Layout_InitialComponents}
-      defaultComponent={TestPanel}
+      defaultComponent={RawHtml}
+      overrideStyles={{activeTab:{alignItems: "left"}}}
       // componentParts={{
       //   header: 'bg-slate-900 border-b border-slate-700/50',
       //   tab: 'bg-slate-800 text-slate-400 hover:bg-slate-700/80 transition-colors',

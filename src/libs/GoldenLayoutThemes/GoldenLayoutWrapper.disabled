@@ -1,0 +1,67 @@
+import type { GoldenLayout, LayoutManager } from 'golden-layout';
+import { type Component, mount, unmount } from 'svelte';
+
+export class GoldenLayoutWrapper {
+		private svelteComponentCounter = 0;
+
+		constructor(private readonly rawLayout: GoldenLayout) {
+			if (!rawLayout) {
+				throw new Error('GoldenLayout instance is mandatory for GoldenLayoutWrapper injection.');
+			}
+		}
+
+		/**
+		 * Retrieves the raw GoldenLayout instance.
+		 */
+		get raw(): GoldenLayout {
+			return this.rawLayout;
+		}
+
+		/**
+		 * Dynamically registers a Svelte component class and returns its unique registered type name.
+		 */
+		// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+		private registerDynamicSvelteComponent(component: Component<any, any, any>): string {
+			this.svelteComponentCounter++;
+			const uniqueTypeName = `dyn_svelte_comp_${this.svelteComponentCounter}`;
+
+			this.rawLayout.registerComponentFactoryFunction(uniqueTypeName, (container, state) => {
+				const componentInstance = mount(component, {
+					target: container.element,
+					props: (state as Record<string, unknown>) || {},
+				});
+
+				container.on('destroy', () => {
+					unmount(componentInstance);
+				});
+			});
+
+			return uniqueTypeName;
+		}
+
+		/**
+		 * Dynamically adds a Svelte component
+		 * Registers the Svelte component dynamically under a unique ID.
+		 */
+		// biome-ignore lint/suspicious/noExplicitAny: Needed for component type and, props a prop could be anything ofc.
+		addSvelteComponent(component: Component<any, any, any>, props: Record<string, any> = {}, title: string = 'New Tab'): void {
+			const typeName = this.registerDynamicSvelteComponent(component);
+			this.rawLayout.addComponent(typeName, props, title);
+		}
+
+		/**
+		 * Dynamically adds a Svelte component at a specific location selector.
+		 * Registers the Svelte component dynamically under a unique ID.
+		 */
+		addSvelteTabAtLocation(
+			// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
+			component: Component<any, any, any>,
+			// biome-ignore lint/suspicious/noExplicitAny: A prop could be anything really (json serializable ofc)
+			props: Record<string, any> = {},
+			title: string,
+			locationSelectors: LayoutManager.LocationSelector[],
+		): void {
+			const typeName = this.registerDynamicSvelteComponent(component);
+			this.rawLayout.addComponentAtLocation(typeName, props, title, locationSelectors);
+		}
+	}
