@@ -5,29 +5,20 @@ import TaskNode from '../components/TaskNode.svelte';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
 import type { CanvasNodeData } from '../libs/Wanvas/Canvas.types';
 
-// Type alias for the direct-component union branch (has `component`, no `type`)
-type DirectComponentNode = Extract<CanvasNodeData<typeof registry>, { component: unknown }>;
-
-// Map type strings to Svelte Components
-const registry = {
-	chapterNode: ChapterCard,
-	taskNode: TaskNode,
-};
-
 // State: zoom and pan coordinates (with persistence)
 let x = $state(0);
 let y = $state(0);
 let zoom = $state(1);
 
-// Dynamic nodes list state demonstrating serializable registry type AND direct Svelte component class injection
-let nodes = $state<CanvasNodeData<typeof registry>[]>([
+// Dynamic nodes list state demonstrating direct Svelte component class injection
+let nodes = $state<CanvasNodeData[]>([
 	{
 		id: 'chap-1',
-		type: 'chapterNode',
+		componentSvelte: ChapterCard,
 		x: 100,
 		y: 150,
 		isPinned: true,
-		props: {
+		componentProps: {
 			number: '01',
 			title: 'Forsaken City',
 			status: 'completed',
@@ -38,22 +29,21 @@ let nodes = $state<CanvasNodeData<typeof registry>[]>([
 	},
 	{
 		id: 'todo-list',
-		type: 'taskNode',
+		componentSvelte: TaskNode,
 		x: 500,
 		y: 150,
 		width: 250,
 		height: 250,
-		props: {
+		componentProps: {
 			title: 'Modding Checklist',
 		},
 	},
-	// Direct component class example (fully portable, non-serializable without mapping)
 	{
 		id: 'custom-node',
-		component: ChapterCard,
+		componentSvelte: ChapterCard,
 		x: 900,
 		y: 150,
-		props: {
+		componentProps: {
 			number: '03',
 			title: 'Celestial Resort',
 			status: 'locked',
@@ -70,10 +60,16 @@ onMount(() => {
 	if (savedNodes) {
 		try {
 			const parsed = JSON.parse(savedNodes);
-			// Re-map the parsed JSON array back to Svelte components if they are direct
-			nodes = parsed.map((n: CanvasNodeData<typeof registry>) => {
-				if (n.id === 'custom-node') {
-					(n as DirectComponentNode).component = ChapterCard;
+			// Re-map the parsed JSON array back to Svelte components based on ID prefix or ID match
+			nodes = parsed.map((n: CanvasNodeData) => {
+				if (n.id?.startsWith('chap-') || n.id === 'custom-node') {
+					n.componentSvelte = ChapterCard;
+				} else if (n.id?.startsWith('todo-') || n.id === 'todo-list') {
+					n.componentSvelte = TaskNode;
+				}
+				// Map old props property if loaded from legacy storage
+				if (n.props && !n.componentProps) {
+					n.componentProps = n.props;
 				}
 				return n;
 			});
@@ -130,10 +126,10 @@ function addChapterNode() {
 
 	nodes.push({
 		id,
-		type: 'chapterNode',
+		componentSvelte: ChapterCard,
 		x: coords.x,
 		y: coords.y,
-		props: {
+		componentProps: {
 			number: 'New',
 			title: `Custom Chapter ${nodes.length + 1}`,
 			status: 'locked',
@@ -153,12 +149,12 @@ function addTaskNode() {
 
 	nodes.push({
 		id,
-		type: 'taskNode',
+		componentSvelte: TaskNode,
 		x: coords.x,
 		y: coords.y,
 		width: 250,
 		height: 250,
-		props: {
+		componentProps: {
 			title: 'Mod Tasks list',
 		},
 	});
@@ -187,7 +183,6 @@ function clearPersistence() {
     bind:y
     bind:zoom
     bind:nodes
-    {registry}
     dragHandleClass="drag-handle"
     onNodeChange={handleNodeChange}
   >

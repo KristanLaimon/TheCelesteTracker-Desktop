@@ -1,8 +1,8 @@
 import { Log_Warn } from '../Logger';
-import type { CanvasNodeData, CanvasRegistry } from './Canvas.types';
+import type { CanvasNodeData } from './Canvas.types';
 
 export interface DragOptions {
-	node: CanvasNodeData<CanvasRegistry>;
+	node: CanvasNodeData;
 	getZoom: () => number;
 	getDragHandleClass: () => string;
 	isInteractive: (target: HTMLElement | null) => boolean;
@@ -10,13 +10,13 @@ export interface DragOptions {
 }
 
 export interface ResizeOptions {
-	node: CanvasNodeData<CanvasRegistry>;
+	node: CanvasNodeData;
 	getZoom: () => number;
 	triggerChange: () => void;
 }
 
 export interface ObserveSizeOptions {
-	node: CanvasNodeData<CanvasRegistry>;
+	node: CanvasNodeData;
 	triggerChange: () => void;
 }
 

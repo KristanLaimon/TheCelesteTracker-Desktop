@@ -2,6 +2,8 @@
 import RawHtml from '../libs/GoldenLayoutThemes/components/RawHtml.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { GoldenLayoutContent } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
+import Canvas from '../libs/Wanvas/Canvas.svelte';
+import type { CanvasProps } from '../libs/Wanvas/Canvas.types';
 
 const Layout_InitialContent: GoldenLayoutContent = {
 	type: 'row',
@@ -9,12 +11,23 @@ const Layout_InitialContent: GoldenLayoutContent = {
 		{
 			type: 'row',
 			content: [
+				// {
+				// 	type: 'component',
+				// 	componentSvelte: RawHtml,
+				// 	componentProps: { htmlContent: 'Hola, raw HTML' },
+				// 	isClosable: false,
+				// 	maximised: false,
+				//   title: "My First tab!"
+				// },
 				{
-					type: 'component',
-					componentSvelte: RawHtml,
-					componentProps: { htmlContent: 'Hola, raw HTML' },
-					isClosable: false,
-					maximised: false,
+					type: 'stack',
+					content: [
+						{
+							type: 'component',
+							componentSvelte: Canvas,
+							componentProps: {} satisfies CanvasProps,
+						},
+					],
 				},
 				{
 					type: 'column',

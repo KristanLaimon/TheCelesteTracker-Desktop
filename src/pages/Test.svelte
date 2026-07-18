@@ -6,21 +6,16 @@ import { Log_Info } from '../libs/Logger';
 import { NeutralinoFileSystem } from '../libs/NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+import type { CanvasNodeData } from '../libs/Wanvas/Canvas.types';
 import ImgWidget from '../libs/Wanvas/widgets/ImgWidget.svelte';
 import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 
-const registry = {
-	textWidget: TextWidget,
-	imgWidget: ImgWidget,
-} satisfies CanvasRegistry;
-
-let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
+let defaultNodes = $state<CanvasNodeData[]>([
 	{
-		type: 'textWidget',
+		componentSvelte: TextWidget,
 		x: 100,
 		y: 150,
-		props: {
+		componentProps: {
 			rawTextContent: 'Hello Celeste Modder!',
 		},
 	},
@@ -32,11 +27,11 @@ function AddNewTextWidget(text: string = '') {
 		y: 150,
 		height: 150,
 		width: 150,
-		type: 'textWidget',
-		props: {
+		componentSvelte: TextWidget,
+		componentProps: {
 			rawTextContent: text,
 		},
-	} satisfies CanvasNodeData<typeof registry>);
+	});
 }
 
 function AddNewImgWidget(srcUrl: string = '') {
@@ -45,15 +40,14 @@ function AddNewImgWidget(srcUrl: string = '') {
 		y: 200,
 		height: 200,
 		width: 300,
-		//keep-aspect-ratio: boolean
-		type: 'imgWidget',
-		props: {
+		componentSvelte: ImgWidget,
+		componentProps: {
 			srcUrl: srcUrl,
 			size: {
 				mode: 'keep-aspect-ratio-always',
 			},
 		},
-	} satisfies CanvasNodeData<typeof registry>);
+	});
 }
 
 let canvasX = $state(0);
@@ -87,7 +81,7 @@ function clearAll() {
     <button class="hud-btn" onclick={() => {AddNewImgWidget(Path.join(NeutralinoFileSystem.ResourcesFolderPath_Frontend, "fox.png"))}}>Add new img widget</button>
   </div>
 
-  <Canvas {registry}
+  <Canvas
     classNames={{wrapper: "w-[80vw] h-[80vh]"}}
     mode="normal"
     bind:nodes={defaultNodes}

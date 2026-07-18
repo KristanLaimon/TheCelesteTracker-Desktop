@@ -1,4 +1,4 @@
-<script lang="ts" generics="Registry extends CanvasRegistry = CanvasRegistry">
+<script lang="ts">
 /**
  * @module Canvas
  * @description A fully encapsulated, portable, zoomable, and pannable 2D canvas workspace for Svelte 5.
@@ -7,12 +7,12 @@
  */
 
 import { onDestroy, onMount } from 'svelte';
-import type { CanvasNodeData, CanvasPersistence, CanvasProps, CanvasRegistry } from './Canvas.types';
+import type { CanvasNodeData, CanvasPersistence, CanvasProps } from './Canvas.types';
 import { dragNode, observeSize, resizeNode } from './CanvasActions';
 import { calculateZoomOffset, clampX, clampY, clampZoom, getTouchCenter, getTouchDistance } from './CanvasMath';
 import { loadPersistentState, savePersistentState } from './CanvasPersistence';
 
-export type { CanvasNodeData, CanvasPersistence, CanvasProps, CanvasRegistry };
+export type { CanvasNodeData, CanvasPersistence, CanvasProps };
 
 let {
 	x = $bindable(0),
@@ -30,7 +30,6 @@ let {
 	showControls = true,
 	resizable = true,
 	nodes = $bindable([]),
-	registry = {} as Registry,
 	dragHandleClass = '',
 	onNodeChange,
 	classNames = {},
@@ -42,8 +41,8 @@ let {
 	showDots = true,
 	mode = 'normal',
 	children,
-	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence<Registry> | null),
-}: CanvasProps<Registry> = $props();
+	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence | null),
+}: CanvasProps = $props();
 
 // ponytail: consolidated reactive canvas limits configuration
 const limits = $derived({
@@ -78,7 +77,7 @@ let lastTouchPos = { x: 0, y: 0 };
 onMount(() => {
 	let hasSavedView = false;
 	if (isPersistenceEnabled && persistence?.key) {
-		const state = loadPersistentState<Registry>(persistence.key);
+		const state = loadPersistentState(persistence.key);
 		if (state.nodes !== null) {
 			nodes = state.nodes;
 		}
@@ -143,7 +142,7 @@ $effect.pre(() => {
 	}
 });
 
-function bringToTop(node: CanvasNodeData<Registry>, target?: HTMLElement) {
+function bringToTop(node: CanvasNodeData, target?: HTMLElement) {
 	if (target?.closest('.canvas-node-close-button')) return;
 	const maxLayer = Math.max(0, ...nodes.map((n) => n.layer ?? 0));
 	if (node.layer !== maxLayer) {
@@ -393,14 +392,16 @@ function triggerChange() {
 	changeTimeout = setTimeout(() => {
 		const serialized = nodes.map((n) => ({
 			id: n.id,
-			type: n.type,
+			componentSvelte: n.componentSvelte,
+			componentProps: n.componentProps ? JSON.parse(JSON.stringify(n.componentProps)) : {},
 			x: n.x,
 			y: n.y,
 			width: n.width,
 			height: n.height,
 			layer: n.layer,
-			props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
-		})) as unknown as CanvasNodeData<Registry>[];
+			isPinned: n.isPinned,
+			keepAspectRatio: n.keepAspectRatio,
+		})) as unknown as CanvasNodeData[];
 
 		let cancelled = false;
 		const cancel = () => {
@@ -456,9 +457,9 @@ onDestroy(() => {
       {@render children()}
     {/if}
 
-    <!-- Render Dynamic Serializable Nodes (supporting component OR registry mappings) -->
+    <!-- Render Dynamic Serializable Nodes -->
     {#each nodes as node (node.id)}
-      {@const Component = node.component || registry[node.type || ""]}
+      {@const Component = node.componentSvelte}
       {#if Component}
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
@@ -481,9 +482,9 @@ onDestroy(() => {
           }}
         >
           <Component 
-            {...node.props || {}} 
+            {...node.componentProps || {}} 
             onChange={(updatedProps: any) => {
-              node.props = { ...node.props, ...updatedProps };
+              node.componentProps = { ...node.componentProps, ...updatedProps };
               triggerChange();
             }}
           />

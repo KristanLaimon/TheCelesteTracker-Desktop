@@ -1,5 +1,5 @@
 import { Log_Warn } from '../Logger';
-import type { CanvasNodeData, CanvasRegistry } from './Canvas.types';
+import type { CanvasNodeData } from './Canvas.types';
 
 /**
  * Interface representing the deserialized view configuration.
@@ -13,7 +13,7 @@ export interface ViewState {
 /**
  * Sanitizes loaded node properties to ensure valid formats.
  */
-export function sanitizeNodes<Registry extends CanvasRegistry>(loadedNodes: CanvasNodeData<Registry>[]): CanvasNodeData<Registry>[] {
+export function sanitizeNodes(loadedNodes: CanvasNodeData<any>[]): CanvasNodeData<any>[] {
 	// ponytail: simplified mapped sanitization for nodes
 	return loadedNodes.map((node) => {
 		const sanitized = { ...node };
@@ -39,14 +39,14 @@ export function sanitizeNodes<Registry extends CanvasRegistry>(loadedNodes: Canv
 /**
  * Attempts to parse fallback legacy payload.
  */
-function parseLegacyPayload<Registry extends CanvasRegistry>(storage: string): { nodes: CanvasNodeData<Registry>[]; view: ViewState | null } | null {
+function parseLegacyPayload(storage: string): { nodes: CanvasNodeData<any>[]; view: ViewState | null } | null {
 	try {
 		const parsed = JSON.parse(storage);
 		if (Array.isArray(parsed)) {
-			return { nodes: parsed as CanvasNodeData<Registry>[], view: null };
+			return { nodes: parsed as CanvasNodeData<any>[], view: null };
 		}
 		if (parsed && typeof parsed === 'object') {
-			const nodes = (parsed.nodes || []) as CanvasNodeData<Registry>[];
+			const nodes = (parsed.nodes || []) as CanvasNodeData<any>[];
 			let view: ViewState | null = null;
 			if (parsed.view) {
 				const vx = Number(parsed.view.x);
@@ -67,10 +67,10 @@ function parseLegacyPayload<Registry extends CanvasRegistry>(storage: string): {
 /**
  * Loads persistent node array and viewport state from localStorage.
  */
-export function loadPersistentState<Registry extends CanvasRegistry>(key: string): { nodes: CanvasNodeData<Registry>[] | null; view: ViewState | null } {
+export function loadPersistentState(key: string): { nodes: CanvasNodeData<any>[] | null; view: ViewState | null } {
 	const nodesStorage = localStorage.getItem(`${key}_nodes`);
 	const viewStorage = localStorage.getItem(`${key}_view`);
-	let nodes: CanvasNodeData<Registry>[] | null = null;
+	let nodes: CanvasNodeData<any>[] | null = null;
 	let view: ViewState | null = null;
 
 	if (nodesStorage) {
@@ -101,7 +101,7 @@ export function loadPersistentState<Registry extends CanvasRegistry>(key: string
 	if (!nodesStorage && !viewStorage) {
 		const storage = localStorage.getItem(key);
 		if (storage) {
-			const legacy = parseLegacyPayload<Registry>(storage);
+			const legacy = parseLegacyPayload(storage);
 			if (legacy) {
 				nodes = legacy.nodes;
 				view = legacy.view;
@@ -119,7 +119,7 @@ export function loadPersistentState<Registry extends CanvasRegistry>(key: string
 /**
  * Saves state values to storage.
  */
-export function savePersistentState<Registry extends CanvasRegistry>(key: string, nodes: CanvasNodeData<Registry>[], view: ViewState): void {
+export function savePersistentState(key: string, nodes: CanvasNodeData<any>[], view: ViewState): void {
 	try {
 		localStorage.setItem(`${key}_nodes`, JSON.stringify(nodes));
 		localStorage.setItem(`${key}_view`, JSON.stringify(view));
