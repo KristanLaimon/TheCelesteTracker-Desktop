@@ -7,6 +7,7 @@ import { NeutralinoFileSystem } from '../../NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../../Wanvas/Canvas.svelte';
 import type { CanvasNodeData, CanvasRegistry } from '../../Wanvas/Canvas.types';
+import ImgCaptionWidget from '../../Wanvas/widgets/ImgCaptionWidget.svelte';
 import ImgWidget from '../../Wanvas/widgets/ImgWidget.svelte';
 import TextWidget from '../../Wanvas/widgets/TextWidget.svelte';
 
@@ -19,6 +20,7 @@ const { localStorageKey }: Props = $props();
 const registry = {
 	textWidget: TextWidget,
 	imgWidget: ImgWidget,
+	imgCaptionWidget: ImgCaptionWidget,
 } satisfies CanvasRegistry;
 
 let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([]);
@@ -48,6 +50,24 @@ function AddNewImgWidget(srcUrl: string = '') {
 			size: {
 				mode: 'keep-aspect-ratio-always',
 			},
+		},
+	});
+}
+
+function AddNewImgCaptionWidget(srcUrl: string = '', text: string = '') {
+	defaultNodes.push({
+		x: 200,
+		y: 250,
+		height: 350,
+		width: 300,
+		type: 'imgCaptionWidget',
+		props: {
+			srcUrl: srcUrl,
+			size: {
+				mode: 'keep-aspect-ratio-always',
+			},
+			rawTextContent: text,
+			displayMode: 'markdown-rendered',
 		},
 	});
 }
@@ -95,6 +115,18 @@ function clearAll() {
           ),
         );
       }}>Add new img widget</button
+    >
+    <button
+      class="hud-btn"
+      onclick={() => {
+        AddNewImgCaptionWidget(
+          Path.join(
+            NeutralinoFileSystem.ResourcesFolderPath_Frontend,
+            "fox.png",
+          ),
+          "### Fox Caption\nThis is a cute fox on the canvas!",
+        );
+      }}>Add img caption widget</button
     >
   </div>
 

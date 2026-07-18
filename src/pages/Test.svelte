@@ -7,12 +7,14 @@ import { NeutralinoFileSystem } from '../libs/NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
 import Canvas from '../libs/Wanvas/Canvas.svelte';
 import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+import ImgCaptionWidget from '../libs/Wanvas/widgets/ImgCaptionWidget.svelte';
 import ImgWidget from '../libs/Wanvas/widgets/ImgWidget.svelte';
 import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
 
 const registry = {
 	textWidget: TextWidget,
 	imgWidget: ImgWidget,
+	imgCaptionWidget: ImgCaptionWidget,
 } satisfies CanvasRegistry;
 
 let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
@@ -56,6 +58,24 @@ function AddNewImgWidget(srcUrl: string = '') {
 	});
 }
 
+function AddNewImgCaptionWidget(srcUrl: string = '', text: string = '') {
+	defaultNodes.push({
+		x: 200,
+		y: 250,
+		height: 350,
+		width: 300,
+		type: 'imgCaptionWidget',
+		props: {
+			srcUrl: srcUrl,
+			size: {
+				mode: 'keep-aspect-ratio-always',
+			},
+			rawTextContent: text,
+			displayMode: 'markdown-rendered',
+		},
+	});
+}
+
 let canvasX = $state(0);
 let canvasY = $state(0);
 let canvasZoom = $state(1);
@@ -85,6 +105,7 @@ function clearAll() {
     <button class="hud-btn danger" onclick={clearAll}>Clear All</button>
     <button class="hud-btn" onclick={() => {AddNewTextWidget("default text!!")}}>Add new txt widget</button>
     <button class="hud-btn" onclick={() => {AddNewImgWidget(Path.join(NeutralinoFileSystem.ResourcesFolderPath_Frontend, "fox.png"))}}>Add new img widget</button>
+    <button class="hud-btn" onclick={() => {AddNewImgCaptionWidget(Path.join(NeutralinoFileSystem.ResourcesFolderPath_Frontend, "fox.png"), "### Fox Caption\nThis is a cute fox on the canvas!")}}>Add img caption widget</button>
   </div>
 
   <Canvas

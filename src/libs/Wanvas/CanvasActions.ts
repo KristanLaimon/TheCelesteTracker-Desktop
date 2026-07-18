@@ -291,13 +291,21 @@ export function observeSize(nodeEl: HTMLElement, initialOptions: ObserveSizeOpti
 	let skipFirst = options.node.width !== undefined && options.node.height !== undefined;
 
 	const observer = new ResizeObserver((entries) => {
-		if (skipFirst) {
-			skipFirst = false;
-			return;
-		}
 		for (const entry of entries) {
 			const width = entry.borderBoxSize?.[0]?.inlineSize ?? targetEl.offsetWidth;
 			const height = entry.borderBoxSize?.[0]?.blockSize ?? targetEl.offsetHeight;
+
+			// If the element is hidden (e.g. display: none inside a GoldenLayout tab stack),
+			// its dimensions collapse to 0. We must ignore these to prevent clobbering
+			// the actual size of the widget in the state/persistence.
+			if (width === 0 && height === 0) {
+				continue;
+			}
+
+			if (skipFirst) {
+				skipFirst = false;
+				continue;
+			}
 
 			if (options.node.width !== width || options.node.height !== height) {
 				options.node.width = width;
