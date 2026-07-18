@@ -97,20 +97,60 @@ onMount(() => {
 	}
 });
 
-// Ensure all nodes have a unique ID reactively
+// Ensure all nodes have a unique ID and a layer index reactively
 $effect.pre(() => {
 	let changed = false;
+
+	// First check layer values and throw error if negative
+	for (const node of nodes) {
+		if (node.layer !== undefined && node.layer < 0) {
+			throw new Error('Layer index must be non-negative');
+		}
+	}
+
+	// Calculate maximum layer index currently present on any node
+	let maxLayer = -1;
+	for (const node of nodes) {
+		if (node.layer !== undefined && node.layer > maxLayer) {
+			maxLayer = node.layer;
+		}
+	}
+
 	const sanitized = nodes.map((node) => {
-		if (!node.id) {
+		let nodeChanged = false;
+		let id = node.id;
+		if (!id) {
+			id = crypto.randomUUID();
+			nodeChanged = true;
+		}
+
+		let layer = node.layer;
+		if (layer === undefined) {
+			maxLayer = maxLayer + 1;
+			layer = maxLayer;
+			nodeChanged = true;
+		}
+
+		if (nodeChanged) {
 			changed = true;
-			return { ...node, id: crypto.randomUUID() };
+			return { ...node, id, layer };
 		}
 		return node;
 	});
+
 	if (changed) {
 		nodes = sanitized;
 	}
 });
+
+function bringToTop(node: CanvasNodeData<Registry>, target?: HTMLElement) {
+	if (target?.closest('.canvas-node-close-button')) return;
+	const maxLayer = Math.max(0, ...nodes.map((n) => n.layer ?? 0));
+	if (node.layer !== maxLayer) {
+		node.layer = maxLayer + 1;
+		triggerChange();
+	}
+}
 
 // Persist viewport changes (pan and zoom) reactively
 $effect(() => {
@@ -358,6 +398,7 @@ function triggerChange() {
 			y: n.y,
 			width: n.width,
 			height: n.height,
+			layer: n.layer,
 			props: n.props ? JSON.parse(JSON.stringify(n.props)) : {},
 		})) as unknown as CanvasNodeData<Registry>[];
 
@@ -425,7 +466,8 @@ onDestroy(() => {
           class:pinned={node.isPinned}
           style="left: {node.x}px; top: {node.y}px; width: {node.width
             ? node.width + 'px'
-            : 'auto'}; height: {node.height ? node.height + 'px' : 'auto'};"
+            : 'auto'}; height: {node.height ? node.height + 'px' : 'auto'}; z-index: {node.layer};"
+          onpointerdown={(e) => bringToTop(node, e.target as HTMLElement)}
           use:dragNode={{
             node,
             getZoom: () => zoom,
@@ -505,7 +547,9 @@ onDestroy(() => {
               node,
               getZoom: () => zoom,
               triggerChange
-            }}></div>
+            }}
+            onpointerdown={(e) => bringToTop(node, e.target as HTMLElement)}
+            ></div>
           {/if}
         </div>
       {/if}
