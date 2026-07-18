@@ -37,3 +37,6 @@ src-utils-extension/build/
 src-utils-extension/temp/
 extensions/sqlite/*
 extensions/utilities/*
+
+# Specific apps folder to store all data and info
+data/

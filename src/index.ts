@@ -3,6 +3,7 @@ import neutralino from '@neutralinojs/lib';
 import { mount } from 'svelte';
 import App from './index.svelte';
 import { Log_Info } from './libs/Logger';
+import { NeutralinoFileSystem } from './libs/NeutralinoFileSystem';
 
 neutralino.init();
 
@@ -21,6 +22,7 @@ function showWindowIfReady() {
 neutralino.events.on('ready', () => {
 	Log_Info('Neutralino: Ready');
 	isNeutralinoReady = true;
+  NeutralinoFileSystem.MountLocalFolders();
 	showWindowIfReady();
 });
 

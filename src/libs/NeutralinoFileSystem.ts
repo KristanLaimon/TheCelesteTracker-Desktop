@@ -10,8 +10,10 @@ import type {
 	Stats,
 	Watcher,
 } from '@neutralinojs/lib';
-import { filesystem } from '@neutralinojs/lib';
+import { filesystem, server } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
+import { Log_Info } from './Logger';
+import Path from './Path';
 
 /**
  * FileSystem is a robust, type-safe wrapper around the Neutralino.filesystem API.
@@ -19,6 +21,34 @@ import { injectable } from 'tsyringe';
  */
 @injectable()
 export class NeutralinoFileSystem {
+	/** If *null*, local folders hasn't been mounted by neutralino. Mount using {@link NeutralinoFileSystem.MountLocalFolders()} function  */
+	public static ResourcesFolderPath: string | null = null;
+	public static async MountLocalFolders(): Promise<void> {
+		if (NeutralinoFileSystem.ResourcesFolderPath === null) {
+			const currentExePath: string = await filesystem.getAbsolutePath('.');
+			const resourcesFolderPath = Path.join(currentExePath, 'data');
+			const resourcesFolderExists = await (async () => {
+				try {
+					await filesystem.getStats(resourcesFolderPath);
+					return true;
+				} catch (e: unknown) {
+					if (e && typeof e === 'object' && 'code' in e && (e as { code: unknown }).code === 'NE_FS_NOPATHE') {
+						return false;
+					}
+					console.error(e);
+					return false;
+				}
+			})();
+			if (!resourcesFolderExists) {
+				await filesystem.createDirectory(resourcesFolderPath);
+				Log_Info('NeutralinoFileSystem:', "Resources folder not found, creating empty directory at exe's path.");
+			}
+			await server.mount('/resources', resourcesFolderPath);
+			NeutralinoFileSystem.ResourcesFolderPath = resourcesFolderPath;
+			Log_Info('NeutralinoFileSystem:', 'Mounted and loaded local folder:', NeutralinoFileSystem.ResourcesFolderPath);
+		}
+	}
+
 	/**
 	 * Creates a directory or multiple directories recursively.
 	 * @param path New directory path.
@@ -187,6 +217,9 @@ export class NeutralinoFileSystem {
 			await filesystem.getStats(path);
 			return true;
 		} catch (e: unknown) {
+			if (e && typeof e === 'object' && 'code' in e && (e as { code: unknown }).code === 'NE_FS_NOPATHE') {
+				return false;
+			}
 			console.error(e);
 			return false;
 		}
