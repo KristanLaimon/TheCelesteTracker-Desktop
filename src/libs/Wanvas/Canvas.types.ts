@@ -25,7 +25,7 @@ export type CanvasRegistry = Record<string, Component<any, any, any>>;
  */
 export type ICanvasWidgetProps<T = Record<string, unknown>> = IRawInternalCanvasWidgetPropsHelper<T> & T;
 interface IRawInternalCanvasWidgetPropsHelper<T = Record<string, unknown>> {
-	onChange?: (updatedProps: Partial<T>) => void;
+	onChange?: (updatedProps: T) => void;
 }
 
 /**

@@ -47,6 +47,6 @@ const radiusValue = $derived(typeof borderRadius === 'number' ? `${borderRadius}
   }
 
   .base-glass-widget.glass {
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(3px);
   }
 </style>

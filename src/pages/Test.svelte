@@ -21,7 +21,7 @@ let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
 		x: 100,
 		y: 150,
 		props: {
-			text: 'Hello Celeste Modder!',
+			rawTextContent: 'Hello Celeste Modder!',
 		},
 	},
 ]);
@@ -34,7 +34,7 @@ function AddNewTextWidget(text: string = '') {
 		width: 150,
 		type: 'textWidget',
 		props: {
-			text: text,
+			rawTextContent: text,
 		},
 	} satisfies CanvasNodeData<typeof registry>);
 }
