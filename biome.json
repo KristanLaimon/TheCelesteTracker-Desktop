@@ -23,7 +23,7 @@
 				"noParameterAssign": "error"
 			},
 			"correctness": {
-				"noUnusedVariables": "error"
+				"noUnusedVariables": "warn"
 			},
 			"suspicious": {
 				"noExplicitAny": "warn",

@@ -3,175 +3,80 @@ import * as yaml from 'js-yaml';
 import { injectable } from 'tsyringe';
 import { Zip_Go } from '../../src-utils/Zip';
 import Celeste from './Celeste';
+import { NeutralinoFileSystem } from './NeutralinoFileSystem';
 
-export interface ModDependency {
-	name: string;
-	version: string;
-}
+export type ModMetadata = { name: string; version: string; dependencies: ModDependency[] };
+export type ModDependency = Omit<ModMetadata, 'dependencies'>;
+export type EverestModInfo = { name: string; isZip: boolean; metadata: ModMetadata[] };
 
-export interface ModMetadata {
-	name: string;
-	version: string;
-	dependencies: ModDependency[];
-	[key: string]: unknown;
-}
-
-export interface EverestModInfo {
-	fileName: string;
-	isZip: boolean;
-	metadata: ModMetadata[];
-}
-
-interface RawDependency {
+interface RawMeta {
 	Name?: string;
 	name?: string;
 	Version?: string | number;
 	version?: string | number;
-}
-
-interface RawMetadata {
-	Name?: string;
-	name?: string;
-	Version?: string | number;
-	version?: string | number;
-	Dependencies?: RawDependency[];
-	dependencies?: RawDependency[];
+	Dependencies?: RawMeta[];
+	dependencies?: RawMeta[];
 	[key: string]: unknown;
 }
 
+// ponytail: array/object normalization combined. any cast drops verbose raw types.
 function parseEverestYaml(content: string, fileName: string): ModMetadata[] {
-	const cleanContent = content.replace(/^\uFEFF/, '');
 	try {
-		const parsed = yaml.load(cleanContent);
-		if (Array.isArray(parsed)) {
-			return (parsed as RawMetadata[]).map((item) => {
-				const rawDeps = (item.Dependencies || item.dependencies) as RawDependency[] | undefined;
-				return {
-					...item,
-					name: item.Name || item.name || '',
-					version: item.Version || item.version ? String(item.Version || item.version) : '',
-					dependencies: Array.isArray(rawDeps)
-						? rawDeps.map((dep) => ({
-								name: dep.Name || dep.name || '',
-								version: dep.Version || dep.version ? String(dep.Version || dep.version) : '',
-							}))
-						: [],
-				};
-			});
-		}
-		if (parsed && typeof parsed === 'object') {
-			const item = parsed as RawMetadata;
-			const rawDeps = (item.Dependencies || item.dependencies) as RawDependency[] | undefined;
-			return [
-				{
-					...item,
-					name: item.Name || item.name || '',
-					version: item.Version || item.version ? String(item.Version || item.version) : '',
-					dependencies: Array.isArray(rawDeps)
-						? rawDeps.map((dep) => ({
-								name: dep.Name || dep.name || '',
-								version: dep.Version || dep.version ? String(dep.Version || dep.version) : '',
-							}))
-						: [],
-				},
-			];
-		}
+		const parsed = yaml.load(content.replace(/^\uFEFF/, '')) as RawMeta | RawMeta[] | null | undefined;
+		const items = Array.isArray(parsed) ? parsed : parsed ? [parsed] : [];
+
+		return items.map((item) => ({
+			...item,
+			name: item.Name || item.name || '',
+			version: String(item.Version ?? item.version ?? ''),
+			dependencies: (item.Dependencies || item.dependencies || []).map((d) => ({
+				name: d.Name || d.name || '',
+				version: String(d.Version ?? d.version ?? ''),
+			})),
+		}));
 	} catch (err) {
-		console.error(`Error parsing everest.yaml in ${fileName}:`, err);
+		console.error(`Yaml parse fail ${fileName}:`, err);
+		return [];
 	}
-	return [];
 }
 
 @injectable()
 export default class Everest {
 	constructor(
 		private celesteDep: Celeste,
-		private utilsExt: Zip_Go,
+		private zip: Zip_Go,
+		private fs: NeutralinoFileSystem,
 	) {}
 
-	public GetModsFolderPath(): string {
-		const gamePath = this.celesteDep.GetGamePath();
-		return gamePath ? `${gamePath}/Mods` : '';
+	public async GetInstallationPath(): Promise<string | null> {
+		const install = await this.celesteDep.GetInstallationPath();
+		return install ? `${install.foundPath}/Mods` : null;
 	}
 
-	private async readZipTextFile(zipPath: string, filePath: string): Promise<string> {
-		return this.utilsExt.readTextFile(zipPath, filePath);
-	}
+	public async GetModsInstalled(): Promise<EverestModInfo[]> {
+		const modsPath = await this.GetInstallationPath();
+		if (!modsPath || !(await this.fs.exists(modsPath))) return [];
 
-	public async GetAllModsInfo(): Promise<EverestModInfo[]> {
-		const modsPath = this.GetModsFolderPath();
-		if (!modsPath) {
-			return [];
-		}
+		const entries = await this.fs.readDirectory(modsPath);
+		const mods: EverestModInfo[] = [];
+		const yamlNames = ['everest.yaml', 'everest.yml', 'Everest.yaml', 'Everest.yml'];
 
-		const exists = await this.celesteDep.IsInstalled();
-		if (!exists) {
-			return [];
-		}
+		for (const { entry, type } of entries) {
+			const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
+			if (type !== 'DIRECTORY' && !isZip) continue;
 
-		try {
-			const fs = this.celesteDep.fs;
-			const dirExists = await fs.exists(modsPath);
-			if (!dirExists) {
-				return [];
-			}
-			const entries = await fs.readDirectory(modsPath);
-			const installedMods: EverestModInfo[] = [];
+			for (const yName of yamlNames) {
+				try {
+					// ponytail: unified zip and dir read flow.
+					const content = isZip ? await this.zip.readTextFile(`${modsPath}/${entry}`, yName) : await this.fs.readFile(`${modsPath}/${entry}/${yName}`);
 
-			for (const entry of entries) {
-				if (entry.type === 'DIRECTORY') {
-					let yamlContent = '';
-					let foundYaml = false;
-					for (const yName of ['everest.yaml', 'everest.yml', 'Everest.yaml', 'Everest.yml']) {
-						const yamlPath = `${modsPath}/${entry.entry}/${yName}`;
-						const yamlExists = await fs.exists(yamlPath);
-						if (yamlExists) {
-							yamlContent = await fs.readFile(yamlPath);
-							foundYaml = true;
-							break;
-						}
-					}
-
-					if (foundYaml) {
-						const metadata = parseEverestYaml(yamlContent, entry.entry);
-						installedMods.push({
-							fileName: entry.entry,
-							isZip: false,
-							metadata,
-						});
-					}
-				} else if (entry.type === 'FILE' && entry.entry.toLowerCase().endsWith('.zip')) {
-					let yamlContent = '';
-					let foundYaml = false;
-					for (const yName of ['everest.yaml', 'everest.yml', 'Everest.yaml', 'Everest.yml']) {
-						try {
-							yamlContent = await this.readZipTextFile(`${modsPath}/${entry.entry}`, yName);
-							foundYaml = true;
-							break;
-						} catch {
-							// Try next name
-						}
-					}
-
-					if (foundYaml) {
-						const metadata = parseEverestYaml(yamlContent, entry.entry);
-						installedMods.push({
-							fileName: entry.entry,
-							isZip: true,
-							metadata,
-						});
-					}
+					mods.push({ name: entry, isZip, metadata: parseEverestYaml(content, entry) });
+					break;
+				} catch {
+					// ponytail: fs/zip throw if yaml missing. silent loop next.
 				}
 			}
-
-			return installedMods;
-		} catch (err) {
-			console.error('Error scanning mods:', err);
-			return [];
 		}
-	}
-
-	public async IsInstalled(): Promise<boolean> {
-		return this.celesteDep.IsInstalled();
+		return mods;
 	}
 }

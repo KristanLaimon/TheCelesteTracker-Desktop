@@ -5,8 +5,29 @@ export interface Route {
 	component: Component;
 }
 
+const STORAGE_KEY = 'last_page';
+
+function getInitialUrl(): URL {
+	const currentUrl = new URL(window.location.href);
+	try {
+		const lastPage = localStorage.getItem(STORAGE_KEY);
+		if (lastPage) {
+			const savedUrl = new URL(lastPage, window.location.href);
+			if (savedUrl.href !== currentUrl.href) {
+				window.history.replaceState({}, '', savedUrl.href);
+			}
+			return savedUrl;
+		}
+		// If no last page is stored, store the current one
+		localStorage.setItem(STORAGE_KEY, currentUrl.pathname + currentUrl.search + currentUrl.hash);
+	} catch (e) {
+		console.error('Failed to get or set initial URL in localStorage:', e);
+	}
+	return currentUrl;
+}
+
 class Router {
-	public url = $state(new URL(window.location.href));
+	public url = $state(getInitialUrl());
 	public routes = $state<Route[]>([]);
 
 	page = $derived.by(() => {
@@ -52,8 +73,11 @@ class Router {
 		}, 0);
 	}
 
+	private saveLastPage(url: URL) {
+		localStorage.setItem(STORAGE_KEY, url.pathname + url.search + url.hash);
+	}
+
 	navigate(href: string, options: { replace?: boolean } = {}) {
-		if (typeof window === 'undefined') return;
 		const newUrl = new URL(href, window.location.href);
 		if (options.replace) {
 			window.history.replaceState({}, '', href);
@@ -62,6 +86,7 @@ class Router {
 		}
 		this.url = newUrl;
 		this.scrollToHash(newUrl.hash);
+		this.saveLastPage(newUrl);
 	}
 
 	// Svelte action to intercept anchor clicks and route client-side
@@ -89,13 +114,13 @@ class Router {
 	};
 
 	constructor() {
-		if (typeof window !== 'undefined') {
-			window.addEventListener('popstate', () => {
-				this.url = new URL(window.location.href);
-				this.scrollToHash(this.url.hash);
-			});
-			this.scrollToHash(window.location.hash);
-		}
+		window.addEventListener('popstate', () => {
+			const currentUrl = new URL(window.location.href);
+			this.url = currentUrl;
+			this.scrollToHash(currentUrl.hash);
+			this.saveLastPage(currentUrl);
+		});
+		this.scrollToHash(this.url.hash);
 	}
 }
 

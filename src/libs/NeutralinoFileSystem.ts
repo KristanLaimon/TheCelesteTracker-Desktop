@@ -15,6 +15,14 @@ import { injectable } from 'tsyringe';
 import Path from './BrowserPath';
 import { Log_Info } from './Logger';
 
+export enum OperatingSystem {
+	Linux = 'Linux',
+	Windows = 'Windows',
+	Darwin = 'Darwin',
+	FreeBSD = 'FreeBSD',
+	Unknown = 'Unknown',
+}
+
 /**
  * FileSystem is a robust, type-safe wrapper around the Neutralino.filesystem API.
  * Provides easy access to local file operations, directory reading, file watching, and statistics.

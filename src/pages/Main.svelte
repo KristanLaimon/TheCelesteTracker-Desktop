@@ -4,6 +4,8 @@ import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { GoldenLayoutContent, GoldenLayoutRegistry } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
 
+
+
 const registry = {
 	canvas: Canvas,
 	rawHtml: RawHtml,
@@ -69,6 +71,7 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
   }
 
   .layout-wrapper {

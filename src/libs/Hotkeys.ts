@@ -1,25 +1,38 @@
 import Hotkeys from 'hotkeys-js';
 import { router } from '../router.svelte';
 
-function registerHotkey(key: string, callback: () => void) {
+const HotkeysScopes = ['global', 'ui'] as const;
+export type HotkeysScopes = (typeof HotkeysScopes)[number];
+
+export function Hotkeys_SetScope(scope: HotkeysScopes) {
+	Hotkeys.setScope(scope);
+}
+Hotkeys_SetScope('global');
+
+export function Hotkeys_GetScope(): HotkeysScopes {
+	return Hotkeys.getScope() as HotkeysScopes;
+}
+
+export function Hotkeys_RegisterHotkey(key: string, scope: HotkeysScopes, callback: () => void) {
 	const registered = Hotkeys.getAllKeyCodes();
 	const exists = registered.some((item) => item.shortcut === key);
 	if (!exists) {
-		Hotkeys(key, callback);
+		Hotkeys(key, scope, callback);
 	}
 }
-registerHotkey('ctrl+n', () => {
+
+Hotkeys_RegisterHotkey('ctrl+n', 'global', () => {
 	router.navigate('/database');
 });
 
-registerHotkey('ctrl+d', () => {
+Hotkeys_RegisterHotkey('ctrl+d', 'global', () => {
 	router.navigate('/dev');
 });
 
-registerHotkey('ctrl+m', () => {
+Hotkeys_RegisterHotkey('ctrl+m', 'global', () => {
 	router.navigate('/');
 });
 
-registerHotkey('ctrl+t', () => {
+Hotkeys_RegisterHotkey('ctrl+t', 'global', () => {
 	router.navigate('/test');
 });

@@ -4,7 +4,7 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "neu run -- --window-enable-inspector",
+		"start": "neu run -- --window-enable-inspector",
 		"build:frontend": "vite build",
 		"build:windows": "bun run build --skip-linux",
 		"build:noextensions": "neu build --embed-resources",

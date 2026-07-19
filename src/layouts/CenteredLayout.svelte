@@ -10,9 +10,9 @@ type Props = {
 const { width = '100vw', height = '100vh', children }: Props = $props();
 </script>
 
-<main class="centered-layout-wrapper" style:width style:height>
+<div class="centered-layout-wrapper" style:width style:height>
   {@render children?.()}
-</main>
+</div>
 
 <style>
   .centered-layout-wrapper {

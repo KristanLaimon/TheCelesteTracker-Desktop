@@ -1,7 +1,7 @@
 <script lang="ts">
-import CTDB from '../db/index';
-import { get } from '../libs/DI';
-import { Log_Info } from '../libs/Logger';
+import CTDB from '../../db/index';
+import { get } from '../../libs/DI';
+import { Log_Info } from '../../libs/Logger';
 
 const db = get(CTDB);
 
@@ -28,7 +28,6 @@ async function GameBananaApi() {
 	// Log_Info(json);
 }
 </script>
-
 
 <button onclick={Test}>Call database</button>
 <button onclick={GameBananaApi}>Game banana</button>

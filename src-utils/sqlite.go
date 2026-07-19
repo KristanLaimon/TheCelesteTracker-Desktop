@@ -3,67 +3,56 @@ package main
 import (
 	"database/sql"
 
-	_ "modernc.org/sqlite"
+	_ "github.com/glebarez/go-sqlite" // ponytail: wazero SQLite. no C-libc fake OS calls.
 )
 
 type SqliteQueryResult struct {
-	Success         bool                     `json:"success"`
-	Rows            []map[string]interface{} `json:"rows,omitempty"`
-	Changes         int64                    `json:"changes,omitempty"`
-	LastInsertRowId int64                    `json:"lastInsertRowId,omitempty"`
-	Error           string                   `json:"error,omitempty"`
+	Success         bool             `json:"success"`
+	Rows            []map[string]any `json:"rows,omitempty"`
+	Changes         int64            `json:"changes,omitempty"`
+	LastInsertRowId int64            `json:"lastInsertRowId,omitempty"`
+	Error           string           `json:"error,omitempty"`
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SQLite execution
-// ─────────────────────────────────────────────────────────────────────────────
-
-func executeSqliteQuery(dbPath, sqlQuery string) SqliteQueryResult {
+func executeSqliteQuery(dbPath, query string) SqliteQueryResult {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return SqliteQueryResult{Success: false, Error: err.Error()}
+		return SqliteQueryResult{Error: err.Error()} // Success false by default
 	}
 	defer db.Close()
 
-	rows, err := db.Query(sqlQuery)
+	rows, err := db.Query(query)
 	if err != nil {
-		// Not a SELECT — try as an exec statement
-		result, execErr := db.Exec(sqlQuery)
+		// ponytail: fallback exec for DML/DDL. skip SQL parse logic.
+		res, execErr := db.Exec(query)
 		if execErr != nil {
-			return SqliteQueryResult{Success: false, Error: execErr.Error()}
+			return SqliteQueryResult{Error: execErr.Error()}
 		}
-		changes, _ := result.RowsAffected()
-		lastId, _ := result.LastInsertId()
-		return SqliteQueryResult{
-			Success:         true,
-			Rows:            []map[string]interface{}{},
-			Changes:         changes,
-			LastInsertRowId: lastId,
-		}
+		c, _ := res.RowsAffected()
+		id, _ := res.LastInsertId()
+		return SqliteQueryResult{Success: true, Rows: []map[string]any{}, Changes: c, LastInsertRowId: id}
 	}
 	defer rows.Close()
 
 	cols, err := rows.Columns()
 	if err != nil {
-		return SqliteQueryResult{Success: false, Error: err.Error()}
+		return SqliteQueryResult{Error: err.Error()}
 	}
 
-	var results []map[string]interface{}
+	results := []map[string]any{}
+	vals := make([]any, len(cols))
+	ptrs := make([]any, len(cols))
+	for i := range vals {
+		ptrs[i] = &vals[i]
+	}
+
 	for rows.Next() {
-		values := make([]interface{}, len(cols))
-		valuePtrs := make([]interface{}, len(cols))
-		for i := range values {
-			valuePtrs[i] = &values[i]
+		if err := rows.Scan(ptrs...); err != nil {
+			return SqliteQueryResult{Error: err.Error()}
 		}
-
-		if err := rows.Scan(valuePtrs...); err != nil {
-			return SqliteQueryResult{Success: false, Error: err.Error()}
-		}
-
-		row := make(map[string]interface{}, len(cols))
+		row := make(map[string]any, len(cols))
 		for i, col := range cols {
-			val := values[i]
-			// Convert []byte to string for TEXT columns
+			val := vals[i]
 			if b, ok := val.([]byte); ok {
 				val = string(b)
 			}
@@ -73,11 +62,8 @@ func executeSqliteQuery(dbPath, sqlQuery string) SqliteQueryResult {
 	}
 
 	if err := rows.Err(); err != nil {
-		return SqliteQueryResult{Success: false, Error: err.Error()}
+		return SqliteQueryResult{Error: err.Error()}
 	}
 
-	if results == nil {
-		results = []map[string]interface{}{}
-	}
 	return SqliteQueryResult{Success: true, Rows: results}
 }

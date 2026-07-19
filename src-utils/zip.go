@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Zip operations
-// ─────────────────────────────────────────────────────────────────────────────
-
 func zipReadTextFile(zipPath, filePath string) (string, error) {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
@@ -20,24 +16,18 @@ func zipReadTextFile(zipPath, filePath string) (string, error) {
 	}
 	defer r.Close()
 
-	targetName := strings.ToLower(filePath)
 	for _, f := range r.File {
-		if strings.ToLower(f.Name) == targetName {
+		if strings.EqualFold(f.Name, filePath) {
 			rc, err := f.Open()
 			if err != nil {
 				return "", err
 			}
 			defer rc.Close()
-
-			content, err := io.ReadAll(rc)
-			if err != nil {
-				return "", err
-			}
-			return string(content), nil
+			b, err := io.ReadAll(rc)
+			return string(b), err
 		}
 	}
-
-	return "", fmt.Errorf("file not found in zip: %s", filePath)
+	return "", fmt.Errorf("not found: %s", filePath)
 }
 
 func zipList(zipPath string) ([]string, error) {
@@ -54,7 +44,7 @@ func zipList(zipPath string) ([]string, error) {
 	return files, nil
 }
 
-func unzip(zipPath, destPath string) error {
+func unzip(zipPath, dest string) error {
 	r, err := zip.OpenReader(zipPath)
 	if err != nil {
 		return err
@@ -62,95 +52,64 @@ func unzip(zipPath, destPath string) error {
 	defer r.Close()
 
 	for _, f := range r.File {
-		fpath := filepath.Join(destPath, f.Name)
-
-		if !strings.HasPrefix(fpath, filepath.Clean(destPath)+string(os.PathSeparator)) {
-			return fmt.Errorf("illegal file path in zip: %s", f.Name)
+		path := filepath.Join(dest, f.Name)
+		// ponytail: keep zipslip check. security boundary.
+		if !strings.HasPrefix(path, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return fmt.Errorf("zipslip: %s", f.Name)
 		}
 
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, os.ModePerm)
+			os.MkdirAll(path, os.ModePerm)
 			continue
 		}
 
-		if err := os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
-			return err
-		}
-
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return err
-		}
-
+		os.MkdirAll(filepath.Dir(path), os.ModePerm)
 		rc, err := f.Open()
 		if err != nil {
-			outFile.Close()
 			return err
 		}
 
-		_, err = io.Copy(outFile, rc)
-		outFile.Close()
-		rc.Close()
+		out, err := os.Create(path)
 		if err != nil {
+			rc.Close()
 			return err
 		}
+
+		io.Copy(out, rc)
+		out.Close()
+		rc.Close()
 	}
 	return nil
 }
 
-func zipFolder(srcPath, zipPath string) error {
-	archive, err := os.Create(zipPath)
+func zipFolder(src, dest string) error {
+	f, err := os.Create(dest)
 	if err != nil {
 		return err
 	}
-	defer archive.Close()
+	defer f.Close()
 
-	writer := zip.NewWriter(archive)
-	defer writer.Close()
+	w := zip.NewWriter(f)
+	defer w.Close()
 
-	return filepath.Walk(srcPath, func(path string, info os.FileInfo, err error) error {
+	// ponytail: WalkDir faster than Walk. anonymous func defer clears fd per file safely.
+	return filepath.WalkDir(src, func(path string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() {
+			return err
+		}
+		rel, _ := filepath.Rel(src, path)
+		zf, err := w.Create(filepath.ToSlash(rel))
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel(srcPath, path)
+		srcF, err := os.Open(path)
 		if err != nil {
 			return err
 		}
+		defer srcF.Close()
 
-		if relPath == "." {
-			return nil
-		}
-
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		header.Name = filepath.ToSlash(relPath)
-
-		if info.IsDir() {
-			header.Name += "/"
-		} else {
-			header.Method = zip.Deflate
-		}
-
-		writerEntry, err := writer.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		file, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		_, err = io.Copy(writerEntry, file)
+		_, err = io.Copy(zf, srcF)
 		return err
 	})
 }

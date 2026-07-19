@@ -25,5 +25,6 @@ export default defineConfig({
 	build: {
 		outDir: 'resources', // Change output to 'resources'
 		emptyOutDir: true, // Ensure it cleans the directory before building
+    sourcemap: true
 	},
 });
