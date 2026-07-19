@@ -25,6 +25,6 @@ export default defineConfig({
 	build: {
 		outDir: 'dist/vite-temp-build',
 		emptyOutDir: true,
-    sourcemap: true
+		sourcemap: true,
 	},
 });

@@ -1,9 +1,8 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 /** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
-import { os } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
+import type { IFileSystem } from '../src/interfaces/IFileSystem';
 import { Log_Info, Log_Throw } from '../src/libs/Logger';
-import { NeutralinoFileSystem } from '../src/libs/NeutralinoFileSystem';
 
 export type SQLiteQueryResult<T> =
 	| {
@@ -27,10 +26,10 @@ export type SqliteExecResult =
 	  };
 
 @injectable()
-export class Sqlite_Go {
+export default class Sqlite_Go {
 	private dbPath: string;
 
-	public constructor(dbPath: string, fs: NeutralinoFileSystem) {
+	public constructor(dbPath: string, fs: IFileSystem) {
 		this.dbPath = dbPath;
 
 		fs.exists(this.dbPath).then((exists) => {

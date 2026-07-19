@@ -1,10 +1,10 @@
+// biome-ignore-all lint/style/useImportType: DI Needed
 import type {
 	CopyOptions,
 	DirectoryEntry,
 	DirectoryReaderOptions,
 	FileReaderOptions,
 	OpenedFile,
-	PathParts,
 	Permissions,
 	PermissionsMode,
 	Stats,
@@ -12,6 +12,7 @@ import type {
 } from '@neutralinojs/lib';
 import { filesystem, server } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
+import { IFileSystem, type PathParts } from '../interfaces/IFileSystem';
 import Path from './BrowserPath';
 import { Log_Info } from './Logger';
 
@@ -28,7 +29,7 @@ export enum OperatingSystem {
  * Provides easy access to local file operations, directory reading, file watching, and statistics.
  */
 @injectable()
-export class NeutralinoFileSystem {
+export class NeutralinoFileSystem implements IFileSystem {
 	/** If *null*, local folders hasn't been mounted by neutralino. Mount using {@link NeutralinoFileSystem.MountLocalFolders()} function  */
 	public static ResourcesFolderNameOnly: string = 'data';
 	public static ResourcesFolderPath_Backend: string | null = null;
@@ -267,7 +268,15 @@ export class NeutralinoFileSystem {
 	 * @param path Path string.
 	 */
 	public async getPathParts(path: string): Promise<PathParts> {
-		return filesystem.getPathParts(path);
+		const parts = await filesystem.getPathParts(path);
+
+		return {
+			root: parts.rootPath,
+			dir: parts.parentPath,
+			base: parts.filename,
+			ext: parts.extension,
+			name: parts.stem,
+		};
 	}
 
 	/**

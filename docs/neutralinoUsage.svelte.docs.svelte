@@ -14,103 +14,103 @@ let trayConfigured = $state(false);
 let showNotificationSuccess = $state(false);
 
 onMount(async () => {
-  // Read Neutralino global variables from the window object
-  appId = window.NL_APPID || 'js.neutralino.zero';
-  port = window.NL_PORT || 0;
-  osName = window.NL_OS || 'Unknown';
-  serverVersion = window.NL_VERSION || '0.0.0';
-  clientVersion = window.NL_CVERSION || '0.0.0';
-  mode = window.NL_MODE || 'window';
+	// Read Neutralino global variables from the window object
+	appId = window.NL_APPID || 'js.neutralino.zero';
+	port = window.NL_PORT || 0;
+	osName = window.NL_OS || 'Unknown';
+	serverVersion = window.NL_VERSION || '0.0.0';
+	clientVersion = window.NL_CVERSION || '0.0.0';
+	mode = window.NL_MODE || 'window';
 
-  // Set up windowClose event listener
-  try {
-    await events.on('windowClose', () => {
-      app.exit();
-    });
-  } catch (e) {
-    console.warn('Could not register windowClose event listener:', e);
-  }
+	// Set up windowClose event listener
+	try {
+		await events.on('windowClose', () => {
+			app.exit();
+		});
+	} catch (e) {
+		console.warn('Could not register windowClose event listener:', e);
+	}
 
-  // Set up tray menu item clicked listener
-  try {
-    await events.on('trayMenuItemClicked', onTrayMenuItemClicked);
-  } catch (e) {
-    console.warn('Could not register trayMenuItemClicked event listener:', e);
-  }
+	// Set up tray menu item clicked listener
+	try {
+		await events.on('trayMenuItemClicked', onTrayMenuItemClicked);
+	} catch (e) {
+		console.warn('Could not register trayMenuItemClicked event listener:', e);
+	}
 
-  // Conditional initialization: Set up system tray if not running on macOS
-  if (osName !== 'Darwin') {
-    setupTray();
-  }
+	// Conditional initialization: Set up system tray if not running on macOS
+	if (osName !== 'Darwin') {
+		setupTray();
+	}
 });
 
 function openDocs() {
-  try {
-    os.open('https://neutralino.js.org/docs');
-  } catch (e) {
-    console.error('Failed to open documentation:', e);
-  }
+	try {
+		os.open('https://neutralino.js.org/docs');
+	} catch (e) {
+		console.error('Failed to open documentation:', e);
+	}
 }
 
 function openTutorial() {
-  try {
-    os.open('https://www.youtube.com/c/CodeZri');
-  } catch (e) {
-    console.error('Failed to open tutorial:', e);
-  }
+	try {
+		os.open('https://www.youtube.com/c/CodeZri');
+	} catch (e) {
+		console.error('Failed to open tutorial:', e);
+	}
 }
 
 async function showNotification() {
-  try {
-    await os.showNotification('Neutralino API', 'This is a native OS notification triggered from Svelte!');
-    await os.showMessageBox('MessageBoxTitle', 'A question, is it ok or want to cancel?', 'OK_CANCEL' as MessageBoxChoice);
-    showNotificationSuccess = true;
-    setTimeout(() => (showNotificationSuccess = false), 3000);
-  } catch (e) {
-    console.error('Failed to show notification:', e);
-  }
+	try {
+		await os.showNotification('Neutralino API', 'This is a native OS notification triggered from Svelte!');
+		await os.showMessageBox('MessageBoxTitle', 'A question, is it ok or want to cancel?', 'OK_CANCEL' as MessageBoxChoice);
+		showNotificationSuccess = true;
+		setTimeout(() => (showNotificationSuccess = false), 3000);
+	} catch (e) {
+		console.error('Failed to show notification:', e);
+	}
 }
 
 async function setupTray() {
-  if (mode !== 'window') {
-    console.log('INFO: Tray menu is only available in window mode.');
-    return;
-  }
+	if (mode !== 'window') {
+		console.log('INFO: Tray menu is only available in window mode.');
+		return;
+	}
 
-  try {
-    let tray = {
-      icon: '/public/favicon.svg', // Using the favicon.svg as tray icon
-      menuItems: [
-        { id: 'VERSION', text: 'Get Version Info' },
-        { id: 'SEP', text: '-' },
-        { id: 'QUIT', text: 'Quit App' },
-      ],
-    };
-    await os.setTray(tray);
-    trayConfigured = true;
-  } catch (e) {
-    console.error('Failed to configure system tray:', e);
-  }
+	try {
+		let tray = {
+			icon: '/public/favicon.svg', // Using the favicon.svg as tray icon
+			menuItems: [
+				{ id: 'VERSION', text: 'Get Version Info' },
+				{ id: 'SEP', text: '-' },
+				{ id: 'QUIT', text: 'Quit App' },
+			],
+		};
+		await os.setTray(tray);
+		trayConfigured = true;
+	} catch (e) {
+		console.error('Failed to configure system tray:', e);
+	}
 }
 
 async function onTrayMenuItemClicked(event: CustomEvent) {
-  const id = event.detail?.id || event.detail; // Handle string ID or object
-  switch (id) {
-    case 'VERSION':
-      try {
-        await os.showMessageBox('Version Information', `Neutralinojs Server: v${serverVersion} | Neutralinojs Client: v${clientVersion}`);
-      } catch (e) {
-        console.error(e);
-      }
-      break;
-    case 'QUIT':
-      try {
-        await app.exit();
-      } catch (e) {
-        console.error(e);
-      }
-      break;
-  }
+	const id = event.detail?.id || event.detail; // Handle string ID or object
+	switch (id) {
+		case 'VERSION':
+			try {
+				await os.showMessageBox('Version Information', `Neutralinojs Server: v${serverVersion} | Neutralinojs Client: v${clientVersion}`);
+			} catch (e) {
+				console.error(e);
+			}
+			break;
+		case 'QUIT':
+			try {
+				await app.exit();
+			} catch (e) {
+				console.error(e);
+			}
+			break;
+	}
 }
 </script>
 

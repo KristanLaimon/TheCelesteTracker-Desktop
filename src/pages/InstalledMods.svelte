@@ -6,12 +6,12 @@ import Everest from '../libs/Everest';
 
 const EVEREST = GetDependency(Everest);
 
-async function GetModsInfo(){
-  console.log("about to get mod data");
-	const mods = await EVEREST.GetAllModsInfo();
+async function GetModsInfo() {
+	console.log('about to get mod data');
+	const mods = await EVEREST.GetModsInstalled();
 	console.log(mods);
-  console.log("mod data achieved");
-};
+	console.log('mod data achieved');
+}
 
 function LimitText(desc: string, limitCharsCount: number): string {
 	if (desc.length < limitCharsCount) return desc;

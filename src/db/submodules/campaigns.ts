@@ -1,6 +1,6 @@
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 import { injectable } from 'tsyringe';
-import { Sqlite_Go } from '../../../src-utils/Sqlite';
+import Sqlite_Go from '../../../src-utils/Sqlite_Go';
 import { Log_Error } from '../../libs/Logger';
 import type { Campaign } from '../db.types';
 

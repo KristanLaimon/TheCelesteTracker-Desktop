@@ -1,7 +1,7 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 import * as yaml from 'js-yaml';
 import { injectable } from 'tsyringe';
-import { Zip_Go } from '../../src-utils/Zip';
+import Zip_Go from '../../src-utils/Zip_Go';
 import Celeste from './Celeste';
 import { NeutralinoFileSystem } from './NeutralinoFileSystem';
 

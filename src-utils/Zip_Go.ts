@@ -3,7 +3,7 @@ import { os } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
 
 @injectable()
-export class Zip_Go {
+export default class Zip_Go {
 	private async executeInternal<R>(args: string): Promise<R> {
 		let binaryName = '';
 		if (window.NL_OS === 'Windows') {

@@ -4,11 +4,13 @@ import 'reflect-metadata';
 import { router } from './router.svelte';
 import './router_setup';
 import './libs/Hotkeys';
-import CommandCenter, { type CommandCenterCommand } from "./components/CommandCenter.svelte";
-import { Hotkeys_RegisterHotkey } from "./libs/Hotkeys";
+import CommandCenter, { type CommandCenterCommand } from './components/CommandCenter.svelte';
+import { Hotkeys_RegisterHotkey } from './libs/Hotkeys';
 
 let SHOW_COMMAND_CENTER = $state<boolean>(false);
-Hotkeys_RegisterHotkey('ctrl+shift+z', 'global', () => { SHOW_COMMAND_CENTER = true; });
+Hotkeys_RegisterHotkey('ctrl+shift+z', 'global', () => {
+	SHOW_COMMAND_CENTER = true;
+});
 const commands: CommandCenterCommand[] = [
 	{
 		id: 'go-to-celestemodslist',
@@ -21,7 +23,6 @@ const commands: CommandCenterCommand[] = [
 		},
 	},
 ];
-
 </script>
 
 {#if router.page.component}
