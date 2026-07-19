@@ -1,3 +1,5 @@
+//go:build !zip_utils
+
 package main
 
 import (

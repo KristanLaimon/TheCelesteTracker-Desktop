@@ -3,14 +3,22 @@
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
 import { GetDependency } from '../libs/DI';
 import Everest from '../libs/Everest';
+  import { Log_Info } from "../libs/Logger";
+  import MaddiesApi from "../libs/MaddiesAPI";
 
 const EVEREST = GetDependency(Everest);
+const MaddiesAPI = GetDependency(MaddiesApi);
 
 async function GetModsInfo() {
-	console.log('about to get mod data');
-	const mods = await EVEREST.GetModsInstalled();
-	console.log(mods);
-	console.log('mod data achieved');
+	const mods = await EVEREST.GetModsInstalled({modsCountScanningLimit: 25});
+	Log_Info("InstalledMods:", "Found Mods:", mods);
+  const modsWithInfo = (await Promise.allSettled(mods.map(async (modInfo)=>{
+    const apiRes = (await MaddiesAPI.SearchModByName(modInfo.name.replace(".zip","")))[0];
+    if (!apiRes) return null;
+    return apiRes;
+  }))).filter(settled => settled.status === "fulfilled" && settled.value !== null).map(a => a.value!);
+
+	Log_Info("InstalledMods:", "Found Mods with maddiesapi:", modsWithInfo);
 }
 
 function LimitText(desc: string, limitCharsCount: number): string {

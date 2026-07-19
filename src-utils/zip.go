@@ -37,9 +37,32 @@ func zipList(zipPath string) ([]string, error) {
 	}
 	defer r.Close()
 
+	seen := map[string]bool{}
 	var files []string
 	for _, f := range r.File {
-		files = append(files, f.Name)
+		if !seen[f.Name] {
+			files = append(files, f.Name)
+			seen[f.Name] = true
+		}
+		dir := f.Name
+		for {
+			idx := -1
+			for i := len(dir) - 1; i >= 0; i-- {
+				if dir[i] == '/' || dir[i] == '\\' {
+					idx = i
+					break
+				}
+			}
+			if idx < 0 {
+				break
+			}
+			dir = dir[:idx+1]
+			if !seen[dir] {
+				files = append(files, dir)
+				seen[dir] = true
+			}
+			dir = dir[:idx]
+		}
 	}
 	return files, nil
 }

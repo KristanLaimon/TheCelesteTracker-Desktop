@@ -1,47 +1,13 @@
-//go:build !zip_utils
+//go:build zip_utils
 
 package main
 
 import (
-	"io"
-	"os"
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
 func main() {
-	rootCmd := &cobra.Command{Use: "utilities", Short: "Celeste Tracker CLI"}
-
-	var dbPath, query string
-	sqliteCmd := &cobra.Command{
-		Use: "sqlite",
-		Run: func(cmd *cobra.Command, args []string) {
-			if dbPath == "" {
-				failStr("--db is required")
-			}
-			if query == "" {
-				b, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					failStr(fmt.Sprintf("failed to read query: %v", err))
-				}
-				query = strings.TrimSpace(string(b))
-			}
-			if query == "" {
-				failStr("query is empty")
-			}
-
-			res := executeSqliteQuery(dbPath, query)
-			send(res)
-			// ponytail: assume res has Success bool field based on original logic
-			if !res.Success {
-				os.Exit(1)
-			}
-		},
-	}
-	sqliteCmd.Flags().StringVarP(&dbPath, "db", "d", "", "DB path")
-	sqliteCmd.Flags().StringVarP(&query, "query", "q", "", "SQL query")
-	rootCmd.AddCommand(sqliteCmd)
+	rootCmd := &cobra.Command{Use: "zip_utils", Short: "Celeste Tracker Zip CLI"}
 
 	var zipFile, inner, dest, src string
 	zipCmd := &cobra.Command{Use: "zip"}

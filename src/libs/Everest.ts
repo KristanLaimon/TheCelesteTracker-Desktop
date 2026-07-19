@@ -3,6 +3,7 @@ import * as yaml from 'js-yaml';
 import { injectable } from 'tsyringe';
 import Zip_Go from '../../src-utils/Zip_Go';
 import Celeste from './Celeste';
+import { Log_Error } from './Logger';
 import { NeutralinoFileSystem } from './NeutralinoFileSystem';
 
 export type ModMetadata = { name: string; version: string; dependencies: ModDependency[] };
@@ -53,15 +54,23 @@ export default class Everest {
 		return install ? `${install.foundPath}/Mods` : null;
 	}
 
-	public async GetModsInstalled(): Promise<EverestModInfo[]> {
+	public async GetModsInstalled(opts?: { modsCountScanningLimit?: number }): Promise<EverestModInfo[]> {
 		const modsPath = await this.GetInstallationPath();
 		if (!modsPath || !(await this.fs.exists(modsPath))) return [];
 
-		const entries = await this.fs.readDirectory(modsPath);
+		let entries = await this.fs.readDirectory(modsPath);
+		if (opts?.modsCountScanningLimit && opts.modsCountScanningLimit > 0) {
+			entries = entries.slice(0, opts.modsCountScanningLimit);
+		}
 		const mods: EverestModInfo[] = [];
 		const yamlNames = ['everest.yaml', 'everest.yml', 'Everest.yaml', 'Everest.yml'];
 
 		for (const { entry, type } of entries) {
+			// Omits Everest "cache" with some weird ymls there.
+			if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) {
+				continue;
+			}
+
 			const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
 			if (type !== 'DIRECTORY' && !isZip) continue;
 
@@ -72,7 +81,8 @@ export default class Everest {
 
 					mods.push({ name: entry, isZip, metadata: parseEverestYaml(content, entry) });
 					break;
-				} catch {
+				} catch (e: unknown) {
+					Log_Error('Everest:', 'There was an error when trying to read from mod content', e);
 					// ponytail: fs/zip throw if yaml missing. silent loop next.
 				}
 			}

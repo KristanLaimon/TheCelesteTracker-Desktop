@@ -3,8 +3,8 @@ module utilities
 go 1.25
 
 require (
+	github.com/glebarez/go-sqlite v1.22.0
 	github.com/spf13/cobra v1.10.2
-	modernc.org/sqlite v1.34.5
 )
 
 require (
@@ -19,4 +19,5 @@ require (
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.6.0 // indirect
 	modernc.org/memory v1.8.0 // indirect
+	modernc.org/sqlite v1.28.0 // indirect
 )

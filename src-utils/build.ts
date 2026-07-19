@@ -8,7 +8,7 @@ const ROOT = join(SRC, '..');
 const BUILD_DIR = join(SRC, 'build');
 const skipLinux = process.argv.includes('--skip-linux') || process.env.SKIP_LINUX === 'true';
 
-console.log('🔨 Building utilities Go CLI helper...');
+console.log('🔨 Building Go CLI helpers...');
 
 async function copyBinary(srcFile: string, destFilename: string) {
 	const destDir = join(ROOT, 'bin');
@@ -20,56 +20,45 @@ async function copyBinary(srcFile: string, destFilename: string) {
 	console.log(`   ✅ Copied to: ${destFile}`);
 }
 
+async function buildTarget(name: string, tag: string, goos: string, goarch: string, ext: string) {
+	const binaryName = `${name}-${goos}_${goarch}${ext}`;
+	const buildPath = `build/${binaryName}`;
+	const buildTarget = tag ? `-tags ${tag}` : '';
+	const env = { ...process.env, GOOS: goos, GOARCH: goarch };
+
+	try {
+		await $`go build ${buildTarget} -ldflags "-s -w" -o ${buildPath}`.cwd(SRC).env(env);
+		const source = join(BUILD_DIR, binaryName);
+		if (existsSync(source)) {
+			await copyBinary(source, binaryName);
+		} else {
+			console.error(`     ${binaryName} build output not found!`);
+		}
+	} catch (err) {
+		console.error(`     Failed to compile ${binaryName}:`, err);
+	}
+}
+
 if (!existsSync(BUILD_DIR)) {
 	mkdirSync(BUILD_DIR, { recursive: true });
 }
 
-// Build Windows binary
-console.log('  Building Windows Go binary...');
-try {
-	await $`go build -ldflags "-s -w" -o build/utilities-win_x64.exe`.cwd(SRC);
-	const winSource = join(BUILD_DIR, 'utilities-win_x64.exe');
-	if (existsSync(winSource)) {
-		await copyBinary(winSource, 'utilities-win_x64.exe');
-	} else {
-		console.error('     Windows Go build output not found!');
-	}
-} catch (err) {
-	console.error('     Failed to compile Windows Go binary:', err);
-}
+// Build utilities binary (sqlite + zip, includes libc)
+console.log('  Building utilities binaries...');
+buildTarget('utilities', '', 'win', 'x64', '.exe');
 
-if (skipLinux) {
-	console.log('  Skipping Linux Go binary build (--skip-linux flag was specified).');
-} else {
-	// Build Linux binary
-	console.log('  Building Linux Go binary...');
-	try {
-		const env = { ...process.env, GOOS: 'linux', GOARCH: 'amd64' };
-		await $`go build -ldflags "-s -w" -o build/utilities-linux_x64`.cwd(SRC).env(env);
-		const linuxSource = join(BUILD_DIR, 'utilities-linux_x64');
-		if (existsSync(linuxSource)) {
-			await copyBinary(linuxSource, 'utilities-linux_x64');
-		} else {
-			console.error('     Linux Go build output not found!');
-		}
-	} catch (err) {
-		console.error('     Failed to compile Linux Go binary:', err);
-	}
+if (!skipLinux) {
+	buildTarget('utilities', '', 'linux', 'x64', '');
 }
+buildTarget('utilities', '', 'darwin', 'x64', '');
 
-// Build macOS binary
-console.log('  Building macOS Go binary...');
-try {
-	const env = { ...process.env, GOOS: 'darwin', GOARCH: 'amd64' };
-	await $`go build -ldflags "-s -w" -o build/utilities-mac_x64`.cwd(SRC).env(env);
-	const macSource = join(BUILD_DIR, 'utilities-mac_x64');
-	if (existsSync(macSource)) {
-		await copyBinary(macSource, 'utilities-mac_x64');
-	} else {
-		console.error('     macOS Go build output not found!');
-	}
-} catch (err) {
-	console.error('     Failed to compile macOS Go binary:', err);
+// Build zip_utils binary (zip only, stdlib only — no libc, no console panic)
+console.log('  Building zip_utils binaries (no libc)...');
+buildTarget('zip_utils', 'zip_utils', 'win', 'x64', '.exe');
+
+if (!skipLinux) {
+	buildTarget('zip_utils', 'zip_utils', 'linux', 'x64', '');
 }
+buildTarget('zip_utils', 'zip_utils', 'darwin', 'x64', '');
 
-console.log('  Utilities Go CLI helper build process complete.');
+console.log('  Go CLI helper build process complete.');
