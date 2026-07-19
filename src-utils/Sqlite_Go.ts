@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
 import { injectable } from 'tsyringe';
 import type { IFileSystem } from '../src/interfaces/IFileSystem';
-import { IOS } from '../src/interfaces/IOs';
+import type { IOS } from '../src/interfaces/IOs';
 import { Log_Info, Log_Throw } from '../src/libs/Logger';
 import Generic_Go from './Generic_Go';
 

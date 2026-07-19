@@ -79,21 +79,21 @@ export type CommonKnownPath =
 	| 'saveGames2'
 	| string;
 
-export abstract class IOS {
-		abstract getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown';
-		abstract execCommand(command: string, options?: ExecCommandOptions): Promise<ExecCommandResult>;
-		abstract spawnProcess(command: string, options?: SpawnedProcessOptions): Promise<SpawnedProcess>;
-		abstract updateSpawnedProcess(id: number, action: SpawnedProcessAction, data?: string): Promise<void>;
-		abstract getSpawnedProcesses(): Promise<SpawnedProcess[]>;
-		abstract getEnv(key: string): Promise<string>;
-		abstract getEnvs(): Promise<Envs>;
-		abstract showOpenDialog(title?: string, options?: OpenDialogOptions): Promise<string[]>;
-		abstract showSaveDialog(title?: string, options?: SaveDialogOptions): Promise<string>;
-		abstract showFolderDialog(title?: string, options?: FolderDialogOptions): Promise<string>;
-		abstract showNotification(title: string, content: string, icon?: Icon): Promise<void>;
-		abstract showMessageBox(title: string, content: string, choice?: MessageBoxChoice, icon?: Icon): Promise<string>;
-		abstract setTray(options: TrayOptions): Promise<void>;
-		abstract getPath(name: CommonKnownPath): Promise<string>;
-		abstract open(url: string): Promise<void>;
-		abstract trashItem(path: string): Promise<string>;
+export interface IOS {
+		getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown';
+		execCommand(command: string, options?: ExecCommandOptions): Promise<ExecCommandResult>;
+		spawnProcess(command: string, options?: SpawnedProcessOptions): Promise<SpawnedProcess>;
+		updateSpawnedProcess(id: number, action: SpawnedProcessAction, data?: string): Promise<void>;
+		getSpawnedProcesses(): Promise<SpawnedProcess[]>;
+		getEnv(key: string): Promise<string>;
+		getEnvs(): Promise<Envs>;
+		showOpenDialog(title?: string, options?: OpenDialogOptions): Promise<string[]>;
+		showSaveDialog(title?: string, options?: SaveDialogOptions): Promise<string>;
+		showFolderDialog(title?: string, options?: FolderDialogOptions): Promise<string>;
+		showNotification(title: string, content: string, icon?: Icon): Promise<void>;
+		showMessageBox(title: string, content: string, choice?: MessageBoxChoice, icon?: Icon): Promise<string>;
+		setTray(options: TrayOptions): Promise<void>;
+		getPath(name: CommonKnownPath): Promise<string>;
+		open(url: string): Promise<void>;
+		trashItem(path: string): Promise<string>;
 	}

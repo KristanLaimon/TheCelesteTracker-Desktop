@@ -1,7 +1,7 @@
-// biome-ignore-all lint/style/useImportType: DI Needed
-import { injectable } from 'tsyringe';
-import { NeutralinoFileSystem, OperatingSystem } from './NeutralinoFileSystem';
-import { NeutralinoOS } from './NeutralinoOS';
+import { inject, injectable } from 'tsyringe';
+import { IFileSystem_Token, IOs_Token } from '../interfaces/DependencyInjectionTokens';
+import type { IFileSystem } from '../interfaces/IFileSystem';
+import type { IOS } from '../interfaces/IOs';
 
 export interface CelesteInstallation {
 	foundPath: string;
@@ -13,8 +13,8 @@ export default class Celeste {
 	private pathCache: Promise<CelesteInstallation | null> | null = null;
 
 	constructor(
-		private fs: NeutralinoFileSystem,
-		private os: NeutralinoOS,
+		@inject(IOs_Token) private os: IOS,
+		@inject(IFileSystem_Token) private fs: IFileSystem,
 	) {}
 
 	public GetInstallationPath(): Promise<CelesteInstallation | null> {
@@ -25,11 +25,11 @@ export default class Celeste {
 	}
 
 	private async findPath(): Promise<CelesteInstallation | null> {
-		const osName = window.NL_OS as OperatingSystem;
+		const osName = this.os.getCurrentOS();
 		const targets: { path: string; type: 'steam' | 'epicgames' }[] = [];
 
 		try {
-			if (osName === OperatingSystem.Windows) {
+			if (osName === 'windows') {
 				targets.push(
 					{ path: 'C:/Program Files (x86)/Steam/steamapps/common/Celeste', type: 'steam' },
 					{ path: 'C:/Program Files/Steam/steamapps/common/Celeste', type: 'steam' },
@@ -37,7 +37,7 @@ export default class Celeste {
 				);
 			} else {
 				const home = await this.os.getPath('home');
-				if (osName === OperatingSystem.Darwin) {
+				if (osName === 'macos') {
 					targets.push(
 						{ path: `${home}/Library/Application Support/Steam/steamapps/common/Celeste`, type: 'steam' },
 						{ path: `${home}/Library/Application Support/Steam/steamapps/common/Celeste/Celeste.app/Contents/Resources`, type: 'steam' },

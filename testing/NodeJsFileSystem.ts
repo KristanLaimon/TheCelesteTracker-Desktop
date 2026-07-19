@@ -13,8 +13,7 @@ import type {
 	Stats,
 	Watcher,
 } from '../src/interfaces/IFileSystem';
-// Value import for the abstract class
-import { IFileSystem } from '../src/interfaces/IFileSystem';
+import type { IFileSystem } from '../src/interfaces/IFileSystem';
 
 @injectable()
 export default class NodeJsFileSystem implements IFileSystem {

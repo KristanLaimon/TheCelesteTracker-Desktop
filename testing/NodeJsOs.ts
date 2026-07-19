@@ -23,7 +23,7 @@ import type {
 	TrayOptions,
 } from '../src/interfaces/IOs';
 // Value import for the abstract class
-import { IOS } from '../src/interfaces/IOs';
+import type { IOS } from '../src/interfaces/IOs';
 
 @injectable()
 export default class NodeJsOS implements IOS {

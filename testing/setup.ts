@@ -6,8 +6,9 @@ import { join } from 'path';
 import { container } from 'tsyringe';
 import Sqlite_Go from '../src-utils/Sqlite_Go';
 import Zip_Go from '../src-utils/Zip_Go';
-import { IFileSystem } from '../src/interfaces/IFileSystem';
-import { IOS } from '../src/interfaces/IOs';
+import { IFileSystem_Token, IOs_Token } from '../src/interfaces/DependencyInjectionTokens';
+import type { IFileSystem } from '../src/interfaces/IFileSystem';
+import type { IOS } from '../src/interfaces/IOs';
 import Celeste from '../src/libs/Celeste';
 import Everest from '../src/libs/Everest';
 import Olympus from '../src/libs/Olympus';
@@ -19,21 +20,28 @@ export const TEST_TEMP_FOLDER = join(TEST_FOLDER, './temp');
 export const ROOT_FOLDER = join(TEST_FOLDER, '..');
 export const ROOT_BIN = join(ROOT_FOLDER, 'bin');
 
-type Constructable<T> = new (...args: never[]) => T;
-
 container.registerSingleton(NodeJsFileSystem);
-//@ts-expect-error IFileSystem is abstract, should throw error when instatiated (expected behavior), but will always be replaced due to tsringe(and to avoid using annoying DI tokens). This is perfectly ok.
-container.registerInstance<IFileSystem>(IFileSystem as Constructable<IFileSystem>, container.resolve(NodeJsFileSystem));
+container.registerSingleton(IFileSystem_Token, NodeJsFileSystem);
 
 container.registerSingleton(NodeJsOS);
-//@ts-expect-error IFileSystem is abstract, should throw error when instatiated (expected behavior), but will always be replaced due to tsringe(and to avoid using annoying DI tokens). This is perfectly ok.
-container.registerInstance<IOS>(IOS as Constructable<IOS>, container.resolve(NodeJsOS));
+container.registerSingleton(IOs_Token, NodeJsOS);
 
-container.registerSingleton(Celeste);
-container.registerSingleton(Everest);
-container.registerSingleton(Olympus);
-container.registerInstance(Zip_Go, new Zip_Go(container.resolve(NodeJsOS), container.resolve(NodeJsFileSystem)));
-container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), container.resolve(NodeJsOS), container.resolve(NodeJsFileSystem)));
+const nodeOs = container.resolve<IOS>(IOs_Token);
+const nodeFs = container.resolve<IFileSystem>(IFileSystem_Token);
+
+const celeste = new Celeste(nodeOs, nodeFs);
+container.registerInstance(Celeste, celeste);
+
+const zipGo = new Zip_Go(nodeOs, nodeFs);
+container.registerInstance(Zip_Go, zipGo);
+
+const everest = new Everest(celeste, zipGo, nodeFs);
+container.registerInstance(Everest, everest);
+
+const olympus = new Olympus(everest, nodeFs);
+container.registerInstance(Olympus, olympus);
+
+container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), nodeOs, nodeFs));
 
 const ResolveDependency = container.resolve.bind(container);
 
@@ -65,5 +73,4 @@ export function EnsureBuildAndGetPathExe(): string {
 		throw new Error('This should not happen!');
 	}
 }
-
 

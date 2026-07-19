@@ -1,7 +1,8 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
+import { IFileSystem_Token } from '../interfaces/DependencyInjectionTokens';
+import type { IFileSystem } from '../interfaces/IFileSystem';
 import Everest from './Everest';
-import { NeutralinoFileSystem } from './NeutralinoFileSystem';
 
 interface NeutralinoWindow {
 	NL_OS?: string;
@@ -16,7 +17,7 @@ interface NeutralinoWindow {
 export default class Olympus {
 	constructor(
 		private everestDep: Everest,
-		private fs: NeutralinoFileSystem,
+		@inject(IFileSystem_Token) private fs: IFileSystem,
 	) {
 		// Suppress unused warning and verify everest dependency is registered
 		void this.everestDep;

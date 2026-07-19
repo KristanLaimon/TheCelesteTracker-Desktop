@@ -12,7 +12,7 @@ import type {
 } from '@neutralinojs/lib';
 import { filesystem, server } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
-import { IFileSystem, type PathParts } from '../interfaces/IFileSystem';
+import type { IFileSystem, PathParts } from '../interfaces/IFileSystem';
 import Path from './BrowserPath';
 import { Log_Info } from './Logger';
 

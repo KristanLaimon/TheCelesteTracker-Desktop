@@ -1,7 +1,8 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { injectable } from 'tsyringe';
-import { IFileSystem } from '../src/interfaces/IFileSystem';
-import { IOS } from '../src/interfaces/IOs';
+import { inject, injectable } from 'tsyringe';
+import { IFileSystem_Token, IOs_Token } from '../src/interfaces/DependencyInjectionTokens';
+import type { IFileSystem } from '../src/interfaces/IFileSystem';
+import type { IOS } from '../src/interfaces/IOs';
 import Path from '../src/libs/BrowserPath';
 
 const windows_name = 'utilities-win_x64.exe';
@@ -19,8 +20,8 @@ export default class Generic_Go {
 	#executableCachedPath: string | null = null;
 
 	constructor(
-		protected os: IOS,
-		protected fs: IFileSystem,
+		@inject(IOs_Token) protected os: IOS,
+		@inject(IFileSystem_Token) protected fs: IFileSystem,
 	) {}
 
 	public async GetExecutablePath(): Promise<string> {
