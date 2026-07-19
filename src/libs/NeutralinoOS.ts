@@ -15,6 +15,8 @@ import type {
 } from '@neutralinojs/lib';
 import { os } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
+import { IOS } from '../interfaces/IOs';
+import { OperatingSystem } from './NeutralinoFileSystem';
 
 export interface ExecCommandOptions extends NeutralinoExecCommandOptions {
 	envs?: Record<string, string>;
@@ -29,7 +31,21 @@ export type SpawnedProcessAction = 'stdIn' | 'stdInEnd' | 'exit';
  * Exposes methods related to the user's operating system (commands execution, dialogs, paths, environment, etc).
  */
 @injectable()
-export class NeutralinoOS {
+export class NeutralinoOS extends IOS {
+	public getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown' {
+		switch (window.NL_OS) {
+			case OperatingSystem.Windows:
+				return 'windows';
+			case OperatingSystem.Darwin:
+				return 'macos';
+			case OperatingSystem.FreeBSD:
+				return 'freebsd';
+			case OperatingSystem.Linux:
+				return 'linux';
+			default:
+				return 'unknown';
+		}
+	}
 	/**
 	 * Executes a command and returns the output.
 	 * @param command The command that is to be executed.

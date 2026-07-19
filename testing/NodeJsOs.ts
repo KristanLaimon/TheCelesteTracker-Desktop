@@ -8,13 +8,13 @@ import * as path from 'node:path';
 import { injectable } from 'tsyringe';
 // Type-only imports
 import type {
+	CommonKnownPath,
 	Envs,
 	ExecCommandOptions,
 	ExecCommandResult,
 	FolderDialogOptions,
 	Icon,
 	MessageBoxChoice,
-	NeutralinoKnownPath,
 	OpenDialogOptions,
 	SaveDialogOptions,
 	SpawnedProcess,
@@ -40,6 +40,22 @@ export default class NodeJsOS implements IOS {
 	private nextProcessId = 1;
 	private activeProcesses = new Map<number, ChildProcess>();
 
+	public getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown' {
+		const platform = os.platform();
+		switch (platform) {
+			case 'win32':
+				return 'windows';
+			case 'darwin':
+				return 'macos';
+			case 'linux':
+				return 'linux';
+			case 'freebsd':
+				return 'freebsd';
+			default:
+				return 'unknown';
+		}
+	}
+
 	public async execCommand(command: string, options?: ExecCommandOptions): Promise<ExecCommandResult> {
 		return new Promise((resolve, _) => {
 			const child = exec(command, { env: { ...process.env, ...options?.envs } }, (error, stdout, stderr) => {
@@ -47,7 +63,7 @@ export default class NodeJsOS implements IOS {
 					pid: child.pid ?? 0,
 					stdOut: stdout,
 					stdErr: stderr,
-					exitCode: Number(error?.code) ?? 0,
+					exitCode: error === null ? 0 : (typeof error.code === 'number' ? error.code : 1),
 				});
 			});
 
@@ -113,7 +129,7 @@ export default class NodeJsOS implements IOS {
 		return process.env as Envs;
 	}
 
-	public async getPath(name: NeutralinoKnownPath): Promise<string> {
+	public async getPath(name: CommonKnownPath): Promise<string> {
 		const home = os.homedir();
 		switch (name) {
 			case 'home':

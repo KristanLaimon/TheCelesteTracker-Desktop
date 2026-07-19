@@ -14,10 +14,11 @@ container.registerSingleton(Olympus);
 container.registerSingleton(NeutralinoFileSystem);
 container.registerSingleton(NeutralinoOS);
 container.registerSingleton(Zip_Go);
-container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.db', container.resolve(NeutralinoFileSystem)));
+container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.db', container.resolve(NeutralinoOS), container.resolve(NeutralinoFileSystem)));
 //@ts-expect-error IFileSystem will never be constructed (abstract-class-interface like), so there should be no problems.
 container.registerInstance(IFileSystem, new NeutralinoFileSystem());
 
 const GetDependency = container.resolve.bind(container);
 
 export { GetDependency as get, GetDependency };
+

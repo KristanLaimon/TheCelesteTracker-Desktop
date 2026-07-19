@@ -1,24 +1,13 @@
-// biome-ignore-all lint/style/useImportType: DI Needed
-import { os } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
+import Generic_Go from './Generic_Go';
 
 @injectable()
-export default class Zip_Go {
+export default class Zip_Go extends Generic_Go {
 	private async executeInternal<R>(args: string): Promise<R> {
-		let binaryName = '';
-		if (window.NL_OS === 'Windows') {
-			binaryName = 'utilities-win_x64.exe';
-		} else if (window.NL_OS === 'Linux') {
-			binaryName = 'utilities-linux_x64';
-		} else if (window.NL_OS === 'Darwin') {
-			binaryName = 'utilities-mac_x64';
-		}
+		const exePath = await this.GetExecutablePath();
+		const cmd = `${exePath} ${args}`;
 
-		// Helper binary is located directly along the main executable (which is window.NL_PATH)
-		const helperPath = `"${window.NL_PATH}/${binaryName}"`;
-		const cmd = `${helperPath} ${args}`;
-
-		const response = await os.execCommand(cmd);
+		const response = await this.os.execCommand(cmd);
 
 		if (response.exitCode !== 0) {
 			try {

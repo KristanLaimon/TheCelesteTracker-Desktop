@@ -33,6 +33,8 @@ neutralino.js
 # Extensions build and temporal files related
 src-utils/temp
 src-utils/build
+testing/temp
+
 
 # Specific apps folder to store all data and info
 data/

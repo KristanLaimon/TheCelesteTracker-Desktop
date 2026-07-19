@@ -182,23 +182,35 @@ export function normalize(path: string): string {
 
 	if (path.length === 0) return '.';
 
-	const isAbs = path.charCodeAt(0) === 47 /* / */;
-	const trailingSeparator = path.charCodeAt(path.length - 1) === 47 /* / */;
+	const hasBackslash = path.includes('\\');
+	const normalPath = hasBackslash ? path.replace(/\\/g, '/') : path;
 
-	// Normalize the path
-	let normalized = normalizeString(path, !isAbs);
+	const isPosixAbs = normalPath.charCodeAt(0) === 47 /* / */;
+	const isWinAbs = /^[A-Za-z]:[/]/.test(normalPath);
+	const isAbs = isPosixAbs || isWinAbs;
+	const trailingSeparator = !isWinAbs && normalPath.charCodeAt(normalPath.length - 1) === 47 /* / */;
 
+	const normalized = normalizeString(normalPath, !isAbs);
+
+	let result: string;
 	if (normalized.length === 0 && !isAbs) {
-		normalized = '.';
-	}
-	if (normalized.length > 0 && trailingSeparator) {
-		normalized += '/';
+		result = '.';
+	} else {
+		result = normalized;
+		if (result.length > 0 && trailingSeparator) {
+			result += '/';
+		}
 	}
 
-	if (isAbs) {
-		return `/${normalized}`;
+	if (isPosixAbs) {
+		result = `/${result}`;
 	}
-	return normalized;
+
+	if (hasBackslash) {
+		result = result.replace(/\//g, '\\');
+	}
+
+	return result;
 }
 
 /**
@@ -222,10 +234,15 @@ export function isAbsolute(path: string): boolean {
 export function join(...paths: string[]): string {
 	if (paths.length === 0) return '.';
 	let joined: string | undefined;
+	let hasBackslash = false;
 	for (let i = 0; i < paths.length; ++i) {
-		const arg = paths[i];
+		let arg = paths[i];
 		assertPath(arg);
 		if (arg.length > 0) {
+			if (arg.includes('\\')) {
+				hasBackslash = true;
+				arg = arg.replace(/\\/g, '/');
+			}
 			if (joined === undefined) {
 				joined = arg;
 			} else {
@@ -234,7 +251,11 @@ export function join(...paths: string[]): string {
 		}
 	}
 	if (joined === undefined) return '.';
-	return normalize(joined);
+	const normalized = normalize(joined);
+	if (hasBackslash) {
+		return normalized.replace(/\//g, '\\');
+	}
+	return normalized;
 }
 
 /**
