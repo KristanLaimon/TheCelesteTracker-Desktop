@@ -35,9 +35,10 @@ const myappPath = join(distPath, 'myapp');
 if (fs.existsSync(myappPath)) {
 	console.log('\n--- 3. Organizing Build Binaries ---');
 
-	const windowsDist = join(distPath, 'windows');
-	const linuxDist = join(distPath, 'linux');
-	const macDist = join(distPath, 'mac');
+	const prodPath = join(distPath, 'prod');
+	const windowsDist = join(prodPath, 'windows');
+	const linuxDist = join(prodPath, 'linux');
+	const macDist = join(prodPath, 'mac');
 
 	// Helper to recursively delete a directory
 	function removeDir(dirPath) {
@@ -92,7 +93,7 @@ if (fs.existsSync(myappPath)) {
 	const winCliHelper = join(binPath, 'utilities-win_x64.exe');
 	if (fs.existsSync(winCliHelper)) {
 		fs.copyFileSync(winCliHelper, join(windowsDist, 'utilities-win_x64.exe'));
-		console.log('   ✅ Copied Windows CLI helper to dist/windows/');
+		console.log('   ✅ Copied Windows CLI helper to dist/prod/windows/');
 	} else {
 		console.warn('   ⚠️ Windows CLI helper not found in bin/');
 	}
@@ -101,7 +102,7 @@ if (fs.existsSync(myappPath)) {
 	const linuxCliHelper = join(binPath, 'utilities-linux_x64');
 	if (fs.existsSync(linuxCliHelper)) {
 		fs.copyFileSync(linuxCliHelper, join(linuxDist, 'utilities-linux_x64'));
-		console.log('   ✅ Copied Linux CLI helper to dist/linux/');
+		console.log('   ✅ Copied Linux CLI helper to dist/prod/linux/');
 	} else {
 		console.warn('   ⚠️ Linux CLI helper not found in bin/');
 	}
@@ -110,7 +111,7 @@ if (fs.existsSync(myappPath)) {
 	const macCliHelper = join(binPath, 'utilities-mac_x64');
 	if (fs.existsSync(macCliHelper)) {
 		fs.copyFileSync(macCliHelper, join(macDist, 'utilities-mac_x64'));
-		console.log('   ✅ Copied macOS CLI helper to dist/mac/');
+		console.log('   ✅ Copied macOS CLI helper to dist/prod/mac/');
 	} else {
 		console.warn('   ⚠️ macOS CLI helper not found in bin/');
 	}

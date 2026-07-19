@@ -25,7 +25,7 @@ export default defineConfig({
 		// neutralinoBuildPlugin(),
 	],
 	build: {
-		outDir: 'resources', // Change output to 'resources'
-		emptyOutDir: true, // Ensure it cleans the directory before building
+		outDir: 'dist/vite-temp-build',
+		emptyOutDir: true,
 	},
 });

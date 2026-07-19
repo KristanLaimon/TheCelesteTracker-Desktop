@@ -3,7 +3,7 @@
 	"applicationId": "js.neutralino.zero",
 	"version": "1.0.0",
 	"defaultMode": "window",
-	"documentRoot": "/resources",
+	"documentRoot": "/dist/vite-temp-build",
 	"url": "/",
 	"enableServer": true,
 	"enableExtensions": false,
@@ -43,7 +43,7 @@
 	},
 	"cli": {
 		"binaryName": "myapp",
-		"resourcesPath": "/resources",
+		"resourcesPath": "/dist/vite-temp-build",
 		"extensionsPath": "/extensions/",
 		"binaryVersion": "6.8.0",
 		"clientVersion": "6.8.0",
