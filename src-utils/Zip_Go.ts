@@ -1,3 +1,4 @@
+// biome-ignore-all lint/style/useImportType: DI Needed
 import { injectable } from 'tsyringe';
 import Generic_Go from './Generic_Go';
 
@@ -5,7 +6,7 @@ import Generic_Go from './Generic_Go';
 export default class Zip_Go extends Generic_Go {
 	private async executeInternal<R>(args: string): Promise<R> {
 		const exePath = await this.GetExecutablePath();
-		const cmd = `${exePath} ${args}`;
+		const cmd = `"${exePath}" ${args}`;
 
 		const response = await this.os.execCommand(cmd);
 

@@ -32,7 +32,7 @@ container.registerInstance<IOS>(IOS as Constructable<IOS>, container.resolve(Nod
 container.registerSingleton(Celeste);
 container.registerSingleton(Everest);
 container.registerSingleton(Olympus);
-container.registerSingleton(Zip_Go);
+container.registerInstance(Zip_Go, new Zip_Go(container.resolve(NodeJsOS), container.resolve(NodeJsFileSystem)));
 container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), container.resolve(NodeJsOS), container.resolve(NodeJsFileSystem)));
 
 const ResolveDependency = container.resolve.bind(container);
