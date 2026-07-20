@@ -32,7 +32,7 @@ let filteredUnmatched = $derived.by(() => {
   if (!searchQuery.trim()) return unmatchedMods;
   const q = searchQuery.toLowerCase();
   return unmatchedMods.filter((mod) => {
-    const metaName = mod.metadata[0]?.name ?? '';
+    const metaName = mod.metadata.name ?? '';
     return mod.name.toLowerCase().includes(q) || metaName.toLowerCase().includes(q);
   });
 });
@@ -151,10 +151,10 @@ function FormatDownloads(n: number): string {
                 <article class="unmatched-card">
                   <span class="unmatched-type-badge">{mod.isZip ? 'ZIP' : 'DIR'}</span>
                   <div class="unmatched-body">
-                    <h4 class="unmatched-name">{mod.metadata[0]?.name || mod.name}</h4>
+                    <h4 class="unmatched-name">{mod.metadata.name || mod.name}</h4>
                     <p class="unmatched-meta">
-                      {#if mod.metadata[0]?.version}
-                        v{mod.metadata[0].version} &middot;
+                      {#if mod.metadata.version}
+                        v{mod.metadata.version} &middot;
                       {/if}
                       {mod.name}
                     </p>

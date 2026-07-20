@@ -12,10 +12,10 @@ test('Getting all installed mods', async () => {
   res = res.filter(a => a.fileName === "Berry 143.zip");
   console.log(res);
 
-  const res2:string[] = ((await Promise.allSettled(res.map(a => olympus.GetModHumanNameByModId(a.metadata.name)))).filter(a => a.status === "fulfilled" && a.value !== null)).map(a => a.value!);
+  const res2:string[] = ((await Promise.allSettled(res.map(a => olympus.GetModHumanNameByModId(a.metadata.name ?? '')))).filter(a => a.status === "fulfilled" && a.value !== null)).map(a => a.value!);
   console.log(res2);
 
-  const res3:string[] = ((await Promise.allSettled(res.map(a => olympus.GetModCategoryByModId(a.metadata.name)))).filter(a => a.status === "fulfilled" && a.value !== null)).map(a => a.value!);
+  const res3:string[] = ((await Promise.allSettled(res.map(a => olympus.GetModCategoryByModId(a.metadata.name ?? '')))).filter(a => a.status === "fulfilled" && a.value !== null)).map(a => a.value!);
   console.log(res3);
 
 

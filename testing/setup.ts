@@ -10,6 +10,8 @@ import { IFileSystem_Token, IOs_Token } from '../src/interfaces/DependencyInject
 import type { IFileSystem } from '../src/interfaces/IFileSystem';
 import type { IOS } from '../src/interfaces/IOs';
 import Celeste from '../src/libs/Celeste';
+import { CollabUtils2Scanner } from '../src/libs/Everest.collabutils2';
+import { DialogReader } from '../src/libs/Everest.dialog';
 import Everest from '../src/libs/Everest';
 import Olympus from '../src/libs/Olympus';
 import NodeJsFileSystem from './NodeJsFileSystem';
@@ -20,32 +22,19 @@ export const TEST_TEMP_FOLDER = join(TEST_FOLDER, './temp');
 export const ROOT_FOLDER = join(TEST_FOLDER, '..');
 export const ROOT_BIN = join(ROOT_FOLDER, 'bin');
 
-container.registerSingleton(NodeJsFileSystem);
 container.registerSingleton(IFileSystem_Token, NodeJsFileSystem);
-
-container.registerSingleton(NodeJsOS);
 container.registerSingleton(IOs_Token, NodeJsOS);
+container.registerSingleton(Celeste);
+container.registerSingleton(CollabUtils2Scanner);
+container.registerSingleton(DialogReader);
+container.registerSingleton(Everest);
+container.registerSingleton(Olympus);
+container.registerSingleton(Zip_Go);
 
-const nodeOs = container.resolve<IOS>(IOs_Token);
-const nodeFs = container.resolve<IFileSystem>(IFileSystem_Token);
+const os_ = container.resolve<IOS>(IOs_Token);
+container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), os_, container.resolve<IFileSystem>(IFileSystem_Token)));
 
-const celeste = new Celeste(nodeOs, nodeFs);
-container.registerInstance(Celeste, celeste);
-
-const zipGo = new Zip_Go(nodeOs, nodeFs);
-container.registerInstance(Zip_Go, zipGo);
-
-const everest = new Everest(celeste, zipGo, nodeFs);
-container.registerInstance(Everest, everest);
-
-const olympus = new Olympus(nodeOs, nodeFs);
-container.registerInstance(Olympus, olympus);
-
-container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), nodeOs, nodeFs));
-
-const ResolveDependency = container.resolve.bind(container);
-
-export { ResolveDependency as GetDependency };
+export const GetDependency = container.resolve.bind(container);
 
 export function EnsureBuildAndGetPathExe(): string {
 	function getBinaryName(): string {
@@ -73,4 +62,3 @@ export function EnsureBuildAndGetPathExe(): string {
 		throw new Error('This should not happen!');
 	}
 }
-

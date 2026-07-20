@@ -9,7 +9,7 @@
 		"build:windows": "bun run build --skip-linux",
 		"build:noextensions": "neu build --embed-resources",
 		"build": "bun build.js",
-		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+		"check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.vite.json",
 		"test": "bun test",
 		"lint": "biome check . --write --unsafe"
 	},
