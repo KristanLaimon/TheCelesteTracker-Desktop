@@ -1,0 +1,172 @@
+{
+  "fileName": "Berry 143.zip",
+  "isZip": true,
+  "modPath": "C:/Program Files (x86)/Steam/steamapps/common/Celeste/Mods/Berry 143.zip",
+  "metadata": {
+    "name": "Berry 143",
+    "version": "1.0.6",
+    "dependencies": [
+      {
+        "name": "AdamsAddons",
+        "version": "1.14.8"
+      },
+      {
+        "name": "AurorasHelper",
+        "version": "0.12.2"
+      },
+      {
+        "name": "BrokemiaHelper",
+        "version": "1.8.0"
+      },
+      {
+        "name": "CherryHelper",
+        "version": "1.7.3"
+      },
+      {
+        "name": "ChroniaHelper",
+        "version": "1.22.5"
+      },
+      {
+        "name": "ClutterHelper",
+        "version": "1.2.0"
+      },
+      {
+        "name": "CommunalHelper",
+        "version": "1.20.6"
+      },
+      {
+        "name": "ContortHelper",
+        "version": "1.5.5"
+      },
+      {
+        "name": "CpopHelper",
+        "version": "1.3.0"
+      },
+      {
+        "name": "CrystallineHelper",
+        "version": "1.16.1"
+      },
+      {
+        "name": "DJMapHelper",
+        "version": "1.13.4"
+      },
+      {
+        "name": "EeveeHelper",
+        "version": "1.11.2"
+      },
+      {
+        "name": "Everest",
+        "version": "1.4989.0"
+      },
+      {
+        "name": "ExtendedVariantMode",
+        "version": "0.39.0"
+      },
+      {
+        "name": "FactoryHelper",
+        "version": "1.4.0"
+      },
+      {
+        "name": "FancyTileEntities",
+        "version": "1.6.2"
+      },
+      {
+        "name": "FemtoHelper",
+        "version": "1.12.4"
+      },
+      {
+        "name": "FlaglinesAndSuch",
+        "version": "1.6.25"
+      },
+      {
+        "name": "FrostHelper",
+        "version": "1.53.1"
+      },
+      {
+        "name": "GravityHelper",
+        "version": "1.2.21"
+      },
+      {
+        "name": "Hateline",
+        "version": "0.2.2"
+      },
+      {
+        "name": "HonlyHelper",
+        "version": "1.7.5"
+      },
+      {
+        "name": "JungleHelper",
+        "version": "1.4.2"
+      },
+      {
+        "name": "Long Name Helper by Helen, Helen's Helper, hELPER",
+        "version": "1.9.10"
+      },
+      {
+        "name": "LunaticHelper",
+        "version": "1.1.1"
+      },
+      {
+        "name": "MaxHelpingHand",
+        "version": "1.31.2"
+      },
+      {
+        "name": "OutbackHelper",
+        "version": "1.7.3"
+      },
+      {
+        "name": "PandorasBox",
+        "version": "1.0.49"
+      },
+      {
+        "name": "PlayerGhostMode",
+        "version": "1.0.0"
+      },
+      {
+        "name": "PrismaticHelper",
+        "version": "1.12.0"
+      },
+      {
+        "name": "Sardine7",
+        "version": "1.2.0"
+      },
+      {
+        "name": "SorbetHelper",
+        "version": "1.3.1"
+      },
+      {
+        "name": "StyleMaskHelper",
+        "version": "1.4.0"
+      },
+      {
+        "name": "VivHelper",
+        "version": "1.14.8"
+      },
+      {
+        "name": "VortexHelper",
+        "version": "1.2.19"
+      },
+      {
+        "name": "XaphanHelper",
+        "version": "1.0.79"
+      },
+      {
+        "name": "YetAnotherHelper",
+        "version": "1.2.5"
+      },
+      {
+        "name": "auspicioushelper",
+        "version": "0.3.12"
+      },
+      {
+        "name": "bitsbolts",
+        "version": "1.3.3"
+      }
+    ],
+    "optionalDependencies": [],
+    "isLobby": false,
+    "chapters": [],
+    "campaigns": []
+  },
+  "name": "Berry 143"
+}
