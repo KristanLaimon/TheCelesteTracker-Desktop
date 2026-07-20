@@ -38,7 +38,7 @@ container.registerInstance(Zip_Go, zipGo);
 const everest = new Everest(celeste, zipGo, nodeFs);
 container.registerInstance(Everest, everest);
 
-const olympus = new Olympus(everest, nodeFs);
+const olympus = new Olympus(nodeOs, nodeFs);
 container.registerInstance(Olympus, olympus);
 
 container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), nodeOs, nodeFs));

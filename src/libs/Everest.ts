@@ -6,38 +6,84 @@ import type { IFileSystem } from '../interfaces/IFileSystem';
 import Celeste from './Celeste';
 import { Log_Error } from './Logger';
 
-export type ModMetadata = { name: string; version: string; dependencies: ModDependency[] };
-export type ModDependency = Omit<ModMetadata, 'dependencies'>;
-export type EverestModInfo = { name: string; isZip: boolean; metadata: ModMetadata[] };
+export type ModDependency = { name: string; version: string };
+export type ModChapter = {chapterId:string}
+export type LobbyChapter = {gymId?:string; lobbyId:string; lobbyLevels:ModChapter[]}
+export type ModMetadata = 
+| {
+	name: string;
+	version: string;
+	dll?: string;
+	dependencies: ModDependency[];
+	optionalDependencies?: ModDependency[];
+
+
+  isLobby: true;
+  lobbyChapters: LobbyChapter[]
+  
+	[key: string]: unknown;
+} 
+| {
+  name: string;
+  version: string;
+  dll?:string;
+  dependencies: ModDependency[];
+  optionalDependencies?:ModDependency[];
+
+  isLobby: false
+  chapters: ModChapter[]
+
+  [key: string]: unknown;
+};
+export type EverestModInfo = { fileName: string; isZip: boolean; metadata: ModMetadata };
+
+interface RawDep {
+	Name?: string;
+	name?: string;
+	Version?: string | number;
+	version?: string | number;
+	[key: string]: unknown;
+}
 
 interface RawMeta {
 	Name?: string;
 	name?: string;
 	Version?: string | number;
 	version?: string | number;
-	Dependencies?: RawMeta[];
-	dependencies?: RawMeta[];
+	DLL?: string;
+	dll?: string;
+	Dependencies?: RawDep[];
+	dependencies?: RawDep[];
+	OptionalDependencies?: RawDep[];
+	optionalDependencies?: RawDep[];
 	[key: string]: unknown;
 }
 
-// ponytail: array/object normalization combined. any cast drops verbose raw types.
-function parseEverestYaml(content: string, fileName: string): ModMetadata[] {
+function normalizeDep(d: RawDep): ModDependency {
+	return {
+		name: d.Name || d.name || '',
+		version: String(d.Version ?? d.version ?? ''),
+	};
+}
+
+function parseEverestYaml(content: string, fileName: string): ModMetadata {
 	try {
 		const parsed = yaml.load(content.replace(/^\uFEFF/, '')) as RawMeta | RawMeta[] | null | undefined;
-		const items = Array.isArray(parsed) ? parsed : parsed ? [parsed] : [];
+		const item = Array.isArray(parsed) ? parsed[0] : parsed;
 
-		return items.map((item) => ({
+		if (!item) return { name: '', version: '', dependencies: [] };
+
+		return {
 			...item,
 			name: item.Name || item.name || '',
 			version: String(item.Version ?? item.version ?? ''),
-			dependencies: (item.Dependencies || item.dependencies || []).map((d) => ({
-				name: d.Name || d.name || '',
-				version: String(d.Version ?? d.version ?? ''),
-			})),
-		}));
+			dll: item.DLL || item.dll || undefined,
+			dependencies: (item.Dependencies || item.dependencies || []).map(normalizeDep),
+			optionalDependencies: (item.OptionalDependencies || item.optionalDependencies || []).map(normalizeDep),
+		};
 	} catch (err) {
 		console.error(`Yaml parse fail ${fileName}:`, err);
-		return [];
+		return { name: '', version: '', dependencies: [] };
 	}
 }
 
@@ -105,7 +151,7 @@ export default class Everest {
 					// ponytail: unified zip and dir read flow.
 					const content = isZip ? await this.zip.readTextFile(`${modsPath}/${entry}`, yName) : await this.fs.readFile(`${modsPath}/${entry}/${yName}`);
 
-					mods.push({ name: entry, isZip, metadata: parseEverestYaml(content, entry) });
+					mods.push({ fileName: entry, isZip, metadata: parseEverestYaml(content, entry) });
 					break;
 				} catch (e: unknown) {
 					Log_Error('Everest:', 'There was an error when trying to read from mod content', e);
