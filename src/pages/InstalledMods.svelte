@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import { GetDependency } from '../libs/DI';
+import { GetDependency } from '../setup';
 import Everest from '../libs/Everest';
 import type { EverestModInfo } from '../libs/Everest';
 import { Log_Info } from '../libs/Logger';

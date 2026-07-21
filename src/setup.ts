@@ -1,16 +1,16 @@
 // UNIVERSAL COMPATIBILITY
 import { container } from 'tsyringe';
-import Sqlite_Go from '../../src-utils/Sqlite_Go';
-import Zip_Go from '../../src-utils/Zip_Go';
-import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from '../interfaces/DependencyInjectionTokens';
-import type { IPath } from '../interfaces/IPath';
-import Path from './BrowserPath';
-import Celeste from './Celeste';
-import Everest from './Everest';
-import { NeutralinoFileSystem } from './NeutralinoFileSystem';
-import { NeutralinoOS } from './NeutralinoOS';
-import Olympus from './Olympus';
-import { ThreadBrowser } from './ThreadBrowser';
+import Sqlite_Go from '../src-utils/Sqlite_Go';
+import Zip_Go from '../src-utils/Zip_Go';
+import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from './interfaces/DependencyInjectionTokens';
+import type { IPath } from './interfaces/IPath';
+import Path from './libs/BrowserPath';
+import Celeste from './libs/Celeste';
+import Everest from './libs/Everest';
+import { NeutralinoFileSystem } from './libs/NeutralinoFileSystem';
+import { NeutralinoOS } from './libs/NeutralinoOS';
+import Olympus from './libs/Olympus';
+import { ThreadBrowser } from './libs/ThreadBrowser';
 
 container.registerSingleton(IFileSystem_Token, NeutralinoFileSystem);
 container.registerSingleton(IOs_Token, NeutralinoOS);
@@ -27,4 +27,3 @@ container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.d
 const GetDependency = container.resolve.bind(container);
 
 export { GetDependency as get, GetDependency };
-
