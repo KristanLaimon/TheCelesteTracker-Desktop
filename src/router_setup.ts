@@ -7,5 +7,6 @@ import { router } from './router.svelte';
 router.register([
 	{ pattern: '/', component: GlobalWindow },
 	{ pattern: '/celeste/installed-mods', component: InstalledMods },
-  { pattern: "/celeste/mod-view", component: ModView}
+  { pattern: "/celeste/mod-view", component: ModView},
+  { pattern: "/test", component: ModView}
 ]);

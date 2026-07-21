@@ -260,8 +260,12 @@ export default class Storage {
 		this.dirtyKeys.add(key);
 		await this.pushHistory(key);
 
-		// Instantly write to cache layers (browser)
-		await Promise.all(this.cacheAdapters.map(adapter => adapter.set(key, value)));
+		await Promise.all([
+			...this.cacheAdapters.map(adapter => adapter.set(key, value)),
+			...this.persistentAdapters.map(adapter => adapter.set(key, value)),
+		]);
+
+		this.dirtyKeys.delete(key);
 	}
 
 	/**

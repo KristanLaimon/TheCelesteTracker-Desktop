@@ -29,6 +29,6 @@ Hotkeys_RegisterHotkey('ctrl+m', 'global', () => {
 	router.navigate('/');
 });
 
-Hotkeys_RegisterHotkey('ctrl+n', 'global', () => {
-	router.navigate('/celeste/mod-view');
+Hotkeys_RegisterHotkey('ctrl+t', 'global', () => {
+	router.navigate('/test');
 });

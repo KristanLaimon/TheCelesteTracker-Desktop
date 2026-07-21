@@ -1,15 +1,15 @@
 // BROWSER ONLY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import type {
-	CopyOptions,
-	DirectoryEntry,
-	DirectoryReaderOptions,
-	FileReaderOptions,
-	OpenedFile,
-	Permissions,
-	PermissionsMode,
-	Stats,
-	Watcher,
+  CopyOptions,
+  DirectoryEntry,
+  DirectoryReaderOptions,
+  FileReaderOptions,
+  OpenedFile,
+  Permissions,
+  PermissionsMode,
+  Stats,
+  Watcher,
 } from '@neutralinojs/lib';
 import { filesystem, server } from '@neutralinojs/lib';
 import { container, inject, injectable } from 'tsyringe';
@@ -80,8 +80,13 @@ export class NeutralinoFileSystem implements IFileSystem {
 	 * @param options Creation options (e.g., recursive).
 	 */
 	public async createDirectory(path: string, options?: CreateDirectoryOptions): Promise<void> {
+    if (await this.exists(path)){
+      return;
+    }
+
 		if (options?.recursive) {
-			const normalized = this.path.normalize(path);
+			const resolved = await this.resolveNeutralinoPath(path);
+			const normalized = this.path.normalize(resolved);
 			const segments = normalized.split('/').filter(Boolean);
 			let current = this.path.isAbsolute(normalized) ? '/' : '.';
 			for (const segment of segments) {
@@ -93,7 +98,8 @@ export class NeutralinoFileSystem implements IFileSystem {
 				}
 			}
 		} else {
-			await filesystem.createDirectory(path);
+			const resolved = await this.resolveNeutralinoPath(path);
+			await filesystem.createDirectory(resolved);
 		}
 	}
 
@@ -111,7 +117,18 @@ export class NeutralinoFileSystem implements IFileSystem {
 	 * @param data Content string to write.
 	 */
 	public async writeFile(filename: string, data: string): Promise<void> {
-		return filesystem.writeFile(filename, data);
+		const resolved = await this.resolveNeutralinoPath(filename);
+		return filesystem.writeFile(resolved, data);
+	}
+
+  /**
+   * @note THROWS IF PATH DOESN'T EXIST
+   */
+	private async resolveNeutralinoPath(p: string): Promise<string> {
+		if (!this.path.isAbsolute(p)) {
+			return filesystem.getAbsolutePath(p);
+		}
+		return p;
 	}
 
 	/**
@@ -147,7 +164,8 @@ export class NeutralinoFileSystem implements IFileSystem {
 	 * @param options Position cursor and buffer read size limits.
 	 */
 	public async readFile(filename: string, options?: FileReaderOptions): Promise<string> {
-		return filesystem.readFile(filename, options);
+		const resolved = await this.resolveNeutralinoPath(filename);
+		return filesystem.readFile(resolved, options);
 	}
 
 	/**

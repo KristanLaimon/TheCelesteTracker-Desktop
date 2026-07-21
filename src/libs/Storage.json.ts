@@ -111,7 +111,6 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 		return run;
 	}
 
-	/** Reads the JSON file into {@link cache} on first call; treats a missing file as an empty object. */
 	private async load(): Promise<Record<string, unknown>> {
 		if (this.cache) {
 			return this.cache;
@@ -120,12 +119,8 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 		try {
 			const raw = await this.fsModule.readFile(this.filePath);
 			this.cache = raw.trim().length > 0 ? JSON.parse(raw) : {};
-		} catch (error: any) {
-			if (error?.code === 'ENOENT') {
-				this.cache = {};
-			} else {
-				throw error;
-			}
+		} catch {
+			this.cache = {};
 		}
 
 		return this.cache!;

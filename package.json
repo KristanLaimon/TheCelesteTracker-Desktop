@@ -27,6 +27,7 @@
 		"reflect-metadata": "^0.2.2",
 		"serialize-error": "^13.0.1",
 		"tailwindcss": "4.3.2",
+		"ts-key-enum": "^3.0.13",
 		"tsyringe": "4.10.0"
 	},
 	"devDependencies": {

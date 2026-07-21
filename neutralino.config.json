@@ -20,6 +20,7 @@
 		"filesystem.readFile",
 		"filesystem.getAbsolutePath",
 		"filesystem.createDirectory",
+    "filesystem.writeFile",
 		"window.show",
 		"os.setTray",
 		"os.open",
