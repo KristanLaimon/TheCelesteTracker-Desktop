@@ -579,13 +579,36 @@ export default class Everest {
 		workerCount: number,
 	): Promise<EverestModInfo[] | null> {
 		try {
-			const zipExePath = await this.zip.GetExecutablePath();
 			const workerUrl = new URL('./Everest.worker.ts', import.meta.url);
 
 			const workers = Array.from({ length: workerCount }, () => new this.ThreadCtor(workerUrl, { type: 'module' }));
 
-			const chunks: { entry: string; type: string }[][] = Array.from({ length: workerCount }, () => []);
-			entries.forEach((e, i) => chunks[i % workerCount].push({ entry: e.entry, type: e.type }));
+			// Pre-read all mod file content on main thread (via universal IFileSystem/Zip_Go)
+			const preReadEntries = await Promise.all(
+				entries.map(async ({ entry, type }) => {
+					if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) return null;
+					const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
+					if (type !== 'DIRECTORY' && !isZip) return null;
+
+					const modPath = `${modsPath}/${entry}`;
+					for (const yName of YAML_NAMES) {
+						try {
+							const yamlContent = await this.readModFile(modPath, isZip, yName);
+							let collabContent: string | undefined;
+							try {
+								collabContent = await this.readModFile(modPath, isZip, 'CollabUtils2CollabID.txt');
+							} catch { /* not a collab */ }
+							return { entry, type, modPath, yamlContent, collabContent };
+						} catch { /* try next yaml name */ }
+					}
+					return null;
+				}),
+			);
+
+			const valid = preReadEntries.filter(Boolean) as { entry: string; type: string; modPath: string; yamlContent: string; collabContent?: string }[];
+
+			const chunks = Array.from({ length: workerCount }, () => [] as typeof valid);
+			valid.forEach((e, i) => chunks[i % workerCount].push(e));
 
 			const results = await Promise.all(
 				workers.map((w, i) =>
@@ -593,7 +616,7 @@ export default class Everest {
 						const timeout = setTimeout(() => { w.terminate(); resolve([]); }, 120_000);
 						w.addEventListener('message', (e: any) => { clearTimeout(timeout); resolve(e.data.mods ?? []); });
 						w.addEventListener('error', () => { clearTimeout(timeout); resolve([]); });
-						w.postMessage({ entries: chunks[i], modsPath, zipExePath, taskId: i });
+						w.postMessage({ entries: chunks[i], taskId: i });
 					}),
 				),
 			);
