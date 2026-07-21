@@ -105,6 +105,7 @@ export default class Storage {
 	private fastestMemoryCache = new Map<string, any>();
 	private dirtyKeys = new Set<string>();
 	private deletedKeys = new Set<string>();
+	private inflightFactories = new Map<string, Promise<unknown>>();
 
 	private cacheAdapters: StorageAdapter[];
 	private persistentAdapters: StorageAdapter[];
@@ -241,9 +242,19 @@ export default class Storage {
       return null;
     }
 
-    const computed = await factory(...args);
-    await this.set(key, computed);
-    return computed;
+    const existing = this.inflightFactories.get(key);
+    if (existing) return existing as Promise<T>;
+
+    const promise = factory(...args);
+    const wrapped = Promise.resolve(promise).then(async (computed) => {
+      await this.set(key, computed);
+      return computed;
+    }).finally(() => {
+      this.inflightFactories.delete(key);
+    });
+
+    this.inflightFactories.set(key, wrapped);
+    return wrapped as Promise<T>;
   }
 
 	/**
