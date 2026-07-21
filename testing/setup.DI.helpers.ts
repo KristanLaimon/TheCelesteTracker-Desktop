@@ -7,12 +7,10 @@ import MaddiesApi from "../src/libs/MaddiesAPI";
 import Storage from "../src/libs/Storage";
 import Storage_JsonFileAdapter from "../src/libs/Storage.json";
 import { GetDependency } from "./setup";
-import Storage_SimpleMapAdapter from "./Storage.simpleMap";
 
 export function Construct_LocalMods(opts: [] | ConstructorParameters<typeof Storage> = []) {
-  const mapAdapterCache = new Storage_SimpleMapAdapter();
   const jsonAdapterPersistent = new Storage_JsonFileAdapter({filePath: "./testing/mods-names.json", indent: 2}, GetDependency<IFileSystem>(IFileSystem_Token), GetDependency<IPath>(IPath_Token));
-  const storage = new Storage({adapters:[mapAdapterCache, jsonAdapterPersistent], ...opts[0]});
+  const storage = new Storage({adapters:[jsonAdapterPersistent], ...opts[0]});
 
   const myMods = new LocalMods(GetDependency(Everest), storage, GetDependency(MaddiesApi));
   return myMods;

@@ -20,7 +20,6 @@ import type { StorageAdapter } from '../src/libs/Storage';
  * ```
  */
 export default class Storage_SimpleMapAdapter implements StorageAdapter {
-	readonly role = 'cache' as const;
 
 	private map = new Map<string, unknown>();
 

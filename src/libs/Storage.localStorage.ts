@@ -32,7 +32,6 @@ export interface LocalStorageAdapterOptions {
  * ```
  */
 export default class Storage_LocalStorageAdapter implements StorageAdapter {
-	readonly role = 'cache' as const;
 
 	private prefix: string;
 

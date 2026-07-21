@@ -44,7 +44,6 @@ export interface JsonFileAdapterOptions {
  */
 @injectable()
 export default class Storage_JsonFileAdapter implements StorageAdapter {
-	readonly role = 'persistent' as const;
 
 	private filePath: string;
 	private indent: number;

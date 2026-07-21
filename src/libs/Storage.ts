@@ -8,8 +8,6 @@
  * the {@link Storage} class itself.
  */
 export interface StorageAdapter {
-	/** Determines if this adapter acts as a fast cache layer or a hard persistent layer */
-	role: 'cache' | 'persistent';
 	/** Determines if the environment supports this adapter (e.g. `localStorage` may not exist in Node) */
 	isAvailable(): boolean;
 	get<T>(key: string): Promise<T | null>;
@@ -38,15 +36,12 @@ export interface HistoryEntry<T = unknown> {
  * Opt-in configuration that turns on the undo history feature.
  *
  * History is disabled entirely unless this object is supplied. It requires
- * its own dedicated **persistent** adapter — separate from (and never taken
- * from) the main `adapters` list — so history storage never competes with or
- * hijacks the adapters configured for regular keys.
+ * its own dedicated adapter — separate from (and never taken from) the main
+ * `adapters` list — so history storage never competes with or hijacks the
+ * adapters configured for regular keys.
  */
 export interface HistoryOptions {
-	/**
-	 * Dedicated adapter used exclusively to persist the undo history.
-	 * Must have `role: 'persistent'` (history has no cache tier of its own).
-	 */
+	/** Dedicated adapter used exclusively to persist the undo history. */
 	adapter: StorageAdapter;
 	/**
 	 * Maximum number of entries kept in the undo history.
@@ -77,24 +72,19 @@ export interface StorageOptions {
 }
 
 /**
- * Layered key/value store with three read tiers (in-memory → cache adapters →
- * persistent adapters), debounced persistent writes, an optional bounded LIFO
- * undo history, and a configurable auto-save timer.
+ * Key/value store with two read tiers (in-memory Map → adapters),
+ * an optional bounded LIFO undo history, and a configurable auto-save timer.
  *
  * ### Read/write model
- * - `get` reads from memory first, then cache adapters, then persistent adapters,
- *   promoting whatever it finds back up to the faster tiers.
- * - `set`/`remove` update memory + cache adapters synchronously, and only mark
- *   persistent adapters as "dirty" — the actual persistent write happens on
- *   {@link triggerSave} (manual or via the auto-save timer).
+ * - `get` reads from memory first, then adapters, promoting found values
+ *   back up to memory so subsequent reads are instant.
+ * - `set`/`remove` update memory and all adapters immediately.
  *
  * ### History / undo
  * History is **off by default**. Passing a `history` option to the
- * constructor (with a dedicated persistent adapter) turns it on: every
- * `set`/`remove` call then appends a {@link HistoryEntry} capturing the
- * pre-mutation state of the key, capped at `history.size` entries. That
- * dedicated adapter is never pulled from the main `adapters` list — history
- * storage is fully separate from regular key storage.
+ * constructor turns it on: every `set`/`remove` call then appends a
+ * {@link HistoryEntry} capturing the pre-mutation state of the key,
+ * capped at `history.size` entries.
  */
 export default class Storage {
 	/** Default max size of {@link historyArray} when `history.size` isn't provided in options. */
@@ -107,8 +97,7 @@ export default class Storage {
 	private deletedKeys = new Set<string>();
 	private inflightFactories = new Map<string, Promise<unknown>>();
 
-	private cacheAdapters: StorageAdapter[];
-	private persistentAdapters: StorageAdapter[];
+	private adapters: StorageAdapter[];
 	private timerId?: ReturnType<typeof setInterval>;
 
 	private options: StorageOptions;
@@ -119,31 +108,20 @@ export default class Storage {
 	private historySize: number;
 	/** Whether the undo history feature is turned on (i.e. a valid `history.adapter` was provided and available). */
 	private historyEnabled: boolean;
-	/** The dedicated persistent adapter used solely for history, when enabled. Never shared with `persistentAdapters`. */
 	private historyAdapter?: StorageAdapter;
-	/** Ensures the persisted history is only loaded from disk once, lazily, on first use. */
 	private historyLoaded = false;
 
 	constructor(options: StorageOptions) {
 		this.options = options;
-
-		const availableAdapters = options.adapters.filter(adapter => adapter.isAvailable());
-
-		this.cacheAdapters = availableAdapters.filter(a => a.role === 'cache');
-		this.persistentAdapters = availableAdapters.filter(a => a.role === 'persistent');
+		this.adapters = options.adapters.filter(adapter => adapter.isAvailable());
 
 		this.historySize = options.history?.size ?? Storage.DEFAULT_HISTORY_SIZE;
 		this.historyAdapter = undefined;
 		this.historyEnabled = false;
 
-		if (options.history) {
-			if (options.history.adapter.role !== 'persistent') {
-				throw new Error('Storage: history.adapter must have role "persistent" (no cache adapter is used for history).');
-			}
-			if (options.history.adapter.isAvailable()) {
-				this.historyAdapter = options.history.adapter;
-				this.historyEnabled = true;
-			}
+		if (options.history?.adapter.isAvailable()) {
+			this.historyAdapter = options.history.adapter;
+			this.historyEnabled = true;
 		}
 
 		if (options.saveMinutesInterval && options.saveMinutesInterval > 0) {
@@ -257,62 +235,34 @@ export default class Storage {
     return wrapped as Promise<T>;
   }
 
-	/**
-	 * Writes `value` to memory and all cache adapters instantly, and queues the
-	 * key for the next {@link triggerSave} against persistent adapters.
-	 *
-	 * If history is enabled (see {@link HistoryOptions}), the key's previous
-	 * state is recorded first so this change can later be undone with
-	 * {@link restoreLastChange}.
-	 */
 	async set<T>(key: string, value: T): Promise<void> {
 		this.fastestMemoryCache.set(key, value);
 		this.deletedKeys.delete(key);
 		this.dirtyKeys.add(key);
 		await this.pushHistory(key);
-
-		await Promise.all([
-			...this.cacheAdapters.map(adapter => adapter.set(key, value)),
-			...this.persistentAdapters.map(adapter => adapter.set(key, value)),
-		]);
-
+		await Promise.all(this.adapters.map(adapter => adapter.set(key, value)));
 		this.dirtyKeys.delete(key);
 	}
 
-	/**
-	 * Removes `key` from memory and all cache adapters instantly, and queues
-	 * the deletion for the next {@link triggerSave} against persistent adapters.
-	 *
-	 * If history is enabled (see {@link HistoryOptions}), the key's previous
-	 * state is recorded first so this change can later be undone with
-	 * {@link restoreLastChange}.
-	 */
 	async remove(key: string): Promise<void> {
 		await this.pushHistory(key);
-
 		this.fastestMemoryCache.delete(key);
 		this.dirtyKeys.delete(key);
 		this.deletedKeys.add(key);
-
-		// Instantly remove from cache layers
-		await Promise.all(this.cacheAdapters.map(adapter => adapter.remove(key)));
+		await Promise.all(this.adapters.map(adapter => adapter.remove(key)));
 	}
 
-	/**
-	 * Flushes all pending writes and deletions to every persistent adapter.
-	 * No-ops if there are no persistent adapters or nothing is dirty.
-	 */
 	async triggerSave(): Promise<void> {
-		if (this.persistentAdapters.length === 0) return;
+		if (this.adapters.length === 0) return;
 		if (this.dirtyKeys.size === 0 && this.deletedKeys.size === 0) return;
 
 		const writes = Array.from(this.dirtyKeys).map(async (key) => {
 			const val = this.fastestMemoryCache.get(key);
-			await Promise.all(this.persistentAdapters.map(adapter => adapter.set(key, val)));
+			await Promise.all(this.adapters.map(adapter => adapter.set(key, val)));
 		});
 
 		const deletions = Array.from(this.deletedKeys).map(async (key) => {
-			await Promise.all(this.persistentAdapters.map(adapter => adapter.remove(key)));
+			await Promise.all(this.adapters.map(adapter => adapter.remove(key)));
 		});
 
 		await Promise.all([...writes, ...deletions]);
@@ -353,12 +303,12 @@ export default class Storage {
 			this.fastestMemoryCache.set(key, previousValue);
 			this.deletedKeys.delete(key);
 			this.dirtyKeys.add(key);
-			await Promise.all(this.cacheAdapters.map(adapter => adapter.set(key, previousValue)));
+			await Promise.all(this.adapters.map(adapter => adapter.set(key, previousValue)));
 		} else {
 			this.fastestMemoryCache.delete(key);
 			this.dirtyKeys.delete(key);
 			this.deletedKeys.add(key);
-			await Promise.all(this.cacheAdapters.map(adapter => adapter.remove(key)));
+			await Promise.all(this.adapters.map(adapter => adapter.remove(key)));
 		}
 
 		await this.persistHistory();
@@ -403,34 +353,15 @@ export default class Storage {
     this.configureAutoSave("turn on");
   }
 
-	/**
-	 * Checks memory, then cache adapters, then persistent adapters, for `key`,
-	 * promoting a found value up to faster tiers along the way. Extracted out
-	 * of {@link get} so both the plain and factory overloads can share the
-	 * exact same lookup behavior.
-	 */
 	private async lookup<T>(key: string): Promise<T | null> {
-		// 1. Check in-memory cache
 		if (this.fastestMemoryCache.has(key)) {
 			return this.fastestMemoryCache.get(key) as T;
 		}
 
-		// 2. Check cache adapters (e.g. LocalStorage)
-		for (const adapter of this.cacheAdapters) {
+		for (const adapter of this.adapters) {
 			const value = await adapter.get<T>(key);
 			if (value !== null && value !== undefined) {
 				this.fastestMemoryCache.set(key, value);
-				return value;
-			}
-		}
-
-		// 3. Check persistent adapters (e.g. JSON file)
-		for (const adapter of this.persistentAdapters) {
-			const value = await adapter.get<T>(key);
-			if (value !== null && value !== undefined) {
-				this.fastestMemoryCache.set(key, value);
-				// Sync back to cache layer for faster future reads
-				await Promise.all(this.cacheAdapters.map(a => a.set(key, value)));
 				return value;
 			}
 		}
