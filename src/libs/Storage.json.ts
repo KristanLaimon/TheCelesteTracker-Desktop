@@ -1,7 +1,8 @@
+// UNIVERSAL COMPATIBILITY
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token } from "../interfaces/DependencyInjectionTokens";
+import { IFileSystem_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../interfaces/IFileSystem";
-import Path from "../libs/BrowserPath";
+import type { IPath } from "../interfaces/IPath";
 import type { StorageAdapter } from "./Storage";
 
 /**
@@ -55,7 +56,11 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 	private queue: Promise<unknown> = Promise.resolve();
 
 
-	constructor(options: JsonFileAdapterOptions, @inject(IFileSystem_Token) private fsModule: IFileSystem) {
+	constructor(
+		options: JsonFileAdapterOptions,
+		@inject(IFileSystem_Token) private fsModule: IFileSystem,
+		@inject(IPath_Token) private path: IPath,
+	) {
 		this.filePath = options.filePath;
 		this.indent = options.indent ?? 2;
 	}
@@ -129,7 +134,7 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 	/** Writes `data` to disk, creating the parent directory if it doesn't exist yet. */
 	private async persist(data: Record<string, unknown>): Promise<void> {
 
-		const dir = Path.dirname(this.filePath);
+		const dir = this.path.dirname(this.filePath);
 		await this.fsModule.createDirectory(dir, { recursive: true });
 
 		const json = this.indent > 0 ? JSON.stringify(data, null, this.indent) : JSON.stringify(data);

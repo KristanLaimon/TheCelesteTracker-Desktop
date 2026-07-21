@@ -1,10 +1,10 @@
 // UNIVERSAL COMPATIBILITY
 import { serializeError } from "serialize-error";
 import { inject, injectable } from 'tsyringe';
-import { IFileSystem_Token, IOs_Token } from '../interfaces/DependencyInjectionTokens';
+import { IFileSystem_Token, IOs_Token, IPath_Token } from '../interfaces/DependencyInjectionTokens';
 import type { IFileSystem } from '../interfaces/IFileSystem';
 import type { IOS } from '../interfaces/IOs';
-import Path from "../libs/BrowserPath";
+import type { IPath } from '../interfaces/IPath';
 import { Log_Error } from "./Logger";
 
 export const OlympusModCategory = [
@@ -34,6 +34,7 @@ export default class Olympus {
 	constructor(
 		@inject(IOs_Token) private os: IOS,
 		@inject(IFileSystem_Token) private fs: IFileSystem,
+		@inject(IPath_Token) private path: IPath,
 	) {}
 
   public async isInstalled():Promise<boolean>{
@@ -51,7 +52,7 @@ export default class Olympus {
     const path: string | null = await this.GetInstallationPath();
     if (path === null) return null;
 
-    const infoJsonPath:string = Path.join(path, "cached-mod-ids-to-categories.json");
+    const infoJsonPath:string = this.path.join(path, "cached-mod-ids-to-categories.json");
     if (!await this.fs.exists(infoJsonPath)) return null;
 
     const infoJsonContent:string = await this.fs.readFile(infoJsonPath);
@@ -90,7 +91,7 @@ export default class Olympus {
     const path: string | null = await this.GetInstallationPath();
     if (path === null) return null;
 
-    const infoJsonPath:string = Path.join(path, "cached-mod-ids-to-names.json")
+    const infoJsonPath:string = this.path.join(path, "cached-mod-ids-to-names.json")
     // "C:\Users\Kristan\AppData\Local\Olympus\cached-mod-ids-to-names.json" //real path
     // C:\\Users\\Kristan\\AppData\\local\\Olympus\\cached-mod-ids-to-names.json //path being returned by Path.join()
     if(!await this.fs.exists(infoJsonPath)) return null;
@@ -130,7 +131,7 @@ export default class Olympus {
 		try {
 			if (osName === 'windows') {
 				const data = await this.os.getPath('home');
-        configPath = Path.join(data, "AppData", "Local", "Olympus", "config.json");
+        configPath = this.path.join(data, "AppData", "Local", "Olympus", "config.json");
 			} else {
 				const home = await this.os.getPath('home');
 				if (osName === 'macos') {
@@ -147,7 +148,7 @@ export default class Olympus {
 		}
 
 		if (await this.fs.exists(configPath)) {
-			return Path.dirname(configPath);
+			return this.path.dirname(configPath);
 		}
 
 		return null;

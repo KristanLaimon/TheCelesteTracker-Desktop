@@ -1,3 +1,4 @@
+// BROWSER ONLY
 import type { StorageAdapter } from './Storage';
 
 /**

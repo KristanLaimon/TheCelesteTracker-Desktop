@@ -1,10 +1,10 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import { inject, injectable } from 'tsyringe';
-import { IFileSystem_Token, IOs_Token } from '../src/interfaces/DependencyInjectionTokens';
+import { IFileSystem_Token, IOs_Token, IPath_Token } from '../src/interfaces/DependencyInjectionTokens';
 import type { IFileSystem } from '../src/interfaces/IFileSystem';
 import type { IOS } from '../src/interfaces/IOs';
-import Path from '../src/libs/BrowserPath';
+import type { IPath } from '../src/interfaces/IPath';
 
 const windows_name = 'utilities-win_x64.exe';
 const macos_name = 'utilities-mac_x64';
@@ -23,6 +23,7 @@ export default class Generic_Go {
 	constructor(
 		@inject(IOs_Token) protected os: IOS,
 		@inject(IFileSystem_Token) protected fs: IFileSystem,
+		@inject(IPath_Token) protected path: IPath,
 	) {}
 
 	public async GetExecutablePath(): Promise<string> {
@@ -47,7 +48,7 @@ export default class Generic_Go {
 		const currentExePath = await this.fs.getAbsolutePath('.');
 		const triedPaths: string[] = [];
 		for (const folder of possibleParentFolders) {
-			const pathToSearchOn: string = Path.join(currentExePath, folder, util_file_name);
+			const pathToSearchOn: string = this.path.join(currentExePath, folder, util_file_name);
 			if (await this.fs.exists(pathToSearchOn)) {
 				this.#executableCachedPath = pathToSearchOn;
 				return this.#executableCachedPath;

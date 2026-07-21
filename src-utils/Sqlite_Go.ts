@@ -4,6 +4,7 @@
 import { injectable } from 'tsyringe';
 import type { IFileSystem } from '../src/interfaces/IFileSystem';
 import type { IOS } from '../src/interfaces/IOs';
+import type { IPath } from '../src/interfaces/IPath';
 import { Log_Info, Log_Throw } from '../src/libs/Logger';
 import Generic_Go from './Generic_Go';
 
@@ -32,8 +33,8 @@ export type SqliteExecResult =
 export default class Sqlite_Go extends Generic_Go {
 	private dbPath: string;
 
-	public constructor(dbPath: string, os: IOS, fs: IFileSystem) {
-		super(os, fs);
+	public constructor(dbPath: string, os: IOS, fs: IFileSystem, path: IPath) {
+		super(os, fs, path);
 		this.dbPath = dbPath;
 		fs.exists(this.dbPath).then((exists) => {
 			if (!exists) {

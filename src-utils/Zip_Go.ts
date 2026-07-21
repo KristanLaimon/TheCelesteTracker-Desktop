@@ -1,7 +1,6 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import { injectable } from 'tsyringe';
-import Path from '../src/libs/BrowserPath';
 import Generic_Go from './Generic_Go';
 
 const windows_name = 'zip_utils-win_x64.exe';
@@ -34,7 +33,7 @@ export default class Zip_Go extends Generic_Go {
 		const currentExePath = await this.fs.getAbsolutePath('.');
 		const possibleParentFolders = ['./', './bin'];
 		for (const folder of possibleParentFolders) {
-			const pathToSearchOn = Path.join(currentExePath, folder, util_file_name);
+			const pathToSearchOn = this.path.join(currentExePath, folder, util_file_name);
 			if (await this.fs.exists(pathToSearchOn)) {
 				this.#executableCachedPath = pathToSearchOn;
 				return this.#executableCachedPath;

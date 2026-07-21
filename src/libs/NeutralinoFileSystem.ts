@@ -12,9 +12,10 @@ import type {
 	Watcher,
 } from '@neutralinojs/lib';
 import { filesystem, server } from '@neutralinojs/lib';
-import { injectable } from 'tsyringe';
+import { container, inject, injectable } from 'tsyringe';
+import { IPath_Token } from '../interfaces/DependencyInjectionTokens';
 import type { CreateDirectoryOptions, IFileSystem, PathParts } from '../interfaces/IFileSystem';
-import Path from './BrowserPath';
+import type { IPath } from '../interfaces/IPath';
 import { Log_Info } from './Logger';
 
 export enum OperatingSystem {
@@ -31,6 +32,7 @@ export enum OperatingSystem {
  */
 @injectable()
 export class NeutralinoFileSystem implements IFileSystem {
+	constructor(@inject(IPath_Token) private path: IPath) {}
 	/** If *null*, local folders hasn't been mounted by neutralino. Mount using {@link NeutralinoFileSystem.MountLocalFolders()} function  */
 	public static ResourcesFolderNameOnly: string = 'data';
 	public static ResourcesFolderPath_Backend: string | null = null;
@@ -38,7 +40,8 @@ export class NeutralinoFileSystem implements IFileSystem {
 	public static async MountLocalFolders(): Promise<void> {
 		if (NeutralinoFileSystem.ResourcesFolderPath_Backend === null) {
 			const currentExePath: string = await filesystem.getAbsolutePath('.');
-			const resourcesFolderPath = Path.join(currentExePath, NeutralinoFileSystem.ResourcesFolderNameOnly);
+			const path = container.resolve<IPath>(IPath_Token);
+			const resourcesFolderPath = path.join(currentExePath, NeutralinoFileSystem.ResourcesFolderNameOnly);
 			const resourcesFolderExists = await (async () => {
 				try {
 					await filesystem.getStats(resourcesFolderPath);
@@ -78,11 +81,11 @@ export class NeutralinoFileSystem implements IFileSystem {
 	 */
 	public async createDirectory(path: string, options?: CreateDirectoryOptions): Promise<void> {
 		if (options?.recursive) {
-			const normalized = Path.normalize(path);
+			const normalized = this.path.normalize(path);
 			const segments = normalized.split('/').filter(Boolean);
-			let current = Path.isAbsolute(normalized) ? '/' : '.';
+			let current = this.path.isAbsolute(normalized) ? '/' : '.';
 			for (const segment of segments) {
-				current = Path.join(current, segment);
+				current = this.path.join(current, segment);
 				try {
 					await filesystem.getStats(current);
 				} catch {

@@ -3,6 +3,7 @@ import { container } from 'tsyringe';
 import Sqlite_Go from '../../src-utils/Sqlite_Go';
 import Zip_Go from '../../src-utils/Zip_Go';
 import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from '../interfaces/DependencyInjectionTokens';
+import type { IPath } from '../interfaces/IPath';
 import Path from './BrowserPath';
 import Celeste from './Celeste';
 import Everest from './Everest';
@@ -21,7 +22,7 @@ container.registerSingleton(Olympus);
 container.registerSingleton(NeutralinoFileSystem);
 container.registerSingleton(NeutralinoOS);
 container.registerSingleton(Zip_Go);
-container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.db', container.resolve(NeutralinoOS), container.resolve(NeutralinoFileSystem)));
+container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.db', container.resolve(NeutralinoOS), container.resolve(NeutralinoFileSystem), container.resolve<IPath>(IPath_Token)));
 
 const GetDependency = container.resolve.bind(container);
 
