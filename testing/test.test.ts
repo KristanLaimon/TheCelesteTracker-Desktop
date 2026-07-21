@@ -17,8 +17,12 @@ test('GetModInfoByZipName is fast', async () => {
 
 test('GetModsInstalled returns mods', async () => {
 	const everest = GetDependency(Everest);
-	const res = await everest.GetModsInstalled({workerCount: 8});
+	const res = await everest.GetModsInstalled({modsCountScanningLimit: 60 });
 	expect(res.length).toBeGreaterThan(0);
+
+  const modNames = res.map(a => ({humanName: a.name, modId: a.metadata.name}));
+  console.log(modNames)
+
 }, { timeout: 30_000 });
 
 test('GetModsInstalled returns mods no workers', async () => {
