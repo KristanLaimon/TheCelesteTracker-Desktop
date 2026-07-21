@@ -117,7 +117,7 @@ export type EverestModInfo = {
 	isZip: boolean;
 	modPath: string;
 	metadata: ModMetadata;
-	humanName: string;
+	name: string;
 };
 
 /**
@@ -672,7 +672,7 @@ export default class Everest {
 			try {
 				const content = await this.readModFile(modPath, isZip, yName);
 				const metadata = parseEverestYaml(content, entry);
-				const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, humanName: name };
+				const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, name: name };
 
 				const collabId = await this.collabUtils2.detectCollabId(modInfo);
 				if (collabId) {
@@ -722,7 +722,7 @@ export default class Everest {
 				try {
 					const content = await this.readModFile(modPath, isZip, yName);
 					const metadata = parseEverestYaml(content, entry);
-					const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, humanName: name };
+					const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, name: name };
 
 					const collabId = await this.collabUtils2.detectCollabId(modInfo);
 					if (collabId) {
@@ -767,7 +767,7 @@ export default class Everest {
 		let bestScore = 0;
 
 		for (const mod of mods) {
-			const candidates = [mod.humanName, mod.metadata.name, mod.fileName.replace(/\.zip$/i, '')].filter(Boolean);
+			const candidates = [mod.name, mod.metadata.name, mod.fileName.replace(/\.zip$/i, '')].filter(Boolean);
 			for (const c of candidates) {
 				const score = modNameSimilarity(modName, c);
 				if (score > bestScore) {

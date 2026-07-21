@@ -11,18 +11,27 @@ let modNames = $state<string[]>([]);
 let searchQuery = $state<string>('');
 let selected = $state<string>("");
 let selectedFullInfo = $state<EverestModInfo | null>(null);
+let loadingInfo = $state(false);
 
-$inspect(selected)
+$inspect(selected);
 
-$effect( () => {
-  if (!selected || selected.trim() === ""){
+$effect(() => {
+  if (!selected || selected.trim() === "") {
     selectedFullInfo = null;
+    loadingInfo = false;
     return;
   }
-  //Possible condition race?? hate you await js
-  localMods.GetModFullInfoByModHumanName(selected).then((awaited: EverestModInfo | null) => {
-    selectedFullInfo = awaited;
-  })
+
+  loadingInfo = true;
+  let cancelled = false;
+  localMods.GetModFullInfoByModHumanName(selected).then((result) => {
+    if (!cancelled) {
+      selectedFullInfo = result;
+      loadingInfo = false;
+    }
+  });
+
+  return () => { cancelled = true; };
 });
 
 onMount(() => {
@@ -39,7 +48,13 @@ onMount(() => {
   <SearchDynamic bind:selected  bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
   {#if selected}
     <section>
-      <p>Mod selected! with {JSON.stringify(selectedFullInfo?.metadata)}</p>
+      {#if loadingInfo}
+        <p>Loading mod info...</p>
+      {:else if selectedFullInfo}
+        <p>Mod selected: {selectedFullInfo.humanName}</p>
+      {:else}
+        <p>Mod info not available</p>
+      {/if}
     </section>
   {/if}
 </CenteredLayout>

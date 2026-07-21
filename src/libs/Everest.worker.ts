@@ -19,7 +19,7 @@ type RawDep = { Name?: string; name?: string; Version?: string | number; version
 type RawMeta = { Name?: string; name?: string; Version?: string | number; version?: string | number; DLL?: string; dll?: string; Dependencies?: RawDep[]; dependencies?: RawDep[]; OptionalDependencies?: RawDep[]; optionalDependencies?: RawDep[]; [key: string]: unknown };
 
 type ModDependency = { name: string; version: string };
-type EverestModInfo = { fileName: string; isZip: boolean; modPath: string; metadata: any; name: string };
+type EverestModInfo = { fileName: string; isZip: boolean; modPath: string; metadata: any; humanName: string };
 
 function normalizeDep(d: RawDep): ModDependency {
 	return { name: d.Name || d.name || '', version: String(d.Version ?? d.version ?? '') };
@@ -75,7 +75,7 @@ self.onmessage = (e: MessageEvent<{
 			metadata.gyms = [];
 		}
 
-		results.push({ fileName: entry, isZip, modPath, metadata, name });
+		results.push({ fileName: entry, isZip, modPath, metadata, humanName: name });
 	}
 	self.postMessage({ mods: results, taskId });
 };

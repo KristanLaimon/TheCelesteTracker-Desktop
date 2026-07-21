@@ -38,8 +38,7 @@
 
 	let listEl = $state<HTMLDivElement | undefined>(undefined);
 	let itemEls = $state<HTMLDivElement[]>([]);
-	let showDropdown = $state(true);
-	let suppressClose = $state(false);
+	let showDropdown = $state(false);
 
 	const uniqueItems = $derived([...new Set(items)]);
 
@@ -52,15 +51,9 @@
 		if (inputValue) {
 			selectedIndex = 0;
 			showDropdown = true;
-			suppressClose = true;
-		}
-	});
-
-	$effect(() => {
-		if (selected && !suppressClose) {
+		} else {
 			showDropdown = false;
 		}
-		suppressClose = false;
 	});
 
 	$effect(() => {
@@ -71,8 +64,18 @@
 	});
 
 	function selectItem(item: string) {
+    inputValue = item
 		selected = item;
 		showDropdown = false;
+	}
+
+	let blurTimeout: ReturnType<typeof setTimeout>;
+	function handleBlur() {
+		blurTimeout = setTimeout(() => { showDropdown = false; }, 200);
+	}
+	function handleFocus() {
+		clearTimeout(blurTimeout);
+		if (inputValue) showDropdown = true;
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
@@ -85,7 +88,9 @@
 		} else if (e.key === 'Enter') {
 			e.preventDefault();
 			const found = suggestions[selectedIndex];
-			if (found) selectItem(found.item);
+			if (found) {
+        selectItem(found.item); //WHY IS SHOW DROPDOWN NOT BEING HIDDEN WHEN ENTER?
+      }
 		}
 	}
 </script>
@@ -108,6 +113,8 @@
 		<input
 			bind:value={inputValue}
 			onkeydown={handleKeyDown}
+			onblur={handleBlur}
+			onfocus={handleFocus}
 			type="text"
 			class="w-full rounded-md border border-zinc-800 bg-zinc-950 py-2 pr-3 pl-9 text-sm text-zinc-50 placeholder:text-zinc-500 transition-[border-color,box-shadow] duration-150 outline-none focus:border-zinc-600 focus:ring-3 focus:ring-zinc-800 sm:py-2.5 sm:text-base {overrideStyles.input ?? ''}"
 			{placeholder}
@@ -115,8 +122,10 @@
 	</div>
 
 	{#if showDropdown && suggestions.length > 0}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			bind:this={listEl}
+			onmousedown={() => clearTimeout(blurTimeout)}
 			class="flex max-h-60 w-full flex-col overflow-y-auto rounded-md border border-zinc-800 bg-zinc-950 p-1 [scrollbar-color:theme(colors.zinc.700)_transparent] [scrollbar-width:thin] sm:max-h-80 {overrideStyles.results ?? ''}"
 		>
 			{#each suggestions as result, i}

@@ -84,7 +84,7 @@ test('GetModsInstalled returns mods', async () => {
 	const res = await everest.GetModsInstalled({modsCountScanningLimit: 60 });
 	expect(res.length).toBeGreaterThan(0);
 
-  const modNames = res.map(a => ({humanName: a.humanName, modId: a.metadata.name}));
+  const modNames = res.map(a => ({humanName: a.name, modId: a.metadata.name}));
   console.log(modNames)
 
 }, { timeout: 30_000 });
