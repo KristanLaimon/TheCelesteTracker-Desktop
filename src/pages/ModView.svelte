@@ -4,6 +4,7 @@ import CenteredLayout from '../layouts/CenteredLayout.svelte';
 import { Construct_LocalMods } from '../setup.DI.helpers';
 import SearchDynamic from '../components/SearchDynamic.svelte';
 import type { EverestModInfo } from "../libs/Everest";
+  import type { MaddiesApiModInfo } from "../libs/MaddiesAPI";
 
 const localMods = Construct_LocalMods({filePath:'./data/BROWSER-LOCAL-MODS.json', indent:2});
 
@@ -11,7 +12,12 @@ let modNames = $state<string[]>([]);
 let searchQuery = $state<string>('');
 let selected = $state<string>("");
 let selectedFullInfo = $state<EverestModInfo | null>(null);
+let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
 let loadingInfo = $state(false);
+
+$effect(() => {
+  // localMods.()
+});
 
 $effect(() => {
   if (!selected || selected.trim() === "") {
@@ -37,7 +43,7 @@ onMount(() => {
 </script>
 
 <CenteredLayout className="bg-zinc-900 text-white flex flex-col">
-  <SearchDynamic bind:selected  bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
+  <SearchDynamic bind:selected limit={1000}  bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
   {#if selected}
     <section>
       {#if loadingInfo}
