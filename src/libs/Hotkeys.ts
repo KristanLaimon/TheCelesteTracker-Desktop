@@ -21,11 +21,6 @@ export function Hotkeys_RegisterHotkey(key: string, scope: HotkeysScopes, callba
 		Hotkeys(key, scope, callback);
 	}
 }
-
-Hotkeys_RegisterHotkey('ctrl+n', 'global', () => {
-	router.navigate('/database');
-});
-
 Hotkeys_RegisterHotkey('ctrl+d', 'global', () => {
 	router.navigate('/dev');
 });
@@ -34,6 +29,6 @@ Hotkeys_RegisterHotkey('ctrl+m', 'global', () => {
 	router.navigate('/');
 });
 
-Hotkeys_RegisterHotkey('ctrl+t', 'global', () => {
-	router.navigate('/test');
+Hotkeys_RegisterHotkey('ctrl+n', 'global', () => {
+	router.navigate('/celeste/mod-view');
 });

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { ComponentProps } from "svelte";
 import Canvas from '../libs/GoldenLayoutThemes/components/GL_Canvas.svelte';
 import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
@@ -20,32 +21,31 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
 					content: [
 						{
 							type: 'canvas',
-							props: { localStorageKey: 'canvas-1' },
+							props: { localStorageKey: 'canvas-1' } satisfies ComponentProps<typeof Canvas> ,
 						},
 						{
 							type: 'rawHtml',
-							props: { htmlContent: 'Hola, raw HTML 2' },
-						},
-					],
-					width: '80%',
-				},
-				{
-					type: 'column',
-					content: [
-						{
-							type: 'rawHtml',
-							props: { htmlContent: 'Hola, default raw HTML' },
-						},
-						{
-							type: 'rawHtml',
-							props: { htmlContent: 'Hola, raw HTML 3' },
-						},
-						{
-							type: 'canvas',
-							props: { localStorageKey: 'canvas-2' },
+							props: { htmlContent: 'Hola, raw HTML 2' } satisfies ComponentProps<typeof RawHtml>,
 						},
 					],
 				},
+				// {
+				// 	type: 'column',
+				// 	content: [
+				// 		{
+				// 			type: 'rawHtml',
+				// 			props: { htmlContent: 'Hola, default raw HTML' },
+				// 		},
+				// 		{
+				// 			type: 'rawHtml',
+				// 			props: { htmlContent: 'Hola, raw HTML 3' },
+				// 		},
+				// 		{
+				// 			type: 'canvas',
+				// 			props: { localStorageKey: 'canvas-2' },
+				// 		},
+				// 	],
+				// },
 			],
 		},
 	],

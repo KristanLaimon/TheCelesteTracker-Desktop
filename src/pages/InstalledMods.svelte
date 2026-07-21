@@ -1,4 +1,5 @@
-<script lang="ts">
+<h1> Installed mods </h1>
+<!-- <script lang="ts">
 import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
 import { GetDependency } from '../setup';
@@ -407,4 +408,4 @@ function FormatDownloads(n: number): string {
     cursor: not-allowed;
   }
 </style>
-scr
+scr -->
