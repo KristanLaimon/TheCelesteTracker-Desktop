@@ -62,7 +62,7 @@ export type LobbyChapter = {
  */
 export type ModMetadata =
 	| {
-			/** Mod display name — from `everest.yaml` `Name`/`name` field. */
+			/** MOD UNIQUE IDENTIFIER HERE: Mod display name — from `everest.yaml` `Name`/`name` field. */
 			name: string;
 			/** Version string — from `everest.yaml` `Version`/`version`. */
 			version: string;
@@ -107,7 +107,7 @@ export type ModMetadata =
  * A mod discovered on disk (folder or .zip inside the Celeste `Mods/` directory).
  *
  * - `fileName` — the folder or .zip name (e.g. `"Berry 143.zip"`)
- * - `name` — human-readable name derived from `fileName` by `NormalizeCelesteModName`
+ * - `name` — human-readable name derived from `fileName` by `NormalizeCelesteModName`, to get the modid use metadata.name (the real mod ID inside everest!)
  * - `modPath` — full filesystem path to the mod
  * - `isZip` — whether the mod is a .zip archive or a loose folder
  * - `metadata` — full scan result including YAML parse + campaign/lobby structure
@@ -117,7 +117,7 @@ export type EverestModInfo = {
 	isZip: boolean;
 	modPath: string;
 	metadata: ModMetadata;
-	name: string;
+	humanName: string;
 };
 
 /**
@@ -541,6 +541,7 @@ export default class Everest {
 				}
 			}),
 		);
+    console.log("--------- FINISHED SCANNING FULL EVEREST METADATA AND LOBBY STUFF AND DIALOG --------------")
 		return mods;
 	}
 
@@ -563,6 +564,7 @@ export default class Everest {
 		const workerCount = opts?.workerCount ?? 0;
 		if (workerCount > 0) {
 			const result = await this.scanWithWorkers(entries, modsPath, workerCount);
+      console.log(" ---------- FINISHED SCAN MOD BASE -----------------")
 			if (result) return result;
 		}
 
@@ -584,11 +586,14 @@ export default class Everest {
 			const workers = Array.from({ length: workerCount }, () => new this.ThreadCtor(workerUrl, { type: 'module' }));
 
 			// Pre-read all mod file content on main thread (via universal IFileSystem/Zip_Go)
+      let no: number = 0;
 			const preReadEntries = await Promise.all(
 				entries.map(async ({ entry, type }) => {
 					if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) return null;
 					const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
 					if (type !== 'DIRECTORY' && !isZip) return null;
+
+          console.log((++no).toString(), "|SCANNING MOD:", entry)
 
 					const modPath = `${modsPath}/${entry}`;
 					for (const yName of YAML_NAMES) {
@@ -672,7 +677,7 @@ export default class Everest {
 			try {
 				const content = await this.readModFile(modPath, isZip, yName);
 				const metadata = parseEverestYaml(content, entry);
-				const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, name: name };
+				const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, humanName: name };
 
 				const collabId = await this.collabUtils2.detectCollabId(modInfo);
 				if (collabId) {
@@ -722,7 +727,7 @@ export default class Everest {
 				try {
 					const content = await this.readModFile(modPath, isZip, yName);
 					const metadata = parseEverestYaml(content, entry);
-					const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, name: name };
+					const modInfo: EverestModInfo = { fileName: entry, isZip, modPath, metadata, humanName: name };
 
 					const collabId = await this.collabUtils2.detectCollabId(modInfo);
 					if (collabId) {
@@ -743,42 +748,42 @@ export default class Everest {
 		return undefined;
 	}
 
-	/**
-	 * Find a single mod by name using fuzzy string matching.
-	 * Uses the lightweight `GetModsInstalled` (fast, no map scan).
-	 */
-	public async GetModInfo(modName: string): Promise<EverestModInfo | undefined> {
-		return this.findMod(modName, false);
-	}
+	// /**
+	//  * Find a single mod by name using fuzzy string matching.
+	//  * Uses the lightweight `GetModsInstalled` (fast, no map scan).
+	//  */
+	// public async GetModInfo(modName: string): Promise<EverestModInfo | undefined> {
+	// 	return this.findMod(modName, false);
+	// }
 
 	/**
 	 * Find a single mod with full metadata by name using fuzzy string matching.
 	 * Uses the full `GetModsInstalledFull` (slower, includes maps/lobbies/dialog).
 	 */
-	public async GetModInfoFull(modName: string): Promise<EverestModInfo | undefined> {
-		return this.findMod(modName, true);
-	}
+	// public async GetModInfoFull(modName: string): Promise<EverestModInfo | undefined> {
+	// 	return this.findMod(modName, true);
+	// }
 
-	private async findMod(modName: string, full: boolean): Promise<EverestModInfo | undefined> {
-		const mods = full ? await this.GetModsInstalledFull() : await this.GetModsInstalled();
-		if (!mods.length) return undefined;
+	// private async findMod(modName: string, full: boolean): Promise<EverestModInfo | undefined> {
+	// 	const mods = full ? await this.GetModsInstalledFull() : await this.GetModsInstalled();
+	// 	if (!mods.length) return undefined;
 
-		let best: EverestModInfo | undefined;
-		let bestScore = 0;
+	// 	let best: EverestModInfo | undefined;
+	// 	let bestScore = 0;
 
-		for (const mod of mods) {
-			const candidates = [mod.name, mod.metadata.name, mod.fileName.replace(/\.zip$/i, '')].filter(Boolean);
-			for (const c of candidates) {
-				const score = modNameSimilarity(modName, c);
-				if (score > bestScore) {
-					bestScore = score;
-					best = mod;
-				}
-			}
-		}
+	// 	for (const mod of mods) {
+	// 		const candidates = [mod.name, mod.metadata.name, mod.fileName.replace(/\.zip$/i, '')].filter(Boolean);
+	// 		for (const c of candidates) {
+	// 			const score = modNameSimilarity(modName, c);
+	// 			if (score > bestScore) {
+	// 				bestScore = score;
+	// 				best = mod;
+	// 			}
+	// 		}
+	// 	}
 
-		return bestScore > 0.4 ? best : undefined;
-	}
+	// 	return bestScore > 0.4 ? best : undefined;
+	// }
 
 	// ── Non-Collab: Flat Campaign Scan ──
 	// Maps/<Author>/<Campaign>/<Chapter>.bin  — one level of folders

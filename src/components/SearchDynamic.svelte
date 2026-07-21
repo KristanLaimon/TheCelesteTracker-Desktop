@@ -66,7 +66,7 @@
 	function selectItem(item: string) {
     inputValue = item
 		selected = item;
-		showDropdown = false;
+		queueMicrotask(() => showDropdown = false);
 	}
 
 	let blurTimeout: ReturnType<typeof setTimeout>;

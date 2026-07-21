@@ -3,10 +3,10 @@ import { injectable } from 'tsyringe';
 
 @injectable()
 export default class MaddiesApi {
-	public async SearchModByName(modName: string): Promise<MaddiesApi_ModInfo[]> {
+	public async SearchModByName(modName: string): Promise<MaddiesApiModInfo[]> {
 		const res = await fetch(`https://maddie480.ovh/celeste/gamebanana-search?q=${this.normalizeTextForUrls(modName)}`);
 		const json = await res.json();
-		return json as MaddiesApi_ModInfo[];
+		return json as MaddiesApiModInfo[];
 	}
 
 	private normalizeTextForUrls(anyText: string) {
@@ -29,7 +29,7 @@ export default class MaddiesApi {
 	}
 }
 
-export type MaddiesApi_ModInfo = {
+export type MaddiesApiModInfo = {
 	CategoryId: number;
 	Screenshots: string[];
 	Description: string;
