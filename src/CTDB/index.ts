@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 
 import { injectable } from 'tsyringe';

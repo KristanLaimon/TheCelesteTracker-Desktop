@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import { inject, injectable } from 'tsyringe';
 import { IFileSystem_Token, IOs_Token } from '../src/interfaces/DependencyInjectionTokens';

@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import type { Component, ComponentProps } from 'svelte';
 
 /**

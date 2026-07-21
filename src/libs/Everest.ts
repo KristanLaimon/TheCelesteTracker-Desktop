@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 /**
  * @fileoverview Core Everest mod scanning types and orchestration.
  *

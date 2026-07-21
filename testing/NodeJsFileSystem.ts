@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';

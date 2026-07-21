@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 /**
  * @fileoverview Web Worker for parallel mod scanning.
  *

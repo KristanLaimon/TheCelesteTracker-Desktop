@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 /**
  * @fileoverview Dialog file reader for Everest mods.
  *

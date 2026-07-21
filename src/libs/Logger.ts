@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 const APP_NAME: string = 'TheCelesteTracker';
 
 const silentLogsNamespaces: string[] = ['Canvas'].map((a) => a.toLocaleLowerCase());

@@ -1,3 +1,4 @@
+// BROWSER ONLY
 // biome-ignore-all assist/source/organizeImports: Imports are organized by usage
 import neutralino from '@neutralinojs/lib';
 import { mount, unmount } from 'svelte';

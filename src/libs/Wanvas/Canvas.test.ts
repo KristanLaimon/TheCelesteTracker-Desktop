@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from 'bun:test';
 
 interface TestNode {

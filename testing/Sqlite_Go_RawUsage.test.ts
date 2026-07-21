@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 import { afterEach, beforeAll, describe, expect, test } from 'bun:test';
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';

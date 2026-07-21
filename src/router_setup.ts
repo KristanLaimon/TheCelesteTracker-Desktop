@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import InstalledMods from './pages/InstalledMods.svelte';
 import GlobalWindow from './pages/Main.svelte';
 import ModView from "./pages/ModView.svelte";

@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 // IOS.ts
 
 export interface ExecCommandOptions {

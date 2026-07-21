@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 /**
  * @fileoverview Collab mod scanning (CollabUtils2) for Everest mods.
  *

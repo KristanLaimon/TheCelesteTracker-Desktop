@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// NODE.JS/BUN/DENO ONLY
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { $ } from 'bun';

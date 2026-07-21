@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 /**
  * @module Path.ts
  * @description 'path' module extracted from Node.js (POSIX implementation)

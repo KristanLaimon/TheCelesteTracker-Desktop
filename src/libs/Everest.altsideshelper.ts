@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 /**
  * @fileoverview Types for the Alt Sides Helper mod metadata files.
  *

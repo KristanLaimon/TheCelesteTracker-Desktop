@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
 /** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
 import { injectable } from 'tsyringe';

@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import { serializeError } from "serialize-error";
 import { inject, injectable } from 'tsyringe';
 import { IFileSystem_Token, IOs_Token } from '../interfaces/DependencyInjectionTokens';

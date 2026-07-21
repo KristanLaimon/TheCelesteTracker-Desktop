@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import { injectable } from 'tsyringe';
 import Path from '../src/libs/BrowserPath';

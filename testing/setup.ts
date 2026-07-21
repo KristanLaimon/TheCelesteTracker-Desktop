@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 import 'reflect-metadata';
 
 import { spawnSync } from 'child_process';

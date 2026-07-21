@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import { injectable } from "tsyringe";
 
 /**

@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 export interface Stats {
 	size: number;
 	isFile: boolean;

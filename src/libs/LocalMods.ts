@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import { injectable } from "tsyringe";
 import Everest from "./Everest";
 import Olympus from "./Olympus";
@@ -10,6 +11,7 @@ export default class LocalMods {
     private everest: Everest,
     private storage: Storage
   ){
-    storage.configureAutoSave("turn on")
+    storage.configureAutoSave("turn on");
+    storage.configureAutoSaveMinutesTime(30);
   }
 }

@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 /**
  * @module CanvasMath
  * @description Pure mathematical helper functions for canvas coordinates, limits, and zooming.

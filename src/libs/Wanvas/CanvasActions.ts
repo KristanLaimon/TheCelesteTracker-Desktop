@@ -1,3 +1,4 @@
+// BROWSER ONLY
 import { Log_Warn } from '../Logger';
 import type { CanvasNodeData } from './Canvas.types';
 

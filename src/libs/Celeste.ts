@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import { inject, injectable } from 'tsyringe';
 import { IFileSystem_Token, IOs_Token } from '../interfaces/DependencyInjectionTokens';
 import type { IFileSystem } from '../interfaces/IFileSystem';

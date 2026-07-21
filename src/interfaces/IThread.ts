@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 export interface IThread {
 	postMessage(message: any): void;
 	addEventListener(type: 'message' | 'error', listener: (event: any) => void): void;

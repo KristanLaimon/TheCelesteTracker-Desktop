@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import type { Component, ComponentProps, Snippet } from 'svelte';
 
 // biome-ignore lint/suspicious/noExplicitAny: generic component parameters require any

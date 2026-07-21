@@ -1,3 +1,4 @@
+// BROWSER ONLY
 import type { Component } from 'svelte';
 
 export interface Route {

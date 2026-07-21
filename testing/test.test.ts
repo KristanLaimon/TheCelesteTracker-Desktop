@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 import { expect, test } from 'bun:test';
 import { writeFileSync } from "node:fs";
 import Everest from '../src/libs/Everest';

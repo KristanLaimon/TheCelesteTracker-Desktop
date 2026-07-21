@@ -1,3 +1,4 @@
+// BROWSER ONLY
 import Hotkeys from 'hotkeys-js';
 import { router } from '../router.svelte';
 

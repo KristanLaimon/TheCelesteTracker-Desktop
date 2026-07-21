@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import { container } from 'tsyringe';
 import Sqlite_Go from '../../src-utils/Sqlite_Go';
 import Zip_Go from '../../src-utils/Zip_Go';

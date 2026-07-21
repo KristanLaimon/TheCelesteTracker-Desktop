@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import type { IThread } from '../interfaces/IThread';
 
 export class ThreadBrowser implements IThread {

@@ -1,3 +1,4 @@
+// NODE.JS/BUN/DENO ONLY
 import { expect, test } from 'bun:test';
 import Sqlite_Go from '../src-utils/Sqlite_Go';
 

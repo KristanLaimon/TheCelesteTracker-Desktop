@@ -1,3 +1,4 @@
+// BROWSER ONLY
 // biome-ignore-all lint/style/useImportType: DI Needed
 import type {
 	Envs,

@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 import { Log_Warn } from '../Logger';
 import type { CanvasNodeData } from './Canvas.types';
 

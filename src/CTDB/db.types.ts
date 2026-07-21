@@ -1,3 +1,4 @@
+// UNIVERSAL COMPATIBILITY
 export type User = {
 	id: number;
 	name: string;
