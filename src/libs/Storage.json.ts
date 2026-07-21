@@ -13,7 +13,7 @@ export interface JsonFileAdapterOptions {
 	filePath: string;
 	/**
 	 * Indentation (spaces) used when writing the JSON file, for readability.
-	 * Pass `0` for compact/minified output. Defaults to `2`.
+	 * Pass `0` for compact/minified output. Defaults to `0`.
 	 */
 	indent?: number;
 }
@@ -62,7 +62,7 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 		@inject(IPath_Token) private path: IPath,
 	) {
 		this.filePath = options.filePath;
-		this.indent = options.indent ?? 2;
+		this.indent = options.indent ?? 0;
 	}
 
 	/**

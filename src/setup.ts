@@ -14,7 +14,7 @@ import { ThreadBrowser } from './libs/ThreadBrowser';
 
 container.registerSingleton(IFileSystem_Token, NeutralinoFileSystem);
 container.registerSingleton(IOs_Token, NeutralinoOS);
-container.register(IPath_Token, { useValue: Path });
+container.register(IPath_Token, { useValue: new Path() });
 container.register(IThreadConstructor_Token, { useValue: ThreadBrowser });
 container.registerSingleton(Celeste);
 container.registerSingleton(Everest);

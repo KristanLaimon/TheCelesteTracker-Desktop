@@ -17,17 +17,14 @@ export default class LocalMods {
   }
 
   public async GetModsInstalledNames(opts?:{invalidateCachedNames:boolean}):Promise<string[]>{
-    if (!opts?.invalidateCachedNames){
-      const alreadyFound = await this.storage.get<string[]>(LocalMods_ModNames_Key);
-      if (alreadyFound && alreadyFound.length > 0){
-        return alreadyFound;
-      }
-    }
-    const res = await this.everest.GetModsInstalled({workerCount: 5})
-    const toReturn = res.map(a => a.name);
-    await this.storage.set(LocalMods_ModNames_Key, toReturn);
-    await this.storage.triggerSave();
-    return toReturn;
+    return await this.storage.get<string[]>(
+      LocalMods_ModNames_Key, 
+      async () => {
+        const res = await this.everest.GetModsInstalled({workerCount: 5})
+        return res.map(a => a.name);
+      }, 
+      {invalidateCache: opts?.invalidateCachedNames}
+    );
   }
 
   public async destroy(){

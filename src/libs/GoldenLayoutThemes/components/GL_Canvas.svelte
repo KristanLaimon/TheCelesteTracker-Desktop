@@ -1,7 +1,8 @@
 <script lang="ts">
 // import { onMount } from 'svelte';
 import CenteredLayout from '../../../layouts/CenteredLayout.svelte';
-import Path from '../../BrowserPath';
+import BrowserPath from '../../BrowserPath';
+const Path = new BrowserPath();
 import { Log_Info } from '../../Logger';
 import { NeutralinoFileSystem } from '../../NeutralinoFileSystem';
 // import { SQLiteExtension } from '../libs/CSqliteExtension';

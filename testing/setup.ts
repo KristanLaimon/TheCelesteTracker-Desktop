@@ -19,7 +19,7 @@ import { DialogReader } from '../src/libs/Everest.dialog';
 import Olympus from '../src/libs/Olympus';
 import NodeJsFileSystem from './NodeJsFileSystem';
 import NodeJsOS from './NodeJsOs';
-import { NodePath } from './NodePath';
+import NodeJsPath from './NodeJsPath';
 
 export const TEST_FOLDER = join(import.meta.dir);
 export const TEST_TEMP_FOLDER = join(TEST_FOLDER, './temp');
@@ -28,7 +28,7 @@ export const ROOT_BIN = join(ROOT_FOLDER, 'bin');
 
 container.registerSingleton(IFileSystem_Token, NodeJsFileSystem);
 container.registerSingleton(IOs_Token, NodeJsOS);
-container.register(IPath_Token, { useValue: NodePath });
+container.register(IPath_Token, { useValue: new NodeJsPath() });
 container.register(IThreadConstructor_Token, { useValue: BunThread });
 container.registerSingleton(Celeste);
 container.registerSingleton(CollabUtils2Scanner);

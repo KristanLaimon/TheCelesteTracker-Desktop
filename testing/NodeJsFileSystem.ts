@@ -25,7 +25,11 @@ export default class NodeJsFileSystem implements IFileSystem {
 	private nextWatcherId = 1;
 
 	public async createDirectory(dirPath: string, options?: CreateDirectoryOptions): Promise<void> {
-		await fs.mkdir(dirPath, { recursive: options?.recursive ?? true });
+		try {
+			await fs.mkdir(dirPath, { recursive: options?.recursive ?? true });
+		} catch (err: any) {
+			if (err?.code !== 'EEXIST') throw err;
+		}
 	}
 
 	public async remove(targetPath: string): Promise<void> {

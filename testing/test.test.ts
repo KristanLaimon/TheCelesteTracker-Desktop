@@ -3,9 +3,69 @@ import { expect, test } from 'bun:test';
 import { writeFileSync } from "node:fs";
 import Everest from '../src/libs/Everest';
 import { GetDependency } from './setup';
+import { Construct_LocalMods } from "./setup.DI.helpers";
 
-test("damn", async () => {
-});
+test("OOP Software design pattern: Dependency Injection", async () => {
+  {
+    const myMods = Construct_LocalMods();
+    const res = await myMods.GetModsInstalledNames();
+    console.log(res);
+  }
+
+},{timeout: 30_000});
+
+
+// test("OOP Software design pattern: Dependency Injection", async () => {
+//   {
+//     //This works in Bun.js, Node.js, deno y backend! (No Browser required to work)
+//     const fs = new NodeJsFileSystem();
+//     const path = new NodeJsPath();
+//     const mapAdapterCache = new Storage_SimpleMapAdapter();
+//     const jsonAdapterPersistent = new Storage_JsonFileAdapter({filePath: "./mods-names.json", indent: 2}, fs, path);
+//     const storage = new Storage({adapters:[mapAdapterCache, jsonAdapterPersistent]})
+
+//     const os = new NodeJsOS();
+//     const olympus = new Olympus(os, fs, path);
+
+//     const celeste = new Celeste(os, fs);
+//     const zipGo = new Zip_Go(os, fs, path);
+//     const collabUtils2Canner = new CollabUtils2Scanner(fs, zipGo);
+//     const dialogReader = new DialogReader(fs, zipGo);
+//     const threadToUse = BunThread;
+//     const everest = new Everest(celeste, zipGo, fs, collabUtils2Canner, dialogReader, threadToUse)
+//     const myMods = new LocalMods(olympus, everest, storage);
+
+//     //Using Node.js methods!, but business logic doesn't care at all.
+//     //I can use all methods from myMods without caring the environment, how was constructed, completely dettached from browser
+//     const res = await myMods.GetModsInstalledNames(); //Works the same!
+//   }
+
+//   {
+//     //This works in Chrome, Edge, Opera, any browser. (No Node.js/Bun.js/Deno required)
+//     const path = new BrowserPath();
+//     const fs = new NeutralinoFileSystem(path);
+//     const mapAdapterCache = new Storage_LocalStorageAdapter(); //Browser only
+//     const jsonAdapterPersistent = new Storage_JsonFileAdapter({filePath: "./mods-names.json"}, fs, path);
+//     const storage = new Storage({adapters:[mapAdapterCache, jsonAdapterPersistent]})
+
+//     const os = new NeutralinoOS();
+//     const olympus = new Olympus(os, fs, path);
+
+//     const celeste = new Celeste(os, fs);
+//     const zipGo = new Zip_Go(os, fs, path);
+//     const collabUtils2CScanner = new CollabUtils2Scanner(fs, zipGo);
+//     const dialogReader = new DialogReader(fs, zipGo);
+//     const threadToUse = ThreadBrowser; //Browser only
+//     const everest = new Everest(celeste, zipGo, fs, collabUtils2CScanner, dialogReader, threadToUse)
+//     const myMods = new LocalMods(olympus, everest, storage);
+
+    
+//     //Using Browser + Neutralino.js emmbeded methods!, but business logic doesn't care at all.
+//     //I can use all methods from myMods without caring the environment, how was constructed, completely dettached from browser
+//     const res = await myMods.GetModsInstalledNames();  //Works the same!
+//   }
+//   //I can finally use myMods!!!
+// });
 
 
 test('GetModInfoByZipName is fast', async () => {

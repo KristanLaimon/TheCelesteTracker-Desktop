@@ -163,40 +163,88 @@ export default class Storage {
 	}
 
 	/**
-	 * Reads a value, checking (in order) the in-memory cache, cache adapters,
-	 * then persistent adapters. Any value found in a slower tier is promoted
-	 * to the faster tiers above it so subsequent reads are cheaper.
-	 *
-	 * @returns the stored value, or `null` if the key isn't found anywhere.
-	 */
-	async get<T>(key: string): Promise<T | null> {
-		// 1. Check in-memory cache
-		if (this.fastestMemoryCache.has(key)) {
-			return this.fastestMemoryCache.get(key) as T;
-		}
+   * Reads a value, checking (in order) the in-memory cache, cache adapters,
+   * then persistent adapters. Any value found in a slower tier is promoted
+   * to the faster tiers above it so subsequent reads are cheaper.
+   *
+   * @returns the stored value, or `null` if the key isn't found anywhere.
+   */
+  async get<T>(key: string): Promise<T | null>;
+  /**
+   * Reads a value like {@link get}, but if the key isn't found in any tier,
+   * calls `factory` to compute it, `set`s the result under `key` (so it's
+   * cached/persisted going forward), and returns it. Any extra arguments
+   * passed after `factory` are forwarded to it, and are what give `factory`
+   * its inferred, strongly-typed parameter list.
+   *
+   * @example
+   * ```ts
+   * // Args inferred as [userId: string]; T inferred as User.
+   * const user = await storage.get(
+   *   `user:${id}`,
+   *   (userId: string) => fetchUserFromApi(userId),
+   *   id,
+   * );
+   * ```
+   */
+  async get<T, Args extends unknown[] = []>(
+    key: string,
+    factory: (...args: Args) => T | Promise<T>,
+    ...args: Args
+  ): Promise<T>;
+  /**
+   * Same as the factory overload above, but for a no-arg `factory` plus an
+   * `options` object instead of forwarded args. Set `invalidateCache: true`
+   * to skip the existing value (in memory or any adapter) entirely and
+   * unconditionally re-run `factory`, `set`-ing (and thus re-caching) its
+   * result — useful for forcing a refresh of a previously cached value.
+   *
+   * @example
+   * ```ts
+   * // Ignores whatever is cached under "config" and recomputes it.
+   * const config = await storage.get('config', loadConfig, { invalidateCache: true });
+   * ```
+   */
+  async get<T>(
+    key: string,
+    factory: () => T | Promise<T>,
+    options: { invalidateCache?: boolean },
+  ): Promise<T>;
+  async get<T>(
+    key: string,
+    factory?: (...args: any[]) => T | Promise<T>,
+    ...rest: any[]
+  ): Promise<T | null> {
+    let invalidateCache = false;
+    let args = rest;
 
-		// 2. Check cache adapters (e.g. LocalStorage)
-		for (const adapter of this.cacheAdapters) {
-			const value = await adapter.get<T>(key);
-			if (value !== null && value !== undefined) {
-				this.fastestMemoryCache.set(key, value);
-				return value;
-			}
-		}
+    const isOptionsArg =
+      rest.length === 1 &&
+      typeof rest[0] === 'object' &&
+      rest[0] !== null &&
+      !Array.isArray(rest[0]) &&
+      'invalidateCache' in rest[0];
 
-		// 3. Check persistent adapters (e.g. JSON file)
-		for (const adapter of this.persistentAdapters) {
-			const value = await adapter.get<T>(key);
-			if (value !== null && value !== undefined) {
-				this.fastestMemoryCache.set(key, value);
-				// Sync back to cache layer for faster future reads
-				await Promise.all(this.cacheAdapters.map(a => a.set(key, value)));
-				return value;
-			}
-		}
+    if (isOptionsArg) {
+      invalidateCache = Boolean((rest[0] as { invalidateCache?: boolean }).invalidateCache);
+      args = [];
+    }
 
-		return null;
-	}
+    if (!invalidateCache) {
+      const existing = await this.lookup<T>(key);
+      if (existing !== null) {
+        return existing;
+      }
+    }
+
+    if (!factory) {
+      return null;
+    }
+
+    const computed = await factory(...args);
+    await this.set(key, computed);
+    return computed;
+  }
 
 	/**
 	 * Writes `value` to memory and all cache adapters instantly, and queues the
@@ -339,6 +387,41 @@ export default class Storage {
     this.options.saveMinutesInterval = newMinutes;
     this.configureAutoSave("turn on");
   }
+
+	/**
+	 * Checks memory, then cache adapters, then persistent adapters, for `key`,
+	 * promoting a found value up to faster tiers along the way. Extracted out
+	 * of {@link get} so both the plain and factory overloads can share the
+	 * exact same lookup behavior.
+	 */
+	private async lookup<T>(key: string): Promise<T | null> {
+		// 1. Check in-memory cache
+		if (this.fastestMemoryCache.has(key)) {
+			return this.fastestMemoryCache.get(key) as T;
+		}
+
+		// 2. Check cache adapters (e.g. LocalStorage)
+		for (const adapter of this.cacheAdapters) {
+			const value = await adapter.get<T>(key);
+			if (value !== null && value !== undefined) {
+				this.fastestMemoryCache.set(key, value);
+				return value;
+			}
+		}
+
+		// 3. Check persistent adapters (e.g. JSON file)
+		for (const adapter of this.persistentAdapters) {
+			const value = await adapter.get<T>(key);
+			if (value !== null && value !== undefined) {
+				this.fastestMemoryCache.set(key, value);
+				// Sync back to cache layer for faster future reads
+				await Promise.all(this.cacheAdapters.map(a => a.set(key, value)));
+				return value;
+			}
+		}
+
+		return null;
+	}
 
 	/**
 	 * Records the pre-mutation state of `key` into {@link historyArray},
