@@ -2,7 +2,8 @@
 import { container } from 'tsyringe';
 import Sqlite_Go from '../../src-utils/Sqlite_Go';
 import Zip_Go from '../../src-utils/Zip_Go';
-import { IFileSystem_Token, IOs_Token, IThreadConstructor_Token } from '../interfaces/DependencyInjectionTokens';
+import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from '../interfaces/DependencyInjectionTokens';
+import Path from './BrowserPath';
 import Celeste from './Celeste';
 import Everest from './Everest';
 import { NeutralinoFileSystem } from './NeutralinoFileSystem';
@@ -12,6 +13,7 @@ import { ThreadBrowser } from './ThreadBrowser';
 
 container.registerSingleton(IFileSystem_Token, NeutralinoFileSystem);
 container.registerSingleton(IOs_Token, NeutralinoOS);
+container.register(IPath_Token, { useValue: Path });
 container.register(IThreadConstructor_Token, { useValue: ThreadBrowser });
 container.registerSingleton(Celeste);
 container.registerSingleton(Everest);

@@ -1,5 +1,4 @@
 // UNIVERSAL COMPATIBILITY
-import { injectable } from "tsyringe";
 
 /**
  * Contract every storage backend must implement to plug into {@link Storage}.
@@ -97,7 +96,6 @@ export interface StorageOptions {
  * dedicated adapter is never pulled from the main `adapters` list — history
  * storage is fully separate from regular key storage.
  */
-@injectable()
 export default class Storage {
 	/** Default max size of {@link historyArray} when `history.size` isn't provided in options. */
 	private static readonly DEFAULT_HISTORY_SIZE = 50;
@@ -209,11 +207,10 @@ export default class Storage {
 	 * {@link restoreLastChange}.
 	 */
 	async set<T>(key: string, value: T): Promise<void> {
-		await this.pushHistory(key);
-
 		this.fastestMemoryCache.set(key, value);
 		this.deletedKeys.delete(key);
 		this.dirtyKeys.add(key);
+		await this.pushHistory(key);
 
 		// Instantly write to cache layers (browser)
 		await Promise.all(this.cacheAdapters.map(adapter => adapter.set(key, value)));

@@ -4,6 +4,9 @@ import { writeFileSync } from "node:fs";
 import Everest from '../src/libs/Everest';
 import { GetDependency } from './setup';
 
+test("damn", async () => {
+});
+
 
 test('GetModInfoByZipName is fast', async () => {
 	const everest = GetDependency(Everest);

@@ -6,6 +6,7 @@ import { injectable } from 'tsyringe';
 // Type-only imports for the interfaces
 import type {
 	CopyOptions,
+	CreateDirectoryOptions,
 	DirectoryEntry,
 	DirectoryReaderOptions,
 	FileReaderOptions,
@@ -23,8 +24,8 @@ export default class NodeJsFileSystem implements IFileSystem {
 	private nextHandleId = 1;
 	private nextWatcherId = 1;
 
-	public async createDirectory(dirPath: string): Promise<void> {
-		await fs.mkdir(dirPath, { recursive: true });
+	public async createDirectory(dirPath: string, options?: CreateDirectoryOptions): Promise<void> {
+		await fs.mkdir(dirPath, { recursive: options?.recursive ?? true });
 	}
 
 	public async remove(targetPath: string): Promise<void> {

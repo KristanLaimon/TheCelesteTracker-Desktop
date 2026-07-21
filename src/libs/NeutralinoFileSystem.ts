@@ -13,7 +13,7 @@ import type {
 } from '@neutralinojs/lib';
 import { filesystem, server } from '@neutralinojs/lib';
 import { injectable } from 'tsyringe';
-import type { IFileSystem, PathParts } from '../interfaces/IFileSystem';
+import type { CreateDirectoryOptions, IFileSystem, PathParts } from '../interfaces/IFileSystem';
 import Path from './BrowserPath';
 import { Log_Info } from './Logger';
 
@@ -74,9 +74,24 @@ export class NeutralinoFileSystem implements IFileSystem {
 	/**
 	 * Creates a directory or multiple directories recursively.
 	 * @param path New directory path.
+	 * @param options Creation options (e.g., recursive).
 	 */
-	public async createDirectory(path: string): Promise<void> {
-		return filesystem.createDirectory(path);
+	public async createDirectory(path: string, options?: CreateDirectoryOptions): Promise<void> {
+		if (options?.recursive) {
+			const normalized = Path.normalize(path);
+			const segments = normalized.split('/').filter(Boolean);
+			let current = Path.isAbsolute(normalized) ? '/' : '.';
+			for (const segment of segments) {
+				current = Path.join(current, segment);
+				try {
+					await filesystem.getStats(current);
+				} catch {
+					await filesystem.createDirectory(current);
+				}
+			}
+		} else {
+			await filesystem.createDirectory(path);
+		}
 	}
 
 	/**

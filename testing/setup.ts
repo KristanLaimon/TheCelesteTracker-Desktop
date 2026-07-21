@@ -7,7 +7,7 @@ import { join } from 'path';
 import { container } from 'tsyringe';
 import Sqlite_Go from '../src-utils/Sqlite_Go';
 import Zip_Go from '../src-utils/Zip_Go';
-import { IFileSystem_Token, IOs_Token, IThreadConstructor_Token } from '../src/interfaces/DependencyInjectionTokens';
+import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from '../src/interfaces/DependencyInjectionTokens';
 import type { IFileSystem } from '../src/interfaces/IFileSystem';
 import type { IOS } from '../src/interfaces/IOs';
 import { BunThread } from '../src/libs/BunThread';
@@ -16,6 +16,7 @@ import { CollabUtils2Scanner } from '../src/libs/Everest.collabutils2';
 import { DialogReader } from '../src/libs/Everest.dialog';
 import Everest from '../src/libs/Everest';
 import Olympus from '../src/libs/Olympus';
+import { NodePath } from '../src-utils/NodePath';
 import NodeJsFileSystem from './NodeJsFileSystem';
 import NodeJsOS from './NodeJsOs';
 
@@ -26,6 +27,7 @@ export const ROOT_BIN = join(ROOT_FOLDER, 'bin');
 
 container.registerSingleton(IFileSystem_Token, NodeJsFileSystem);
 container.registerSingleton(IOs_Token, NodeJsOS);
+container.register(IPath_Token, { useValue: NodePath });
 container.register(IThreadConstructor_Token, { useValue: BunThread });
 container.registerSingleton(Celeste);
 container.registerSingleton(CollabUtils2Scanner);

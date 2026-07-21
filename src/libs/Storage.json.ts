@@ -5,7 +5,7 @@ import Path from "../libs/BrowserPath";
 import type { StorageAdapter } from "./Storage";
 
 /**
- * Configuration for {@link JsonFileAdapter}.
+ * Configuration for {@link Storage_JsonFileAdapter}.
  */
 export interface JsonFileAdapterOptions {
 	/** Absolute or relative path to the JSON file used as the backing store. */
@@ -42,7 +42,7 @@ export interface JsonFileAdapterOptions {
  * ```
  */
 @injectable()
-export class JsonFileAdapter implements StorageAdapter {
+export default class Storage_JsonFileAdapter implements StorageAdapter {
 	readonly role = 'persistent' as const;
 
 	private filePath: string;
@@ -65,8 +65,7 @@ export class JsonFileAdapter implements StorageAdapter {
 	 * `node:fs/promises`-compatible API). Always `false` in browsers.
 	 */
 	isAvailable(): boolean {
-		const g = globalThis as any;
-		return typeof g.process !== 'undefined' || typeof g.Bun !== 'undefined' || typeof g.Deno !== 'undefined';
+    return true; //Was made compatible with neutralinojs and node.js/bun system thanks to DI!
 	}
 
 	async get<T>(key: string): Promise<T | null> {

@@ -33,6 +33,10 @@ export interface Watcher {
 	path: string;
 }
 
+export interface CreateDirectoryOptions {
+	recursive?: boolean;
+}
+
 export interface CopyOptions {
 	recursive?: boolean;
 	overwrite?: boolean;
@@ -56,7 +60,7 @@ export interface PathParts {
 // }
 
 export interface IFileSystem {
-	createDirectory(path: string): Promise<void>;
+	createDirectory(path: string, options?: CreateDirectoryOptions): Promise<void>;
 	remove(path: string): Promise<void>;
 	writeFile(filename: string, data: string): Promise<void>;
 	appendFile(filename: string, data: string): Promise<void>;

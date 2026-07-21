@@ -11,6 +11,8 @@
  * @copyright Same as Node.js
  */
 
+import type { IPath } from '../interfaces/IPath';
+
 export interface FormatInputPathObject {
 	dir?: string;
 	root?: string;
@@ -657,7 +659,7 @@ export const posix = {
 	delimiter,
 };
 
-const pathExports = {
+const pathExports: IPath = {
 	resolve,
 	normalize,
 	isAbsolute,
