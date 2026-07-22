@@ -1,4 +1,6 @@
+// biome-ignore-all lint/style/useImportType: DI Needed
 import { injectable } from 'tsyringe';
+import ImageCacheService from './ImageCacheService';
 import { Log_Error } from './Logger';
 
 export const GB_ItemType = ['Mod', 'Member'] as const;
@@ -182,6 +184,23 @@ export type GbMemberApi_Reponse = {
 
 @injectable()
 export default class GameBananaApi {
+	constructor(private imageCache: ImageCacheService) {}
+
+	public async ResolveUserAvatar(username: string, avatarUrl: string): Promise<string> {
+		if (!avatarUrl || avatarUrl.trim() === '') return avatarUrl;
+		const extMatch = avatarUrl.split('.').pop()?.split('?')[0];
+		const ext = extMatch && extMatch.length <= 4 ? extMatch : 'png';
+		const sanitized = this.imageCache.sanitizeFilename(username);
+		const filename = `${sanitized}.${ext}`;
+
+		return await this.imageCache.resolveUrl(avatarUrl, {
+			baseDiskDir: './data/cache/avatars',
+			baseWebDir: '/data/cache/avatars',
+			filename,
+			ext,
+		});
+	}
+
 	public async ItemExistsById(itemType: GB_ItemType, itemId: number): Promise<boolean> {
 		try {
 			const res = await fetch(`https://api.gamebanana.com/Core/Item/IdentifyById?itemtype=${itemType}&itemid=${itemId}&format=json`);
@@ -246,10 +265,13 @@ export default class GameBananaApi {
 		for (const userId of matchedUserIds) {
 			const data = await this.GetItemInfo('Member', userId, fields as unknown as Array<GB_AllowedFieldsType['Member'][keyof GB_AllowedFieldsType['Member']]>);
 			if (data && data.length > 0) {
+				const username = (data[0] as string) ?? '';
+				const rawAvatar = (data[1] as string) ?? '';
+				const avatar = await this.ResolveUserAvatar(username, rawAvatar);
 				members.push({
 					id: userId,
-					name: (data[0] as string) ?? null,
-					avatar: (data[1] as string) ?? null,
+					name: username,
+					avatar,
 					date: (data[2] as number) ?? null,
 				});
 			}

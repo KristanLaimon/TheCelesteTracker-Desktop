@@ -7,6 +7,20 @@ import type { IOS } from '../interfaces/IOs';
 import type { IPath } from '../interfaces/IPath';
 import { Log_Error } from './Logger';
 
+export type SingleCacheImageOptions = {
+	baseDiskDir: string;
+	baseWebDir: string;
+	filename: string;
+	ext?: string;
+};
+
+export type ListCacheImageOptions = {
+	baseDiskDir: string;
+	baseWebDir: string;
+	getFilename: (index: number, ext: string) => string;
+	ext?: string;
+};
+
 @injectable()
 export default class ImageCacheService {
 	private inFlightDownloads = new Map<string, Promise<void>>();
@@ -17,6 +31,45 @@ export default class ImageCacheService {
 		@inject(IOs_Token) private os: IOS,
 	) {
 		void this.path;
+	}
+
+	public async resolveUrl(remoteUrl: string, opts: SingleCacheImageOptions): Promise<string> {
+		if (!remoteUrl || remoteUrl.trim() === '') return remoteUrl;
+
+		const diskPath = `${opts.baseDiskDir}/${opts.filename}`;
+		const webUrl = `${opts.baseWebDir}/${opts.filename}`;
+
+		return this.resolveCachedUrl(remoteUrl, diskPath, webUrl);
+	}
+
+	public async resolveUrlList(urls: string[] | undefined, opts: ListCacheImageOptions): Promise<string[]> {
+		if (!urls || urls.length === 0) return urls ?? [];
+		return Promise.all(
+			urls.map((url, i) => {
+				const extMatch = url.split('.').pop()?.split('?')[0];
+				const parsedExt = extMatch && extMatch.length <= 4 ? extMatch : undefined;
+				const ext = opts.ext ?? parsedExt ?? 'png';
+				const filename = opts.getFilename(i, ext);
+				return this.resolveUrl(url, {
+					baseDiskDir: opts.baseDiskDir,
+					baseWebDir: opts.baseWebDir,
+					filename,
+					ext,
+				});
+			}),
+		);
+	}
+
+	public sanitizeFilename(text: string): string {
+		return text
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.toLowerCase()
+			.replace(/[^a-z0-9 -]/g, '')
+			.replace(/\s+/g, '-')
+			.replace(/-+/g, '-')
+			.trim()
+			.replace(/^-+|-+$/g, '');
 	}
 
 	public async resolveCachedUrl(remoteUrl: string, diskPath: string, webUrl: string): Promise<string> {

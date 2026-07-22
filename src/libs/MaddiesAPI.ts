@@ -15,52 +15,32 @@ export default class MaddiesApi {
 	public async ResolveAndInjectModScreenshotsSrcsInto(modInfo: MaddiesApiModInfo | null): Promise<MaddiesApiModInfo | null> {
 		if (!modInfo) return null;
 		const modId = modInfo.GameBananaId;
-		const sanitizedName = this.sanitizeTextForFilename(modInfo.Name);
+		const sanitizedName = this.imageCache.sanitizeFilename(modInfo.Name);
 
-		const resolveList = async (urls: string[] | undefined) => {
-			if (!urls || urls.length === 0) return urls ?? [];
-			return Promise.all(
-				urls.map(async (url, index) => {
-					const extMatch = url.split('.').pop()?.split('?')[0];
-					const ext = extMatch && extMatch.length <= 4 ? extMatch : 'png';
-					const filename = `${modId}-${sanitizedName}-${index}.${ext}`;
-					const diskPath = `./data/cache/modsscreenshots/${filename}`;
-					const webUrl = `/data/cache/modsscreenshots/${filename}`;
-					return this.imageCache.resolveCachedUrl(url, diskPath, webUrl);
-				}),
-			);
+		const opts = {
+			baseDiskDir: './data/cache/modsscreenshots',
+			baseWebDir: '/data/cache/modsscreenshots',
+			getFilename: (index: number, ext: string) => `${modId}-${sanitizedName}-${index}.${ext}`,
 		};
 
 		const hasOriginalScreenshots = modInfo.Screenshots && modInfo.Screenshots.length > 0;
 		if (hasOriginalScreenshots) {
-			const screenshots = await resolveList(modInfo.Screenshots);
+			const screenshots = await this.imageCache.resolveUrlList(modInfo.Screenshots, opts);
 			return {
 				...modInfo,
 				Screenshots: screenshots,
 			};
 		}
 
-		const mirroredScreenshots = await resolveList(modInfo.MirroredScreenshots);
+		const mirroredScreenshots = await this.imageCache.resolveUrlList(modInfo.MirroredScreenshots, opts);
 		return {
 			...modInfo,
 			MirroredScreenshots: mirroredScreenshots,
 		};
 	}
 
-	private sanitizeTextForFilename(anyText: string): string {
-		return anyText
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
-			.toLowerCase()
-			.replace(/[^a-z0-9 -]/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/-+/g, '-')
-			.trim()
-			.replace(/^-+|-+$/g, '');
-	}
-
 	private normalizeTextForUrls(anyText: string) {
-		const normalized = this.sanitizeTextForFilename(anyText);
+		const normalized = this.imageCache.sanitizeFilename(anyText);
 		return encodeURIComponent(normalized);
 	}
 }
