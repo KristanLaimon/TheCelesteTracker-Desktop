@@ -174,9 +174,80 @@ function appendPlusButton(stack: Stack) {
 	}
 }
 
+function setupTabRenaming(root: HTMLElement) {
+	root.querySelectorAll('.lm_tab').forEach((tabNode) => {
+		const tabEl = tabNode as HTMLElement;
+		if (tabEl.classList.contains('gl-add-tab-btn') || tabEl.dataset.renameSetup === 'true') return;
+		tabEl.dataset.renameSetup = 'true';
+
+		const startEditing = () => {
+			const titleEl = tabEl.querySelector('.lm_title') as HTMLElement;
+			if (!titleEl || titleEl.dataset.editing === 'true') return;
+
+			titleEl.dataset.editing = 'true';
+			const currentTitle = titleEl.textContent?.trim() || 'Tab';
+
+			const input = document.createElement('input');
+			input.type = 'text';
+			input.value = currentTitle;
+			input.style.cssText =
+				'background: #18181c; color: #f1f5f9; border: 1px solid #3b82f6; border-radius: 4px; padding: 1px 4px; font-size: 11px; width: 90px; outline: none; z-index: 10;';
+
+			const finish = (save: boolean) => {
+				if (titleEl.dataset.editing !== 'true') return;
+				titleEl.dataset.editing = 'false';
+				const newTitle = input.value.trim();
+				if (save && newTitle) {
+					titleEl.textContent = newTitle;
+					LAYOUT?.emit('stateChanged');
+				} else {
+					titleEl.textContent = currentTitle;
+				}
+			};
+
+			input.onkeydown = (e) => {
+				e.stopPropagation();
+				if (e.key === 'Enter') {
+					e.preventDefault();
+					finish(true);
+				} else if (e.key === 'Escape') {
+					e.preventDefault();
+					finish(false);
+				}
+			};
+
+			input.onblur = () => finish(true);
+
+			titleEl.textContent = '';
+			titleEl.appendChild(input);
+			input.focus();
+			input.select();
+		};
+
+		tabEl.addEventListener('dblclick', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			startEditing();
+		});
+	});
+}
+
 // LIFECYCLE
 onMount(() => {
 	let cleanupFn: (() => void) | null = null;
+
+	const handleF2Key = (e: KeyboardEvent) => {
+		if (e.key === 'F2') {
+			const activeTab = layoutContainerEl?.querySelector('.lm_tab.lm_active:not(.gl-add-tab-btn)') as HTMLElement;
+			if (activeTab) {
+				const titleEl = activeTab.querySelector('.lm_title') as HTMLElement;
+				if (titleEl && titleEl.dataset.editing !== 'true') {
+					activeTab.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+				}
+			}
+		}
+	};
+	window.addEventListener('keydown', handleF2Key);
 
 	const init = async () => {
 		try {
@@ -358,10 +429,10 @@ onMount(() => {
 			if (!loadedFromCache) {
 				LAYOUT.loadLayout({
 					settings: {
-						constrainDragToContainer: true,
+						constrainDragToContainer: false,
 						reorderEnabled: true,
 						popoutWholeStack: false,
-						blockedPopoutsThrowError: true,
+						blockedPopoutsThrowError: false,
 						closePopoutsOnUnload: true,
 					},
 					dimensions: {
@@ -388,10 +459,12 @@ onMount(() => {
 				applyComponentStyles(layoutContainerEl);
 			}
 
-			// ponytail: simplified observer to detect layout changes and ensure self-healing "+" button
+			if (layoutContainerEl) {
+				setupTabRenaming(layoutContainerEl);
+			}
+
 			mutationObserver = new MutationObserver((mutations) => {
 				try {
-					// Re-apply styles if layout DOM changes
 					if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
 						const shouldSync = mutations.some(
 							(m) =>
@@ -408,7 +481,6 @@ onMount(() => {
 						}
 					}
 
-					// Check and restore "+" buttons if they were removed during layout updates
 					layoutContainerEl.querySelectorAll('.lm_header').forEach((headerEl) => {
 						if (headerEl instanceof HTMLElement) {
 							const stack = headerStackMap.get(headerEl);
@@ -417,6 +489,10 @@ onMount(() => {
 							}
 						}
 					});
+
+					if (layoutContainerEl) {
+						setupTabRenaming(layoutContainerEl);
+					}
 				} catch (err) {
 					console.error('GoldenLayout Wrapper: Error in mutationObserver callback:', err);
 				}
@@ -445,6 +521,7 @@ onMount(() => {
 			});
 
 			cleanupFn = () => {
+				window.removeEventListener('keydown', handleF2Key);
 				if (resizeObserver) resizeObserver.disconnect();
 				if (mutationObserver) mutationObserver.disconnect();
 				if (LAYOUT) LAYOUT.destroy();

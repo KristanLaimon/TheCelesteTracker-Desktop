@@ -29,7 +29,9 @@
 		"os.getPath",
 		"os.execCommand",
 		"server.mount",
-		"server.getMounts"
+		"server.getMounts",
+		"filesystem.getPathParts",
+		"filesystem.writeBinaryFile"
 	],
 	"modes": {
 		"window": {

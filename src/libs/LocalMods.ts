@@ -29,6 +29,7 @@ export default class LocalMods {
 		private maddiesApi: MaddiesApi,
 		private gameBananaApi: GameBananaApi,
 	) {
+		void this.gameBananaApi;
 		storage.configureAutoSave('turn off');
 	}
 
@@ -127,16 +128,17 @@ export default class LocalMods {
 	public async MaddiesApi_GetModInfoByModHumanName(modHumanName: string, opts?: LocalModsOptions): Promise<MaddiesApiModInfo | null> {
 		const cachedMap = await this.storage.get<Record<string, MaddiesApiModInfo>>(STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO);
 
+		let modInfo: MaddiesApiModInfo | null = null;
 		if (cachedMap) {
 			const humanNameMap = await this.#EverestMods_GetMap_HumanName_EverestModId(opts);
 			const everestModId = humanNameMap[modHumanName];
-			if (everestModId) return cachedMap[everestModId] ?? null;
-			return null;
+			if (everestModId) modInfo = cachedMap[everestModId] ?? null;
+		} else {
+			modInfo = await this.#MaddiesAPI_GetSingleModInfo_ByModHumanName(modHumanName);
+			this.#MaddiesAPI_GetMap_EverestModId_MaddiesModInfo(opts);
 		}
 
-		const singleResult = await this.#MaddiesAPI_GetSingleModInfo_ByModHumanName(modHumanName);
-		this.#MaddiesAPI_GetMap_EverestModId_MaddiesModInfo(opts);
-		return singleResult;
+		return await this.maddiesApi.resolveModScreenshots(modInfo);
 	}
 
 	public async EverestMods_GetModInfoByHumanName(modHumanName: string, opts?: LocalModsOptions): Promise<EverestModInfo | null> {

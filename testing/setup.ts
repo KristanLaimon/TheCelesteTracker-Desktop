@@ -14,6 +14,7 @@ import Celeste from '../src/libs/Celeste';
 import Everest from '../src/libs/Everest';
 import { CollabUtils2Scanner } from '../src/libs/Everest.collabutils2';
 import { DialogReader } from '../src/libs/Everest.dialog';
+import ImageCacheService from '../src/libs/ImageCacheService';
 import Olympus from '../src/libs/Olympus';
 import Sqlite_Go from '../src-utils/Sqlite_Go';
 import Zip_Go from '../src-utils/Zip_Go';
@@ -35,6 +36,7 @@ container.registerSingleton(CollabUtils2Scanner);
 container.registerSingleton(DialogReader);
 container.registerSingleton(Everest);
 container.registerSingleton(Olympus);
+container.registerSingleton(ImageCacheService);
 container.registerSingleton(Zip_Go);
 
 const os_ = container.resolve<IOS>(IOs_Token);
