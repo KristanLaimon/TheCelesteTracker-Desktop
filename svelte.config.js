@@ -2,7 +2,7 @@
 export default {
 	compilerOptions: {
 		experimental: {
-			async: false
-		}
-	}
+			async: false,
+		},
+	},
 };

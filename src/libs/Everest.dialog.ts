@@ -34,9 +34,7 @@ export class DialogReader {
 	) {}
 
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
-		return isZip
-			? await this.zip.readTextFile(modPath, filePath)
-			: await this.fs.readFile(`${modPath}/${filePath}`);
+		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
 	}
 
 	/**

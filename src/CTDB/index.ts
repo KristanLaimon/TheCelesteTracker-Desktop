@@ -8,5 +8,5 @@ import _submodule_service_Campaigns from './submodules/campaigns';
 export default class CTDB {
 	constructor(public Campaigns: _submodule_service_Campaigns) {}
 
-  public GetAllModsPlayed
+	public GetAllModsPlayed;
 }

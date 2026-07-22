@@ -27,6 +27,9 @@ export class BunThread implements IThread {
 	}
 
 	terminate(): void {
-		if (this.worker) { this.worker.terminate(); this.worker = null; }
+		if (this.worker) {
+			this.worker.terminate();
+			this.worker = null;
+		}
 	}
 }

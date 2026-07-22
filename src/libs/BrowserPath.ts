@@ -416,12 +416,7 @@ export default class BrowserPath implements IPath {
 			}
 		}
 
-		if (
-			startDot === -1 ||
-			end === -1 ||
-			preDotState === 0 ||
-			(preDotState === 1 && startDot === startPart && startDot === end - 1)
-		) {
+		if (startDot === -1 || end === -1 || preDotState === 0 || (preDotState === 1 && startDot === startPart && startDot === end - 1)) {
 			return '';
 		}
 		return path.slice(startDot, end);
@@ -473,12 +468,7 @@ export default class BrowserPath implements IPath {
 			}
 		}
 
-		if (
-			startDot === -1 ||
-			end === -1 ||
-			preDotState === 0 ||
-			(preDotState === 1 && startDot === startPart && startDot === end - 1)
-		) {
+		if (startDot === -1 || end === -1 || preDotState === 0 || (preDotState === 1 && startDot === startPart && startDot === end - 1)) {
 			if (end !== -1) {
 				if (startPart === 0 && isAbsolute) {
 					ret.base = ret.name = path.slice(1, end);

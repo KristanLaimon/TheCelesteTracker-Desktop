@@ -8,6 +8,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { injectable } from 'tsyringe';
 // Type-only imports
+// Value import for the abstract class
 import type {
 	CommonKnownPath,
 	Envs,
@@ -15,6 +16,7 @@ import type {
 	ExecCommandResult,
 	FolderDialogOptions,
 	Icon,
+	IOS,
 	MessageBoxChoice,
 	OpenDialogOptions,
 	SaveDialogOptions,
@@ -23,8 +25,6 @@ import type {
 	SpawnedProcessOptions,
 	TrayOptions,
 } from '../src/interfaces/IOs';
-// Value import for the abstract class
-import type { IOS } from '../src/interfaces/IOs';
 
 @injectable()
 export default class NodeJsOS implements IOS {
@@ -64,7 +64,7 @@ export default class NodeJsOS implements IOS {
 					pid: child.pid ?? 0,
 					stdOut: stdout,
 					stdErr: stderr,
-					exitCode: error === null ? 0 : (typeof error.code === 'number' ? error.code : 1),
+					exitCode: error === null ? 0 : typeof error.code === 'number' ? error.code : 1,
 				});
 			});
 

@@ -10,12 +10,12 @@ import type {
 	DirectoryEntry,
 	DirectoryReaderOptions,
 	FileReaderOptions,
+	IFileSystem,
 	OpenedFile,
 	PathParts,
 	Stats,
 	Watcher,
 } from '../src/interfaces/IFileSystem';
-import type { IFileSystem } from '../src/interfaces/IFileSystem';
 
 @injectable()
 export default class NodeJsFileSystem implements IFileSystem {

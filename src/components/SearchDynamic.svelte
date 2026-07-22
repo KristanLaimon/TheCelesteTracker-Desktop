@@ -1,98 +1,100 @@
 <script lang="ts">
-	import { StringSimilarity_SearchThroughList, type SearchResult, type SearchOptions } from '../libs/StringSimilarity';
+import { type SearchOptions, type SearchResult, StringSimilarity_SearchThroughList } from '../libs/StringSimilarity';
 
-	type OverrideStyles = {
-		input?: string;
-		results?: string;
-		item?: string;
-		activeItem?: string;
-	};
+type OverrideStyles = {
+	input?: string;
+	results?: string;
+	item?: string;
+	activeItem?: string;
+};
 
-	type Props = {
-		items: string[];
-		inputValue?: string;
-		selectedIndex?: number;
-		placeholder?: string;
-		class?: string;
-		overrideStyles?: OverrideStyles;
-		limit?: number;
-		minScore?: number;
-		searchOptions?: SearchOptions;
-		selected?: string;
-		children?: import('svelte').Snippet<[item: string, index: number, score: number]>;
-	};
+type Props = {
+	items: string[];
+	inputValue?: string;
+	selectedIndex?: number;
+	placeholder?: string;
+	class?: string;
+	overrideStyles?: OverrideStyles;
+	limit?: number;
+	minScore?: number;
+	searchOptions?: SearchOptions;
+	selected?: string;
+	children?: import('svelte').Snippet<[item: string, index: number, score: number]>;
+};
 
-	let {
-		items = $bindable([]),
-		inputValue = $bindable(''),
-		selectedIndex = $bindable(0),
-		placeholder = 'Search...',
-		class: className = '',
-		overrideStyles = {},
-		limit = 10,
-		minScore = 0,
-		searchOptions = {},
-		selected: selected = $bindable(''),
-		children,
-	}: Props = $props();
+let {
+	items = $bindable([]),
+	inputValue = $bindable(''),
+	selectedIndex = $bindable(0),
+	placeholder = 'Search...',
+	class: className = '',
+	overrideStyles = {},
+	limit = 10,
+	minScore = 0,
+	searchOptions = {},
+	selected = $bindable(''),
+	children,
+}: Props = $props();
 
-	let listEl = $state<HTMLDivElement | undefined>(undefined);
-	let itemEls = $state<HTMLDivElement[]>([]);
-	let showDropdown = $state(false);
+let listEl = $state<HTMLDivElement | undefined>(undefined);
+let itemEls = $state<HTMLDivElement[]>([]);
+let showDropdown = $state(false);
 
-	const uniqueItems = $derived([...new Set(items)]);
+const uniqueItems = $derived([...new Set(items)]);
 
-	const suggestions = $derived.by<SearchResult[]>(() => {
-		if (!inputValue || inputValue.trim().length === 0) return [];
-		return StringSimilarity_SearchThroughList(inputValue, uniqueItems, { caseSensitive: false, trimWhitespace: true, ...searchOptions, limit, minScore });
-	});
+const suggestions = $derived.by<SearchResult[]>(() => {
+	if (!inputValue || inputValue.trim().length === 0) return [];
+	return StringSimilarity_SearchThroughList(inputValue, uniqueItems, { caseSensitive: false, trimWhitespace: true, ...searchOptions, limit, minScore });
+});
 
-	$effect(() => {
-		if (inputValue) {
-			selectedIndex = 0;
-			showDropdown = true;
-		} else {
-			showDropdown = false;
+function handleInput() {
+	selectedIndex = 0;
+	showDropdown = inputValue.trim().length > 0;
+}
+
+$effect(() => {
+	const el = itemEls[selectedIndex];
+	if (el && listEl) {
+		el.scrollIntoView({ block: 'nearest' });
+	}
+});
+
+function selectItem(item: string) {
+	inputValue = item;
+	selected = item;
+	showDropdown = false;
+}
+
+let blurTimeout: ReturnType<typeof setTimeout>;
+function handleBlur() {
+	blurTimeout = setTimeout(() => {
+		showDropdown = false;
+	}, 200);
+}
+
+function handleFocus() {
+	clearTimeout(blurTimeout);
+}
+
+function handleKeyDown(e: KeyboardEvent) {
+	if (e.key === 'ArrowDown') {
+		e.preventDefault();
+		showDropdown = true;
+		if (selectedIndex < suggestions.length - 1) selectedIndex++;
+	} else if (e.key === 'ArrowUp') {
+		e.preventDefault();
+		showDropdown = true;
+		if (selectedIndex > 0) selectedIndex--;
+	} else if (e.key === 'Enter') {
+		e.preventDefault();
+		const found = suggestions[selectedIndex];
+		if (found) {
+			selectItem(found.item);
 		}
-	});
-
-	$effect(() => {
-		const el = itemEls[selectedIndex];
-		if (el && listEl) {
-			el.scrollIntoView({ block: 'nearest' });
-		}
-	});
-
-	function selectItem(item: string) {
-    inputValue = item
-		selected = item;
-		queueMicrotask(() => showDropdown = false);
+	} else if (e.key === 'Escape') {
+		showDropdown = false;
 	}
-
-	let blurTimeout: ReturnType<typeof setTimeout>;
-	function handleBlur() {
-		blurTimeout = setTimeout(() => { showDropdown = false; }, 200);
-	}
-	function handleFocus() {
-		clearTimeout(blurTimeout);
-		if (inputValue) showDropdown = true;
-	}
-
-	function handleKeyDown(e: KeyboardEvent) {
-		if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			if (selectedIndex < suggestions.length - 1) selectedIndex++;
-		} else if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			if (selectedIndex > 0) selectedIndex--;
-		} else if (e.key === 'Enter') {
-			e.preventDefault();
-			const found = suggestions[selectedIndex];
-			if (found) {
-        selectItem(found.item); //WHY IS SHOW DROPDOWN NOT BEING HIDDEN WHEN ENTER?
-      }
-		}
-	}
+}
 </script>
 
 <div class="flex w-full flex-col gap-2 {className}">
@@ -112,6 +114,7 @@
 		</svg>
 		<input
 			bind:value={inputValue}
+			oninput={handleInput}
 			onkeydown={handleKeyDown}
 			onblur={handleBlur}
 			onfocus={handleFocus}

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { ComponentProps } from "svelte";
+import type { ComponentProps } from 'svelte';
 import Canvas from '../libs/GoldenLayoutThemes/components/GL_Canvas.svelte';
 import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
-import ModView from '../pages/ModView.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { GoldenLayoutContent, GoldenLayoutRegistry } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
+import ModView from '../pages/ModView.svelte';
 
 const registry = {
 	canvas: Canvas,
@@ -23,7 +23,7 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
 					content: [
 						{
 							type: 'canvas',
-							props: { localStorageKey: 'canvas-1' } satisfies ComponentProps<typeof Canvas> ,
+							props: { localStorageKey: 'canvas-1' } satisfies ComponentProps<typeof Canvas>,
 						},
 						{
 							type: 'rawHtml',

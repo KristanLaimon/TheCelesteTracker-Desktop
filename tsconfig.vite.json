@@ -21,8 +21,8 @@
 		"noUnusedParameters": true,
 		"erasableSyntaxOnly": true,
 		"noFallthroughCasesInSwitch": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true
 	},
 	"include": ["vite.config.ts"]
 }

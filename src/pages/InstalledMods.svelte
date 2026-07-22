@@ -2,12 +2,12 @@
 <!-- <script lang="ts">
 import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import { GetDependency } from '../setup';
-import Everest from '../libs/Everest';
 import type { EverestModInfo } from '../libs/Everest';
+import Everest from '../libs/Everest';
 import { Log_Info } from '../libs/Logger';
-import MaddiesApi from '../libs/MaddiesAPI';
 import type { MaddiesApi_ModInfo } from '../libs/MaddiesAPI';
+import MaddiesApi from '../libs/MaddiesAPI';
+import { GetDependency } from '../setup';
 
 const EVEREST = GetDependency(Everest);
 const MaddiesAPI = GetDependency(MaddiesApi);
@@ -20,73 +20,69 @@ let isLoading: boolean = $state(false);
 let error: string | null = $state(null);
 
 let filteredMods = $derived.by(() => {
-  if (!searchQuery.trim()) return modsWithInfo;
-  const q = searchQuery.toLowerCase();
-  return modsWithInfo.filter((mod) =>
-    mod.Name.toLowerCase().includes(q) ||
-    mod.Author.toLowerCase().includes(q) ||
-    mod.Description.toLowerCase().includes(q),
-  );
+	if (!searchQuery.trim()) return modsWithInfo;
+	const q = searchQuery.toLowerCase();
+	return modsWithInfo.filter((mod) => mod.Name.toLowerCase().includes(q) || mod.Author.toLowerCase().includes(q) || mod.Description.toLowerCase().includes(q));
 });
 
 let filteredUnmatched = $derived.by(() => {
-  if (!searchQuery.trim()) return unmatchedMods;
-  const q = searchQuery.toLowerCase();
-  return unmatchedMods.filter((mod) => {
-    const metaName = mod.metadata.name ?? '';
-    return mod.name.toLowerCase().includes(q) || metaName.toLowerCase().includes(q);
-  });
+	if (!searchQuery.trim()) return unmatchedMods;
+	const q = searchQuery.toLowerCase();
+	return unmatchedMods.filter((mod) => {
+		const metaName = mod.metadata.name ?? '';
+		return mod.name.toLowerCase().includes(q) || metaName.toLowerCase().includes(q);
+	});
 });
 
-onMount(() => { GetModsInfo(); });
+onMount(() => {
+	GetModsInfo();
+});
 
 async function GetModsInfo() {
-  isLoading = true;
-  error = null;
-  try {
-    mods = await EVEREST.GetModsInstalled({ modsCountScanningLimit: 150 });
-    Log_Info('InstalledMods:', 'Found Mods:', mods);
-    const results = await Promise.allSettled(
-      mods.map(async (modInfo) => {
-        const apiRes = (await MaddiesAPI.SearchModByName(modInfo.name.replace('.zip', '')))[0];
-        return { modInfo, apiRes: apiRes ?? null } as const;
-      }),
-    );
-    const matched: MaddiesApi_ModInfo[] = [];
-    const unmatched: EverestModInfo[] = [];
-    for (let i = 0; i < mods.length; i++) {
-      const r = results[i];
-      if (r.status === 'fulfilled' && r.value.apiRes) {
-        matched.push(r.value.apiRes);
-      } else {
-        unmatched.push(mods[i]);
-      }
-    }
-    modsWithInfo = matched.filter(
-      (mod, i, arr) => arr.findIndex((m) => m.GameBananaId === mod.GameBananaId) === i,
-    );
-    unmatchedMods = unmatched;
-    Log_Info('InstalledMods:', 'Found Mods with maddiesapi:', modsWithInfo);
-  } catch (e) {
-    error = e instanceof Error ? e.message : 'Failed to fetch mods';
-  } finally {
-    isLoading = false;
-  }
+	isLoading = true;
+	error = null;
+	try {
+		mods = await EVEREST.GetModsInstalled({ modsCountScanningLimit: 150 });
+		Log_Info('InstalledMods:', 'Found Mods:', mods);
+		const results = await Promise.allSettled(
+			mods.map(async (modInfo) => {
+				const apiRes = (await MaddiesAPI.SearchModByName(modInfo.name.replace('.zip', '')))[0];
+				return { modInfo, apiRes: apiRes ?? null } as const;
+			}),
+		);
+		const matched: MaddiesApi_ModInfo[] = [];
+		const unmatched: EverestModInfo[] = [];
+		for (let i = 0; i < mods.length; i++) {
+			const r = results[i];
+			if (r.status === 'fulfilled' && r.value.apiRes) {
+				matched.push(r.value.apiRes);
+			} else {
+				unmatched.push(mods[i]);
+			}
+		}
+		modsWithInfo = matched.filter((mod, i, arr) => arr.findIndex((m) => m.GameBananaId === mod.GameBananaId) === i);
+		unmatchedMods = unmatched;
+		Log_Info('InstalledMods:', 'Found Mods with maddiesapi:', modsWithInfo);
+	} catch (e) {
+		error = e instanceof Error ? e.message : 'Failed to fetch mods';
+	} finally {
+		isLoading = false;
+	}
 }
 
 function LimitText(desc: string, limitCharsCount: number): string {
-  if (desc.length < limitCharsCount) return desc;
-  return `${desc.slice(0, limitCharsCount)}...`;
+	if (desc.length < limitCharsCount) return desc;
+	return `${desc.slice(0, limitCharsCount)}...`;
 }
 
 function GetCoverUrl(mod: MaddiesApi_ModInfo): string {
-  return mod.MirroredScreenshots?.[0] ?? mod.Screenshots?.[0] ?? '';
+	return mod.Screenshots?.[0] ?? mod.MirroredScreenshots?.[0] ?? '';
 }
 
 function FormatDownloads(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
-  return `${n}`;
+	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+	if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
+	return `${n}`;
 }
 </script>
 

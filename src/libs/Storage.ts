@@ -113,7 +113,7 @@ export default class Storage {
 
 	constructor(options: StorageOptions) {
 		this.options = options;
-		this.adapters = options.adapters.filter(adapter => adapter.isAvailable());
+		this.adapters = options.adapters.filter((adapter) => adapter.isAvailable());
 
 		this.historySize = options.history?.size ?? Storage.DEFAULT_HISTORY_SIZE;
 		this.historyAdapter = undefined;
@@ -125,9 +125,12 @@ export default class Storage {
 		}
 
 		if (options.saveMinutesInterval && options.saveMinutesInterval > 0) {
-			this.timerId = setInterval(() => {
-				this.triggerSave();
-			}, options.saveMinutesInterval * 60 * 1000);
+			this.timerId = setInterval(
+				() => {
+					this.triggerSave();
+				},
+				options.saveMinutesInterval * 60 * 1000,
+			);
 		}
 	}
 
@@ -142,105 +145,90 @@ export default class Storage {
 	}
 
 	/**
-   * Reads a value, checking (in order) the in-memory cache, cache adapters,
-   * then persistent adapters. Any value found in a slower tier is promoted
-   * to the faster tiers above it so subsequent reads are cheaper.
-   *
-   * @returns the stored value, or `null` if the key isn't found anywhere.
-   */
-  async get<T>(key: string): Promise<T | null>;
-  /**
-   * Reads a value like {@link get}, but if the key isn't found in any tier,
-   * calls `factory` to compute it, `set`s the result under `key` (so it's
-   * cached/persisted going forward), and returns it. Any extra arguments
-   * passed after `factory` are forwarded to it, and are what give `factory`
-   * its inferred, strongly-typed parameter list.
-   *
-   * @example
-   * ```ts
-   * // Args inferred as [userId: string]; T inferred as User.
-   * const user = await storage.get(
-   *   `user:${id}`,
-   *   (userId: string) => fetchUserFromApi(userId),
-   *   id,
-   * );
-   * ```
-   */
-  async get<T, Args extends unknown[] = []>(
-    key: string,
-    factory: (...args: Args) => T | Promise<T>,
-    ...args: Args
-  ): Promise<T>;
-  /**
-   * Same as the factory overload above, but for a no-arg `factory` plus an
-   * `options` object instead of forwarded args. Set `invalidateCache: true`
-   * to skip the existing value (in memory or any adapter) entirely and
-   * unconditionally re-run `factory`, `set`-ing (and thus re-caching) its
-   * result — useful for forcing a refresh of a previously cached value.
-   *
-   * @example
-   * ```ts
-   * // Ignores whatever is cached under "config" and recomputes it.
-   * const config = await storage.get('config', loadConfig, { invalidateCache: true });
-   * ```
-   */
-  async get<T>(
-    key: string,
-    factory: () => T | Promise<T>,
-    options: { invalidateCache?: boolean },
-  ): Promise<T>;
-  async get<T>(
-    key: string,
-    factory?: (...args: any[]) => T | Promise<T>,
-    ...rest: any[]
-  ): Promise<T | null> {
-    let invalidateCache = false;
-    let args = rest;
+	 * Reads a value, checking (in order) the in-memory cache, cache adapters,
+	 * then persistent adapters. Any value found in a slower tier is promoted
+	 * to the faster tiers above it so subsequent reads are cheaper.
+	 *
+	 * @returns the stored value, or `null` if the key isn't found anywhere.
+	 */
+	async get<T>(key: string): Promise<T | null>;
+	/**
+	 * Reads a value like {@link get}, but if the key isn't found in any tier,
+	 * calls `factory` to compute it, `set`s the result under `key` (so it's
+	 * cached/persisted going forward), and returns it. Any extra arguments
+	 * passed after `factory` are forwarded to it, and are what give `factory`
+	 * its inferred, strongly-typed parameter list.
+	 *
+	 * @example
+	 * ```ts
+	 * // Args inferred as [userId: string]; T inferred as User.
+	 * const user = await storage.get(
+	 *   `user:${id}`,
+	 *   (userId: string) => fetchUserFromApi(userId),
+	 *   id,
+	 * );
+	 * ```
+	 */
+	async get<T, Args extends unknown[] = []>(key: string, factory: (...args: Args) => T | Promise<T>, ...args: Args): Promise<T>;
+	/**
+	 * Same as the factory overload above, but for a no-arg `factory` plus an
+	 * `options` object instead of forwarded args. Set `invalidateCache: true`
+	 * to skip the existing value (in memory or any adapter) entirely and
+	 * unconditionally re-run `factory`, `set`-ing (and thus re-caching) its
+	 * result — useful for forcing a refresh of a previously cached value.
+	 *
+	 * @example
+	 * ```ts
+	 * // Ignores whatever is cached under "config" and recomputes it.
+	 * const config = await storage.get('config', loadConfig, { invalidateCache: true });
+	 * ```
+	 */
+	async get<T>(key: string, factory: () => T | Promise<T>, options: { invalidateCache?: boolean }): Promise<T>;
+	async get<T>(key: string, factory?: (...args: any[]) => T | Promise<T>, ...rest: any[]): Promise<T | null> {
+		let invalidateCache = false;
+		let args = rest;
 
-    const isOptionsArg =
-      rest.length === 1 &&
-      typeof rest[0] === 'object' &&
-      rest[0] !== null &&
-      !Array.isArray(rest[0]) &&
-      'invalidateCache' in rest[0];
+		const isOptionsArg = rest.length === 1 && typeof rest[0] === 'object' && rest[0] !== null && !Array.isArray(rest[0]) && 'invalidateCache' in rest[0];
 
-    if (isOptionsArg) {
-      invalidateCache = Boolean((rest[0] as { invalidateCache?: boolean }).invalidateCache);
-      args = [];
-    }
+		if (isOptionsArg) {
+			invalidateCache = Boolean((rest[0] as { invalidateCache?: boolean }).invalidateCache);
+			args = [];
+		}
 
-    if (!invalidateCache) {
-      const existing = await this.lookup<T>(key);
-      if (existing !== null) {
-        return existing;
-      }
-    }
+		if (!invalidateCache) {
+			const existing = await this.lookup<T>(key);
+			if (existing !== null) {
+				return existing;
+			}
+		}
 
-    if (!factory) {
-      return null;
-    }
+		if (!factory) {
+			return null;
+		}
 
-    const existing = this.inflightFactories.get(key);
-    if (existing) return existing as Promise<T>;
+		const existing = this.inflightFactories.get(key);
+		if (existing) return existing as Promise<T>;
 
-    const promise = factory(...args);
-    const wrapped = Promise.resolve(promise).then(async (computed) => {
-      await this.set(key, computed);
-      return computed;
-    }).finally(() => {
-      this.inflightFactories.delete(key);
-    });
+		const promise = factory(...args);
+		const wrapped = Promise.resolve(promise)
+			.then(async (computed) => {
+				await this.set(key, computed);
+				return computed;
+			})
+			.finally(() => {
+				this.inflightFactories.delete(key);
+			});
 
-    this.inflightFactories.set(key, wrapped);
-    return wrapped as Promise<T>;
-  }
+		this.inflightFactories.set(key, wrapped);
+		return wrapped as Promise<T>;
+	}
 
 	async set<T>(key: string, value: T): Promise<void> {
 		this.fastestMemoryCache.set(key, value);
 		this.deletedKeys.delete(key);
 		this.dirtyKeys.add(key);
 		await this.pushHistory(key);
-		await Promise.all(this.adapters.map(adapter => adapter.set(key, value)));
+		await Promise.all(this.adapters.map((adapter) => adapter.set(key, value)));
 		this.dirtyKeys.delete(key);
 	}
 
@@ -249,7 +237,7 @@ export default class Storage {
 		this.fastestMemoryCache.delete(key);
 		this.dirtyKeys.delete(key);
 		this.deletedKeys.add(key);
-		await Promise.all(this.adapters.map(adapter => adapter.remove(key)));
+		await Promise.all(this.adapters.map((adapter) => adapter.remove(key)));
 	}
 
 	async triggerSave(): Promise<void> {
@@ -258,11 +246,11 @@ export default class Storage {
 
 		const writes = Array.from(this.dirtyKeys).map(async (key) => {
 			const val = this.fastestMemoryCache.get(key);
-			await Promise.all(this.adapters.map(adapter => adapter.set(key, val)));
+			await Promise.all(this.adapters.map((adapter) => adapter.set(key, val)));
 		});
 
 		const deletions = Array.from(this.deletedKeys).map(async (key) => {
-			await Promise.all(this.adapters.map(adapter => adapter.remove(key)));
+			await Promise.all(this.adapters.map((adapter) => adapter.remove(key)));
 		});
 
 		await Promise.all([...writes, ...deletions]);
@@ -303,12 +291,12 @@ export default class Storage {
 			this.fastestMemoryCache.set(key, previousValue);
 			this.deletedKeys.delete(key);
 			this.dirtyKeys.add(key);
-			await Promise.all(this.adapters.map(adapter => adapter.set(key, previousValue)));
+			await Promise.all(this.adapters.map((adapter) => adapter.set(key, previousValue)));
 		} else {
 			this.fastestMemoryCache.delete(key);
 			this.dirtyKeys.delete(key);
 			this.deletedKeys.add(key);
-			await Promise.all(this.adapters.map(adapter => adapter.remove(key)));
+			await Promise.all(this.adapters.map((adapter) => adapter.remove(key)));
 		}
 
 		await this.persistHistory();
@@ -336,22 +324,24 @@ export default class Storage {
 		}
 
 		// com === 'turn on'
-		const intervalMinutes = this.options.saveMinutesInterval && this.options.saveMinutesInterval > 0
-			? this.options.saveMinutesInterval : 3; //By default 5
+		const intervalMinutes = this.options.saveMinutesInterval && this.options.saveMinutesInterval > 0 ? this.options.saveMinutesInterval : 3; //By default 5
 
 		this.options.saveMinutesInterval = intervalMinutes;
 
-		this.timerId = setInterval(() => {
-			this.triggerSave();
-		}, intervalMinutes * 60 * 1000);
+		this.timerId = setInterval(
+			() => {
+				this.triggerSave();
+			},
+			intervalMinutes * 60 * 1000,
+		);
 	}
 
-  configureAutoSaveMinutesTime(newMinutes:number):void {
-    if (newMinutes <= 0) throw new Error(`Storage.ts: Can't set autoSaveMinutesTime with value: '${newMinutes}'. Value no valid`)
-    this.configureAutoSave("turn off");
-    this.options.saveMinutesInterval = newMinutes;
-    this.configureAutoSave("turn on");
-  }
+	configureAutoSaveMinutesTime(newMinutes: number): void {
+		if (newMinutes <= 0) throw new Error(`Storage.ts: Can't set autoSaveMinutesTime with value: '${newMinutes}'. Value no valid`);
+		this.configureAutoSave('turn off');
+		this.options.saveMinutesInterval = newMinutes;
+		this.configureAutoSave('turn on');
+	}
 
 	private async lookup<T>(key: string): Promise<T | null> {
 		if (this.fastestMemoryCache.has(key)) {

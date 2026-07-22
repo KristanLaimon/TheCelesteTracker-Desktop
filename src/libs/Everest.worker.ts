@@ -16,7 +16,19 @@
 import * as yaml from 'js-yaml';
 
 type RawDep = { Name?: string; name?: string; Version?: string | number; version?: string | number; [key: string]: unknown };
-type RawMeta = { Name?: string; name?: string; Version?: string | number; version?: string | number; DLL?: string; dll?: string; Dependencies?: RawDep[]; dependencies?: RawDep[]; OptionalDependencies?: RawDep[]; optionalDependencies?: RawDep[]; [key: string]: unknown };
+type RawMeta = {
+	Name?: string;
+	name?: string;
+	Version?: string | number;
+	version?: string | number;
+	DLL?: string;
+	dll?: string;
+	Dependencies?: RawDep[];
+	dependencies?: RawDep[];
+	OptionalDependencies?: RawDep[];
+	optionalDependencies?: RawDep[];
+	[key: string]: unknown;
+};
 
 type ModDependency = { name: string; version: string };
 type EverestModInfo = { fileName: string; isZip: boolean; modPath: string; metadata: any; humanName: string };
@@ -56,10 +68,12 @@ function normalizeModName(filename: string): string {
 	return name.trim();
 }
 
-self.onmessage = (e: MessageEvent<{
-	entries: { entry: string; type: string; modPath: string; yamlContent: string; collabContent?: string }[];
-	taskId: number;
-}>) => {
+self.onmessage = (
+	e: MessageEvent<{
+		entries: { entry: string; type: string; modPath: string; yamlContent: string; collabContent?: string }[];
+		taskId: number;
+	}>,
+) => {
 	const { entries, taskId } = e.data;
 	const results: EverestModInfo[] = [];
 	for (const { entry, type, modPath, yamlContent, collabContent } of entries) {

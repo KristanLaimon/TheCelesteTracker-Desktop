@@ -1,9 +1,9 @@
 // UNIVERSAL COMPATIBILITY
-import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../interfaces/IFileSystem";
-import type { IPath } from "../interfaces/IPath";
-import type { StorageAdapter } from "./Storage";
+import { inject, injectable } from 'tsyringe';
+import { IFileSystem_Token, IPath_Token } from '../interfaces/DependencyInjectionTokens';
+import type { IFileSystem } from '../interfaces/IFileSystem';
+import type { IPath } from '../interfaces/IPath';
+import type { StorageAdapter } from './Storage';
 
 /**
  * Configuration for {@link Storage_JsonFileAdapter}.
@@ -44,7 +44,6 @@ export interface JsonFileAdapterOptions {
  */
 @injectable()
 export default class Storage_JsonFileAdapter implements StorageAdapter {
-
 	private filePath: string;
 	private indent: number;
 
@@ -53,7 +52,6 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 
 	/** Promise chain used as a simple mutex so file reads/writes never overlap. */
 	private queue: Promise<unknown> = Promise.resolve();
-
 
 	constructor(
 		options: JsonFileAdapterOptions,
@@ -69,7 +67,7 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 	 * `node:fs/promises`-compatible API). Always `false` in browsers.
 	 */
 	isAvailable(): boolean {
-    return true; //Was made compatible with neutralinojs and node.js/bun system thanks to DI!
+		return true; //Was made compatible with neutralinojs and node.js/bun system thanks to DI!
 	}
 
 	async get<T>(key: string): Promise<T | null> {
@@ -127,7 +125,6 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 
 	/** Writes `data` to disk, creating the parent directory if it doesn't exist yet. */
 	private async persist(data: Record<string, unknown>): Promise<void> {
-
 		const dir = this.path.dirname(this.filePath);
 		await this.fsModule.createDirectory(dir, { recursive: true });
 

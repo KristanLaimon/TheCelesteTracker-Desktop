@@ -33,7 +33,7 @@
 						"checkForEach": false
 					}
 				}
-			},
+			}
 		}
 	},
 	"overrides": [
@@ -53,9 +53,9 @@
 		"formatter": {
 			"quoteStyle": "single"
 		},
-    "parser":{
-      "unsafeParameterDecoratorsEnabled": true
-    }
+		"parser": {
+			"unsafeParameterDecoratorsEnabled": true
+		}
 	},
 	"assist": {
 		"enabled": true,

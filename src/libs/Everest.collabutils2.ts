@@ -20,8 +20,8 @@ import * as yaml from 'js-yaml';
 import { inject, injectable } from 'tsyringe';
 import Zip_Go from '../../src-utils/Zip_Go';
 import { IFileSystem_Token } from '../interfaces/DependencyInjectionTokens';
-import type { IFileSystem, DirectoryEntry } from '../interfaces/IFileSystem';
-import type { EverestModInfo, DiscoveredMap, DiscoveredLobby, MapMetaYaml } from './Everest';
+import type { DirectoryEntry, IFileSystem } from '../interfaces/IFileSystem';
+import type { DiscoveredLobby, DiscoveredMap, EverestModInfo, MapMetaYaml } from './Everest';
 
 /**
  * Parsed content of `CollabUtils2LazyLoading.yaml`.
@@ -59,18 +59,16 @@ export class CollabUtils2Scanner {
 	) {}
 
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
-		return isZip
-			? await this.zip.readTextFile(modPath, filePath)
-			: await this.fs.readFile(`${modPath}/${filePath}`);
+		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
 	}
 
 	private async walkModDir(modPath: string, isZip: boolean, subDir: string): Promise<string[]> {
 		if (isZip) {
 			const allFiles = await this.zip.list(modPath);
-			const prefix = subDir.replace(/\//g, '\\') + '\\';
+			const prefix = `${subDir.replace(/\//g, '\\')}\\`;
 			return allFiles
-				.filter(f => f.startsWith(subDir + '/') || f.startsWith(prefix))
-				.map(f => f.replace(/\\/g, '/'))
+				.filter((f) => f.startsWith(`${subDir}/`) || f.startsWith(prefix))
+				.map((f) => f.replace(/\\/g, '/'))
 				.sort();
 		}
 		const entries = await this.fs.readDirectory(`${modPath}/${subDir}`, { recursive: true });
@@ -98,15 +96,9 @@ export class CollabUtils2Scanner {
 	 * Read and parse `CollabUtils2LazyLoading.yaml` from a collab mod's root.
 	 * Returns `undefined` if the file doesn't exist (non-collab or no lazy-load config).
 	 */
-	async readLazyLoadingConfig(
-		modInfo: EverestModInfo,
-	): Promise<CollabUtils2LazyLoadingYaml | undefined> {
+	async readLazyLoadingConfig(modInfo: EverestModInfo): Promise<CollabUtils2LazyLoadingYaml | undefined> {
 		try {
-			const content = await this.readModFile(
-				modInfo.modPath,
-				modInfo.isZip,
-				'CollabUtils2LazyLoading.yaml',
-			);
+			const content = await this.readModFile(modInfo.modPath, modInfo.isZip, 'CollabUtils2LazyLoading.yaml');
 			const cleaned = content.replace(/^\uFEFF/, '');
 			return (yaml.load(cleaned) as CollabUtils2LazyLoadingYaml | null | undefined) ?? undefined;
 		} catch {
@@ -130,29 +122,24 @@ export class CollabUtils2Scanner {
 		modInfo: EverestModInfo,
 		collabName: string,
 		dialog: Map<string, string>,
-		buildMap: (
-			modInfo: EverestModInfo,
-			binPath: string,
-			sid: string,
-			dialog: Map<string, string>,
-		) => Promise<DiscoveredMap>,
+		buildMap: (modInfo: EverestModInfo, binPath: string, sid: string, dialog: Map<string, string>) => Promise<DiscoveredMap>,
 	): Promise<{ lobbies: DiscoveredLobby[]; gyms: DiscoveredMap[]; prologue?: DiscoveredMap }> {
 		const baseDir = `Maps/${collabName}`;
 		const allFiles = await this.walkModDir(modInfo.modPath, modInfo.isZip, baseDir);
-		const bins = allFiles.filter(f => f.toLowerCase().endsWith('.bin'));
+		const bins = allFiles.filter((f) => f.toLowerCase().endsWith('.bin'));
 
-		const lobbyBins = bins.filter(f => f.startsWith(`${baseDir}/0-Lobbies/`));
-		const gymBins = bins.filter(f => f.startsWith(`${baseDir}/0-Gyms/`));
-		const levelBins = bins.filter(f => {
+		const lobbyBins = bins.filter((f) => f.startsWith(`${baseDir}/0-Lobbies/`));
+		const gymBins = bins.filter((f) => f.startsWith(`${baseDir}/0-Gyms/`));
+		const levelBins = bins.filter((f) => {
 			if (f.startsWith(`${baseDir}/0-`)) return false;
-			const rest = f.slice((baseDir + '/').length);
+			const rest = f.slice(`${baseDir}/`.length);
 			return rest.includes('/') && !rest.startsWith('0-');
 		});
 
 		// Pre-group level bins by lobbyId (single pass)
 		const levelsByLobby = new Map<string, string[]>();
 		for (const lb of levelBins) {
-			const lid = lb.slice((baseDir + '/').length).split('/')[0];
+			const lid = lb.slice(`${baseDir}/`.length).split('/')[0];
 			const group = levelsByLobby.get(lid) ?? [];
 			group.push(lb);
 			levelsByLobby.set(lid, group);
@@ -185,13 +172,11 @@ export class CollabUtils2Scanner {
 				// Lobby meta
 				let meta: MapMetaYaml | undefined;
 				try {
-					const c = await this.readModFile(
-						modInfo.modPath,
-						modInfo.isZip,
-						binPath.replace(/\.bin$/i, '.meta.yaml'),
-					);
+					const c = await this.readModFile(modInfo.modPath, modInfo.isZip, binPath.replace(/\.bin$/i, '.meta.yaml'));
 					meta = (yaml.load(c.replace(/^\uFEFF/, '')) as MapMetaYaml | null | undefined) ?? undefined;
-				} catch { /* no meta */ }
+				} catch {
+					/* no meta */
+				}
 
 				return { type: 'lobby' as const, lobbyId, maps: levels, meta };
 			}),
@@ -212,7 +197,11 @@ export class CollabUtils2Scanner {
 		const lobbies: DiscoveredLobby[] = [];
 		for (const r of lobbyResults) {
 			if (!r) continue;
-			if (r.type === 'prologue') { prologue = r.prologue; } else { lobbies.push({ lobbyId: r.lobbyId, maps: r.maps as DiscoveredMap[], meta: r.meta }); }
+			if (r.type === 'prologue') {
+				prologue = r.prologue;
+			} else {
+				lobbies.push({ lobbyId: r.lobbyId, maps: r.maps as DiscoveredMap[], meta: r.meta });
+			}
 		}
 
 		return { lobbies, gyms, prologue };

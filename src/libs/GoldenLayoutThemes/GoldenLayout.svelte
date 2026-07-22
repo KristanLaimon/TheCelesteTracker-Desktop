@@ -268,10 +268,10 @@ onMount(() => {
 				// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 				for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
 					Log_Info(`GoldenLayout Wrapper: Registering component "${name}"`);
-				LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
+					LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
 						try {
 							Log_Info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
-							let componentState = { ...(state as Record<string, unknown>) || {} };
+							let componentState = { ...((state as Record<string, unknown>) || {}) };
 							container.stateRequestEvent = () => componentState;
 
 							const componentInstance = mount(component, {
@@ -280,7 +280,7 @@ onMount(() => {
 									...componentState,
 									onStateChange: (partialState: any) => {
 										componentState = { ...componentState, ...partialState };
-										LAYOUT!.emit('stateChanged');
+										LAYOUT?.emit('stateChanged');
 									},
 								},
 							});
@@ -300,7 +300,7 @@ onMount(() => {
 			LAYOUT.registerComponentFactoryFunction('__defaultComponent', (container, state) => {
 				try {
 					Log_Info('GoldenLayout Wrapper: Factory function called for defaultComponent');
-					let componentState = { ...(state as Record<string, unknown>) || {} };
+					let componentState = { ...((state as Record<string, unknown>) || {}) };
 					container.stateRequestEvent = () => componentState;
 
 					const componentInstance = mount(defaultComponent, {
@@ -309,7 +309,7 @@ onMount(() => {
 							...componentState,
 							onStateChange: (partialState: any) => {
 								componentState = { ...componentState, ...partialState };
-								LAYOUT!.emit('stateChanged');
+								LAYOUT?.emit('stateChanged');
 							},
 						},
 					});

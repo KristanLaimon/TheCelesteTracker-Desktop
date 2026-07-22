@@ -1,12 +1,10 @@
 // NODE.JS/BUN/DENO ONLY
 import 'reflect-metadata';
 
-import { spawnSync } from 'child_process';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { container } from 'tsyringe';
-import Sqlite_Go from '../src-utils/Sqlite_Go';
-import Zip_Go from '../src-utils/Zip_Go';
 import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from '../src/interfaces/DependencyInjectionTokens';
 import type { IFileSystem } from '../src/interfaces/IFileSystem';
 import type { IOS } from '../src/interfaces/IOs';
@@ -17,6 +15,8 @@ import Everest from '../src/libs/Everest';
 import { CollabUtils2Scanner } from '../src/libs/Everest.collabutils2';
 import { DialogReader } from '../src/libs/Everest.dialog';
 import Olympus from '../src/libs/Olympus';
+import Sqlite_Go from '../src-utils/Sqlite_Go';
+import Zip_Go from '../src-utils/Zip_Go';
 import NodeJsFileSystem from './NodeJsFileSystem';
 import NodeJsOS from './NodeJsOs';
 import NodeJsPath from './NodeJsPath';
@@ -38,7 +38,10 @@ container.registerSingleton(Olympus);
 container.registerSingleton(Zip_Go);
 
 const os_ = container.resolve<IOS>(IOs_Token);
-container.registerInstance(Sqlite_Go, new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), os_, container.resolve<IFileSystem>(IFileSystem_Token), container.resolve<IPath>(IPath_Token)));
+container.registerInstance(
+	Sqlite_Go,
+	new Sqlite_Go(join(TEST_FOLDER, 'test_with_data.db'), os_, container.resolve<IFileSystem>(IFileSystem_Token), container.resolve<IPath>(IPath_Token)),
+);
 
 export const GetDependency = container.resolve.bind(container);
 

@@ -81,20 +81,20 @@ export type CommonKnownPath =
 	| string;
 
 export interface IOS {
-		getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown';
-		execCommand(command: string, options?: ExecCommandOptions): Promise<ExecCommandResult>;
-		spawnProcess(command: string, options?: SpawnedProcessOptions): Promise<SpawnedProcess>;
-		updateSpawnedProcess(id: number, action: SpawnedProcessAction, data?: string): Promise<void>;
-		getSpawnedProcesses(): Promise<SpawnedProcess[]>;
-		getEnv(key: string): Promise<string>;
-		getEnvs(): Promise<Envs>;
-		showOpenDialog(title?: string, options?: OpenDialogOptions): Promise<string[]>;
-		showSaveDialog(title?: string, options?: SaveDialogOptions): Promise<string>;
-		showFolderDialog(title?: string, options?: FolderDialogOptions): Promise<string>;
-		showNotification(title: string, content: string, icon?: Icon): Promise<void>;
-		showMessageBox(title: string, content: string, choice?: MessageBoxChoice, icon?: Icon): Promise<string>;
-		setTray(options: TrayOptions): Promise<void>;
-		getPath(name: CommonKnownPath): Promise<string>;
-		open(url: string): Promise<void>;
-		trashItem(path: string): Promise<string>;
-	}
+	getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown';
+	execCommand(command: string, options?: ExecCommandOptions): Promise<ExecCommandResult>;
+	spawnProcess(command: string, options?: SpawnedProcessOptions): Promise<SpawnedProcess>;
+	updateSpawnedProcess(id: number, action: SpawnedProcessAction, data?: string): Promise<void>;
+	getSpawnedProcesses(): Promise<SpawnedProcess[]>;
+	getEnv(key: string): Promise<string>;
+	getEnvs(): Promise<Envs>;
+	showOpenDialog(title?: string, options?: OpenDialogOptions): Promise<string[]>;
+	showSaveDialog(title?: string, options?: SaveDialogOptions): Promise<string>;
+	showFolderDialog(title?: string, options?: FolderDialogOptions): Promise<string>;
+	showNotification(title: string, content: string, icon?: Icon): Promise<void>;
+	showMessageBox(title: string, content: string, choice?: MessageBoxChoice, icon?: Icon): Promise<string>;
+	setTray(options: TrayOptions): Promise<void>;
+	getPath(name: CommonKnownPath): Promise<string>;
+	open(url: string): Promise<void>;
+	trashItem(path: string): Promise<string>;
+}

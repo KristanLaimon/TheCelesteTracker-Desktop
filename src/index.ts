@@ -4,7 +4,7 @@ import neutralino from '@neutralinojs/lib';
 import { mount, unmount } from 'svelte';
 import Loading from './components/Loading.svelte';
 import App from './index.svelte';
-import BrowserPath from "./libs/BrowserPath";
+import BrowserPath from './libs/BrowserPath';
 import { Log_Info } from './libs/Logger';
 import { NeutralinoFileSystem } from './libs/NeutralinoFileSystem';
 
@@ -25,28 +25,27 @@ loadingInstance = mount(Loading, {
 
 neutralino.events.on('ready', async () => {
 	Log_Info('Neutralino: Ready');
-  const path = new BrowserPath();
-  const fs = new NeutralinoFileSystem(path);
+	const path = new BrowserPath();
+	const fs = new NeutralinoFileSystem(path);
 
-  //if doesnt exist only
-  fs.createDirectory("./data").then(()=> {
-    Log_Info("Neutralinod:", "Ensuring ./data folder exists");
+	//if doesnt exist only
+	fs.createDirectory('./data').then(() => {
+		Log_Info('Neutralinod:', 'Ensuring ./data folder exists');
 
-    NeutralinoFileSystem.MountLocalFolders().then(() => {
-      Log_Info("Neutralino: Mounted local folders")
-      unmount(loadingInstance);
-      loadingInstance = null;
+		NeutralinoFileSystem.MountLocalFolders().then(() => {
+			Log_Info('Neutralino: Mounted local folders');
+			unmount(loadingInstance);
+			loadingInstance = null;
 
-      appInstance = mount(App, {
-        target,
-      });
+			appInstance = mount(App, {
+				target,
+			});
 
-      setTimeout(() => {
-        neutralino.window.show();
-      }, 150);
-    })
-  })
-
+			setTimeout(() => {
+				neutralino.window.show();
+			}, 150);
+		});
+	});
 });
 
 export default appInstance;

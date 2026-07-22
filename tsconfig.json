@@ -23,7 +23,7 @@
 		"noFallthroughCasesInSwitch": true,
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-		"forceConsistentCasingInFileNames": true,
+		"forceConsistentCasingInFileNames": true
 	},
 	"include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src-utils/**/*.ts", "testing/**/*.ts"],
 	"exclude": ["**/*.min.js"]

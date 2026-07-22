@@ -22,7 +22,15 @@ container.registerSingleton(Olympus);
 container.registerSingleton(NeutralinoFileSystem);
 container.registerSingleton(NeutralinoOS);
 container.registerSingleton(Zip_Go);
-container.registerInstance(Sqlite_Go, new Sqlite_Go('./TheCelesteTrackerTestDb.db', container.resolve(NeutralinoOS), container.resolve(NeutralinoFileSystem), container.resolve<IPath>(IPath_Token)));
+container.registerInstance(
+	Sqlite_Go,
+	new Sqlite_Go(
+		'./TheCelesteTrackerTestDb.db',
+		container.resolve(NeutralinoOS),
+		container.resolve(NeutralinoFileSystem),
+		container.resolve<IPath>(IPath_Token),
+	),
+);
 
 const GetDependency = container.resolve.bind(container);
 

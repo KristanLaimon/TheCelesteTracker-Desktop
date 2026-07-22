@@ -17,6 +17,7 @@
 		"@neutralinojs/lib": "6.8.0",
 		"@panzoom/panzoom": "^4.6.2",
 		"@tailwindcss/vite": "4.3.2",
+		"colorthief": "^3.4.0",
 		"dompurify": "^3.4.12",
 		"dotenv": "^17.4.2",
 		"golden-layout": "2.6.0",

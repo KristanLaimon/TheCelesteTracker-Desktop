@@ -1,10 +1,11 @@
 <script lang="ts">
-  import CenteredLayout from "../../layouts/CenteredLayout.svelte";
-  type Props = {
-    ModId?: string | null;
-  };
+import CenteredLayout from '../../layouts/CenteredLayout.svelte';
 
-  let { ModId = $bindable(null) }: Props = $props();
+type Props = {
+	ModId?: string | null;
+};
+
+let { ModId = $bindable(null) }: Props = $props();
 </script>
 
 <CenteredLayout height="100%" width="100%">

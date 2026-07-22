@@ -24,7 +24,7 @@ import { IFileSystem_Token, IThreadConstructor_Token } from '../interfaces/Depen
 import type { DirectoryEntry, IFileSystem } from '../interfaces/IFileSystem';
 import type { IThreadConstructor } from '../interfaces/IThread';
 import Celeste from './Celeste';
-import { type AltSidesHelperMeta, ALT_SIDES_META_EXT } from './Everest.altsideshelper';
+import { ALT_SIDES_META_EXT, type AltSidesHelperMeta } from './Everest.altsideshelper';
 import { type CollabUtils2LazyLoadingYaml, CollabUtils2Scanner } from './Everest.collabutils2';
 import { DialogReader, sidToDialogKey } from './Everest.dialog';
 
@@ -341,7 +341,8 @@ export function detectMapSide(sid: string): MapSide {
 
 /** Standard Levenshtein edit distance (O(n) space). */
 function levenshtein(a: string, b: string): number {
-	const m = a.length, n = b.length;
+	const m = a.length,
+		n = b.length;
 	const dp: number[] = Array.from({ length: n + 1 }, (_, i) => i);
 	for (let i = 1; i <= m; i++) {
 		let prev = dp[0];
@@ -432,19 +433,17 @@ export default class Everest {
 
 	/** Read a file from a mod — either from a .zip archive or a loose folder. */
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
-		return isZip
-			? await this.zip.readTextFile(modPath, filePath)
-			: await this.fs.readFile(`${modPath}/${filePath}`);
+		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
 	}
 
 	/** List all files inside a subdirectory of a mod (recursive). */
 	private async walkModDir(modPath: string, isZip: boolean, subDir: string): Promise<string[]> {
 		if (isZip) {
 			const allFiles = await this.zip.list(modPath);
-			const prefix = subDir.replace(/\//g, '\\') + '\\';
+			const prefix = `${subDir.replace(/\//g, '\\')}\\`;
 			return allFiles
-				.filter(f => f.startsWith(subDir + '/') || f.startsWith(prefix))
-				.map(f => f.replace(/\\/g, '/'))
+				.filter((f) => f.startsWith(`${subDir}/`) || f.startsWith(prefix))
+				.map((f) => f.replace(/\\/g, '/'))
 				.sort();
 		}
 		const entries = await this.fs.readDirectory(`${modPath}/${subDir}`, { recursive: true });
@@ -504,19 +503,14 @@ export default class Everest {
 					try {
 						const collabId = await this.collabUtils2.detectCollabId(modInfo);
 						if (collabId) {
-							const [dialog, lazyLoadingCfg] = await Promise.all([
-								this.dialogReader.readDialog(modInfo),
-								this.collabUtils2.readLazyLoadingConfig(modInfo),
-							]);
-							const scan = await this.collabUtils2.scanCollab(
-								modInfo, collabId, dialog, this.buildMap.bind(this),
-							);
+							const [dialog, lazyLoadingCfg] = await Promise.all([this.dialogReader.readDialog(modInfo), this.collabUtils2.readLazyLoadingConfig(modInfo)]);
+							const scan = await this.collabUtils2.scanCollab(modInfo, collabId, dialog, this.buildMap.bind(this));
 							modInfo.metadata = {
 								...modInfo.metadata,
 								isLobby: true,
-								lobbyChapters: scan.lobbies.map(l => ({
+								lobbyChapters: scan.lobbies.map((l) => ({
 									lobbyId: l.lobbyId,
-									lobbyLevels: l.maps.map(m => ({ chapterId: m.sid })),
+									lobbyLevels: l.maps.map((m) => ({ chapterId: m.sid })),
 								})),
 								collabId,
 								lazyLoadingCfg,
@@ -537,11 +531,13 @@ export default class Everest {
 								campaigns,
 							};
 						}
-					} catch { /* skip mod on scan error */ }
+					} catch {
+						/* skip mod on scan error */
+					}
 				}
 			}),
 		);
-    console.log("--------- FINISHED SCANNING FULL EVEREST METADATA AND LOBBY STUFF AND DIALOG --------------")
+		console.log('--------- FINISHED SCANNING FULL EVEREST METADATA AND LOBBY STUFF AND DIALOG --------------');
 		return mods;
 	}
 
@@ -564,7 +560,7 @@ export default class Everest {
 		const workerCount = opts?.workerCount ?? 0;
 		if (workerCount > 0) {
 			const result = await this.scanWithWorkers(entries, modsPath, workerCount);
-      console.log(" ---------- FINISHED SCAN MOD BASE -----------------")
+			console.log(' ---------- FINISHED SCAN MOD BASE -----------------');
 			if (result) return result;
 		}
 
@@ -575,25 +571,21 @@ export default class Everest {
 	 * Attempt to scan mods using a pool of web workers.
 	 * Returns `null` if workers are not available (e.g. non-bun runtime).
 	 */
-	private async scanWithWorkers(
-		entries: DirectoryEntry[],
-		modsPath: string,
-		workerCount: number,
-	): Promise<EverestModInfo[] | null> {
+	private async scanWithWorkers(entries: DirectoryEntry[], modsPath: string, workerCount: number): Promise<EverestModInfo[] | null> {
 		try {
 			const workerUrl = new URL('./Everest.worker.ts', import.meta.url);
 
 			const workers = Array.from({ length: workerCount }, () => new this.ThreadCtor(workerUrl, { type: 'module' }));
 
 			// Pre-read all mod file content on main thread (via universal IFileSystem/Zip_Go)
-      let no: number = 0;
+			let no: number = 0;
 			const preReadEntries = await Promise.all(
 				entries.map(async ({ entry, type }) => {
 					if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) return null;
 					const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
 					if (type !== 'DIRECTORY' && !isZip) return null;
 
-          console.log((++no).toString(), "|SCANNING MOD:", entry)
+					console.log((++no).toString(), '|SCANNING MOD:', entry);
 
 					const modPath = `${modsPath}/${entry}`;
 					for (const yName of YAML_NAMES) {
@@ -602,9 +594,13 @@ export default class Everest {
 							let collabContent: string | undefined;
 							try {
 								collabContent = await this.readModFile(modPath, isZip, 'CollabUtils2CollabID.txt');
-							} catch { /* not a collab */ }
+							} catch {
+								/* not a collab */
+							}
 							return { entry, type, modPath, yamlContent, collabContent };
-						} catch { /* try next yaml name */ }
+						} catch {
+							/* try next yaml name */
+						}
 					}
 					return null;
 				}),
@@ -616,13 +612,23 @@ export default class Everest {
 			valid.forEach((e, i) => chunks[i % workerCount].push(e));
 
 			const results = await Promise.all(
-				workers.map((w, i) =>
-					new Promise<EverestModInfo[]>((resolve) => {
-						const timeout = setTimeout(() => { w.terminate(); resolve([]); }, 120_000);
-						w.addEventListener('message', (e: any) => { clearTimeout(timeout); resolve(e.data.mods ?? []); });
-						w.addEventListener('error', () => { clearTimeout(timeout); resolve([]); });
-						w.postMessage({ entries: chunks[i], taskId: i });
-					}),
+				workers.map(
+					(w, i) =>
+						new Promise<EverestModInfo[]>((resolve) => {
+							const timeout = setTimeout(() => {
+								w.terminate();
+								resolve([]);
+							}, 120_000);
+							w.addEventListener('message', (e: any) => {
+								clearTimeout(timeout);
+								resolve(e.data.mods ?? []);
+							});
+							w.addEventListener('error', () => {
+								clearTimeout(timeout);
+								resolve([]);
+							});
+							w.postMessage({ entries: chunks[i], taskId: i });
+						}),
 				),
 			);
 
@@ -638,11 +644,7 @@ export default class Everest {
 	 * Mods are split into `batchCount` round-robin groups; each group runs sequentially,
 	 * all groups run in parallel via Promise.all.
 	 */
-	private async scanInBatches(
-		entries: DirectoryEntry[],
-		modsPath: string,
-		batchCount: number,
-	): Promise<EverestModInfo[]> {
+	private async scanInBatches(entries: DirectoryEntry[], modsPath: string, batchCount: number): Promise<EverestModInfo[]> {
 		const chunks: DirectoryEntry[][] = Array.from({ length: batchCount }, () => []);
 		entries.forEach((e, i) => chunks[i % batchCount].push(e));
 
@@ -661,11 +663,7 @@ export default class Everest {
 	}
 
 	/** Scan a single mod entry: read everest.yaml + detect collab ID. */
-	private async scanSingleMod(
-		modsPath: string,
-		entry: string,
-		type: string,
-	): Promise<EverestModInfo | null> {
+	private async scanSingleMod(modsPath: string, entry: string, type: string): Promise<EverestModInfo | null> {
 		if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) return null;
 		const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
 		if (type !== 'DIRECTORY' && !isZip) return null;
@@ -692,7 +690,9 @@ export default class Everest {
 				}
 
 				return modInfo;
-			} catch { /* next yaml name */ }
+			} catch {
+				/* next yaml name */
+			}
 		}
 		return null;
 	}
@@ -742,7 +742,9 @@ export default class Everest {
 					}
 
 					return modInfo;
-				} catch { /* next yaml name */ }
+				} catch {
+					/* next yaml name */
+				}
 			}
 		}
 		return undefined;
@@ -797,7 +799,7 @@ export default class Everest {
 	 */
 	private async scanFlatCampaigns(modInfo: EverestModInfo): Promise<DiscoveredCampaign[]> {
 		const binFiles = await this.walkModDir(modInfo.modPath, modInfo.isZip, 'Maps');
-		const bins = binFiles.filter(f => f.toLowerCase().endsWith('.bin'));
+		const bins = binFiles.filter((f) => f.toLowerCase().endsWith('.bin'));
 
 		const dialog = await this.dialogReader.readDialog(modInfo);
 
@@ -835,12 +837,7 @@ export default class Everest {
 	 * Also looks up the display name from the mod's dialog file using the
 	 * SID-derived dialog key (e.g. `bryse0n_berry143_berry143`).
 	 */
-	private async buildMap(
-		modInfo: EverestModInfo,
-		binPath: string,
-		sid: string,
-		dialog: Map<string, string>,
-	): Promise<DiscoveredMap> {
+	private async buildMap(modInfo: EverestModInfo, binPath: string, sid: string, dialog: Map<string, string>): Promise<DiscoveredMap> {
 		const [meta, altSidesHelperMeta] = await Promise.all([
 			this.tryReadMeta<MapMetaYaml>(modInfo, binPath, '.meta.yaml'),
 			this.tryReadMeta<AltSidesHelperMeta>(modInfo, binPath, ALT_SIDES_META_EXT),

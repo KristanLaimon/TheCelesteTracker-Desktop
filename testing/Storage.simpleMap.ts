@@ -20,7 +20,6 @@ import type { StorageAdapter } from '../src/libs/Storage';
  * ```
  */
 export default class Storage_SimpleMapAdapter implements StorageAdapter {
-
 	private map = new Map<string, unknown>();
 
 	/** Always `true` — a `Map` works in every JS environment. */

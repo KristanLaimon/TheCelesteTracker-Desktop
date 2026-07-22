@@ -32,7 +32,6 @@ export interface LocalStorageAdapterOptions {
  * ```
  */
 export default class Storage_LocalStorageAdapter implements StorageAdapter {
-
 	private prefix: string;
 
 	constructor(options: LocalStorageAdapterOptions = {}) {

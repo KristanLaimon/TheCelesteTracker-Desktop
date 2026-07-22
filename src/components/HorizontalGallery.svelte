@@ -1,122 +1,125 @@
 <script lang="ts">
-	import mediumZoom from 'medium-zoom';
-	type Props = {
-		images: string[];
-		imageHeight?: string;
-		maxRows?: number;
-		alignment?: 'center' | 'stylish';
-	};
+import mediumZoom from 'medium-zoom';
 
-	let { images, imageHeight = '12rem', maxRows = 1, alignment = 'center' }: Props = $props();
-	let container: HTMLDivElement;
-	let isDragging = $state(false);
-	let wasDragged = false;
-	let dragStartX = 0;
-	let scrollStartLeft = 0;
-	let canScrollLeft = $state(false);
-	let canScrollRight = $state(false);
-	let isWrapping = $derived(maxRows > 1);
+type Props = {
+	images: string[];
+	imageHeight?: string;
+	maxRows?: number;
+	alignment?: 'center' | 'stylish';
+};
 
-	function updateArrows() {
-		if (!container || isWrapping) return;
-		canScrollLeft = container.scrollLeft > 0;
-		canScrollRight = container.scrollLeft + container.clientWidth < container.scrollWidth - 1;
-	}
+let { images, imageHeight = '12rem', maxRows = 1, alignment = 'center' }: Props = $props();
+let container: HTMLDivElement;
+let isDragging = $state(false);
+let wasDragged = false;
+let dragStartX = 0;
+let scrollStartLeft = 0;
+let canScrollLeft = $state(false);
+let canScrollRight = $state(false);
+let isWrapping = $derived(maxRows > 1);
 
-	function scroll(direction: -1 | 1) {
-		container.scrollBy({ left: direction * container.clientWidth * 0.6, behavior: 'smooth' });
-	}
+function updateArrows() {
+	if (!container || isWrapping) return;
+	canScrollLeft = container.scrollLeft > 0;
+	canScrollRight = container.scrollLeft + container.clientWidth < container.scrollWidth - 1;
+}
 
-	function onPointerDown(e: PointerEvent) {
-		if (isWrapping) return;
-		isDragging = true;
+function scroll(direction: -1 | 1) {
+	container.scrollBy({ left: direction * container.clientWidth * 0.6, behavior: 'smooth' });
+}
+
+function onPointerDown(e: PointerEvent) {
+	if (isWrapping) return;
+	isDragging = true;
+	wasDragged = false;
+	dragStartX = e.clientX;
+	scrollStartLeft = container.scrollLeft;
+}
+
+function onPointerMove(e: PointerEvent) {
+	if (!isDragging) return;
+	container.scrollLeft = scrollStartLeft - (e.clientX - dragStartX);
+	if (Math.abs(e.clientX - dragStartX) > 5) wasDragged = true;
+}
+
+function onPointerUp() {
+	isDragging = false;
+	setTimeout(() => {
 		wasDragged = false;
-		dragStartX = e.clientX;
-		scrollStartLeft = container.scrollLeft;
-	}
+	});
+}
 
-	function onPointerMove(e: PointerEvent) {
-		if (!isDragging) return;
-		container.scrollLeft = scrollStartLeft - (e.clientX - dragStartX);
-		if (Math.abs(e.clientX - dragStartX) > 5) wasDragged = true;
-	}
+function applyStylishOffsets() {
+	if (alignment !== 'stylish' || !container || !isWrapping) return;
+	const children = Array.from(container.children) as HTMLElement[];
+	if (children.length === 0) return;
 
-	function onPointerUp() {
-		isDragging = false;
-		setTimeout(() => { wasDragged = false; });
-	}
+	let currentRowTop = children[0].offsetTop;
+	let rowIndex = 0;
 
-	function applyStylishOffsets() {
-		if (alignment !== 'stylish' || !container || !isWrapping) return;
-		const children = Array.from(container.children) as HTMLElement[];
-		if (children.length === 0) return;
-
-		let currentRowTop = children[0].offsetTop;
-		let rowIndex = 0;
-
-		for (const child of children) {
-			if (Math.abs(child.offsetTop - currentRowTop) > 5) {
-				rowIndex++;
-				currentRowTop = child.offsetTop;
-			}
-			child.style.transform = rowIndex % 2 === 1 ? `translateX(1.5rem)` : '';
+	for (const child of children) {
+		if (Math.abs(child.offsetTop - currentRowTop) > 5) {
+			rowIndex++;
+			currentRowTop = child.offsetTop;
 		}
+		child.style.transform = rowIndex % 2 === 1 ? `translateX(1.5rem)` : '';
 	}
+}
 
-	$effect(() => {
-		if (!container) return;
+$effect(() => {
+	if (!container) return;
+	updateArrows();
+	const observer = new ResizeObserver(() => {
 		updateArrows();
-		const observer = new ResizeObserver(() => {
-			updateArrows();
-			applyStylishOffsets();
-		});
-		observer.observe(container);
-		return () => observer.disconnect();
+		applyStylishOffsets();
 	});
+	observer.observe(container);
+	return () => observer.disconnect();
+});
 
-	$effect(() => {
-		if (!container || !isWrapping || alignment !== 'stylish') return;
-		const imgs = container.querySelectorAll('img');
-		let loaded = 0;
-		const total = imgs.length;
-		if (total === 0) return;
+$effect(() => {
+	if (!container || !isWrapping || alignment !== 'stylish') return;
+	const imgs = container.querySelectorAll('img');
+	let loaded = 0;
+	const total = imgs.length;
+	if (total === 0) return;
 
-		function onLoad() {
-			loaded++;
-			if (loaded >= total) applyStylishOffsets();
-		}
-
-		for (const img of imgs) {
-			if (img.complete) {
-				loaded++;
-			} else {
-				img.addEventListener('load', onLoad, { once: true });
-			}
-		}
+	function onLoad() {
+		loaded++;
 		if (loaded >= total) applyStylishOffsets();
-	});
+	}
 
-	$effect(() => {
-		if (!container) return;
-		void images;
-		const zoom = mediumZoom(container.querySelectorAll('img'), {
-			background: 'rgba(0, 0, 0, 0.85)',
-			margin: 24,
-		});
-		return () => zoom.detach();
-	});
-
-	$effect(() => {
-		if (!container) return;
-		function onClickCapture(e: MouseEvent) {
-			if (wasDragged) {
-				e.stopPropagation();
-				wasDragged = false;
-			}
+	for (const img of imgs) {
+		if (img.complete) {
+			loaded++;
+		} else {
+			img.addEventListener('load', onLoad, { once: true });
 		}
-		container.addEventListener('click', onClickCapture, { capture: true });
-		return () => container.removeEventListener('click', onClickCapture, { capture: true });
+	}
+	if (loaded >= total) applyStylishOffsets();
+});
+
+$effect(() => {
+	if (!container) return;
+	void images;
+	const zoom = mediumZoom(container.querySelectorAll('img'), {
+		background: 'rgba(0, 0, 0, 0.85)',
+		margin: 24,
 	});
+	return () => zoom.detach();
+});
+
+$effect(() => {
+	if (!container) return;
+	function onClickCapture(e: MouseEvent) {
+		if (wasDragged) {
+			e.stopPropagation();
+			wasDragged = false;
+		}
+	}
+	container.addEventListener('click', onClickCapture, { capture: true });
+	return () => container.removeEventListener('click', onClickCapture, { capture: true });
+});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
