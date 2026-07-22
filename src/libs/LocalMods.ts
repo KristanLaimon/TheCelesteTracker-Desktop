@@ -4,6 +4,7 @@ import { injectable } from 'tsyringe';
 import type Everest from './Everest';
 import type { EverestModInfo } from './Everest';
 import type GameBananaApi from './GameBananaAPI';
+import type { GbMemberApi_Reponse } from './GameBananaAPI';
 import { Log_Error, Log_Info } from './Logger';
 import type MaddiesApi from './MaddiesAPI';
 import type { MaddiesApiModInfo } from './MaddiesAPI';
@@ -12,28 +13,29 @@ import type Storage from './Storage';
 const STORAGE_KEY_ALL_EVEREST_MODS_INFO = 'localmods_allInstalled';
 const STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO = 'LocalMods_Map_ModId_To_MaddiesInfo';
 const STORAGE_KEY_MAP_HUMANNAME_TO_EVEREST_MOD_ID = 'LocalMods_Map_HumanName_To_ModId';
+const STORAGE_KEY_MAP_EVEREST_MOD_ID_TO_AUTHOR_INFO = 'LocalMods_Map_ModId_To_AuthorInfo';
 
 export type LocalModsOptions = {
 	invalidateCache: {
 		ALL_EVEREST_MODS_INFO?: boolean;
 		EVERESTMODID_TO_MADDIESMODINFO?: boolean;
 		HUMANNAME_TO_EVEREST_MOD_ID?: boolean;
+		EVERESTMODID_TO_AUTHORINFO?: boolean;
 	};
 };
 
 @injectable()
-export default class LocalMods {
+export default class DBMods {
 	constructor(
 		private everest: Everest,
 		private storage: Storage,
 		private maddiesApi: MaddiesApi,
 		private gameBananaApi: GameBananaApi,
 	) {
-		void this.gameBananaApi;
 		storage.configureAutoSave('turn off');
 	}
 
-	async #EverestMods_GetMap_HumanName_EverestModId(opts?: LocalModsOptions): Promise<Record<string, string>> {
+	async #GetMap_HumanName_EverestModId(opts?: LocalModsOptions): Promise<Record<string, string>> {
 		type Map_HumanName_EverestModId = Record<string, string>;
 
 		return await this.storage.get<Map_HumanName_EverestModId>(
@@ -50,19 +52,46 @@ export default class LocalMods {
 		);
 	}
 
-	async #MaddiesAPI_GetSingleModInfo_ByModHumanName(humanName: string): Promise<MaddiesApiModInfo | null> {
-		try {
-			const allCoincidencesFound = await this.maddiesApi.SearchModByName(humanName);
-			if (allCoincidencesFound && allCoincidencesFound.length > 0) {
-				return allCoincidencesFound[0];
-			}
-		} catch (e: unknown) {
-			Log_Error('LocalMods.ts:', '| (Maddies SINGLE FETCH) When trying to fetch maddies api info, got error | Error =>', serializeError(e));
-		}
-		return null;
-	} //i want to get single mod
+	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
+		Log_Info('LocalMods.ts:', 'About to load all mods full!');
+		const toReturn = await this.storage.get<Record<string, EverestModInfo>>(
+			STORAGE_KEY_ALL_EVEREST_MODS_INFO,
+			async () => {
+				const allMods = await this.everest.GetModsInstalledFull({ workerCount: 4 });
+				const map: Record<string, EverestModInfo> = {};
+				for (const mod of allMods) {
+					if (mod.metadata.name && mod.metadata.name.trim() !== '') {
+						map[mod.metadata.name] = mod;
+					}
+				}
+				return map;
+			},
+			{ invalidateCache: opts?.invalidateCache.ALL_EVEREST_MODS_INFO },
+		);
+		Log_Info('LocalMods.ts:', 'All mods info loaded');
+		return toReturn;
+	}
 
-	async #MaddiesAPI_GetMap_EverestModId_MaddiesModInfo(opts?: LocalModsOptions) {
+	public async EverestMods_Get_ModByHumanName(modHumanName: string, opts?: LocalModsOptions): Promise<EverestModInfo | null> {
+		const humanName_To_EverestIdOnly = await this.#GetMap_HumanName_EverestModId(opts);
+		const allMods = await this.EverestMods_GetAll(opts);
+
+		const foundModIdOnly = humanName_To_EverestIdOnly[modHumanName];
+		if (!foundModIdOnly) {
+			return null;
+		}
+		const foundModFullyInfo = allMods[foundModIdOnly];
+		return foundModFullyInfo ?? null;
+	}
+
+	public async EverestMods_Get_ListHumanName(opts?: LocalModsOptions): Promise<string[]> {
+		const allMods = await this.#GetMap_HumanName_EverestModId(opts);
+		return Object.keys(allMods).filter((k) => k && k !== 'undefined');
+	}
+
+	// ============ MADDIES API LOGIC ================
+
+	async #GetMap_EverestModId_MaddiesMod(opts?: LocalModsOptions) {
 		type Map_EverestModId_MaddiesModInfo = Record<string, MaddiesApiModInfo>;
 
 		return await this.storage.get<Map_EverestModId_MaddiesModInfo>(
@@ -105,57 +134,63 @@ export default class LocalMods {
 		);
 	}
 
-	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
-		Log_Info('LocalMods.ts:', 'About to load all mods full!');
-		const toReturn = await this.storage.get<Record<string, EverestModInfo>>(
-			STORAGE_KEY_ALL_EVEREST_MODS_INFO,
-			async () => {
-				const allMods = await this.everest.GetModsInstalledFull({ workerCount: 4 });
-				const map: Record<string, EverestModInfo> = {};
-				for (const mod of allMods) {
-					if (mod.metadata.name && mod.metadata.name.trim() !== '') {
-						map[mod.metadata.name] = mod;
-					}
-				}
-				return map;
-			},
-			{ invalidateCache: opts?.invalidateCache.ALL_EVEREST_MODS_INFO },
-		);
-		Log_Info('LocalMods.ts:', 'All mods info loaded');
-		return toReturn;
+	public async MaddiesApi_GetAll(opts?: LocalModsOptions): Promise<MaddiesApiModInfo[]> {
+		const res = await this.#GetMap_EverestModId_MaddiesMod(opts);
+		return Object.values(res);
 	}
 
-	public async MaddiesApi_GetModInfoByModHumanName(modHumanName: string, opts?: LocalModsOptions): Promise<MaddiesApiModInfo | null> {
+	public async MaddiesApi_Get_ModByHumanName(modHumanName: string, opts?: LocalModsOptions): Promise<MaddiesApiModInfo | null> {
 		const cachedMap = await this.storage.get<Record<string, MaddiesApiModInfo>>(STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO);
-
 		let modInfo: MaddiesApiModInfo | null = null;
 		if (cachedMap) {
-			const humanNameMap = await this.#EverestMods_GetMap_HumanName_EverestModId(opts);
+			const humanNameMap = await this.#GetMap_HumanName_EverestModId(opts);
 			const everestModId = humanNameMap[modHumanName];
 			if (everestModId) modInfo = cachedMap[everestModId] ?? null;
 		} else {
-			modInfo = await this.#MaddiesAPI_GetSingleModInfo_ByModHumanName(modHumanName);
-			this.#MaddiesAPI_GetMap_EverestModId_MaddiesModInfo(opts);
-		}
+			try {
+				//Fallback: search manually this mod only and
+				const _allFound = await this.maddiesApi.SearchModByName(modHumanName);
+				if (_allFound && _allFound.length > 0) {
+					modInfo = _allFound[0];
+				}
+			} catch (e: unknown) {
+				Log_Error('LocalMods.ts:', '| (Maddies SINGLE FETCH) When trying to fetch maddies api info, got error | Error =>', serializeError(e));
+			}
+			modInfo = null;
 
-		return await this.maddiesApi.resolveModScreenshots(modInfo);
+			//fetch the rest of mods info in background while returning this!
+			this.#GetMap_EverestModId_MaddiesMod(opts);
+		}
+		return await this.maddiesApi.ResolveAndInjectModScreenshotsSrcsInto(modInfo);
 	}
 
-	public async EverestMods_GetModInfoByHumanName(modHumanName: string, opts?: LocalModsOptions): Promise<EverestModInfo | null> {
-		const humanName_To_EverestIdOnly = await this.#EverestMods_GetMap_HumanName_EverestModId(opts);
-		const allMods = await this.EverestMods_GetAll(opts);
-
-		const foundModIdOnly = humanName_To_EverestIdOnly[modHumanName];
-		if (!foundModIdOnly) {
-			return null;
-		}
-		const foundModFullyInfo = allMods[foundModIdOnly];
-		return foundModFullyInfo ?? null;
+	async #GetMap_EverestModId_GameBananaAuthor(opts?: LocalModsOptions) {
+		type MapType = Record<string, GbMemberApi_Reponse>;
+		return await this.storage.get<MapType>(
+			STORAGE_KEY_MAP_EVEREST_MOD_ID_TO_AUTHOR_INFO,
+			async () => {
+				const modIdToMod = await this.#GetMap_EverestModId_MaddiesMod(opts);
+				const grouped = new Map<string, string[]>();
+				for (const [modId, mod] of Object.entries(modIdToMod)) {
+					const list = grouped.get(mod.Author);
+					if (list) list.push(modId);
+					else grouped.set(mod.Author, [modId]);
+				}
+				const apiResponse = await this.gameBananaApi.GetUsersMetadataByUsernames([...grouped.keys()]);
+				const toReturn: MapType = {};
+				for (const info of apiResponse) {
+					const modIds = grouped.get(info.name);
+					if (modIds) for (const modId of modIds) toReturn[modId] = info;
+				}
+				return toReturn;
+			},
+			{ invalidateCache: opts?.invalidateCache.EVERESTMODID_TO_AUTHORINFO },
+		);
 	}
 
-	public async EverestMods_GetListHumanName(opts?: LocalModsOptions): Promise<string[]> {
-		const allMods = await this.#EverestMods_GetMap_HumanName_EverestModId(opts);
-		return Object.keys(allMods).filter((k) => k && k !== 'undefined');
+	public async GameBananaApi_GetAuthorInfoByAuthorName(_authorName: string): Promise<object | null> {
+		// const cachedMap = await this.storage.get<string, GbMemberApi_Reponse>(STROAGE_);
+		//almost same logic as MaddiesApi_Get_ModByHumanName...
 	}
 
 	public async destroy() {

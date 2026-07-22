@@ -1,7 +1,6 @@
-// UNIVERSAL COMPATIBILITY
 import { injectable } from 'tsyringe';
+import { Log_Error } from './Logger';
 
-// Api inputs
 export const GB_ItemType = ['Mod', 'Member'] as const;
 export type GB_ItemType = (typeof GB_ItemType)[number];
 
@@ -145,14 +144,11 @@ export const GB_AllowedFields = {
 
 export type GB_AllowedFieldsType = typeof GB_AllowedFields;
 
-// Api Responses
-export type GBApiReponse_ItemExistsById = [boolean];
+export type GBApiResponse_ItemExistsById = [boolean];
+export type GBApiReponse_ItemExistsById = GBApiResponse_ItemExistsById;
 
-// Represents a single credited member in the tuple format:
-// [Name, Subtitle/Role, UserId, Avatar/Extra]
 export type GBCreditMember = [string, string, number | string, string];
 
-// Represents the entire parsed JSON object with strong typing for common groups
 export interface GBCreditsAndGroups {
 	scatterbrain?: GBCreditMember[];
 	playtesters?: GBCreditMember[];
@@ -177,32 +173,92 @@ export interface GBApiResponse_ModInfo {
 	views: number;
 }
 
-// Main code
+export type GbMemberApi_Reponse = {
+	id: number;
+	name: string;
+	avatar: string;
+	date?: number;
+};
+
 @injectable()
 export default class GameBananaApi {
 	public async ItemExistsById(itemType: GB_ItemType, itemId: number): Promise<boolean> {
-		const res = await fetch(`https://api.gamebanana.com/Core/Item/IdentifyById?itemtype=${itemType}&itemid=${itemId}&format=json`);
-		const resJson = (await res.json()) as GBApiReponse_ItemExistsById;
-		return resJson[0];
+		try {
+			const res = await fetch(`https://api.gamebanana.com/Core/Item/IdentifyById?itemtype=${itemType}&itemid=${itemId}&format=json`);
+			if (!res.ok) return false;
+			const resJson = (await res.json()) as GBApiResponse_ItemExistsById;
+			return Boolean(resJson?.[0]);
+		} catch (e) {
+			Log_Error('GameBananaApi.ItemExistsById failed:', e);
+			return false;
+		}
 	}
 
-	// Método dinámico general
-	public async GetItemInfo<T extends GB_ItemType>(itemType: T, itemId: number, fields: Array<GB_AllowedFieldsType[T][keyof GB_AllowedFieldsType[T]]>) {
-		const res = await fetch(`https://api.gamebanana.com/Core/Item/Data?itemtype=${itemType}&itemid=${itemId}&fields=${fields.join(',')}`);
-		// biome-ignore lint/suspicious/noExplicitAny: Game banana's api could return a variable shape depending in fields query param
-		const resJson = (await res.json()) as any[];
-
-		return fields.reduce(
-			(acc, field, index) => {
-				acc[field as string] = resJson[index];
-				return acc;
-			},
-			// biome-ignore lint/suspicious/noExplicitAny: Game banana's api could return a variable shape depending in fields query param
-			{} as Record<string, any>,
-		);
+	public async GetItemInfo<T extends GB_ItemType>(
+		itemType: T,
+		itemId: number,
+		fields: Array<GB_AllowedFieldsType[T][keyof GB_AllowedFieldsType[T]]>,
+		// biome-ignore lint/suspicious/noExplicitAny: GameBanana API returns variable array shapes
+	): Promise<any[]> {
+		try {
+			const res = await fetch(`https://api.gamebanana.com/Core/Item/Data?itemtype=${itemType}&itemid=${itemId}&fields=${fields.join(',')}`);
+			if (!res.ok) return [];
+			// biome-ignore lint/suspicious/noExplicitAny: GameBanana API returns variable array shapes
+			return (await res.json()) as any[];
+		} catch (e) {
+			Log_Error('GameBananaApi.GetItemInfo failed:', e);
+			return [];
+		}
 	}
 
-	public async GetModData(itemId: number): Promise<GBApiResponse_ModInfo> {
+	public async GetUsersMetadataByUsernames(usernames: string[]): Promise<GbMemberApi_Reponse[]> {
+		if (usernames.length === 0) return [];
+
+		const queryParams = usernames.map((username, index) => `username[${index}]=${encodeURIComponent(username)}`).join('&');
+		const url = `https://api.gamebanana.com/Core/Member/Match?${queryParams}`;
+
+		let matchedUserIds: number[] = [];
+		try {
+			const res = await fetch(url, {
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+			if (res.ok) {
+				const json = await res.json();
+				if (Array.isArray(json)) {
+					matchedUserIds = json.map((item) => (typeof item === 'number' ? item : item?.id)).filter(Boolean);
+				} else if (typeof json === 'object' && json !== null) {
+					matchedUserIds = Object.values(json)
+						.map((val) => Number(val))
+						.filter((id) => !Number.isNaN(id) && id > 0);
+				}
+			} else {
+				Log_Error('GameBananaApi: GetUserMetadataByUsernames success but not code 200 (OK) | -> ', res);
+			}
+		} catch (e: unknown) {
+			Log_Error('GameBananaApi: GetUserMetadataByUsernames failed:', e);
+		}
+
+		if (matchedUserIds.length === 0) return [];
+		const fields = [GB_AllowedFields.Member.Name, GB_AllowedFields.Member.UrlAvatar, GB_AllowedFields.Member.Date] as const;
+		const members: GbMemberApi_Reponse[] = [];
+		for (const userId of matchedUserIds) {
+			const data = await this.GetItemInfo('Member', userId, fields as unknown as Array<GB_AllowedFieldsType['Member'][keyof GB_AllowedFieldsType['Member']]>);
+			if (data && data.length > 0) {
+				members.push({
+					id: userId,
+					name: (data[0] as string) ?? null,
+					avatar: (data[1] as string) ?? null,
+					date: (data[2] as number) ?? null,
+				});
+			}
+		}
+
+		return members;
+	}
+
+	public async GetModData(itemId: number): Promise<GBApiResponse_ModInfo | null> {
 		const fields = [
 			GB_AllowedFields.Mod.Authors,
 			GB_AllowedFields.Mod.CategoryName,
@@ -219,34 +275,37 @@ export default class GameBananaApi {
 			GB_AllowedFields.Mod.Views,
 		] as const;
 
-		const url = `https://api.gamebanana.com/Core/Item/Data?itemtype=Mod&itemid=${itemId}&fields=${fields.join(',')}`;
-		const res = await fetch(url);
-		// biome-ignore lint/suspicious/noExplicitAny: Game banana's api could return a variable shape depending in fields query paramv
-		const data = (await res.json()) as any[];
-
-		let parsedAuthors: GBCreditsAndGroups = {};
 		try {
-			if (data[0]) {
-				parsedAuthors = JSON.parse(data[0]) as GBCreditsAndGroups;
-			}
-		} catch (e) {
-			console.error('Failed to parse GameBanana authors JSON:', e);
-		}
+			const data = await this.GetItemInfo('Mod', itemId, fields as unknown as Array<GB_AllowedFieldsType['Mod'][keyof GB_AllowedFieldsType['Mod']]>);
+			if (!data || data.length === 0) return null;
 
-		return {
-			authors: parsedAuthors,
-			CategoryName: data[1],
-			catid: data[2],
-			creator: data[3],
-			date: data[4],
-			description: data[5],
-			downloads: data[6],
-			likes: data[7],
-			mdate: data[8],
-			name: data[9],
-			UrlDownload: data[10],
-			userid: data[11],
-			views: data[12],
-		};
+			let parsedAuthors: GBCreditsAndGroups = {};
+			try {
+				if (data[0]) {
+					parsedAuthors = JSON.parse(data[0]) as GBCreditsAndGroups;
+				}
+			} catch (e) {
+				Log_Error('Failed to parse GameBanana authors JSON:', e);
+			}
+
+			return {
+				authors: parsedAuthors,
+				CategoryName: data[1] as string,
+				catid: data[2] as number,
+				creator: data[3] as string,
+				date: data[4] as number,
+				description: data[5] as string,
+				downloads: data[6] as number,
+				likes: data[7] as number,
+				mdate: data[8] as number,
+				name: data[9] as string,
+				UrlDownload: data[10] as string,
+				userid: data[11] as number,
+				views: data[12] as number,
+			};
+		} catch (e) {
+			Log_Error('GameBananaApi.GetModData failed:', e);
+			return null;
+		}
 	}
 }

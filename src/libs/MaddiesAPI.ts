@@ -12,7 +12,7 @@ export default class MaddiesApi {
 		return json as MaddiesApiModInfo[];
 	}
 
-	public async resolveModScreenshots(modInfo: MaddiesApiModInfo | null): Promise<MaddiesApiModInfo | null> {
+	public async ResolveAndInjectModScreenshotsSrcsInto(modInfo: MaddiesApiModInfo | null): Promise<MaddiesApiModInfo | null> {
 		if (!modInfo) return null;
 		const modId = modInfo.GameBananaId;
 		const sanitizedName = this.sanitizeTextForFilename(modInfo.Name);

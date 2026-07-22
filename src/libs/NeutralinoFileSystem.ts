@@ -86,10 +86,22 @@ export class NeutralinoFileSystem implements IFileSystem {
 
 		if (options?.recursive) {
 			const resolved = await this.resolveNeutralinoPath(path);
-			const normalized = this.path.normalize(resolved);
+			const normalized = this.path.normalize(resolved).replace(/\\/g, '/');
 			const segments = normalized.split('/').filter(Boolean);
-			let current = this.path.isAbsolute(normalized) ? '/' : '.';
-			for (const segment of segments) {
+
+			let current = '.';
+			let startIndex = 0;
+
+			if (segments.length > 0 && /^[A-Za-z]:$/.test(segments[0])) {
+				current = `${segments[0]}/`;
+				startIndex = 1;
+			} else if (normalized.startsWith('/')) {
+				current = '/';
+				startIndex = 0;
+			}
+
+			for (let i = startIndex; i < segments.length; i++) {
+				const segment = segments[i];
 				current = this.path.join(current, segment);
 				try {
 					await filesystem.getStats(current);

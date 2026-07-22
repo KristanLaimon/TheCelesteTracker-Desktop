@@ -33,14 +33,14 @@ $effect(() => {
 		return;
 	}
 	loadingInfo = true;
-	localMods.MaddiesApi_GetModInfoByModHumanName(selectedModName).then((maddiesApiResult) => {
+	localMods.MaddiesApi_Get_ModByHumanName(selectedModName).then((maddiesApiResult) => {
 		selectedMaddiesInfo = maddiesApiResult;
 		if (maddiesApiResult !== null) {
 			loadingInfo = false;
 			return;
 		}
 
-		localMods.EverestMods_GetModInfoByHumanName(selectedModName).then((everestApiResult) => {
+		localMods.EverestMods_Get_ModByHumanName(selectedModName).then((everestApiResult) => {
 			selectedEverestInfo = everestApiResult;
 			if (everestApiResult !== null) {
 				loadingInfo = false;
@@ -80,7 +80,7 @@ $effect(() => {
 });
 
 onMount(() => {
-	localMods.EverestMods_GetListHumanName().then((awaited: string[]) => {
+	localMods.EverestMods_Get_ListHumanName().then((awaited: string[]) => {
 		modNames = awaited;
 	});
 	return () => {
