@@ -11,31 +11,35 @@ import type { MaddiesApiModInfo } from "../libs/MaddiesAPI";
 
 // mediumZoom("[data-zoomable]");
 
+type Props = {
+  searchQuery: string
+} 
+
+let {searchQuery = $bindable("")}:Props = $props();
+
 const localMods = Construct_LocalMods({filePath:'./data/BROWSER-LOCAL-MODS.json', indent:2});
 
 let modNames = $state<string[]>([]);
-let searchQuery = $state<string>('');
-
 let loadingInfo = $state(false);
-let selected = $state<string>("");
+let selectedModName = $state<string>(searchQuery.toString() /** a copy */);
 let selectedEverestInfo = $state<EverestModInfo | null>(null);
 let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
 
 $effect(() => {
-  if (!selected || selected.trim() === "") {
+  if (!selectedModName || selectedModName.trim() === "") {
     selectedEverestInfo = null;
     loadingInfo = false;
     return;
   }
   loadingInfo = true;
-  localMods.MaddiesApi_GetModInfoByModHumanName(selected).then((maddiesApiResult) => {
+  localMods.MaddiesApi_GetModInfoByModHumanName(selectedModName).then((maddiesApiResult) => {
     selectedMaddiesInfo = maddiesApiResult;
     if (maddiesApiResult !== null){
       loadingInfo = false;
       return;
     }
 
-    localMods.EverestMods_GetModInfoByHumanName(selected).then((everestApiResult) => {
+    localMods.EverestMods_GetModInfoByHumanName(selectedModName).then((everestApiResult) => {
       selectedEverestInfo = everestApiResult;
       if (everestApiResult !== null){
         loadingInfo = false;
@@ -43,8 +47,6 @@ $effect(() => {
     });
   });
 });
-
-
 
 onMount(() => {
   localMods.EverestMods_GetListHumanName().then((awaited:string[]) => {
@@ -57,8 +59,8 @@ onMount(() => {
 </script>
 
 <CenteredLayout className="bg-zinc-900 text-white flex flex-col">
-  <SearchDynamic bind:selected limit={1000}  bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
-  {#if selected}
+  <SearchDynamic bind:selected={selectedModName} limit={1000}  bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
+  {#if selectedModName}
     <section>
       {#if loadingInfo}
         <p>Loading mod info...</p>
@@ -66,7 +68,7 @@ onMount(() => {
         {#if selectedMaddiesInfo !== null}
           <h2>{selectedMaddiesInfo.Name}</h2>
           <p>{selectedMaddiesInfo.Description}</p>
-          <HorizontalGallery images={selectedMaddiesInfo.Screenshots} />
+          <HorizontalGallery maxRows={2} images={selectedMaddiesInfo.Screenshots} />
         {:else if selectedEverestInfo}
           <h2>EVEREST FOUND INFO FOUND</h2>
           <p>{JSON.stringify(selectedEverestInfo)}</p>
