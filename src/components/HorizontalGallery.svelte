@@ -150,7 +150,7 @@
 	>
 		{#each images as src, i}
 			<img
-				class="rounded-lg object-cover shrink-0 select-none transition-transform duration-200"
+				class="rounded-lg object-cover shrink-0 select-none transition-transform duration-200 z-10"
 				style:height={imageHeight}
 				{src}
 				alt="Gallery {i + 1}"

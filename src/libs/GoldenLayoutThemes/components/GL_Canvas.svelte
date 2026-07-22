@@ -166,8 +166,8 @@ function clearAll() {
     left: 20px;
     display: flex;
     gap: 8px;
-    z-index: 150;
-    pointer-events: auto;
+    z-index: 10;
+    pointer-events: none;
   }
 
   .hud-btn {
@@ -182,6 +182,7 @@ function clearAll() {
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
+    pointer-events: auto;
     transition:
       background 0.15s,
       border-color 0.15s;

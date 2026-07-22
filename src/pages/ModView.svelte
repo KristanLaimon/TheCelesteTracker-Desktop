@@ -6,16 +6,15 @@ import SearchDynamic from '../components/SearchDynamic.svelte';
 import HorizontalGallery from '../components/HorizontalGallery.svelte';
 import type { EverestModInfo } from "../libs/Everest";
 import type { MaddiesApiModInfo } from "../libs/MaddiesAPI";
+import type { WithGLState } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
 
 // import mediumZoom from 'medium-zoom'
 
 // mediumZoom("[data-zoomable]");
 
-type Props = {
-  searchQuery: string
-} 
+type Props = { searchQuery: string };
 
-let {searchQuery = $bindable("")}:Props = $props();
+let {searchQuery = $bindable(""), onStateChange}:WithGLState<Props> = $props();
 
 const localMods = Construct_LocalMods({filePath:'./data/BROWSER-LOCAL-MODS.json', indent:2});
 
@@ -56,10 +55,16 @@ onMount(() => {
     localMods.destroy();
   };
 });
+
+$effect(() => {
+  if (searchQuery) {
+    onStateChange?.({ searchQuery });
+  }
+});
 </script>
 
-<CenteredLayout className="bg-zinc-900 text-white flex flex-col">
-  <SearchDynamic bind:selected={selectedModName} limit={1000}  bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
+<CenteredLayout width="100%" height="100%"  className="bg-zinc-900 text-white flex flex-col">
+  <SearchDynamic bind:selected={selectedModName} limit={1000} searchOptions={{caseSensitive: false, trimWhitespace: true}} bind:inputValue={searchQuery} placeholder="Busca el mod" bind:items={modNames} class="w-full max-w-lg" overrideStyles={{ results: 'mt-4 max-h-80 overflow-y-auto' }} />
   {#if selectedModName}
     <section>
       {#if loadingInfo}

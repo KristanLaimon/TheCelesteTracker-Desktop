@@ -7,6 +7,10 @@ import type { Component, ComponentProps } from 'svelte';
 // biome-ignore lint/suspicious/noExplicitAny: generic component parameters require any
 export type GoldenLayoutRegistry = Record<string, Component<any, any, any>>;
 
+export type WithGLState<TState extends Record<string, unknown> = Record<string, unknown>> = {
+	onStateChange?: (state: Partial<TState>) => void;
+} & Partial<TState>;
+
 /**
  * Configuration for a custom component item in GoldenLayout.
  */

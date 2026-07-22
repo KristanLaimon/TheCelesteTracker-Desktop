@@ -537,6 +537,7 @@ onDestroy(() => {
   .canvas-wrapper {
     position: relative;
     overflow: hidden;
+    isolation: isolate;
 
     background-color: var(--canvas-bg-color, #242424);
     background-image: var(--canvas-bg-image, radial-gradient(
@@ -567,6 +568,7 @@ onDestroy(() => {
     pointer-events: auto;
     width: 0;
     height: 0;
+    z-index: 0;
   }
 
   .canvas-node-wrapper {

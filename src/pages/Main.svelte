@@ -2,12 +2,14 @@
   import type { ComponentProps } from "svelte";
 import Canvas from '../libs/GoldenLayoutThemes/components/GL_Canvas.svelte';
 import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
+import ModView from '../pages/ModView.svelte';
 import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
 import type { GoldenLayoutContent, GoldenLayoutRegistry } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
 
 const registry = {
 	canvas: Canvas,
 	rawHtml: RawHtml,
+	modView: ModView,
 } satisfies GoldenLayoutRegistry;
 
 const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
@@ -26,6 +28,10 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
 						{
 							type: 'rawHtml',
 							props: { htmlContent: 'Hola, raw HTML 2' } satisfies ComponentProps<typeof RawHtml>,
+						},
+						{
+							type: 'modView',
+							props: { searchQuery: 'Strawberry YAM' },
 						},
 					],
 				},
@@ -58,6 +64,7 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
       content={Layout_InitialContent}
       components={registry}
       defaultComponent={RawHtml}
+      persistence={{localStorageKey: "main-layout"}}
     />
   </div>
 </main>
