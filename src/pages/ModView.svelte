@@ -3,34 +3,48 @@ import { onMount } from 'svelte';
 import CenteredLayout from '../layouts/CenteredLayout.svelte';
 import { Construct_LocalMods } from '../setup.DI.helpers';
 import SearchDynamic from '../components/SearchDynamic.svelte';
+import HorizontalGallery from '../components/HorizontalGallery.svelte';
 import type { EverestModInfo } from "../libs/Everest";
-  import type { MaddiesApiModInfo } from "../libs/MaddiesAPI";
+import type { MaddiesApiModInfo } from "../libs/MaddiesAPI";
+
+// import mediumZoom from 'medium-zoom'
+
+// mediumZoom("[data-zoomable]");
 
 const localMods = Construct_LocalMods({filePath:'./data/BROWSER-LOCAL-MODS.json', indent:2});
 
 let modNames = $state<string[]>([]);
 let searchQuery = $state<string>('');
-let selected = $state<string>("");
-let selectedFullInfo = $state<EverestModInfo | null>(null);
-let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
-let loadingInfo = $state(false);
 
-$effect(() => {
-  // localMods.()
-});
+let loadingInfo = $state(false);
+let selected = $state<string>("");
+let selectedEverestInfo = $state<EverestModInfo | null>(null);
+let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
 
 $effect(() => {
   if (!selected || selected.trim() === "") {
-    selectedFullInfo = null;
+    selectedEverestInfo = null;
     loadingInfo = false;
     return;
   }
   loadingInfo = true;
-  localMods.EverestMods_GetModByHumanName(selected).then((result) => {
-    selectedFullInfo = result;
-    loadingInfo = false;
+  localMods.MaddiesApi_GetModInfoByModHumanName(selected).then((maddiesApiResult) => {
+    selectedMaddiesInfo = maddiesApiResult;
+    if (maddiesApiResult !== null){
+      loadingInfo = false;
+      return;
+    }
+
+    localMods.EverestMods_GetModInfoByHumanName(selected).then((everestApiResult) => {
+      selectedEverestInfo = everestApiResult;
+      if (everestApiResult !== null){
+        loadingInfo = false;
+      }
+    });
   });
 });
+
+
 
 onMount(() => {
   localMods.EverestMods_GetListHumanName().then((awaited:string[]) => {
@@ -48,10 +62,17 @@ onMount(() => {
     <section>
       {#if loadingInfo}
         <p>Loading mod info...</p>
-      {:else if selectedFullInfo}
-        <p>Mod selected: {JSON.stringify(selectedFullInfo)}</p>
       {:else}
-        <p>Mod info not available</p>
+        {#if selectedMaddiesInfo !== null}
+          <h2>{selectedMaddiesInfo.Name}</h2>
+          <p>{selectedMaddiesInfo.Description}</p>
+          <HorizontalGallery images={selectedMaddiesInfo.Screenshots} />
+        {:else if selectedEverestInfo}
+          <h2>EVEREST FOUND INFO FOUND</h2>
+          <p>{JSON.stringify(selectedEverestInfo)}</p>
+        {:else}
+          <p>Mod info not available</p>
+        {/if}
       {/if}
     </section>
   {/if}

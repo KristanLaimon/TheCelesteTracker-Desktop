@@ -2,6 +2,7 @@
 import { serializeError } from "serialize-error";
 import { injectable } from "tsyringe";
 import Everest, { type EverestModInfo } from "./Everest";
+import type GameBananaApi from "./GameBananaAPI";
 import { Log_Error, Log_Info } from "./Logger";
 import type MaddiesApi from "./MaddiesAPI";
 import type { MaddiesApiModInfo } from "./MaddiesAPI";
@@ -26,26 +27,12 @@ export default class LocalMods {
   constructor(
     private everest: Everest,
     private storage: Storage,
-    private maddiesApi: MaddiesApi
+    private maddiesApi: MaddiesApi,
+    private gameBananaApi: GameBananaApi
   ){
     storage.configureAutoSave("turn off");
   }
 
-  public async EverestMods_GetAll(opts?:LocalModsOptions):Promise<Record<string, EverestModInfo>>{
-    Log_Info("LocalMods.ts:", "About to load all mods full!")
-    const toReturn = await this.storage.get<Record<string, EverestModInfo>>(STORAGE_KEY_ALL_EVEREST_MODS_INFO, async () => {
-      const allMods = await this.everest.GetModsInstalledFull({workerCount: 4});
-      const map: Record<string, EverestModInfo> = {};
-      for (const mod of allMods) {
-        if (mod.metadata.name && mod.metadata.name.trim() !== "") {
-          map[mod.metadata.name] = mod;
-        }
-      }
-      return map;
-    }, {invalidateCache: opts?.invalidateCache.ALL_EVEREST_MODS_INFO});
-    Log_Info("LocalMods.ts:", "All mods info loaded")
-    return toReturn;
-  }
 
   async #EverestMods_GetMap_HumanName_EverestModId(opts?:LocalModsOptions):Promise<Record<string, string>>{
     type Map_HumanName_EverestModId = Record<string, string>;
@@ -113,6 +100,22 @@ export default class LocalMods {
     );
   }
 
+  public async EverestMods_GetAll(opts?:LocalModsOptions):Promise<Record<string, EverestModInfo>>{
+    Log_Info("LocalMods.ts:", "About to load all mods full!")
+    const toReturn = await this.storage.get<Record<string, EverestModInfo>>(STORAGE_KEY_ALL_EVEREST_MODS_INFO, async () => {
+      const allMods = await this.everest.GetModsInstalledFull({workerCount: 4});
+      const map: Record<string, EverestModInfo> = {};
+      for (const mod of allMods) {
+        if (mod.metadata.name && mod.metadata.name.trim() !== "") {
+          map[mod.metadata.name] = mod;
+        }
+      }
+      return map;
+    }, {invalidateCache: opts?.invalidateCache.ALL_EVEREST_MODS_INFO});
+    Log_Info("LocalMods.ts:", "All mods info loaded")
+    return toReturn;
+  }
+
   public async MaddiesApi_GetModInfoByModHumanName(modHumanName:string, opts?:LocalModsOptions): Promise<MaddiesApiModInfo | null>{
     const cachedMap = await this.storage.get<Record<string, MaddiesApiModInfo>>(STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO);
 
@@ -129,7 +132,7 @@ export default class LocalMods {
   }
 
 
-  public async EverestMods_GetModByHumanName(modHumanName:string, opts?:LocalModsOptions):Promise<EverestModInfo | null>{
+  public async EverestMods_GetModInfoByHumanName(modHumanName:string, opts?:LocalModsOptions):Promise<EverestModInfo | null>{
     const humanName_To_EverestIdOnly = await this.#EverestMods_GetMap_HumanName_EverestModId(opts);
     const allMods = await this.EverestMods_GetAll(opts);
 
