@@ -1,4 +1,4 @@
-import type { StorageAdapter } from '../src/libs/Storage';
+import type { StorageAdapter } from "../src/libs/Storage";
 
 /**
  * `role: 'cache'` adapter backed by a plain in-memory `Map`.

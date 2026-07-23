@@ -9,7 +9,7 @@ export interface Stats {
 
 export interface DirectoryEntry {
 	entry: string;
-	type: 'FILE' | 'DIRECTORY' | string;
+	type: "FILE" | "DIRECTORY" | string;
 }
 
 export interface FileReaderOptions {

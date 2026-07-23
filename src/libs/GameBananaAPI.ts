@@ -1,146 +1,147 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { injectable } from 'tsyringe';
-import ImageCacheService from './ImageCacheService';
-import { Log_Error } from './Logger';
+import { injectable } from "tsyringe";
+import Configuration from "./Configuration";
+import ImageCacheService from "./ImageCacheService";
+import { Log_Error } from "./Logger";
 
-export const GB_ItemType = ['Mod', 'Member'] as const;
+export const GB_ItemType = ["Mod", "Member"] as const;
 export type GB_ItemType = (typeof GB_ItemType)[number];
 
 export const GB_AllowedFields = {
 	Mod: {
-		AppsUsed: 'apps_used',
-		Authors: 'authors',
-		CategoryName: 'Category().name',
-		CatId: 'catid',
-		ContestId: 'contestid',
-		Creator: 'creator',
-		CreditsAuthors: 'Credits().aAuthors()',
-		CreditsAuthorsGroups: 'Credits().aAuthorsAndGroups()',
-		CreditsSsvAuthorNames: 'Credits().ssvAuthorNames()',
-		Date: 'date',
-		Description: 'description',
-		Downloads: 'downloads',
-		FeedbackInstructions: 'feedback_instructions',
-		Files: 'Files().aFiles()',
-		GameName: 'Game().name',
-		InstallInstructions: 'install_instructions',
-		IsObsolete: 'is_obsolete',
-		LastPostDate: 'lastpost_date',
-		LastPostUserId: 'lastpost_userid',
-		Likes: 'likes',
-		MDate: 'mdate',
-		ModNote: 'modnote',
-		Name: 'name',
-		Nsfw: 'Nsfw().bIsNsfw()',
-		ObsolNotice: 'obsol_notice',
-		OwnerName: 'Owner().name',
-		PostCount: 'postcount',
-		PostsLastPostIdPosterRow: 'Posts().LastPost().idPosterRow()',
-		PostsLastPostText: 'Posts().LastPost().sText()',
-		PostsLastPostDateAdded: 'Posts().LastPost().tsDateAdded()',
-		PostsPostcountNPostCount: 'Posts().Postcount().nPostCount()',
-		PreviewStructuredData: 'Preview().sStructuredDataFullsizeUrl()',
-		PreviewSubFeedImage: 'Preview().sSubFeedImageUrl()',
-		RootCategoryId: 'RootCategory().id',
-		RootCategoryName: 'RootCategory().name',
-		Screenshots: 'screenshots',
-		StudioId: 'studioid',
-		Text: 'text',
-		Trash: 'Trash().bIsTrashed()',
-		UDate: 'udate',
-		UpdatesGetLatest: 'Updates().aGetLatestUpdates()',
-		UpdatesLatest: 'Updates().aLatestUpdates()',
-		UpdatesHasUpdates: 'Updates().bSubmissionHasUpdates()',
-		UpdatesCount: 'Updates().nUpdatesCount()',
-		UrlDownload: 'Url().sDownloadUrl()',
-		UrlEdit: 'Url().sEditUrl()',
-		UrlEmbeddables: 'Url().sEmbeddablesUrl()',
-		UrlHistory: 'Url().sHistoryUrl()',
-		UrlProfile: 'Url().sProfileUrl()',
-		UrlTrash: 'Url().sTrashUrl()',
-		UrlUntrash: 'Url().sUntrashUrl()',
-		UrlUpdates: 'Url().sUpdatesUrl()',
-		UrlWithhold: 'Url().sWithholdUrl()',
-		UserId: 'userid',
-		Views: 'views',
-		Withhold: 'Withhold().bIsWithheld()',
+		AppsUsed: "apps_used",
+		Authors: "authors",
+		CategoryName: "Category().name",
+		CatId: "catid",
+		ContestId: "contestid",
+		Creator: "creator",
+		CreditsAuthors: "Credits().aAuthors()",
+		CreditsAuthorsGroups: "Credits().aAuthorsAndGroups()",
+		CreditsSsvAuthorNames: "Credits().ssvAuthorNames()",
+		Date: "date",
+		Description: "description",
+		Downloads: "downloads",
+		FeedbackInstructions: "feedback_instructions",
+		Files: "Files().aFiles()",
+		GameName: "Game().name",
+		InstallInstructions: "install_instructions",
+		IsObsolete: "is_obsolete",
+		LastPostDate: "lastpost_date",
+		LastPostUserId: "lastpost_userid",
+		Likes: "likes",
+		MDate: "mdate",
+		ModNote: "modnote",
+		Name: "name",
+		Nsfw: "Nsfw().bIsNsfw()",
+		ObsolNotice: "obsol_notice",
+		OwnerName: "Owner().name",
+		PostCount: "postcount",
+		PostsLastPostIdPosterRow: "Posts().LastPost().idPosterRow()",
+		PostsLastPostText: "Posts().LastPost().sText()",
+		PostsLastPostDateAdded: "Posts().LastPost().tsDateAdded()",
+		PostsPostcountNPostCount: "Posts().Postcount().nPostCount()",
+		PreviewStructuredData: "Preview().sStructuredDataFullsizeUrl()",
+		PreviewSubFeedImage: "Preview().sSubFeedImageUrl()",
+		RootCategoryId: "RootCategory().id",
+		RootCategoryName: "RootCategory().name",
+		Screenshots: "screenshots",
+		StudioId: "studioid",
+		Text: "text",
+		Trash: "Trash().bIsTrashed()",
+		UDate: "udate",
+		UpdatesGetLatest: "Updates().aGetLatestUpdates()",
+		UpdatesLatest: "Updates().aLatestUpdates()",
+		UpdatesHasUpdates: "Updates().bSubmissionHasUpdates()",
+		UpdatesCount: "Updates().nUpdatesCount()",
+		UrlDownload: "Url().sDownloadUrl()",
+		UrlEdit: "Url().sEditUrl()",
+		UrlEmbeddables: "Url().sEmbeddablesUrl()",
+		UrlHistory: "Url().sHistoryUrl()",
+		UrlProfile: "Url().sProfileUrl()",
+		UrlTrash: "Url().sTrashUrl()",
+		UrlUntrash: "Url().sUntrashUrl()",
+		UrlUpdates: "Url().sUpdatesUrl()",
+		UrlWithhold: "Url().sWithholdUrl()",
+		UserId: "userid",
+		Views: "views",
+		Withhold: "Withhold().bIsWithheld()",
 	},
 	Member: {
-		AffiliatedStudio: 'AffiliatedStudio().aAffiliatedStudio()',
-		Ban: 'Ban().bIsBanned()',
-		BuddiesHasBuddies: 'Buddies().bHasBuddies()',
-		BuddiesHasOnline: 'Buddies().Count().bHasOnlineBuddies()',
-		BuddiesCount: 'Buddies().Count().nCount()',
-		BuddiesOnlineCount: 'Buddies().Count().nGetOnlineBuddiesCount()',
-		BuddiesList: 'Buddies().List().aBuddyRowIds()',
-		BuddiesOnlineList: 'Buddies().List().aOnlineBuddyRowIds()',
-		ContestsParticipated: 'Contests().aActiveContestRowIdsParticipatedIn()',
-		ContestsIsParticipating: 'Contests().bIsParticipatingInActiveContests()',
-		Date: 'date',
-		Bio: 'DefinitionList().aBio()',
-		ContactInfo: 'DefinitionList().aContactInfo()',
-		DonationMethods: 'DefinitionList().aDonationMethods()',
-		PcSpecs: 'DefinitionList().aPcSpecs()',
-		SoftwareKit: 'DefinitionList().aSoftwareKit()',
-		EventsParticipated: 'Events().aActiveEventRowIdsParticipatedIn()',
-		EventsIsParticipating: 'Events().bIsParticipatingInActiveEvents()',
-		GagSections: 'Gag().aGetSectionsMemberIsGaggedFrom()',
-		GagIsGagged: 'Gag().bIsGaggedFromAnySection()',
-		GuildIsIn: 'Guild().bMemberIsInAnyGuild()',
-		InitiativesParticipation: 'Initiatives().aInitiativeParticipation()',
-		InitiativesIsIn: 'Initiatives().bIsInInitiatives()',
-		LastPostDate: 'lastpost_date',
-		LastPostUserId: 'lastpost_userid',
-		MDate: 'mdate',
-		MedalsLegendary: 'Medals().aLegendaryMedals()',
-		Medals: 'Medals().aMedals()',
-		MedalsNormal: 'Medals().aNormalMedals()',
-		MedalsRare: 'Medals().aRareMedals()',
-		ModgroupIsNotPartOf: 'Modgroup().aModgroupsMemberIsNotPartOf()',
-		ModgroupIsPartOf: 'Modgroup().aModgroupsMemberIsPartOf()',
-		ModgroupIsAdmin: 'Modgroup().bIsAdmin()',
-		ModgroupIsIn: 'Modgroup().bIsInAnyModgroup()',
-		ModgroupIsModerator: 'Modgroup().bIsModerator()',
-		ModgroupIsSuperAdmin: 'Modgroup().bIsSuperAdmin()',
-		ModgroupIsSuperModerator: 'Modgroup().bIsSuperModerator()',
-		Name: 'name',
-		OnlineIsOnline: 'OnlineStatus().bIsOnline()',
-		OnlineLocation: 'OnlineStatus().sLocation()',
-		OnlineLastSeen: 'OnlineStatus().tsLastSeenTime()',
-		OnlineSessionStart: 'OnlineStatus().tsSessionCreationTime()',
-		PostCount: 'postcount',
-		PostsLastPostId: 'Posts().LastPost().idPosterRow()',
-		PostsLastPostText: 'Posts().LastPost().sText()',
-		PostsLastPostDate: 'Posts().LastPost().tsDateAdded()',
-		PostsPostCount: 'Posts().Postcount().nPostCount()',
-		PreviewFullsize: 'Preview().sStructuredDataFullsizeUrl()',
-		PreviewSubFeed: 'Preview().sSubFeedImageUrl()',
-		TrashIsTrashed: 'Trash().bIsTrashed()',
-		UnlocksEnabled: 'Unlocks().aGetEnabledUnlocks()',
-		UrlActivation: 'Url().sActivationUrl()',
-		UrlAvatar: 'Url().sAvatarUrl()',
-		UrlBuddies: 'Url().sBuddiesUrl()',
-		UrlBuddyRequests: 'Url().sBuddyRequestsUrl()',
-		UrlEdit: 'Url().sEditUrl()',
-		UrlHdAvatar: 'Url().sHdAvatarUrl()',
-		UrlHistory: 'Url().sHistoryUrl()',
-		UrlItemBase: 'Url().sItemBaseUrl()',
-		UrlLogin: 'Url().sLoginUrl()',
-		UrlMedals: 'Url().sMedalsUrl()',
-		UrlPointsLog: 'Url().sPointsLogUrl()',
-		UrlProfile: 'Url().sProfileUrl()',
-		UrlReconfirmation: 'Url().sReconfirmationUrl()',
-		UrlResetPassword: 'Url().sResetPasswordUrl()',
-		UrlSettings: 'Url().sSettingsUrl()',
-		UrlSig: 'Url().sSigUrl()',
-		UrlStampsLog: 'Url().sStampsLogUrl()',
-		UrlSubscribers: 'Url().sSubscribersUrl()',
-		UrlTrash: 'Url().sTrashUrl()',
-		UrlUntrash: 'Url().sUntrashUrl()',
-		UrlUpic: 'Url().sUpicUrl()',
-		UserTitle: 'user_title',
-		WatchesCount: 'Watches().nGetWatchedSubmissionCount()',
-		WithholdsHasWithheld: 'Withholds().bHasWithheldSubmissions()',
+		AffiliatedStudio: "AffiliatedStudio().aAffiliatedStudio()",
+		Ban: "Ban().bIsBanned()",
+		BuddiesHasBuddies: "Buddies().bHasBuddies()",
+		BuddiesHasOnline: "Buddies().Count().bHasOnlineBuddies()",
+		BuddiesCount: "Buddies().Count().nCount()",
+		BuddiesOnlineCount: "Buddies().Count().nGetOnlineBuddiesCount()",
+		BuddiesList: "Buddies().List().aBuddyRowIds()",
+		BuddiesOnlineList: "Buddies().List().aOnlineBuddyRowIds()",
+		ContestsParticipated: "Contests().aActiveContestRowIdsParticipatedIn()",
+		ContestsIsParticipating: "Contests().bIsParticipatingInActiveContests()",
+		Date: "date",
+		Bio: "DefinitionList().aBio()",
+		ContactInfo: "DefinitionList().aContactInfo()",
+		DonationMethods: "DefinitionList().aDonationMethods()",
+		PcSpecs: "DefinitionList().aPcSpecs()",
+		SoftwareKit: "DefinitionList().aSoftwareKit()",
+		EventsParticipated: "Events().aActiveEventRowIdsParticipatedIn()",
+		EventsIsParticipating: "Events().bIsParticipatingInActiveEvents()",
+		GagSections: "Gag().aGetSectionsMemberIsGaggedFrom()",
+		GagIsGagged: "Gag().bIsGaggedFromAnySection()",
+		GuildIsIn: "Guild().bMemberIsInAnyGuild()",
+		InitiativesParticipation: "Initiatives().aInitiativeParticipation()",
+		InitiativesIsIn: "Initiatives().bIsInInitiatives()",
+		LastPostDate: "lastpost_date",
+		LastPostUserId: "lastpost_userid",
+		MDate: "mdate",
+		MedalsLegendary: "Medals().aLegendaryMedals()",
+		Medals: "Medals().aMedals()",
+		MedalsNormal: "Medals().aNormalMedals()",
+		MedalsRare: "Medals().aRareMedals()",
+		ModgroupIsNotPartOf: "Modgroup().aModgroupsMemberIsNotPartOf()",
+		ModgroupIsPartOf: "Modgroup().aModgroupsMemberIsPartOf()",
+		ModgroupIsAdmin: "Modgroup().bIsAdmin()",
+		ModgroupIsIn: "Modgroup().bIsInAnyModgroup()",
+		ModgroupIsModerator: "Modgroup().bIsModerator()",
+		ModgroupIsSuperAdmin: "Modgroup().bIsSuperAdmin()",
+		ModgroupIsSuperModerator: "Modgroup().bIsSuperModerator()",
+		Name: "name",
+		OnlineIsOnline: "OnlineStatus().bIsOnline()",
+		OnlineLocation: "OnlineStatus().sLocation()",
+		OnlineLastSeen: "OnlineStatus().tsLastSeenTime()",
+		OnlineSessionStart: "OnlineStatus().tsSessionCreationTime()",
+		PostCount: "postcount",
+		PostsLastPostId: "Posts().LastPost().idPosterRow()",
+		PostsLastPostText: "Posts().LastPost().sText()",
+		PostsLastPostDate: "Posts().LastPost().tsDateAdded()",
+		PostsPostCount: "Posts().Postcount().nPostCount()",
+		PreviewFullsize: "Preview().sStructuredDataFullsizeUrl()",
+		PreviewSubFeed: "Preview().sSubFeedImageUrl()",
+		TrashIsTrashed: "Trash().bIsTrashed()",
+		UnlocksEnabled: "Unlocks().aGetEnabledUnlocks()",
+		UrlActivation: "Url().sActivationUrl()",
+		UrlAvatar: "Url().sAvatarUrl()",
+		UrlBuddies: "Url().sBuddiesUrl()",
+		UrlBuddyRequests: "Url().sBuddyRequestsUrl()",
+		UrlEdit: "Url().sEditUrl()",
+		UrlHdAvatar: "Url().sHdAvatarUrl()",
+		UrlHistory: "Url().sHistoryUrl()",
+		UrlItemBase: "Url().sItemBaseUrl()",
+		UrlLogin: "Url().sLoginUrl()",
+		UrlMedals: "Url().sMedalsUrl()",
+		UrlPointsLog: "Url().sPointsLogUrl()",
+		UrlProfile: "Url().sProfileUrl()",
+		UrlReconfirmation: "Url().sReconfirmationUrl()",
+		UrlResetPassword: "Url().sResetPasswordUrl()",
+		UrlSettings: "Url().sSettingsUrl()",
+		UrlSig: "Url().sSigUrl()",
+		UrlStampsLog: "Url().sStampsLogUrl()",
+		UrlSubscribers: "Url().sSubscribersUrl()",
+		UrlTrash: "Url().sTrashUrl()",
+		UrlUntrash: "Url().sUntrashUrl()",
+		UrlUpic: "Url().sUpicUrl()",
+		UserTitle: "user_title",
+		WatchesCount: "Watches().nGetWatchedSubmissionCount()",
+		WithholdsHasWithheld: "Withholds().bHasWithheldSubmissions()",
 	},
 } as const satisfies { [K in GB_ItemType]: Record<string, string> };
 
@@ -155,7 +156,7 @@ export interface GBCreditsAndGroups {
 	scatterbrain?: GBCreditMember[];
 	playtesters?: GBCreditMember[];
 	assets?: GBCreditMember[];
-	'Special Thanks'?: GBCreditMember[];
+	"Special Thanks"?: GBCreditMember[];
 	[group: string]: GBCreditMember[] | undefined;
 }
 
@@ -184,18 +185,22 @@ export type GbMemberApi_Reponse = {
 
 @injectable()
 export default class GameBananaApi {
-	constructor(private imageCache: ImageCacheService) {}
+	constructor(
+		private imageCache: ImageCacheService,
+		private config: Configuration,
+	) {}
 
 	public async ResolveUserAvatar(username: string, avatarUrl: string): Promise<string> {
-		if (!avatarUrl || avatarUrl.trim() === '') return avatarUrl;
-		const extMatch = avatarUrl.split('.').pop()?.split('?')[0];
-		const ext = extMatch && extMatch.length <= 4 ? extMatch : 'png';
+		if (!avatarUrl || avatarUrl.trim() === "") return avatarUrl;
+		const extMatch = avatarUrl.split(".").pop()?.split("?")[0];
+		const ext = extMatch && extMatch.length <= 4 ? extMatch : "png";
 		const sanitized = this.imageCache.sanitizeFilename(username);
 		const filename = `${sanitized}.${ext}`;
 
+		const avatarsCachePath = await this.config.getAvatarsCachePath();
 		return await this.imageCache.resolveUrl(avatarUrl, {
-			baseDiskDir: './data/cache/avatars',
-			baseWebDir: '/data/cache/avatars',
+			baseDiskDir: avatarsCachePath,
+			baseWebDir: `/data/cache/avatars`,
 			filename,
 			ext,
 		});
@@ -208,7 +213,7 @@ export default class GameBananaApi {
 			const resJson = (await res.json()) as GBApiResponse_ItemExistsById;
 			return Boolean(resJson?.[0]);
 		} catch (e) {
-			Log_Error('GameBananaApi.ItemExistsById failed:', e);
+			Log_Error("GameBananaApi.ItemExistsById failed:", e);
 			return false;
 		}
 	}
@@ -220,12 +225,12 @@ export default class GameBananaApi {
 		// biome-ignore lint/suspicious/noExplicitAny: GameBanana API returns variable array shapes
 	): Promise<any[]> {
 		try {
-			const res = await fetch(`https://api.gamebanana.com/Core/Item/Data?itemtype=${itemType}&itemid=${itemId}&fields=${fields.join(',')}`);
+			const res = await fetch(`https://api.gamebanana.com/Core/Item/Data?itemtype=${itemType}&itemid=${itemId}&fields=${fields.join(",")}`);
 			if (!res.ok) return [];
 			// biome-ignore lint/suspicious/noExplicitAny: GameBanana API returns variable array shapes
 			return (await res.json()) as any[];
 		} catch (e) {
-			Log_Error('GameBananaApi.GetItemInfo failed:', e);
+			Log_Error("GameBananaApi.GetItemInfo failed:", e);
 			return [];
 		}
 	}
@@ -233,40 +238,40 @@ export default class GameBananaApi {
 	public async GetUsersMetadataByUsernames(usernames: string[]): Promise<GbMemberApi_Reponse[]> {
 		if (usernames.length === 0) return [];
 
-		const queryParams = usernames.map((username, index) => `username[${index}]=${encodeURIComponent(username)}`).join('&');
+		const queryParams = usernames.map((username, index) => `username[${index}]=${encodeURIComponent(username)}`).join("&");
 		const url = `https://api.gamebanana.com/Core/Member/Match?${queryParams}`;
 
 		let matchedUserIds: number[] = [];
 		try {
 			const res = await fetch(url, {
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 			});
 			if (res.ok) {
 				const json = await res.json();
 				if (Array.isArray(json)) {
-					matchedUserIds = json.map((item) => (typeof item === 'number' ? item : item?.id)).filter(Boolean);
-				} else if (typeof json === 'object' && json !== null) {
+					matchedUserIds = json.map((item) => (typeof item === "number" ? item : item?.id)).filter(Boolean);
+				} else if (typeof json === "object" && json !== null) {
 					matchedUserIds = Object.values(json)
 						.map((val) => Number(val))
 						.filter((id) => !Number.isNaN(id) && id > 0);
 				}
 			} else {
-				Log_Error('GameBananaApi: GetUserMetadataByUsernames success but not code 200 (OK) | -> ', res);
+				Log_Error("GameBananaApi: GetUserMetadataByUsernames success but not code 200 (OK) | -> ", res);
 			}
 		} catch (e: unknown) {
-			Log_Error('GameBananaApi: GetUserMetadataByUsernames failed:', e);
+			Log_Error("GameBananaApi: GetUserMetadataByUsernames failed:", e);
 		}
 
 		if (matchedUserIds.length === 0) return [];
 		const fields = [GB_AllowedFields.Member.Name, GB_AllowedFields.Member.UrlAvatar, GB_AllowedFields.Member.Date] as const;
 		const members: GbMemberApi_Reponse[] = [];
 		for (const userId of matchedUserIds) {
-			const data = await this.GetItemInfo('Member', userId, fields as unknown as Array<GB_AllowedFieldsType['Member'][keyof GB_AllowedFieldsType['Member']]>);
+			const data = await this.GetItemInfo("Member", userId, fields as unknown as Array<GB_AllowedFieldsType["Member"][keyof GB_AllowedFieldsType["Member"]]>);
 			if (data && data.length > 0) {
-				const username = (data[0] as string) ?? '';
-				const rawAvatar = (data[1] as string) ?? '';
+				const username = (data[0] as string) ?? "";
+				const rawAvatar = (data[1] as string) ?? "";
 				const avatar = await this.ResolveUserAvatar(username, rawAvatar);
 				members.push({
 					id: userId,
@@ -298,7 +303,7 @@ export default class GameBananaApi {
 		] as const;
 
 		try {
-			const data = await this.GetItemInfo('Mod', itemId, fields as unknown as Array<GB_AllowedFieldsType['Mod'][keyof GB_AllowedFieldsType['Mod']]>);
+			const data = await this.GetItemInfo("Mod", itemId, fields as unknown as Array<GB_AllowedFieldsType["Mod"][keyof GB_AllowedFieldsType["Mod"]]>);
 			if (!data || data.length === 0) return null;
 
 			let parsedAuthors: GBCreditsAndGroups = {};
@@ -307,7 +312,7 @@ export default class GameBananaApi {
 					parsedAuthors = JSON.parse(data[0]) as GBCreditsAndGroups;
 				}
 			} catch (e) {
-				Log_Error('Failed to parse GameBanana authors JSON:', e);
+				Log_Error("Failed to parse GameBanana authors JSON:", e);
 			}
 
 			return {
@@ -326,7 +331,7 @@ export default class GameBananaApi {
 				views: data[12] as number,
 			};
 		} catch (e) {
-			Log_Error('GameBananaApi.GetModData failed:', e);
+			Log_Error("GameBananaApi.GetModData failed:", e);
 			return null;
 		}
 	}

@@ -30,10 +30,10 @@
  */
 export type AltSideDef = {
 	map?: string;
-	preset?: 'a-side' | 'b-side' | 'c-side' | 'd-side' | 'none';
+	preset?: "a-side" | "b-side" | "c-side" | "d-side" | "none";
 	overrideVanillaSideData?: boolean;
 	overrideHeartTextures?: boolean;
-	unlockMode?: 'consecutively' | 'always' | 'triggered' | 'with_previous' | 'c_sides_unlocked';
+	unlockMode?: "consecutively" | "always" | "triggered" | "with_previous" | "c_sides_unlocked";
 	icon?: string;
 	label?: string;
 	showBerriesAsGolden?: boolean;
@@ -88,4 +88,4 @@ export type AltSidesHelperMeta = {
  * A full meta path looks like:
  *   Maps/bryse0n/berry143/berry143.altsideshelper.meta.yaml
  */
-export const ALT_SIDES_META_EXT = '.altsideshelper.meta.yaml';
+export const ALT_SIDES_META_EXT = ".altsideshelper.meta.yaml";

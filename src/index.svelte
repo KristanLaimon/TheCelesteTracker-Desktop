@@ -1,24 +1,24 @@
 <script lang="ts">
 // import Neutralino from '@neutralinojs/lib';
-import 'reflect-metadata';
-import { router } from './router.svelte';
-import './router_setup';
-import './libs/Hotkeys';
-import CommandCenter, { type CommandCenterCommand } from './components/CommandCenter.svelte';
-import { Hotkeys_RegisterHotkey } from './libs/Hotkeys';
+import "reflect-metadata";
+import { router } from "./router.svelte";
+import "./router_setup";
+import "./libs/Hotkeys";
+import CommandCenter, { type CommandCenterCommand } from "./components/CommandCenter.svelte";
+import { Hotkeys_RegisterHotkey } from "./libs/Hotkeys";
 
 let SHOW_COMMAND_CENTER = $state<boolean>(false);
-Hotkeys_RegisterHotkey('ctrl+shift+z', 'global', () => {
+Hotkeys_RegisterHotkey("ctrl+shift+z", "global", () => {
 	SHOW_COMMAND_CENTER = true;
 });
 const commands: CommandCenterCommand[] = [
 	{
-		id: 'go-to-celestemodslist',
-		title: 'Installed mods',
-		description: 'Get an overview about all your current installed mods',
-		category: 'Celeste',
+		id: "go-to-celestemodslist",
+		title: "Installed mods",
+		description: "Get an overview about all your current installed mods",
+		category: "Celeste",
 		action: () => {
-			router.navigate('/celeste/installed-mods');
+			router.navigate("/celeste/installed-mods");
 			SHOW_COMMAND_CENTER = false;
 		},
 	},

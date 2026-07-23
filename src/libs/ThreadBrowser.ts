@@ -1,13 +1,13 @@
 // UNIVERSAL COMPATIBILITY
-import type { IThread } from '../interfaces/IThread';
+import type { IThread } from "../interfaces/IThread";
 
 export class ThreadBrowser implements IThread {
 	private worker: Worker | null = null;
 
 	constructor(url?: string | URL, _options?: { type?: string }) {
-		if (typeof Worker !== 'undefined') {
+		if (typeof Worker !== "undefined") {
 			try {
-				this.worker = new Worker(url ?? '', { type: 'module' });
+				this.worker = new Worker(url ?? "", { type: "module" });
 			} catch {
 				this.worker = null;
 			}
@@ -18,11 +18,11 @@ export class ThreadBrowser implements IThread {
 		if (this.worker) this.worker.postMessage(message);
 	}
 
-	addEventListener(type: 'message' | 'error', listener: (event: any) => void): void {
+	addEventListener(type: "message" | "error", listener: (event: any) => void): void {
 		if (this.worker) this.worker.addEventListener(type, listener as EventListener);
 	}
 
-	removeEventListener(type: 'message' | 'error', listener: (event: any) => void): void {
+	removeEventListener(type: "message" | "error", listener: (event: any) => void): void {
 		if (this.worker) this.worker.removeEventListener(type, listener as EventListener);
 	}
 

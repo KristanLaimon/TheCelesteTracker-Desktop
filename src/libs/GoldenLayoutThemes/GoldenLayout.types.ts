@@ -1,5 +1,5 @@
 // UNIVERSAL COMPATIBILITY
-import type { Component, ComponentProps } from 'svelte';
+import type { Component, ComponentProps } from "svelte";
 
 /**
  * Registry mapping component names to their Svelte component definitions.
@@ -49,7 +49,7 @@ export type CustomComponentItemConfig<R extends GoldenLayoutRegistry = GoldenLay
  */
 export type CustomRowOrColumnItemConfig<R extends GoldenLayoutRegistry = GoldenLayoutRegistry> = {
 	/** Whether items inside this container lay out horizontally ('row') or vertically ('column'). */
-	type: 'row' | 'column';
+	type: "row" | "column";
 	/** The child layout items inside this row or column. */
 	content: CustomChildItemConfig<R>[];
 	/** Optional unique identifier(s) for the row/column container. */
@@ -71,7 +71,7 @@ export type CustomRowOrColumnItemConfig<R extends GoldenLayoutRegistry = GoldenL
  */
 export type CustomStackItemConfig<R extends GoldenLayoutRegistry = GoldenLayoutRegistry> = {
 	/** Layout type identifier for tabbed stacks. */
-	type: 'stack';
+	type: "stack";
 	/** The child component items configured under this stack. */
 	content: CustomComponentItemConfig<R>[];
 	/** Optional unique identifier(s) for the stack container. */

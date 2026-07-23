@@ -1,18 +1,18 @@
 <script lang="ts">
 // import { onMount } from 'svelte';
-import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import BrowserPath from '../libs/BrowserPath';
+import CenteredLayout from "../layouts/CenteredLayout.svelte";
+import BrowserPath from "../libs/BrowserPath";
 
 const Path = new BrowserPath();
 
-import { Log_Info } from '../libs/Logger';
-import { NeutralinoFileSystem } from '../libs/NeutralinoFileSystem';
+import { Log_Info } from "../libs/Logger";
+import { NeutralinoFileSystem } from "../libs/NeutralinoFileSystem";
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
-import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
-import ImgCaptionWidget from '../libs/Wanvas/widgets/ImgCaptionWidget.svelte';
-import ImgWidget from '../libs/Wanvas/widgets/ImgWidget.svelte';
-import TextWidget from '../libs/Wanvas/widgets/TextWidget.svelte';
+import Canvas from "../libs/Wanvas/Canvas.svelte";
+import type { CanvasNodeData, CanvasRegistry } from "../libs/Wanvas/Canvas.types";
+import ImgCaptionWidget from "../libs/Wanvas/widgets/ImgCaptionWidget.svelte";
+import ImgWidget from "../libs/Wanvas/widgets/ImgWidget.svelte";
+import TextWidget from "../libs/Wanvas/widgets/TextWidget.svelte";
 
 const registry = {
 	textWidget: TextWidget,
@@ -24,20 +24,20 @@ let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([
 	{
 		x: 100,
 		y: 150,
-		type: 'textWidget',
+		type: "textWidget",
 		props: {
-			rawTextContent: 'Hello Celeste Modder!',
+			rawTextContent: "Hello Celeste Modder!",
 		},
 	},
 ]);
 
-function AddNewTextWidget(text: string = '') {
+function AddNewTextWidget(text: string = "") {
 	defaultNodes.push({
 		x: 100,
 		y: 150,
 		height: 150,
 		width: 150,
-		type: 'textWidget',
+		type: "textWidget",
 		props: {
 			rawTextContent: text,
 		},
@@ -45,36 +45,36 @@ function AddNewTextWidget(text: string = '') {
 }
 
 // ponytail: simplified AddNewImgWidget wrapper
-function AddNewImgWidget(srcUrl: string = '') {
+function AddNewImgWidget(srcUrl: string = "") {
 	defaultNodes.push({
 		x: 150,
 		y: 200,
 		height: 200,
 		width: 300,
-		type: 'imgWidget',
+		type: "imgWidget",
 		props: {
 			srcUrl: srcUrl,
 			size: {
-				mode: 'keep-aspect-ratio-always',
+				mode: "keep-aspect-ratio-always",
 			},
 		},
 	});
 }
 
-function AddNewImgCaptionWidget(srcUrl: string = '', text: string = '') {
+function AddNewImgCaptionWidget(srcUrl: string = "", text: string = "") {
 	defaultNodes.push({
 		x: 200,
 		y: 250,
 		height: 350,
 		width: 300,
-		type: 'imgCaptionWidget',
+		type: "imgCaptionWidget",
 		props: {
 			srcUrl: srcUrl,
 			size: {
-				mode: 'keep-aspect-ratio-always',
+				mode: "keep-aspect-ratio-always",
 			},
 			rawTextContent: text,
-			displayMode: 'markdown-rendered',
+			displayMode: "markdown-rendered",
 		},
 	});
 }

@@ -1,18 +1,18 @@
 // UNIVERSAL COMPATIBILITY
-import { serializeError } from 'serialize-error';
-import { injectable } from 'tsyringe';
-import type Everest from './Everest';
-import type { EverestModInfo } from './Everest';
-import type GameBananaApi from './GameBananaAPI';
-import type { GbMemberApi_Reponse } from './GameBananaAPI';
-import { Log_Error, Log_Info } from './Logger';
-import type MaddiesApi from './MaddiesAPI';
-import type { MaddiesApiModInfo } from './MaddiesAPI';
-import type Storage from './Storage';
+import { serializeError } from "serialize-error";
+import { injectable } from "tsyringe";
+import type Everest from "./Everest";
+import type { EverestModInfo } from "./Everest";
+import type GameBananaApi from "./GameBananaAPI";
+import type { GbMemberApi_Reponse } from "./GameBananaAPI";
+import { Log_Error, Log_Info } from "./Logger";
+import type MaddiesApi from "./MaddiesAPI";
+import type { MaddiesApiModInfo } from "./MaddiesAPI";
+import type Storage from "./Storage";
 
-const STORAGE_KEY_ALL_EVEREST_MODS_INFO = 'localmods_allInstalled';
-const STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO = 'LocalMods_Map_ModId_To_MaddiesInfo';
-const STORAGE_KEY_MAP_EVEREST_MOD_ID_TO_AUTHOR_INFO = 'LocalMods_Map_ModId_To_AuthorInfo';
+const STORAGE_KEY_ALL_EVEREST_MODS_INFO = "localmods_allInstalled";
+const STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO = "LocalMods_Map_ModId_To_MaddiesInfo";
+const STORAGE_KEY_MAP_EVEREST_MOD_ID_TO_AUTHOR_INFO = "LocalMods_Map_ModId_To_AuthorInfo";
 
 export type LocalModsOptions = {
 	invalidateCache?: {
@@ -35,18 +35,18 @@ export default class DBMods {
 		private maddiesApi: MaddiesApi,
 		private gameBananaApi: GameBananaApi,
 	) {
-		storage.configureAutoSave('turn off');
+		storage.configureAutoSave("turn off");
 	}
 
 	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
-		Log_Info('LocalMods.ts:', 'About to load all mods full!');
+		Log_Info("LocalMods.ts:", "About to load all mods full!");
 		const toReturn = await this.storage.get<Record<string, EverestModInfo>>(
 			STORAGE_KEY_ALL_EVEREST_MODS_INFO,
 			async () => {
 				const allMods = await this.everest.GetModsInstalledFull({ workerCount: 4 });
 				const map: Record<string, EverestModInfo> = {};
 				for (const mod of allMods) {
-					if (mod.metadata.name && mod.metadata.name.trim() !== '') {
+					if (mod.metadata.name && mod.metadata.name.trim() !== "") {
 						map[mod.metadata.name] = mod;
 					}
 				}
@@ -54,7 +54,7 @@ export default class DBMods {
 			},
 			{ invalidateCache: opts?.invalidateCache?.ALL_EVEREST_MODS_INFO },
 		);
-		Log_Info('LocalMods.ts:', 'All mods info loaded');
+		Log_Info("LocalMods.ts:", "All mods info loaded");
 		return toReturn;
 	}
 
@@ -65,7 +65,7 @@ export default class DBMods {
 
 	public async EverestMods_Get_ListModIds(opts?: LocalModsOptions): Promise<string[]> {
 		const allMods = await this.EverestMods_GetAll(opts);
-		return Object.keys(allMods).filter((k) => k && k !== 'undefined');
+		return Object.keys(allMods).filter((k) => k && k !== "undefined");
 	}
 
 	public async EverestMods_Get_ListModSimplified(opts?: LocalModsOptions): Promise<ModSimplified[]> {
@@ -74,7 +74,7 @@ export default class DBMods {
 		for (const mod of Object.values(allMods)) {
 			if (mod.metadata?.name) {
 				list.push({
-					humanNameMod: mod.humanName && mod.humanName.trim() !== '' ? mod.humanName : mod.metadata.name,
+					humanNameMod: mod.humanName && mod.humanName.trim() !== "" ? mod.humanName : mod.metadata.name,
 					modId: mod.metadata.name,
 				});
 			}
@@ -109,7 +109,7 @@ export default class DBMods {
 
 							return { everestModId, maddiesInfo: bestMatch };
 						} catch (e: unknown) {
-							Log_Error('LocalMods.ts:', '(Maddies MULTIPLE FETCH) | When trying to fetch maddies api info, got error | Error =>', serializeError(e));
+							Log_Error("LocalMods.ts:", "(Maddies MULTIPLE FETCH) | When trying to fetch maddies api info, got error | Error =>", serializeError(e));
 							throw e;
 						}
 					}),
@@ -117,7 +117,7 @@ export default class DBMods {
 
 				const map: Map_EverestModId_MaddiesModInfo = {};
 				for (const result of settledResults) {
-					if (result.status !== 'fulfilled' || result.value === null) continue;
+					if (result.status !== "fulfilled" || result.value === null) continue;
 					map[result.value.everestModId] = result.value.maddiesInfo;
 				}
 
@@ -148,7 +148,7 @@ export default class DBMods {
 		try {
 			item = await options.singleFetchFn();
 		} catch (e: unknown) {
-			Log_Error('LocalMods.ts:', `| (${options.logContext}) When trying to fetch single info, got error | Error =>`, serializeError(e));
+			Log_Error("LocalMods.ts:", `| (${options.logContext}) When trying to fetch single info, got error | Error =>`, serializeError(e));
 		}
 
 		options.backgroundPopulateFn();
@@ -167,7 +167,7 @@ export default class DBMods {
 				return _allFound?.[0] ?? null;
 			},
 			backgroundPopulateFn: () => this.#GetMap_EverestModId_MaddiesMod(opts),
-			logContext: 'Maddies SINGLE FETCH',
+			logContext: "Maddies SINGLE FETCH",
 		});
 		return await this.maddiesApi.ResolveAndInjectModScreenshotsSrcsInto(modInfo);
 	}
@@ -207,7 +207,7 @@ export default class DBMods {
 				return apiResponse?.[0] ?? null;
 			},
 			backgroundPopulateFn: () => this.#GetMap_EverestModId_GameBananaAuthor(opts),
-			logContext: 'GameBanana Author SINGLE FETCH',
+			logContext: "GameBanana Author SINGLE FETCH",
 		});
 	}
 

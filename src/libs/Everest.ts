@@ -17,16 +17,16 @@
  *   └── *.altsideshelper.meta.yaml — Alt Sides Helper per-map config
  */
 
-import * as yaml from 'js-yaml';
-import { inject, injectable } from 'tsyringe';
-import Zip_Go from '../../src-utils/Zip_Go';
-import { IFileSystem_Token, IThreadConstructor_Token } from '../interfaces/DependencyInjectionTokens';
-import type { DirectoryEntry, IFileSystem } from '../interfaces/IFileSystem';
-import type { IThreadConstructor } from '../interfaces/IThread';
-import Celeste from './Celeste';
-import { ALT_SIDES_META_EXT, type AltSidesHelperMeta } from './Everest.altsideshelper';
-import { type CollabUtils2LazyLoadingYaml, CollabUtils2Scanner } from './Everest.collabutils2';
-import { DialogReader, sidToDialogKey } from './Everest.dialog';
+import * as yaml from "js-yaml";
+import { inject, injectable } from "tsyringe";
+import Zip_Go from "../../src-utils/Zip_Go";
+import { IFileSystem_Token, IThreadConstructor_Token } from "../interfaces/DependencyInjectionTokens";
+import type { DirectoryEntry, IFileSystem } from "../interfaces/IFileSystem";
+import type { IThreadConstructor } from "../interfaces/IThread";
+import Celeste from "./Celeste";
+import { ALT_SIDES_META_EXT, type AltSidesHelperMeta } from "./Everest.altsideshelper";
+import { type CollabUtils2LazyLoadingYaml, CollabUtils2Scanner } from "./Everest.collabutils2";
+import { DialogReader, sidToDialogKey } from "./Everest.dialog";
 
 /** A dependency declared in the mod's `everest.yaml` (`Dependencies` / `dependencies` array). */
 export type ModDependency = { name: string; version: string };
@@ -138,7 +138,7 @@ export type DiscoveredLobby = {
  * - `"B"` — B-side (suffix `-B` / `_B`)
  * - `"C"` — C-side (suffix `-C` / `_C`)
  */
-export type MapSide = 'A' | 'B' | 'C';
+export type MapSide = "A" | "B" | "C";
 
 /**
  * Parsed content of a `<MapBin>.meta.yaml` file sitting beside a .bin.
@@ -240,15 +240,15 @@ interface RawMeta {
 /** Normalize a raw YAML dependency to a typed `ModDependency`. */
 function normalizeDep(d: RawDep): ModDependency {
 	return {
-		name: d.Name || d.name || '',
-		version: String(d.Version ?? d.version ?? ''),
+		name: d.Name || d.name || "",
+		version: String(d.Version ?? d.version ?? ""),
 	};
 }
 
 /** Parse a YAML string; return `undefined` on failure (with console error). */
 function parseYaml<T>(content: string, fileName: string): T | undefined {
 	try {
-		return (yaml.load(content.replace(/^\uFEFF/, '')) as T | null | undefined) ?? undefined;
+		return (yaml.load(content.replace(/^\uFEFF/, "")) as T | null | undefined) ?? undefined;
 	} catch (err) {
 		console.error(`Yaml parse fail ${fileName}:`, err);
 		return undefined;
@@ -269,15 +269,15 @@ function parseYaml<T>(content: string, fileName: string): T | undefined {
  */
 export function parseEverestYaml(content: string, fileName: string): ModMetadata {
 	try {
-		const cleaned = content.replace(/^\uFEFF/, '');
+		const cleaned = content.replace(/^\uFEFF/, "");
 		const parsed = yaml.load(cleaned) as RawMeta | RawMeta[] | null | undefined;
-		if (!parsed) return { name: '', version: '', dependencies: [], isLobby: false, chapters: [], campaigns: [] };
+		if (!parsed) return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
 		const item = Array.isArray(parsed) ? parsed[0] : parsed;
 		const { Name, Version, DLL, Dependencies, OptionalDependencies, ...rest } = item;
 		return {
 			...rest,
-			name: Name || rest.name || '',
-			version: String(Version ?? rest.version ?? ''),
+			name: Name || rest.name || "",
+			version: String(Version ?? rest.version ?? ""),
 			dll: DLL || rest.dll || undefined,
 			dependencies: (Dependencies || rest.dependencies || []).map(normalizeDep),
 			optionalDependencies: (OptionalDependencies || rest.optionalDependencies || []).map(normalizeDep),
@@ -287,7 +287,7 @@ export function parseEverestYaml(content: string, fileName: string): ModMetadata
 		};
 	} catch (err) {
 		console.error(`Yaml parse fail ${fileName}:`, err);
-		return { name: '', version: '', dependencies: [], isLobby: false, chapters: [], campaigns: [] };
+		return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
 	}
 }
 
@@ -295,7 +295,7 @@ export function parseEverestYaml(content: string, fileName: string): ModMetadata
  * File names (case variants) for the mod metadata YAML.
  * Everest Core looks for these at the root of each mod folder/.zip.
  */
-export const YAML_NAMES = ['everest.yaml', 'everest.yml', 'Everest.yaml', 'Everest.yml'];
+export const YAML_NAMES = ["everest.yaml", "everest.yml", "Everest.yaml", "Everest.yml"];
 
 // ──────────────────────────────────────────────
 // SID / Path Helpers
@@ -310,9 +310,9 @@ export const YAML_NAMES = ['everest.yaml', 'everest.yml', 'Everest.yaml', 'Evere
  * Returns `undefined` if the path is not under `Maps/`.
  */
 export function deriveSid(binPath: string): string | undefined {
-	const normalized = binPath.replace(/\\/g, '/');
-	if (!normalized.startsWith('Maps/')) return undefined;
-	return normalized.replace(/\.bin$/i, '').slice('Maps/'.length);
+	const normalized = binPath.replace(/\\/g, "/");
+	if (!normalized.startsWith("Maps/")) return undefined;
+	return normalized.replace(/\.bin$/i, "").slice("Maps/".length);
 }
 
 /**
@@ -320,7 +320,7 @@ export function deriveSid(binPath: string): string | undefined {
  * `"map/foo-B"` → `"map/foo"`, `"map/bar-C"` → `"map/bar"`, `"map/baz"` → `"map/baz"`
  */
 export function baseSid(sid: string): string {
-	return sid.replace(/-(B|C|H|X)$/i, '');
+	return sid.replace(/-(B|C|H|X)$/i, "");
 }
 
 /**
@@ -330,9 +330,9 @@ export function baseSid(sid: string): string {
  * - any other   → `"A"`
  */
 export function detectMapSide(sid: string): MapSide {
-	if (/[_-]C$/i.test(sid)) return 'C';
-	if (/[_-]B$/i.test(sid)) return 'B';
-	return 'A';
+	if (/[_-]C$/i.test(sid)) return "C";
+	if (/[_-]B$/i.test(sid)) return "B";
+	return "A";
 }
 
 // ──────────────────────────────────────────────
@@ -415,10 +415,10 @@ export default class Everest {
 	 * replaces underscores with spaces, and splits camelCase.
 	 */
 	public NormalizeCelesteModName(filename: string): string {
-		let name = filename.replace(/\.(zip|txt)$/i, '');
-		name = name.replace(/^(\d+\.)+\d+[-]+/, '');
-		name = name.replace(/_/g, ' ');
-		name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+		let name = filename.replace(/\.(zip|txt)$/i, "");
+		name = name.replace(/^(\d+\.)+\d+[-]+/, "");
+		name = name.replace(/_/g, " ");
+		name = name.replace(/([a-z])([A-Z])/g, "$1 $2");
 		return name.trim();
 	}
 
@@ -440,10 +440,10 @@ export default class Everest {
 	private async walkModDir(modPath: string, isZip: boolean, subDir: string): Promise<string[]> {
 		if (isZip) {
 			const allFiles = await this.zip.list(modPath);
-			const prefix = `${subDir.replace(/\//g, '\\')}\\`;
+			const prefix = `${subDir.replace(/\//g, "\\")}\\`;
 			return allFiles
 				.filter((f) => f.startsWith(`${subDir}/`) || f.startsWith(prefix))
-				.map((f) => f.replace(/\\/g, '/'))
+				.map((f) => f.replace(/\\/g, "/"))
 				.sort();
 		}
 		const entries = await this.fs.readDirectory(`${modPath}/${subDir}`, { recursive: true });
@@ -537,7 +537,7 @@ export default class Everest {
 				}
 			}),
 		);
-		console.log('--------- FINISHED SCANNING FULL EVEREST METADATA AND LOBBY STUFF AND DIALOG --------------');
+		console.log("--------- FINISHED SCANNING FULL EVEREST METADATA AND LOBBY STUFF AND DIALOG --------------");
 		return mods;
 	}
 
@@ -560,7 +560,7 @@ export default class Everest {
 		const workerCount = opts?.workerCount ?? 0;
 		if (workerCount > 0) {
 			const result = await this.scanWithWorkers(entries, modsPath, workerCount);
-			console.log(' ---------- FINISHED SCAN MOD BASE -----------------');
+			console.log(" ---------- FINISHED SCAN MOD BASE -----------------");
 			if (result) return result;
 		}
 
@@ -573,19 +573,19 @@ export default class Everest {
 	 */
 	private async scanWithWorkers(entries: DirectoryEntry[], modsPath: string, workerCount: number): Promise<EverestModInfo[] | null> {
 		try {
-			const workerUrl = new URL('./Everest.worker.ts', import.meta.url);
+			const workerUrl = new URL("./Everest.worker.ts", import.meta.url);
 
-			const workers = Array.from({ length: workerCount }, () => new this.ThreadCtor(workerUrl, { type: 'module' }));
+			const workers = Array.from({ length: workerCount }, () => new this.ThreadCtor(workerUrl, { type: "module" }));
 
 			// Pre-read all mod file content on main thread (via universal IFileSystem/Zip_Go)
 			let no: number = 0;
 			const preReadEntries = await Promise.all(
 				entries.map(async ({ entry, type }) => {
-					if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) return null;
-					const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
-					if (type !== 'DIRECTORY' && !isZip) return null;
+					if (type === "DIRECTORY" && entry.toLowerCase().includes("cache")) return null;
+					const isZip = type === "FILE" && entry.toLowerCase().endsWith(".zip");
+					if (type !== "DIRECTORY" && !isZip) return null;
 
-					console.log((++no).toString(), '|SCANNING MOD:', entry);
+					console.log((++no).toString(), "|SCANNING MOD:", entry);
 
 					const modPath = `${modsPath}/${entry}`;
 					for (const yName of YAML_NAMES) {
@@ -593,7 +593,7 @@ export default class Everest {
 							const yamlContent = await this.readModFile(modPath, isZip, yName);
 							let collabContent: string | undefined;
 							try {
-								collabContent = await this.readModFile(modPath, isZip, 'CollabUtils2CollabID.txt');
+								collabContent = await this.readModFile(modPath, isZip, "CollabUtils2CollabID.txt");
 							} catch {
 								/* not a collab */
 							}
@@ -619,11 +619,11 @@ export default class Everest {
 								w.terminate();
 								resolve([]);
 							}, 120_000);
-							w.addEventListener('message', (e: any) => {
+							w.addEventListener("message", (e: any) => {
 								clearTimeout(timeout);
 								resolve(e.data.mods ?? []);
 							});
-							w.addEventListener('error', () => {
+							w.addEventListener("error", () => {
 								clearTimeout(timeout);
 								resolve([]);
 							});
@@ -664,9 +664,9 @@ export default class Everest {
 
 	/** Scan a single mod entry: read everest.yaml + detect collab ID. */
 	private async scanSingleMod(modsPath: string, entry: string, type: string): Promise<EverestModInfo | null> {
-		if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) return null;
-		const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
-		if (type !== 'DIRECTORY' && !isZip) return null;
+		if (type === "DIRECTORY" && entry.toLowerCase().includes("cache")) return null;
+		const isZip = type === "FILE" && entry.toLowerCase().endsWith(".zip");
+		if (type !== "DIRECTORY" && !isZip) return null;
 
 		const modPath = `${modsPath}/${entry}`;
 		const name = this.NormalizeCelesteModName(entry);
@@ -709,15 +709,15 @@ export default class Everest {
 		const modsPath = await this.GetInstallationPath();
 		if (!modsPath || !(await this.fs.exists(modsPath))) return undefined;
 
-		const input = modFileName.replace(/\.zip$/i, '').toLowerCase();
+		const input = modFileName.replace(/\.zip$/i, "").toLowerCase();
 		const entries = await this.fs.readDirectory(modsPath);
 
 		for (const { entry, type } of entries) {
-			if (type === 'DIRECTORY' && entry.toLowerCase().includes('cache')) continue;
-			const isZip = type === 'FILE' && entry.toLowerCase().endsWith('.zip');
-			if (type !== 'DIRECTORY' && !isZip) continue;
+			if (type === "DIRECTORY" && entry.toLowerCase().includes("cache")) continue;
+			const isZip = type === "FILE" && entry.toLowerCase().endsWith(".zip");
+			if (type !== "DIRECTORY" && !isZip) continue;
 
-			const entryName = entry.replace(/\.zip$/i, '');
+			const entryName = entry.replace(/\.zip$/i, "");
 			if (entryName.toLowerCase() !== input) continue;
 
 			const modPath = `${modsPath}/${entry}`;
@@ -798,8 +798,8 @@ export default class Everest {
 	 * metadata and dialog name resolution, and returns the grouped campaigns.
 	 */
 	private async scanFlatCampaigns(modInfo: EverestModInfo): Promise<DiscoveredCampaign[]> {
-		const binFiles = await this.walkModDir(modInfo.modPath, modInfo.isZip, 'Maps');
-		const bins = binFiles.filter((f) => f.toLowerCase().endsWith('.bin'));
+		const binFiles = await this.walkModDir(modInfo.modPath, modInfo.isZip, "Maps");
+		const bins = binFiles.filter((f) => f.toLowerCase().endsWith(".bin"));
 
 		const dialog = await this.dialogReader.readDialog(modInfo);
 
@@ -807,10 +807,10 @@ export default class Everest {
 			bins.map(async (binPath) => {
 				const sid = deriveSid(binPath);
 				if (!sid) return null;
-				const parts = sid.split('/');
+				const parts = sid.split("/");
 				if (parts.length < 3) return null;
 				const map = await this.buildMap(modInfo, binPath, sid, dialog);
-				return { map, campaignId: parts.slice(0, -1).join('/') };
+				return { map, campaignId: parts.slice(0, -1).join("/") };
 			}),
 		);
 
@@ -839,7 +839,7 @@ export default class Everest {
 	 */
 	private async buildMap(modInfo: EverestModInfo, binPath: string, sid: string, dialog: Map<string, string>): Promise<DiscoveredMap> {
 		const [meta, altSidesHelperMeta] = await Promise.all([
-			this.tryReadMeta<MapMetaYaml>(modInfo, binPath, '.meta.yaml'),
+			this.tryReadMeta<MapMetaYaml>(modInfo, binPath, ".meta.yaml"),
 			this.tryReadMeta<AltSidesHelperMeta>(modInfo, binPath, ALT_SIDES_META_EXT),
 		]);
 
@@ -847,7 +847,7 @@ export default class Everest {
 			sid,
 			side: detectMapSide(sid),
 			baseSid: baseSid(sid),
-			binFileName: binPath.split('/').pop() ?? '',
+			binFileName: binPath.split("/").pop() ?? "",
 			binPath,
 			meta,
 			altSidesHelperMeta,

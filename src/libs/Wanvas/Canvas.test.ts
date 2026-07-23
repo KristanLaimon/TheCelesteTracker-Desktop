@@ -1,5 +1,5 @@
 // NODE.JS/BUN/DENO ONLY
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from "bun:test";
 
 interface TestNode {
 	id?: string;
@@ -13,7 +13,7 @@ function sanitizeNodesForTest(nodes: TestNode[]): (TestNode & { id: string; laye
 	// First check layer values and throw error if negative
 	for (const node of nodes) {
 		if (node.layer !== undefined && node.layer < 0) {
-			throw new Error('Layer index must be non-negative');
+			throw new Error("Layer index must be non-negative");
 		}
 	}
 
@@ -26,7 +26,7 @@ function sanitizeNodesForTest(nodes: TestNode[]): (TestNode & { id: string; laye
 	}
 
 	return nodes.map((node) => {
-		const id = node.id || 'mock-uuid';
+		const id = node.id || "mock-uuid";
 		let layer = node.layer;
 		if (layer === undefined) {
 			maxLayer = maxLayer + 1;
@@ -44,47 +44,47 @@ function bringToTopForTest(nodes: TestNode[], node: TestNode): TestNode[] {
 	return nodes;
 }
 
-describe('Canvas Layers Logic', () => {
-	test('Should throw error if a node has a negative layer index', () => {
-		const nodes: TestNode[] = [{ id: '1', x: 0, y: 0, layer: -1 }];
-		expect(() => sanitizeNodesForTest(nodes)).toThrow('Layer index must be non-negative');
+describe("Canvas Layers Logic", () => {
+	test("Should throw error if a node has a negative layer index", () => {
+		const nodes: TestNode[] = [{ id: "1", x: 0, y: 0, layer: -1 }];
+		expect(() => sanitizeNodesForTest(nodes)).toThrow("Layer index must be non-negative");
 	});
 
-	test('Should accept positive/zero layer index', () => {
+	test("Should accept positive/zero layer index", () => {
 		const nodes: TestNode[] = [
-			{ id: '1', x: 0, y: 0, layer: 0 },
-			{ id: '2', x: 10, y: 10, layer: 5 },
+			{ id: "1", x: 0, y: 0, layer: 0 },
+			{ id: "2", x: 10, y: 10, layer: 5 },
 		];
 		const sanitized = sanitizeNodesForTest(nodes);
 		expect(sanitized[0].layer).toBe(0);
 		expect(sanitized[1].layer).toBe(5);
 	});
 
-	test('Should assign progressive layers to nodes without a layer', () => {
+	test("Should assign progressive layers to nodes without a layer", () => {
 		const nodes: TestNode[] = [
-			{ id: '1', x: 0, y: 0 },
-			{ id: '2', x: 10, y: 10 },
+			{ id: "1", x: 0, y: 0 },
+			{ id: "2", x: 10, y: 10 },
 		];
 		const sanitized = sanitizeNodesForTest(nodes);
 		expect(sanitized[0].layer).toBe(0);
 		expect(sanitized[1].layer).toBe(1);
 	});
 
-	test('Should assign layer above max existing layer for new nodes without layer', () => {
+	test("Should assign layer above max existing layer for new nodes without layer", () => {
 		const nodes: TestNode[] = [
-			{ id: '1', x: 0, y: 0, layer: 5 },
-			{ id: '2', x: 10, y: 10 },
+			{ id: "1", x: 0, y: 0, layer: 5 },
+			{ id: "2", x: 10, y: 10 },
 		];
 		const sanitized = sanitizeNodesForTest(nodes);
 		expect(sanitized[0].layer).toBe(5);
 		expect(sanitized[1].layer).toBe(6);
 	});
 
-	test('Should bring a clicked node to the top', () => {
+	test("Should bring a clicked node to the top", () => {
 		const nodes: TestNode[] = [
-			{ id: '1', x: 0, y: 0, layer: 0 },
-			{ id: '2', x: 10, y: 10, layer: 1 },
-			{ id: '3', x: 20, y: 20, layer: 2 },
+			{ id: "1", x: 0, y: 0, layer: 0 },
+			{ id: "2", x: 10, y: 10, layer: 1 },
+			{ id: "3", x: 20, y: 20, layer: 2 },
 		];
 		// Click on node 2
 		const updatedNodes = bringToTopForTest(nodes, nodes[1]);

@@ -1,11 +1,11 @@
 <script lang="ts">
-import type { ICanvasWidgetProps } from '../Canvas.types';
-import BaseGlassWidget from './BaseGlassWidget.svelte';
-import ImgWidget from './ImgWidget.svelte';
-import TextWidget from './TextWidget.svelte';
+import type { ICanvasWidgetProps } from "../Canvas.types";
+import BaseGlassWidget from "./BaseGlassWidget.svelte";
+import ImgWidget from "./ImgWidget.svelte";
+import TextWidget from "./TextWidget.svelte";
 
 type ImgWidgetSizeSubProp = {
-	mode: 'custom' | 'keep-aspect-ratio-always';
+	mode: "custom" | "keep-aspect-ratio-always";
 	width?: number;
 	height?: number;
 };
@@ -14,20 +14,20 @@ type ImgCaptionProps = {
 	srcUrl?: string;
 	size?: ImgWidgetSizeSubProp;
 	rawTextContent?: string;
-	displayMode?: 'markdown-rendered' | 'raw';
+	displayMode?: "markdown-rendered" | "raw";
 };
 
 type Props = ICanvasWidgetProps<ImgCaptionProps>;
 
 let {
-	srcUrl = $bindable(''),
-	size = $bindable({ mode: 'keep-aspect-ratio-always' }),
-	rawTextContent = $bindable(''),
-	displayMode = $bindable('raw'),
+	srcUrl = $bindable(""),
+	size = $bindable({ mode: "keep-aspect-ratio-always" }),
+	rawTextContent = $bindable(""),
+	displayMode = $bindable("raw"),
 	onChange,
 }: Props = $props();
 
-function handleTextChange(updatedTextProps: { rawTextContent?: string; displayMode?: 'markdown-rendered' | 'raw' }) {
+function handleTextChange(updatedTextProps: { rawTextContent?: string; displayMode?: "markdown-rendered" | "raw" }) {
 	if (updatedTextProps.rawTextContent !== undefined) {
 		rawTextContent = updatedTextProps.rawTextContent;
 	}

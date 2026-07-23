@@ -1,7 +1,7 @@
 // UNIVERSAL COMPATIBILITY
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'vite';
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
 
 // Custom plugin to ensure production build uses the relative Neutralino globals path
 /*
@@ -26,7 +26,7 @@ export default defineConfig({
 		// neutralinoBuildPlugin(),
 	],
 	build: {
-		outDir: 'dist/vite-temp-build',
+		outDir: "dist/vite-temp-build",
 		emptyOutDir: true,
 	},
 });

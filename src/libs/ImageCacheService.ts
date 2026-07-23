@@ -1,11 +1,11 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { inject, injectable } from 'tsyringe';
-import { IFileSystem_Token, IOs_Token, IPath_Token } from '../interfaces/DependencyInjectionTokens';
-import type { IFileSystem } from '../interfaces/IFileSystem';
-import type { IOS } from '../interfaces/IOs';
-import type { IPath } from '../interfaces/IPath';
-import { Log_Error } from './Logger';
+import { inject, injectable } from "tsyringe";
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../interfaces/IFileSystem";
+import type { IOS } from "../interfaces/IOs";
+import type { IPath } from "../interfaces/IPath";
+import { Log_Error } from "./Logger";
 
 export type SingleCacheImageOptions = {
 	baseDiskDir: string;
@@ -34,7 +34,7 @@ export default class ImageCacheService {
 	}
 
 	public async resolveUrl(remoteUrl: string, opts: SingleCacheImageOptions): Promise<string> {
-		if (!remoteUrl || remoteUrl.trim() === '') return remoteUrl;
+		if (!remoteUrl || remoteUrl.trim() === "") return remoteUrl;
 
 		const diskPath = `${opts.baseDiskDir}/${opts.filename}`;
 		const webUrl = `${opts.baseWebDir}/${opts.filename}`;
@@ -46,9 +46,9 @@ export default class ImageCacheService {
 		if (!urls || urls.length === 0) return urls ?? [];
 		return Promise.all(
 			urls.map((url, i) => {
-				const extMatch = url.split('.').pop()?.split('?')[0];
+				const extMatch = url.split(".").pop()?.split("?")[0];
 				const parsedExt = extMatch && extMatch.length <= 4 ? extMatch : undefined;
-				const ext = opts.ext ?? parsedExt ?? 'png';
+				const ext = opts.ext ?? parsedExt ?? "png";
 				const filename = opts.getFilename(i, ext);
 				return this.resolveUrl(url, {
 					baseDiskDir: opts.baseDiskDir,
@@ -62,18 +62,18 @@ export default class ImageCacheService {
 
 	public sanitizeFilename(text: string): string {
 		return text
-			.normalize('NFD')
-			.replace(/[\u0300-\u036f]/g, '')
+			.normalize("NFD")
+			.replace(/[\u0300-\u036f]/g, "")
 			.toLowerCase()
-			.replace(/[^a-z0-9 -]/g, '')
-			.replace(/\s+/g, '-')
-			.replace(/-+/g, '-')
+			.replace(/[^a-z0-9 -]/g, "")
+			.replace(/\s+/g, "-")
+			.replace(/-+/g, "-")
 			.trim()
-			.replace(/^-+|-+$/g, '');
+			.replace(/^-+|-+$/g, "");
 	}
 
 	public async resolveCachedUrl(remoteUrl: string, diskPath: string, webUrl: string): Promise<string> {
-		if (!remoteUrl || remoteUrl.trim() === '') return remoteUrl;
+		if (!remoteUrl || remoteUrl.trim() === "") return remoteUrl;
 
 		try {
 			const exists = await this.fs.exists(diskPath);
@@ -95,7 +95,7 @@ export default class ImageCacheService {
 		const promise = (async () => {
 			try {
 				const parts = await this.fs.getPathParts(diskPath);
-				if (parts.dir && parts.dir !== '.' && parts.dir !== '/') {
+				if (parts.dir && parts.dir !== "." && parts.dir !== "/") {
 					await this.fs.createDirectory(parts.dir, { recursive: true });
 				}
 
@@ -115,7 +115,7 @@ export default class ImageCacheService {
 					await this.downloadWithNativeCommand(remoteUrl, diskPath);
 				}
 			} catch (e: unknown) {
-				Log_Error('ImageCacheService:', 'Failed background image cache download:', diskPath, e);
+				Log_Error("ImageCacheService:", "Failed background image cache download:", diskPath, e);
 			}
 		})().finally(() => {
 			this.inFlightDownloads.delete(diskPath);
@@ -135,7 +135,7 @@ export default class ImageCacheService {
 			const safePath = absPath.replace(/"/g, '\\"');
 
 			let cmd = `curl -s -L "${safeUrl}" -o "${safePath}"`;
-			if (currentOS === 'windows') {
+			if (currentOS === "windows") {
 				cmd = `curl.exe -s -L "${safeUrl}" -o "${safePath}"`;
 			}
 
@@ -144,7 +144,7 @@ export default class ImageCacheService {
 				return true;
 			}
 
-			if (currentOS === 'windows') {
+			if (currentOS === "windows") {
 				const psCmd = `powershell -Command "Invoke-WebRequest -Uri '${safeUrl}' -OutFile '${safePath}'"`;
 				const psRes = await this.os.execCommand(psCmd);
 				if (psRes.exitCode === 0 && (await this.fs.exists(diskPath))) {
@@ -152,7 +152,7 @@ export default class ImageCacheService {
 				}
 			}
 
-			if (currentOS === 'linux' || currentOS === 'macos') {
+			if (currentOS === "linux" || currentOS === "macos") {
 				const wgetCmd = `wget -q -O "${safePath}" "${safeUrl}"`;
 				const wgetRes = await this.os.execCommand(wgetCmd);
 				if (wgetRes.exitCode === 0 && (await this.fs.exists(diskPath))) {
@@ -160,7 +160,7 @@ export default class ImageCacheService {
 				}
 			}
 		} catch (e: unknown) {
-			Log_Error('ImageCacheService:', 'Native download error:', diskPath, e);
+			Log_Error("ImageCacheService:", "Native download error:", diskPath, e);
 		}
 		return false;
 	}

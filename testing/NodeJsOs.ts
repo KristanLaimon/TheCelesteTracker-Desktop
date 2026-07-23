@@ -2,11 +2,11 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 
 // NodeOS.ts
-import type { ChildProcess } from 'node:child_process';
-import { exec, spawn } from 'node:child_process';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import { injectable } from 'tsyringe';
+import type { ChildProcess } from "node:child_process";
+import { exec, spawn } from "node:child_process";
+import * as os from "node:os";
+import * as path from "node:path";
+import { injectable } from "tsyringe";
 // Type-only imports
 // Value import for the abstract class
 import type {
@@ -24,7 +24,7 @@ import type {
 	SpawnedProcessAction,
 	SpawnedProcessOptions,
 	TrayOptions,
-} from '../src/interfaces/IOs';
+} from "../src/interfaces/IOs";
 
 @injectable()
 export default class NodeJsOS implements IOS {
@@ -41,19 +41,19 @@ export default class NodeJsOS implements IOS {
 	private nextProcessId = 1;
 	private activeProcesses = new Map<number, ChildProcess>();
 
-	public getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown' {
+	public getCurrentOS(): "windows" | "macos" | "freebsd" | "linux" | "unknown" {
 		const platform = os.platform();
 		switch (platform) {
-			case 'win32':
-				return 'windows';
-			case 'darwin':
-				return 'macos';
-			case 'linux':
-				return 'linux';
-			case 'freebsd':
-				return 'freebsd';
+			case "win32":
+				return "windows";
+			case "darwin":
+				return "macos";
+			case "linux":
+				return "linux";
+			case "freebsd":
+				return "freebsd";
 			default:
-				return 'unknown';
+				return "unknown";
 		}
 	}
 
@@ -64,7 +64,7 @@ export default class NodeJsOS implements IOS {
 					pid: child.pid ?? 0,
 					stdOut: stdout,
 					stdErr: stderr,
-					exitCode: error === null ? 0 : typeof error.code === 'number' ? error.code : 1,
+					exitCode: error === null ? 0 : typeof error.code === "number" ? error.code : 1,
 				});
 			});
 
@@ -76,8 +76,8 @@ export default class NodeJsOS implements IOS {
 	}
 
 	public async spawnProcess(command: string, options?: SpawnedProcessOptions): Promise<SpawnedProcess> {
-		const args = command.split(' ');
-		const cmd = args.shift() || '';
+		const args = command.split(" ");
+		const cmd = args.shift() || "";
 
 		const child = spawn(cmd, args, {
 			env: { ...process.env, ...options?.envs },
@@ -87,7 +87,7 @@ export default class NodeJsOS implements IOS {
 		const id = this.nextProcessId++;
 		this.activeProcesses.set(id, child);
 
-		child.on('exit', () => {
+		child.on("exit", () => {
 			this.activeProcesses.delete(id);
 		});
 
@@ -102,13 +102,13 @@ export default class NodeJsOS implements IOS {
 		if (!child) throw new Error(`Process with id ${id} not found or already exited`);
 
 		switch (action) {
-			case 'stdIn':
+			case "stdIn":
 				if (data) child.stdin?.write(data);
 				break;
-			case 'stdInEnd':
+			case "stdInEnd":
 				child.stdin?.end();
 				break;
-			case 'exit':
+			case "exit":
 				child.kill();
 				this.activeProcesses.delete(id);
 				break;
@@ -123,7 +123,7 @@ export default class NodeJsOS implements IOS {
 	}
 
 	public async getEnv(key: string): Promise<string> {
-		return process.env[key] ?? '';
+		return process.env[key] ?? "";
 	}
 
 	public async getEnvs(): Promise<Envs> {
@@ -133,19 +133,19 @@ export default class NodeJsOS implements IOS {
 	public async getPath(name: CommonKnownPath): Promise<string> {
 		const home = os.homedir();
 		switch (name) {
-			case 'home':
+			case "home":
 				return home;
-			case 'desktop':
-				return path.join(home, 'Desktop');
-			case 'downloads':
-				return path.join(home, 'Downloads');
-			case 'music':
-				return path.join(home, 'Music');
-			case 'pictures':
-				return path.join(home, 'Pictures');
-			case 'videos':
-				return path.join(home, 'Videos');
-			case 'temp':
+			case "desktop":
+				return path.join(home, "Desktop");
+			case "downloads":
+				return path.join(home, "Downloads");
+			case "music":
+				return path.join(home, "Music");
+			case "pictures":
+				return path.join(home, "Pictures");
+			case "videos":
+				return path.join(home, "Videos");
+			case "temp":
 				return os.tmpdir();
 			default:
 				// Fallback for neutralino-specific paths like saveGames1
@@ -172,7 +172,7 @@ export default class NodeJsOS implements IOS {
 
 	public async showMessageBox(title: string, content: string, choice?: MessageBoxChoice, icon?: Icon): Promise<string> {
 		this.mockMessageBoxes.push({ title, content, choice, icon });
-		return 'OK'; // Default mock response
+		return "OK"; // Default mock response
 	}
 
 	public async showOpenDialog(title?: string, options?: OpenDialogOptions): Promise<string[]> {
@@ -182,16 +182,16 @@ export default class NodeJsOS implements IOS {
 
 	public async showSaveDialog(title?: string, options?: SaveDialogOptions): Promise<string> {
 		this.mockSaveDialogCalls.push({ title, options });
-		return ''; // Return empty selection
+		return ""; // Return empty selection
 	}
 
 	public async showFolderDialog(title?: string, options?: FolderDialogOptions): Promise<string> {
 		this.mockFolderDialogCalls.push({ title, options });
-		return ''; // Return empty selection
+		return ""; // Return empty selection
 	}
 
 	public async trashItem(targetPath: string): Promise<string> {
 		this.mockTrashCalls.push(targetPath);
-		return '';
+		return "";
 	}
 }

@@ -1,6 +1,6 @@
 // UNIVERSAL COMPATIBILITY
-import { Log_Warn } from '../Logger';
-import type { CanvasNodeData } from './Canvas.types';
+import { Log_Warn } from "../Logger";
+import type { CanvasNodeData } from "./Canvas.types";
 
 /**
  * Interface representing the deserialized view configuration.
@@ -21,16 +21,16 @@ export function sanitizeNodes(loadedNodes: CanvasNodeData<any>[]): CanvasNodeDat
 		if (!sanitized.id) {
 			sanitized.id = crypto.randomUUID();
 		}
-		if (typeof sanitized.x !== 'number' || !Number.isFinite(sanitized.x)) {
+		if (typeof sanitized.x !== "number" || !Number.isFinite(sanitized.x)) {
 			sanitized.x = 0;
 		}
-		if (typeof sanitized.y !== 'number' || !Number.isFinite(sanitized.y)) {
+		if (typeof sanitized.y !== "number" || !Number.isFinite(sanitized.y)) {
 			sanitized.y = 0;
 		}
-		if (sanitized.width !== undefined && (typeof sanitized.width !== 'number' || !Number.isFinite(sanitized.width))) {
+		if (sanitized.width !== undefined && (typeof sanitized.width !== "number" || !Number.isFinite(sanitized.width))) {
 			sanitized.width = undefined;
 		}
-		if (sanitized.height !== undefined && (typeof sanitized.height !== 'number' || !Number.isFinite(sanitized.height))) {
+		if (sanitized.height !== undefined && (typeof sanitized.height !== "number" || !Number.isFinite(sanitized.height))) {
 			sanitized.height = undefined;
 		}
 		return sanitized;
@@ -46,7 +46,7 @@ function parseLegacyPayload(storage: string): { nodes: CanvasNodeData<any>[]; vi
 		if (Array.isArray(parsed)) {
 			return { nodes: parsed as CanvasNodeData<any>[], view: null };
 		}
-		if (parsed && typeof parsed === 'object') {
+		if (parsed && typeof parsed === "object") {
 			const nodes = (parsed.nodes || []) as CanvasNodeData<any>[];
 			let view: ViewState | null = null;
 			if (parsed.view) {

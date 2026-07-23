@@ -1,12 +1,12 @@
 // BROWSER ONLY
-import type { Component } from 'svelte';
+import type { Component } from "svelte";
 
 export interface Route {
 	pattern: string;
 	component: Component;
 }
 
-const STORAGE_KEY = 'last_page';
+const STORAGE_KEY = "last_page";
 
 function getInitialUrl(): URL {
 	const currentUrl = new URL(window.location.href);
@@ -15,14 +15,14 @@ function getInitialUrl(): URL {
 		if (lastPage) {
 			const savedUrl = new URL(lastPage, window.location.href);
 			if (savedUrl.href !== currentUrl.href) {
-				window.history.replaceState({}, '', savedUrl.href);
+				window.history.replaceState({}, "", savedUrl.href);
 			}
 			return savedUrl;
 		}
 		// If no last page is stored, store the current one
 		localStorage.setItem(STORAGE_KEY, currentUrl.pathname + currentUrl.search + currentUrl.hash);
 	} catch (e) {
-		console.error('Failed to get or set initial URL in localStorage:', e);
+		console.error("Failed to get or set initial URL in localStorage:", e);
 	}
 	return currentUrl;
 }
@@ -69,7 +69,7 @@ class Router {
 			const id = decodeURIComponent(hash.slice(1));
 			const element = document.getElementById(id);
 			if (element) {
-				element.scrollIntoView({ behavior: 'smooth' });
+				element.scrollIntoView({ behavior: "smooth" });
 			}
 		}, 0);
 	}
@@ -81,9 +81,9 @@ class Router {
 	navigate(href: string, options: { replace?: boolean } = {}) {
 		const newUrl = new URL(href, window.location.href);
 		if (options.replace) {
-			window.history.replaceState({}, '', href);
+			window.history.replaceState({}, "", href);
 		} else {
-			window.history.pushState({}, '', href);
+			window.history.pushState({}, "", href);
 		}
 		this.url = newUrl;
 		this.scrollToHash(newUrl.hash);
@@ -106,16 +106,16 @@ class Router {
 			this.navigate(targetUrl.pathname + targetUrl.search + targetUrl.hash);
 		};
 
-		node.addEventListener('click', click);
+		node.addEventListener("click", click);
 		return {
 			destroy() {
-				node.removeEventListener('click', click);
+				node.removeEventListener("click", click);
 			},
 		};
 	};
 
 	constructor() {
-		window.addEventListener('popstate', () => {
+		window.addEventListener("popstate", () => {
 			const currentUrl = new URL(window.location.href);
 			this.url = currentUrl;
 			this.scrollToHash(currentUrl.hash);
@@ -130,9 +130,9 @@ function matchRoute(pattern: string, path: string): Record<string, string> | nul
 	const regexStr = pattern
 		.replace(/:([a-zA-Z0-9_]+)/g, (_, key) => {
 			keys.push(key);
-			return '([^/]+)';
+			return "([^/]+)";
 		})
-		.replace(/\*/g, '.*');
+		.replace(/\*/g, ".*");
 
 	const regex = new RegExp(`^${regexStr}$`);
 	const match = path.match(regex);
@@ -140,7 +140,7 @@ function matchRoute(pattern: string, path: string): Record<string, string> | nul
 
 	const params: Record<string, string> = {};
 	keys.forEach((key, index) => {
-		params[key] = decodeURIComponent(match[index + 1] || '');
+		params[key] = decodeURIComponent(match[index + 1] || "");
 	});
 	return params;
 }

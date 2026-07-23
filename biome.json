@@ -51,7 +51,7 @@
 	],
 	"javascript": {
 		"formatter": {
-			"quoteStyle": "single"
+			"quoteStyle": "double"
 		},
 		"parser": {
 			"unsafeParameterDecoratorsEnabled": true

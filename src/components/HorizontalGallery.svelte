@@ -1,14 +1,14 @@
 <script lang="ts">
-import mediumZoom from 'medium-zoom';
+import mediumZoom from "medium-zoom";
 
 type Props = {
 	images: string[];
 	imageHeight?: string;
 	maxRows?: number;
-	alignment?: 'center' | 'stylish';
+	alignment?: "center" | "stylish";
 };
 
-let { images, imageHeight = '12rem', maxRows = 1, alignment = 'center' }: Props = $props();
+let { images, imageHeight = "12rem", maxRows = 1, alignment = "center" }: Props = $props();
 let container: HTMLDivElement;
 let isDragging = $state(false);
 let canScrollLeft = $state(false);
@@ -31,11 +31,11 @@ function updateArrows() {
 
 function scroll(direction: -1 | 1) {
 	if (!container) return;
-	container.scrollBy({ left: direction * container.clientWidth * 0.6, behavior: 'smooth' });
+	container.scrollBy({ left: direction * container.clientWidth * 0.6, behavior: "smooth" });
 }
 
 function applyStylishOffsets() {
-	if (alignment !== 'stylish' || !container || !isWrapping) return;
+	if (alignment !== "stylish" || !container || !isWrapping) return;
 	const children = Array.from(container.children) as HTMLElement[];
 	let currentRowTop = children[0]?.offsetTop ?? 0;
 	let rowIndex = 0;
@@ -45,7 +45,7 @@ function applyStylishOffsets() {
 			rowIndex++;
 			currentRowTop = child.offsetTop;
 		}
-		child.style.transform = rowIndex % 2 === 1 ? 'translateX(1.5rem)' : '';
+		child.style.transform = rowIndex % 2 === 1 ? "translateX(1.5rem)" : "";
 	}
 }
 
@@ -80,8 +80,8 @@ $effect(() => {
 	});
 	observer.observe(container);
 
-	const zoom = mediumZoom(container.querySelectorAll('img'), {
-		background: 'rgba(0, 0, 0, 0.85)',
+	const zoom = mediumZoom(container.querySelectorAll("img"), {
+		background: "rgba(0, 0, 0, 0.85)",
 		margin: 24,
 	});
 
@@ -92,12 +92,12 @@ $effect(() => {
 		}
 	}
 
-	container.addEventListener('click', onClickCapture, { capture: true });
+	container.addEventListener("click", onClickCapture, { capture: true });
 
 	return () => {
 		observer.disconnect();
 		zoom.detach();
-		container.removeEventListener('click', onClickCapture, { capture: true });
+		container.removeEventListener("click", onClickCapture, { capture: true });
 	};
 });
 </script>

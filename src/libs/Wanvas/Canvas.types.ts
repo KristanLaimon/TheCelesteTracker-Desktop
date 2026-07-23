@@ -1,5 +1,5 @@
 // UNIVERSAL COMPATIBILITY
-import type { Component, ComponentProps, Snippet } from 'svelte';
+import type { Component, ComponentProps, Snippet } from "svelte";
 
 // biome-ignore lint/suspicious/noExplicitAny: generic component parameters require any
 export type CanvasRegistry = Record<string, Component<any, any, any>>;
@@ -98,7 +98,7 @@ export interface CanvasProps {
 	dotColor?: string;
 	dotSize?: number;
 	showDots?: boolean;
-	mode?: 'normal' | 'zen';
+	mode?: "normal" | "zen";
 	children?: Snippet;
 	controls?: Snippet;
 	persistence?: CanvasPersistence | null;

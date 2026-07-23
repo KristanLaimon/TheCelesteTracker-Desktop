@@ -1,10 +1,10 @@
 <script lang="ts">
-import type { ComponentProps } from 'svelte';
-import Canvas from '../libs/GoldenLayoutThemes/components/GL_Canvas.svelte';
-import RawHtml from '../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte';
-import GoldenLayout from '../libs/GoldenLayoutThemes/GoldenLayout.svelte';
-import type { GoldenLayoutContent, GoldenLayoutRegistry } from '../libs/GoldenLayoutThemes/GoldenLayout.types';
-import ModView from '../pages/ModView.svelte';
+import type { ComponentProps } from "svelte";
+import Canvas from "../libs/GoldenLayoutThemes/components/GL_Canvas.svelte";
+import RawHtml from "../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte";
+import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
+import type { GoldenLayoutContent, GoldenLayoutRegistry } from "../libs/GoldenLayoutThemes/GoldenLayout.types";
+import ModView from "../pages/ModView.svelte";
 
 const registry = {
 	canvas: Canvas,
@@ -13,25 +13,25 @@ const registry = {
 } satisfies GoldenLayoutRegistry;
 
 const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
-	type: 'row',
+	type: "row",
 	content: [
 		{
-			type: 'row',
+			type: "row",
 			content: [
 				{
-					type: 'stack',
+					type: "stack",
 					content: [
 						{
-							type: 'canvas',
-							props: { localStorageKey: 'canvas-1' } satisfies ComponentProps<typeof Canvas>,
+							type: "canvas",
+							props: { localStorageKey: "canvas-1" } satisfies ComponentProps<typeof Canvas>,
 						},
 						{
-							type: 'rawHtml',
-							props: { htmlContent: 'Hola, raw HTML 2' } satisfies ComponentProps<typeof RawHtml>,
+							type: "rawHtml",
+							props: { htmlContent: "Hola, raw HTML 2" } satisfies ComponentProps<typeof RawHtml>,
 						},
 						{
-							type: 'modView',
-							props: { searchQuery: 'Strawberry YAM' },
+							type: "modView",
+							props: { searchQuery: "Strawberry YAM" },
 						},
 					],
 				},

@@ -23,7 +23,7 @@ export interface SpawnedProcess {
 	pid: number;
 }
 
-export type SpawnedProcessAction = 'stdIn' | 'stdInEnd' | 'exit';
+export type SpawnedProcessAction = "stdIn" | "stdInEnd" | "exit";
 
 export type Envs = Record<string, string>;
 
@@ -48,9 +48,9 @@ export interface FolderDialogOptions {
 	defaultPath?: string;
 }
 
-export type Icon = 'INFO' | 'WARNING' | 'ERROR' | 'QUESTION';
+export type Icon = "INFO" | "WARNING" | "ERROR" | "QUESTION";
 
-export type MessageBoxChoice = 'OK' | 'OK_CANCEL' | 'YES_NO' | 'YES_NO_CANCEL' | 'RETRY_CANCEL' | 'ABORT_RETRY_IGNORE';
+export type MessageBoxChoice = "OK" | "OK_CANCEL" | "YES_NO" | "YES_NO_CANCEL" | "RETRY_CANCEL" | "ABORT_RETRY_IGNORE";
 
 export interface TrayMenuItem {
 	id?: string;
@@ -65,23 +65,23 @@ export interface TrayOptions {
 }
 
 export type CommonKnownPath =
-	| 'config'
-	| 'data'
-	| 'local'
-	| 'cache'
-	| 'temp'
-	| 'downloads'
-	| 'music'
-	| 'pictures'
-	| 'videos'
-	| 'home'
-	| 'desktop'
-	| 'saveGames1'
-	| 'saveGames2'
+	| "config"
+	| "data"
+	| "local"
+	| "cache"
+	| "temp"
+	| "downloads"
+	| "music"
+	| "pictures"
+	| "videos"
+	| "home"
+	| "desktop"
+	| "saveGames1"
+	| "saveGames2"
 	| string;
 
 export interface IOS {
-	getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown';
+	getCurrentOS(): "windows" | "macos" | "freebsd" | "linux" | "unknown";
 	execCommand(command: string, options?: ExecCommandOptions): Promise<ExecCommandResult>;
 	spawnProcess(command: string, options?: SpawnedProcessOptions): Promise<SpawnedProcess>;
 	updateSpawnedProcess(id: number, action: SpawnedProcessAction, data?: string): Promise<void>;

@@ -1,9 +1,9 @@
 <script lang="ts">
-import type { ICanvasWidgetProps } from '../Canvas.types';
-import BaseGlassWidget from './BaseGlassWidget.svelte';
+import type { ICanvasWidgetProps } from "../Canvas.types";
+import BaseGlassWidget from "./BaseGlassWidget.svelte";
 
 type ImgWidgetSizeSubProp = {
-	mode: 'custom' | 'keep-aspect-ratio-always';
+	mode: "custom" | "keep-aspect-ratio-always";
 	width?: number;
 	height?: number;
 };
@@ -15,7 +15,7 @@ type ImgWidgetProps = {
 
 type Props = ICanvasWidgetProps<ImgWidgetProps>;
 
-let { srcUrl = '', size = { mode: 'keep-aspect-ratio-always' } }: Props = $props();
+let { srcUrl = "", size = { mode: "keep-aspect-ratio-always" } }: Props = $props();
 
 let hasError = $state<boolean>(false);
 

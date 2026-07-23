@@ -1,12 +1,12 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
 /** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
-import { injectable } from 'tsyringe';
-import type { IFileSystem } from '../src/interfaces/IFileSystem';
-import type { IOS } from '../src/interfaces/IOs';
-import type { IPath } from '../src/interfaces/IPath';
-import { Log_Info, Log_Throw } from '../src/libs/Logger';
-import Generic_Go from './Generic_Go';
+import { injectable } from "tsyringe";
+import type { IFileSystem } from "../src/interfaces/IFileSystem";
+import type { IOS } from "../src/interfaces/IOs";
+import type { IPath } from "../src/interfaces/IPath";
+import { Log_Info, Log_Throw } from "../src/libs/Logger";
+import Generic_Go from "./Generic_Go";
 
 export type SQLiteQueryResult<T> =
 	| {
@@ -53,8 +53,8 @@ export default class Sqlite_Go extends Generic_Go {
 		if (response.exitCode !== 0) {
 			try {
 				const parsed = JSON.parse(response.stdOut);
-				if (parsed && typeof parsed === 'object' && 'success' in parsed && !parsed.success) {
-					throw new Error(parsed.error || 'Database operation failed');
+				if (parsed && typeof parsed === "object" && "success" in parsed && !parsed.success) {
+					throw new Error(parsed.error || "Database operation failed");
 				}
 			} catch {}
 			throw new Error(response.stdErr || `SQLite helper exited with code ${response.exitCode}`);
@@ -62,7 +62,7 @@ export default class Sqlite_Go extends Generic_Go {
 
 		const parsed = JSON.parse(response.stdOut);
 		if (!parsed.success) {
-			throw new Error(parsed.error || 'Database operation failed');
+			throw new Error(parsed.error || "Database operation failed");
 		}
 		return parsed as R;
 	}

@@ -1,20 +1,20 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { inject, injectable } from 'tsyringe';
-import { IFileSystem_Token, IOs_Token, IPath_Token } from '../src/interfaces/DependencyInjectionTokens';
-import type { IFileSystem } from '../src/interfaces/IFileSystem';
-import type { IOS } from '../src/interfaces/IOs';
-import type { IPath } from '../src/interfaces/IPath';
+import { inject, injectable } from "tsyringe";
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "../src/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../src/interfaces/IFileSystem";
+import type { IOS } from "../src/interfaces/IOs";
+import type { IPath } from "../src/interfaces/IPath";
 
-const windows_name = 'utilities-win_x64.exe';
-const macos_name = 'utilities-mac_x64';
-const linux_name = 'utilities-linux_x64';
+const windows_name = "utilities-win_x64.exe";
+const macos_name = "utilities-mac_x64";
+const linux_name = "utilities-linux_x64";
 
 /**
  * Should be in "./" if in production.
  * Should be in "./bin" if in development
  */
-const possibleParentFolders = ['./', './bin'];
+const possibleParentFolders = ["./", "./bin"];
 
 @injectable()
 export default class Generic_Go {
@@ -33,19 +33,19 @@ export default class Generic_Go {
 
 		const util_file_name: string = (() => {
 			switch (this.os.getCurrentOS()) {
-				case 'windows':
+				case "windows":
 					return windows_name;
-				case 'macos':
+				case "macos":
 					return macos_name;
-				case 'linux':
+				case "linux":
 					return linux_name;
-				case 'freebsd':
-				case 'unknown':
+				case "freebsd":
+				case "unknown":
 					throw new Error(`Generic_Go: When trying to get utilities exe path. Current os '${this.os.getCurrentOS()} not supportedd. Aborting | Fatal error'`);
 			}
 		})();
 
-		const currentExePath = await this.fs.getAbsolutePath('.');
+		const currentExePath = await this.fs.getAbsolutePath(".");
 		const triedPaths: string[] = [];
 		for (const folder of possibleParentFolders) {
 			const pathToSearchOn: string = this.path.join(currentExePath, folder, util_file_name);

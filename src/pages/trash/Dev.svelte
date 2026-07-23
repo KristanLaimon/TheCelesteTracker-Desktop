@@ -1,9 +1,9 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import ChapterCard from '../components/ChapterCard.svelte';
-import TaskNode from '../components/TaskNode.svelte';
-import Canvas from '../libs/Wanvas/Canvas.svelte';
-import type { CanvasNodeData, CanvasRegistry } from '../libs/Wanvas/Canvas.types';
+import { onMount } from "svelte";
+import ChapterCard from "../components/ChapterCard.svelte";
+import TaskNode from "../components/TaskNode.svelte";
+import Canvas from "../libs/Wanvas/Canvas.svelte";
+import type { CanvasNodeData, CanvasRegistry } from "../libs/Wanvas/Canvas.types";
 
 const registry = {
 	chapterCard: ChapterCard,
@@ -18,50 +18,50 @@ let zoom = $state(1);
 // Dynamic nodes list state demonstrating registry type and props pattern
 let nodes = $state<CanvasNodeData<typeof registry>[]>([
 	{
-		id: 'chap-1',
-		type: 'chapterCard',
+		id: "chap-1",
+		type: "chapterCard",
 		x: 100,
 		y: 150,
 		isPinned: true,
 		props: {
-			number: '01',
-			title: 'Forsaken City',
-			status: 'completed',
-			berries: '20 / 20',
-			cassette: 'Found',
-			heart: 'Blue',
+			number: "01",
+			title: "Forsaken City",
+			status: "completed",
+			berries: "20 / 20",
+			cassette: "Found",
+			heart: "Blue",
 		},
 	},
 	{
-		id: 'todo-list',
-		type: 'taskNode',
+		id: "todo-list",
+		type: "taskNode",
 		x: 500,
 		y: 150,
 		width: 250,
 		height: 250,
 		props: {
-			title: 'Modding Checklist',
+			title: "Modding Checklist",
 		},
 	},
 	{
-		id: 'custom-node',
-		type: 'chapterCard',
+		id: "custom-node",
+		type: "chapterCard",
 		x: 900,
 		y: 150,
 		props: {
-			number: '03',
-			title: 'Celestial Resort',
-			status: 'locked',
-			berries: '0 / 29',
-			cassette: 'Missing',
-			heart: 'Missing',
+			number: "03",
+			title: "Celestial Resort",
+			status: "locked",
+			berries: "0 / 29",
+			cassette: "Missing",
+			heart: "Missing",
 		},
 	},
 ]);
 
 // Load state on mount
 onMount(() => {
-	const savedNodes = localStorage.getItem('celeste-tracker-nodes');
+	const savedNodes = localStorage.getItem("celeste-tracker-nodes");
 	if (savedNodes) {
 		try {
 			const parsed = JSON.parse(savedNodes);
@@ -71,20 +71,20 @@ onMount(() => {
 					n.props = n.componentProps;
 				}
 				if (!n.type) {
-					if (n.id?.startsWith('chap-') || n.id === 'custom-node') {
-						n.type = 'chapterCard';
-					} else if (n.id?.startsWith('todo-') || n.id === 'todo-list') {
-						n.type = 'taskNode';
+					if (n.id?.startsWith("chap-") || n.id === "custom-node") {
+						n.type = "chapterCard";
+					} else if (n.id?.startsWith("todo-") || n.id === "todo-list") {
+						n.type = "taskNode";
 					}
 				}
 				return n;
 			});
 		} catch (err) {
-			console.error('Failed to parse saved nodes:', err);
+			console.error("Failed to parse saved nodes:", err);
 		}
 	}
 
-	const savedPos = localStorage.getItem('celeste-tracker-view');
+	const savedPos = localStorage.getItem("celeste-tracker-view");
 	if (savedPos) {
 		try {
 			const parsed = JSON.parse(savedPos);
@@ -92,21 +92,21 @@ onMount(() => {
 			y = parsed.y;
 			zoom = parsed.zoom;
 		} catch (err) {
-			console.error('Failed to parse saved view:', err);
+			console.error("Failed to parse saved view:", err);
 		}
 	}
 });
 
 // Save callback triggered when nodes change position or size
 function handleNodeChange(updatedNodes: CanvasNodeData[]) {
-	localStorage.setItem('celeste-tracker-nodes', JSON.stringify(updatedNodes));
+	localStorage.setItem("celeste-tracker-nodes", JSON.stringify(updatedNodes));
 }
 
 // Effect to save viewport changes (debounced to avoid writing to localStorage every frame/tick)
 $effect(() => {
 	const currentView = { x, y, zoom };
 	const timer = setTimeout(() => {
-		localStorage.setItem('celeste-tracker-view', JSON.stringify(currentView));
+		localStorage.setItem("celeste-tracker-view", JSON.stringify(currentView));
 	}, 250);
 
 	return () => {
@@ -116,7 +116,7 @@ $effect(() => {
 
 // Helper to calculate world coordinates for new nodes at screen center
 function getCenterWorldCoords() {
-	const rect = document.querySelector('.root')?.getBoundingClientRect();
+	const rect = document.querySelector(".root")?.getBoundingClientRect();
 	const width = rect?.width ?? 800;
 	const height = rect?.height ?? 600;
 	return {
@@ -133,16 +133,16 @@ function addChapterNode() {
 
 	nodes.push({
 		id,
-		type: 'chapterCard',
+		type: "chapterCard",
 		x: coords.x,
 		y: coords.y,
 		props: {
-			number: 'New',
+			number: "New",
 			title: `Custom Chapter ${nodes.length + 1}`,
-			status: 'locked',
-			berries: '0 / 0',
-			cassette: 'Missing',
-			heart: 'Missing',
+			status: "locked",
+			berries: "0 / 0",
+			cassette: "Missing",
+			heart: "Missing",
 		},
 	});
 
@@ -156,13 +156,13 @@ function addTaskNode() {
 
 	nodes.push({
 		id,
-		type: 'taskNode',
+		type: "taskNode",
 		x: coords.x,
 		y: coords.y,
 		width: 250,
 		height: 250,
 		props: {
-			title: 'Mod Tasks list',
+			title: "Mod Tasks list",
 		},
 	});
 
@@ -171,8 +171,8 @@ function addTaskNode() {
 
 // Clear/Reset all storage
 function clearPersistence() {
-	localStorage.removeItem('celeste-tracker-nodes');
-	localStorage.removeItem('celeste-tracker-view');
+	localStorage.removeItem("celeste-tracker-nodes");
+	localStorage.removeItem("celeste-tracker-view");
 	window.location.reload();
 }
 </script>

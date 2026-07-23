@@ -90,7 +90,7 @@ export default class Storage {
 	/** Default max size of {@link historyArray} when `history.size` isn't provided in options. */
 	private static readonly DEFAULT_HISTORY_SIZE = 50;
 	/** Reserved storage key used to persist the undo history itself. */
-	private static readonly HISTORY_STORAGE_KEY = '__storage_history__';
+	private static readonly HISTORY_STORAGE_KEY = "__storage_history__";
 
 	private fastestMemoryCache = new Map<string, any>();
 	private dirtyKeys = new Set<string>();
@@ -188,7 +188,7 @@ export default class Storage {
 		let invalidateCache = false;
 		let args = rest;
 
-		const isOptionsArg = rest.length === 1 && typeof rest[0] === 'object' && rest[0] !== null && !Array.isArray(rest[0]) && 'invalidateCache' in rest[0];
+		const isOptionsArg = rest.length === 1 && typeof rest[0] === "object" && rest[0] !== null && !Array.isArray(rest[0]) && "invalidateCache" in rest[0];
 
 		if (isOptionsArg) {
 			invalidateCache = Boolean((rest[0] as { invalidateCache?: boolean }).invalidateCache);
@@ -313,13 +313,13 @@ export default class Storage {
 	 *   {@link Storage.SAVE_MINUTES_INTERVAL} (3 minutes). Any
 	 *   previously running timer is cleared first to avoid duplicates.
 	 */
-	configureAutoSave(com: 'turn on' | 'turn off'): void {
+	configureAutoSave(com: "turn on" | "turn off"): void {
 		if (this.timerId) {
 			clearInterval(this.timerId);
 			this.timerId = undefined;
 		}
 
-		if (com === 'turn off') {
+		if (com === "turn off") {
 			return;
 		}
 
@@ -338,9 +338,9 @@ export default class Storage {
 
 	configureAutoSaveMinutesTime(newMinutes: number): void {
 		if (newMinutes <= 0) throw new Error(`Storage.ts: Can't set autoSaveMinutesTime with value: '${newMinutes}'. Value no valid`);
-		this.configureAutoSave('turn off');
+		this.configureAutoSave("turn off");
 		this.options.saveMinutesInterval = newMinutes;
-		this.configureAutoSave('turn on');
+		this.configureAutoSave("turn on");
 	}
 
 	private async lookup<T>(key: string): Promise<T | null> {

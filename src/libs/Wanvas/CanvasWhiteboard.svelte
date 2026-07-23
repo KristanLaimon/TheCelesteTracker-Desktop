@@ -6,11 +6,11 @@
  * @license MIT
  */
 
-import { onDestroy, onMount } from 'svelte';
-import type { CanvasNodeData, CanvasPersistence, CanvasProps } from './Canvas.types';
-import { dragNode, observeSize, resizeNode } from './CanvasActions';
-import { calculateZoomOffset, clampX, clampY, clampZoom, getTouchCenter, getTouchDistance } from './CanvasMath';
-import { loadPersistentState, savePersistentState } from './CanvasPersistence';
+import { onDestroy, onMount } from "svelte";
+import type { CanvasNodeData, CanvasPersistence, CanvasProps } from "./Canvas.types";
+import { dragNode, observeSize, resizeNode } from "./CanvasActions";
+import { calculateZoomOffset, clampX, clampY, clampZoom, getTouchCenter, getTouchDistance } from "./CanvasMath";
+import { loadPersistentState, savePersistentState } from "./CanvasPersistence";
 
 export type { CanvasNodeData, CanvasPersistence, CanvasProps };
 
@@ -29,19 +29,19 @@ let {
 
 	resizable = true,
 	nodes = $bindable([]),
-	dragHandleClass = '',
+	dragHandleClass = "",
 	onNodeChange,
 	classNames = {},
-	class: className = '',
-	style = '',
-	bgColor = '#242424',
-	dotColor = 'rgb(58, 58, 58)',
+	class: className = "",
+	style = "",
+	bgColor = "#242424",
+	dotColor = "rgb(58, 58, 58)",
 	dotSize = 1.5,
 	showDots = true,
 	children,
 	controls,
 	registry = {},
-	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence | null),
+	persistence = $bindable({ key: "canvas-persistence-default" } as CanvasPersistence | null),
 	wrapperEl = $bindable(null),
 }: CanvasProps = $props();
 
@@ -60,7 +60,7 @@ const limits = $derived({
 // Internal references
 let isPanning = $state(false);
 
-const isPersistenceEnabled = $derived(persistence !== null && (persistence.key !== 'canvas-persistence-default' || !onNodeChange));
+const isPersistenceEnabled = $derived(persistence !== null && (persistence.key !== "canvas-persistence-default" || !onNodeChange));
 
 // Drag variables
 let startMousePos = { x: 0, y: 0 };
@@ -103,7 +103,7 @@ $effect.pre(() => {
 	// First check layer values and throw error if negative
 	for (const node of nodes) {
 		if (node.layer !== undefined && node.layer < 0) {
-			throw new Error('Layer index must be non-negative');
+			throw new Error("Layer index must be non-negative");
 		}
 	}
 
@@ -143,7 +143,7 @@ $effect.pre(() => {
 });
 
 function bringToTop(node: CanvasNodeData, target?: HTMLElement) {
-	if (target?.closest('.canvas-node-close-button')) return;
+	if (target?.closest(".canvas-node-close-button")) return;
 	const maxLayer = Math.max(0, ...nodes.map((n) => n.layer ?? 0));
 	if (node.layer !== maxLayer) {
 		node.layer = maxLayer + 1;
@@ -163,19 +163,19 @@ function isInteractive(target: HTMLElement | null): boolean {
 	if (!target) return false;
 	let current: HTMLElement | null = target;
 	while (current && current !== wrapperEl) {
-		if (current.hasAttribute('data-canvas-is-draggable')) {
+		if (current.hasAttribute("data-canvas-is-draggable")) {
 			return false;
 		}
 		const tagName = current.tagName;
 		if (
-			tagName === 'INPUT' ||
-			tagName === 'TEXTAREA' ||
-			tagName === 'SELECT' ||
-			tagName === 'BUTTON' ||
-			tagName === 'A' ||
-			current.classList.contains('interactive') ||
-			current.classList.contains('no-pan') ||
-			current.getAttribute('role') === 'button'
+			tagName === "INPUT" ||
+			tagName === "TEXTAREA" ||
+			tagName === "SELECT" ||
+			tagName === "BUTTON" ||
+			tagName === "A" ||
+			current.classList.contains("interactive") ||
+			current.classList.contains("no-pan") ||
+			current.getAttribute("role") === "button"
 		) {
 			return true;
 		}
@@ -214,9 +214,9 @@ $effect(() => {
 		e.preventDefault();
 		handleWheel(e);
 	};
-	element.addEventListener('wheel', onWheel, { passive: false });
+	element.addEventListener("wheel", onWheel, { passive: false });
 	return () => {
-		element.removeEventListener('wheel', onWheel);
+		element.removeEventListener("wheel", onWheel);
 	};
 });
 

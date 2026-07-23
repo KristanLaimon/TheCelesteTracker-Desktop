@@ -1,7 +1,7 @@
 // UNIVERSAL COMPATIBILITY
-const APP_NAME: string = 'TheCelesteTracker';
+const APP_NAME: string = "TheCelesteTracker";
 
-const silentLogsNamespaces: string[] = ['Canvas'].map((a) => a.toLocaleLowerCase());
+const silentLogsNamespaces: string[] = ["Canvas"].map((a) => a.toLocaleLowerCase());
 
 export function Log_Throw(throwErrorMsg: string): void {
 	console.error(`[${APP_NAME}- FATALERROR]: ${throwErrorMsg}`);
@@ -14,12 +14,12 @@ function isSilenced(msgs: any[]): boolean {
 	const filterString = msgs
 		.map((a) => {
 			try {
-				return typeof a === 'object' ? JSON.stringify(a) : String(a);
+				return typeof a === "object" ? JSON.stringify(a) : String(a);
 			} catch {
-				return '[Unserializable]';
+				return "[Unserializable]";
 			}
 		})
-		.join(' ')
+		.join(" ")
 		.toLocaleLowerCase();
 
 	for (const bannedNamespaceLC of silentLogsNamespaces) {

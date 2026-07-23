@@ -1,17 +1,17 @@
 <script lang="ts">
-import DomPurify from 'dompurify';
-import { marked } from 'marked';
-import { onDestroy } from 'svelte';
-import { Log_Info } from '../../Logger';
-import type { ICanvasWidgetProps } from '../Canvas.types';
-import BaseGlassWidget from './BaseGlassWidget.svelte';
+import DomPurify from "dompurify";
+import { marked } from "marked";
+import { onDestroy } from "svelte";
+import { Log_Info } from "../../Logger";
+import type { ICanvasWidgetProps } from "../Canvas.types";
+import BaseGlassWidget from "./BaseGlassWidget.svelte";
 
 type TextProps = {
 	rawTextContent?: string /**Treated always as markdown content. Html rendered only in frontend, but stored as markdown*/;
-	displayMode?: 'markdown-rendered' | 'raw';
+	displayMode?: "markdown-rendered" | "raw";
 };
 type Props = ICanvasWidgetProps<TextProps>;
-let { rawTextContent = $bindable<string>(''), displayMode = $bindable('raw'), onChange }: Props = $props();
+let { rawTextContent = $bindable<string>(""), displayMode = $bindable("raw"), onChange }: Props = $props();
 
 let textContentAsHtml = $derived<string>(DomPurify.sanitize(marked.parse(rawTextContent) as string));
 let isFocused = $state<boolean>(false);

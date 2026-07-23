@@ -1,5 +1,5 @@
 <script lang="ts">
-import { type SearchOptions, type SearchResult, StringSimilarity_SearchThroughList } from '../libs/StringSimilarity';
+import { type SearchOptions, type SearchResult, StringSimilarity_SearchThroughList } from "../libs/StringSimilarity";
 
 type OverrideStyles = {
 	input?: string;
@@ -19,20 +19,20 @@ type Props = {
 	minScore?: number;
 	searchOptions?: SearchOptions;
 	selected?: string;
-	children?: import('svelte').Snippet<[item: string, index: number, score: number]>;
+	children?: import("svelte").Snippet<[item: string, index: number, score: number]>;
 };
 
 let {
 	items = $bindable([]),
-	inputValue = $bindable(''),
+	inputValue = $bindable(""),
 	selectedIndex = $bindable(0),
-	placeholder = 'Search...',
-	class: className = '',
+	placeholder = "Search...",
+	class: className = "",
 	overrideStyles = {},
 	limit = 10,
 	minScore = 0,
 	searchOptions = {},
-	selected = $bindable(''),
+	selected = $bindable(""),
 	children,
 }: Props = $props();
 
@@ -55,7 +55,7 @@ function handleInput() {
 $effect(() => {
 	const el = itemEls[selectedIndex];
 	if (el && listEl) {
-		el.scrollIntoView({ block: 'nearest' });
+		el.scrollIntoView({ block: "nearest" });
 	}
 });
 
@@ -77,21 +77,21 @@ function handleFocus() {
 }
 
 function handleKeyDown(e: KeyboardEvent) {
-	if (e.key === 'ArrowDown') {
+	if (e.key === "ArrowDown") {
 		e.preventDefault();
 		showDropdown = true;
 		if (selectedIndex < suggestions.length - 1) selectedIndex++;
-	} else if (e.key === 'ArrowUp') {
+	} else if (e.key === "ArrowUp") {
 		e.preventDefault();
 		showDropdown = true;
 		if (selectedIndex > 0) selectedIndex--;
-	} else if (e.key === 'Enter') {
+	} else if (e.key === "Enter") {
 		e.preventDefault();
 		const found = suggestions[selectedIndex];
 		if (found) {
 			selectItem(found.item);
 		}
-	} else if (e.key === 'Escape') {
+	} else if (e.key === "Escape") {
 		showDropdown = false;
 	}
 }

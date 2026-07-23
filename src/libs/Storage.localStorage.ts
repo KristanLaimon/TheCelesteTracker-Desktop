@@ -1,5 +1,5 @@
 // BROWSER ONLY
-import type { StorageAdapter } from './Storage';
+import type { StorageAdapter } from "./Storage";
 
 /**
  * Configuration for {@link Storage_LocalStorageAdapter}.
@@ -35,7 +35,7 @@ export default class Storage_LocalStorageAdapter implements StorageAdapter {
 	private prefix: string;
 
 	constructor(options: LocalStorageAdapterOptions = {}) {
-		this.prefix = options.prefix ?? '';
+		this.prefix = options.prefix ?? "";
 	}
 
 	/**
@@ -46,11 +46,11 @@ export default class Storage_LocalStorageAdapter implements StorageAdapter {
 	 */
 	isAvailable(): boolean {
 		try {
-			if (typeof window === 'undefined' || typeof window.localStorage === 'undefined') {
+			if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
 				return false;
 			}
-			const probeKey = '__storage_probe__';
-			window.localStorage.setItem(probeKey, '1');
+			const probeKey = "__storage_probe__";
+			window.localStorage.setItem(probeKey, "1");
 			window.localStorage.removeItem(probeKey);
 			return true;
 		} catch {

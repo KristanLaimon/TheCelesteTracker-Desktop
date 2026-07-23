@@ -1,5 +1,5 @@
 <script lang="ts">
-import mediumZoom from 'medium-zoom';
+import mediumZoom from "medium-zoom";
 
 type Props = {
 	images: string[];
@@ -8,14 +8,14 @@ type Props = {
 
 let { images, initialIndex = 0 }: Props = $props();
 let selectedIndex = $state(initialIndex);
-let featuredSrc = $derived(images[selectedIndex] ?? images[0] ?? '');
+let featuredSrc = $derived(images[selectedIndex] ?? images[0] ?? "");
 let featuredContainer: HTMLDivElement;
 
 $effect(() => {
 	if (!featuredContainer) return;
 	void featuredSrc;
-	const zoom = mediumZoom(featuredContainer.querySelector('img')!, {
-		background: 'rgba(0, 0, 0, 0.85)',
+	const zoom = mediumZoom(featuredContainer.querySelector("img")!, {
+		background: "rgba(0, 0, 0, 0.85)",
 		margin: 24,
 	});
 	return () => zoom.detach();

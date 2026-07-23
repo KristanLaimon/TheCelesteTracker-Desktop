@@ -1,15 +1,15 @@
 <script lang="ts">
-import mediumZoom from 'medium-zoom';
+import mediumZoom from "medium-zoom";
 
 type Props = {
 	images: string[];
 	imageWidth?: string;
 	imageHeight?: string;
 	maxRows?: number;
-	alignment?: 'center' | 'stylish';
+	alignment?: "center" | "stylish";
 };
 
-let { images, imageWidth = '100%', imageHeight = '12rem', maxRows = 1, alignment = 'center' }: Props = $props();
+let { images, imageWidth = "100%", imageHeight = "12rem", maxRows = 1, alignment = "center" }: Props = $props();
 let scrollContainer: HTMLDivElement;
 let isDragging = $state(false);
 let wasDragged = false;
@@ -27,7 +27,7 @@ function updateArrows() {
 
 function scroll(direction: -1 | 1) {
 	if (!scrollContainer) return;
-	scrollContainer.scrollBy({ top: direction * scrollContainer.clientHeight * 0.6, behavior: 'smooth' });
+	scrollContainer.scrollBy({ top: direction * scrollContainer.clientHeight * 0.6, behavior: "smooth" });
 }
 
 function onPointerDown(e: PointerEvent) {
@@ -53,7 +53,7 @@ function onPointerUp() {
 }
 
 function applyStylishOffsets() {
-	if (alignment !== 'stylish' || !scrollContainer || !isWrapping) return;
+	if (alignment !== "stylish" || !scrollContainer || !isWrapping) return;
 	const children = Array.from(scrollContainer.children) as HTMLElement[];
 	if (children.length === 0) return;
 
@@ -65,7 +65,7 @@ function applyStylishOffsets() {
 			rowIndex++;
 			currentRowTop = child.offsetTop;
 		}
-		child.style.transform = rowIndex % 2 === 1 ? 'translateX(1.5rem)' : '';
+		child.style.transform = rowIndex % 2 === 1 ? "translateX(1.5rem)" : "";
 	}
 }
 
@@ -81,8 +81,8 @@ $effect(() => {
 });
 
 $effect(() => {
-	if (!scrollContainer || !isWrapping || alignment !== 'stylish') return;
-	const imgs = scrollContainer.querySelectorAll('img');
+	if (!scrollContainer || !isWrapping || alignment !== "stylish") return;
+	const imgs = scrollContainer.querySelectorAll("img");
 	let loaded = 0;
 	const total = imgs.length;
 	if (total === 0) return;
@@ -96,7 +96,7 @@ $effect(() => {
 		if (img.complete) {
 			loaded++;
 		} else {
-			img.addEventListener('load', onLoad, { once: true });
+			img.addEventListener("load", onLoad, { once: true });
 		}
 	}
 	if (loaded >= total) applyStylishOffsets();
@@ -105,8 +105,8 @@ $effect(() => {
 $effect(() => {
 	if (!scrollContainer) return;
 	void images;
-	const zoom = mediumZoom(scrollContainer.querySelectorAll('img'), {
-		background: 'rgba(0, 0, 0, 0.85)',
+	const zoom = mediumZoom(scrollContainer.querySelectorAll("img"), {
+		background: "rgba(0, 0, 0, 0.85)",
 		margin: 24,
 	});
 	return () => zoom.detach();
@@ -120,8 +120,8 @@ $effect(() => {
 			wasDragged = false;
 		}
 	}
-	scrollContainer.addEventListener('click', onClickCapture, { capture: true });
-	return () => scrollContainer.removeEventListener('click', onClickCapture, { capture: true });
+	scrollContainer.addEventListener("click", onClickCapture, { capture: true });
+	return () => scrollContainer.removeEventListener("click", onClickCapture, { capture: true });
 });
 </script>
 

@@ -1,8 +1,8 @@
 // NODE.JS/BUN/DENO ONLY
 // biome-ignore-all lint/style/useImportType: DI Needed
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { injectable } from 'tsyringe';
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { injectable } from "tsyringe";
 // Type-only imports for the interfaces
 import type {
 	CopyOptions,
@@ -15,7 +15,7 @@ import type {
 	PathParts,
 	Stats,
 	Watcher,
-} from '../src/interfaces/IFileSystem';
+} from "../src/interfaces/IFileSystem";
 
 @injectable()
 export default class NodeJsFileSystem implements IFileSystem {
@@ -28,7 +28,7 @@ export default class NodeJsFileSystem implements IFileSystem {
 		try {
 			await fs.mkdir(dirPath, { recursive: options?.recursive ?? true });
 		} catch (err: any) {
-			if (err?.code !== 'EEXIST') throw err;
+			if (err?.code !== "EEXIST") throw err;
 		}
 	}
 
@@ -37,11 +37,11 @@ export default class NodeJsFileSystem implements IFileSystem {
 	}
 
 	public async writeFile(filename: string, data: string): Promise<void> {
-		await fs.writeFile(filename, data, 'utf-8');
+		await fs.writeFile(filename, data, "utf-8");
 	}
 
 	public async appendFile(filename: string, data: string): Promise<void> {
-		await fs.appendFile(filename, data, 'utf-8');
+		await fs.appendFile(filename, data, "utf-8");
 	}
 
 	public async writeBinaryFile(filename: string, data: ArrayBuffer): Promise<void> {
@@ -53,7 +53,7 @@ export default class NodeJsFileSystem implements IFileSystem {
 	}
 
 	public async readFile(filename: string, options?: FileReaderOptions): Promise<string> {
-		const content = await fs.readFile(filename, 'utf-8');
+		const content = await fs.readFile(filename, "utf-8");
 		if (options && (options.pos !== undefined || options.size !== undefined)) {
 			const start = options.pos || 0;
 			const end = options.size ? start + options.size : undefined;
@@ -75,7 +75,7 @@ export default class NodeJsFileSystem implements IFileSystem {
 	}
 
 	public async openFile(filename: string): Promise<number> {
-		const handle = await fs.open(filename, 'r+');
+		const handle = await fs.open(filename, "r+");
 		const id = this.nextHandleId++;
 		this.fileHandles.set(id, handle);
 		return id;
@@ -85,7 +85,7 @@ export default class NodeJsFileSystem implements IFileSystem {
 		const handle = this.fileHandles.get(id);
 		if (!handle) throw new Error(`File handle ${id} not found`);
 
-		if (action === 'close') {
+		if (action === "close") {
 			await handle.close();
 			this.fileHandles.delete(id);
 		}
@@ -119,7 +119,7 @@ export default class NodeJsFileSystem implements IFileSystem {
 					// Event dispatching logic would go here if IFileSystem exposed an event emitter
 				}
 			} catch (err) {
-				if ((err as Error).name !== 'AbortError') throw err;
+				if ((err as Error).name !== "AbortError") throw err;
 			}
 		})();
 
@@ -168,7 +168,7 @@ export default class NodeJsFileSystem implements IFileSystem {
 
 			return {
 				entry: entryName,
-				type: entry.isDirectory() ? 'DIRECTORY' : 'FILE',
+				type: entry.isDirectory() ? "DIRECTORY" : "FILE",
 			};
 		});
 	}
@@ -245,16 +245,16 @@ export default class NodeJsFileSystem implements IFileSystem {
 
 	public async access(targetPath: string, mode?: number): Promise<string> {
 		await fs.access(targetPath, mode);
-		return '';
+		return "";
 	}
 
 	public async chmod(targetPath: string, mode: number): Promise<string> {
 		await fs.chmod(targetPath, mode);
-		return '';
+		return "";
 	}
 
 	public async chown(targetPath: string, uid: number, gid: number): Promise<string> {
 		await fs.chown(targetPath, uid, gid);
-		return '';
+		return "";
 	}
 }

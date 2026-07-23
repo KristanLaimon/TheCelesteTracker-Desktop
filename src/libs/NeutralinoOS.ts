@@ -13,19 +13,19 @@ import type {
 	SpawnedProcess,
 	SpawnedProcessOptions,
 	TrayOptions,
-} from '@neutralinojs/lib';
-import { os } from '@neutralinojs/lib';
-import { injectable } from 'tsyringe';
-import type { IOS } from '../interfaces/IOs';
-import { OperatingSystem } from './NeutralinoFileSystem';
+} from "@neutralinojs/lib";
+import { os } from "@neutralinojs/lib";
+import { injectable } from "tsyringe";
+import type { IOS } from "../interfaces/IOs";
+import { OperatingSystem } from "./NeutralinoFileSystem";
 
 export interface ExecCommandOptions extends NeutralinoExecCommandOptions {
 	envs?: Record<string, string>;
 }
 
-export type NeutralinoKnownPath = KnownPath | 'home' | 'desktop' | 'saveGames1' | 'saveGames2';
+export type NeutralinoKnownPath = KnownPath | "home" | "desktop" | "saveGames1" | "saveGames2";
 
-export type SpawnedProcessAction = 'stdIn' | 'stdInEnd' | 'exit';
+export type SpawnedProcessAction = "stdIn" | "stdInEnd" | "exit";
 
 /**
  * NeutralinoOS is a robust, type-safe 1:1 wrapper around the Neutralino.os API.
@@ -33,18 +33,18 @@ export type SpawnedProcessAction = 'stdIn' | 'stdInEnd' | 'exit';
  */
 @injectable()
 export class NeutralinoOS implements IOS {
-	public getCurrentOS(): 'windows' | 'macos' | 'freebsd' | 'linux' | 'unknown' {
+	public getCurrentOS(): "windows" | "macos" | "freebsd" | "linux" | "unknown" {
 		switch (window.NL_OS) {
 			case OperatingSystem.Windows:
-				return 'windows';
+				return "windows";
 			case OperatingSystem.Darwin:
-				return 'macos';
+				return "macos";
 			case OperatingSystem.FreeBSD:
-				return 'freebsd';
+				return "freebsd";
 			case OperatingSystem.Linux:
-				return 'linux';
+				return "linux";
 			default:
-				return 'unknown';
+				return "unknown";
 		}
 	}
 	/**

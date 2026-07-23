@@ -1,6 +1,6 @@
 // BROWSER ONLY
-import { Log_Warn } from '../Logger';
-import type { CanvasNodeData } from './Canvas.types';
+import { Log_Warn } from "../Logger";
+import type { CanvasNodeData } from "./Canvas.types";
 
 export interface DragOptions {
 	node: CanvasNodeData;
@@ -35,7 +35,7 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 
 	function handlePointerDown(e: PointerEvent) {
 		// Drag on left click or touch/pointer
-		if (e.button !== 0 && e.pointerType === 'mouse') return;
+		if (e.button !== 0 && e.pointerType === "mouse") return;
 
 		const target = e.target as HTMLElement;
 		const dragHandleClass = options.getDragHandleClass();
@@ -54,9 +54,9 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 		isDraggingNode = false;
 		hasCaptured = false;
 
-		nodeEl.addEventListener('pointermove', handlePointerMove);
-		nodeEl.addEventListener('pointerup', handlePointerUp);
-		nodeEl.addEventListener('pointercancel', handlePointerUp);
+		nodeEl.addEventListener("pointermove", handlePointerMove);
+		nodeEl.addEventListener("pointerup", handlePointerUp);
+		nodeEl.addEventListener("pointercancel", handlePointerUp);
 	}
 
 	function handlePointerMove(e: PointerEvent) {
@@ -84,9 +84,9 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 	}
 
 	function handlePointerUp(e: PointerEvent) {
-		nodeEl.removeEventListener('pointermove', handlePointerMove);
-		nodeEl.removeEventListener('pointerup', handlePointerUp);
-		nodeEl.removeEventListener('pointercancel', handlePointerUp);
+		nodeEl.removeEventListener("pointermove", handlePointerMove);
+		nodeEl.removeEventListener("pointerup", handlePointerUp);
+		nodeEl.removeEventListener("pointercancel", handlePointerUp);
 
 		if (isDraggingNode) {
 			isDraggingNode = false;
@@ -99,14 +99,14 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 		}
 	}
 
-	nodeEl.addEventListener('pointerdown', handlePointerDown);
+	nodeEl.addEventListener("pointerdown", handlePointerDown);
 
 	const stopProp = (e: Event) => {
 		const target = e.target as HTMLElement;
 		const dragHandleClass = options.getDragHandleClass();
 		if (dragHandleClass) {
 			// Always stop propagation for the resize handle, even when dragHandleClass is set
-			if (target.closest('.canvas-node-resize-handle')) {
+			if (target.closest(".canvas-node-resize-handle")) {
 				e.stopPropagation();
 				return;
 			}
@@ -117,8 +117,8 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 		e.stopPropagation();
 	};
 
-	nodeEl.addEventListener('mousedown', stopProp);
-	nodeEl.addEventListener('touchstart', stopProp);
+	nodeEl.addEventListener("mousedown", stopProp);
+	nodeEl.addEventListener("touchstart", stopProp);
 
 	return {
 		update(newOptions: DragOptions) {
@@ -126,9 +126,9 @@ export function dragNode(nodeEl: HTMLElement, initialOptions: DragOptions) {
 			options = newOptions;
 		},
 		destroy() {
-			nodeEl.removeEventListener('pointerdown', handlePointerDown);
-			nodeEl.removeEventListener('mousedown', stopProp);
-			nodeEl.removeEventListener('touchstart', stopProp);
+			nodeEl.removeEventListener("pointerdown", handlePointerDown);
+			nodeEl.removeEventListener("mousedown", stopProp);
+			nodeEl.removeEventListener("touchstart", stopProp);
 		},
 	};
 }
@@ -150,7 +150,7 @@ export function resizeNode(handleEl: HTMLElement, initialOptions: ResizeOptions)
 	let startAspectRatio = 1.0; // ponytail: store aspect ratio at click
 
 	function handlePointerDown(e: PointerEvent) {
-		if (e.button !== 0 && e.pointerType === 'mouse') return;
+		if (e.button !== 0 && e.pointerType === "mouse") return;
 		e.stopPropagation(); // prevent panning & dragging the node
 
 		isResizing = true;
@@ -185,9 +185,9 @@ export function resizeNode(handleEl: HTMLElement, initialOptions: ResizeOptions)
 			Log_Warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
 		}
 		handleEl.setPointerCapture(e.pointerId);
-		handleEl.addEventListener('pointermove', handlePointerMove);
-		handleEl.addEventListener('pointerup', handlePointerUp);
-		handleEl.addEventListener('pointercancel', handlePointerUp);
+		handleEl.addEventListener("pointermove", handlePointerMove);
+		handleEl.addEventListener("pointerup", handlePointerUp);
+		handleEl.addEventListener("pointercancel", handlePointerUp);
 	}
 
 	function handlePointerMove(e: PointerEvent) {
@@ -250,28 +250,28 @@ export function resizeNode(handleEl: HTMLElement, initialOptions: ResizeOptions)
 			handleEl.releasePointerCapture(e.pointerId);
 		} catch (_err) {}
 
-		handleEl.removeEventListener('pointermove', handlePointerMove);
-		handleEl.removeEventListener('pointerup', handlePointerUp);
-		handleEl.removeEventListener('pointercancel', handlePointerUp);
+		handleEl.removeEventListener("pointermove", handlePointerMove);
+		handleEl.removeEventListener("pointerup", handlePointerUp);
+		handleEl.removeEventListener("pointercancel", handlePointerUp);
 
 		options.triggerChange();
 	}
 
-	handleEl.addEventListener('pointerdown', handlePointerDown);
+	handleEl.addEventListener("pointerdown", handlePointerDown);
 
 	// Explicitly block mousedown & touchstart propagation to prevent panning & dragging node
 	const block = (e: Event) => e.stopPropagation();
-	handleEl.addEventListener('mousedown', block);
-	handleEl.addEventListener('touchstart', block);
+	handleEl.addEventListener("mousedown", block);
+	handleEl.addEventListener("touchstart", block);
 
 	return {
 		update(newOptions: ResizeOptions) {
 			options = newOptions;
 		},
 		destroy() {
-			handleEl.removeEventListener('pointerdown', handlePointerDown);
-			handleEl.removeEventListener('mousedown', block);
-			handleEl.removeEventListener('touchstart', block);
+			handleEl.removeEventListener("pointerdown", handlePointerDown);
+			handleEl.removeEventListener("mousedown", block);
+			handleEl.removeEventListener("touchstart", block);
 		},
 	};
 }

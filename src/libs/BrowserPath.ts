@@ -11,7 +11,7 @@
  * @copyright Same as Node.js
  */
 
-import type { IPath } from '../interfaces/IPath';
+import type { IPath } from "../interfaces/IPath";
 
 export interface FormatInputPathObject {
 	dir?: string;
@@ -30,13 +30,13 @@ export interface ParsedPath {
 }
 
 function assertPath(path: unknown): asserts path is string {
-	if (typeof path !== 'string') {
+	if (typeof path !== "string") {
 		throw new TypeError(`Path must be a string. Received ${JSON.stringify(path)}`);
 	}
 }
 
 function normalizeString(path: string, allowAboveRoot: boolean): string {
-	let res = '';
+	let res = "";
 	let lastSegmentLength = 0;
 	let lastSlash = -1;
 	let dots = 0;
@@ -55,21 +55,21 @@ function normalizeString(path: string, allowAboveRoot: boolean): string {
 			} else if (lastSlash !== i - 1 && dots === 2) {
 				if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 || res.charCodeAt(res.length - 2) !== 46) {
 					if (res.length > 2) {
-						const lastSlashIndex = res.lastIndexOf('/');
+						const lastSlashIndex = res.lastIndexOf("/");
 						if (lastSlashIndex !== res.length - 1) {
 							if (lastSlashIndex === -1) {
-								res = '';
+								res = "";
 								lastSegmentLength = 0;
 							} else {
 								res = res.slice(0, lastSlashIndex);
-								lastSegmentLength = res.length - 1 - res.lastIndexOf('/');
+								lastSegmentLength = res.length - 1 - res.lastIndexOf("/");
 							}
 							lastSlash = i;
 							dots = 0;
 							continue;
 						}
 					} else if (res.length === 2 || res.length === 1) {
-						res = '';
+						res = "";
 						lastSegmentLength = 0;
 						lastSlash = i;
 						dots = 0;
@@ -78,9 +78,9 @@ function normalizeString(path: string, allowAboveRoot: boolean): string {
 				}
 				if (allowAboveRoot) {
 					if (res.length > 0) {
-						res += '/..';
+						res += "/..";
 					} else {
-						res = '..';
+						res = "..";
 					}
 					lastSegmentLength = 2;
 				}
@@ -104,15 +104,15 @@ function normalizeString(path: string, allowAboveRoot: boolean): string {
 }
 
 function getCwd(): string {
-	if (typeof process !== 'undefined' && typeof process.cwd === 'function') {
+	if (typeof process !== "undefined" && typeof process.cwd === "function") {
 		return process.cwd();
 	}
-	return '/';
+	return "/";
 }
 
 function _format(sep: string, pathObject: FormatInputPathObject): string {
 	const dir = pathObject.dir || pathObject.root;
-	const base = pathObject.base || (pathObject.name || '') + (pathObject.ext || '');
+	const base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
 	if (!dir) {
 		return base;
 	}
@@ -123,15 +123,15 @@ function _format(sep: string, pathObject: FormatInputPathObject): string {
 }
 
 export default class BrowserPath implements IPath {
-	readonly sep = '/';
-	readonly delimiter = ':';
+	readonly sep = "/";
+	readonly delimiter = ":";
 
 	get posix(): IPath {
 		return this;
 	}
 
 	resolve(...pathSegments: string[]): string {
-		let resolvedPath = '';
+		let resolvedPath = "";
 		let resolvedAbsolute = false;
 
 		for (let i = pathSegments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
@@ -158,21 +158,21 @@ export default class BrowserPath implements IPath {
 			if (resolvedPath.length > 0) {
 				return `/${resolvedPath}`;
 			}
-			return '/';
+			return "/";
 		}
 		if (resolvedPath.length > 0) {
 			return resolvedPath;
 		}
-		return '.';
+		return ".";
 	}
 
 	normalize(path: string): string {
 		assertPath(path);
 
-		if (path.length === 0) return '.';
+		if (path.length === 0) return ".";
 
-		const hasBackslash = path.includes('\\');
-		const normalPath = hasBackslash ? path.replace(/\\/g, '/') : path;
+		const hasBackslash = path.includes("\\");
+		const normalPath = hasBackslash ? path.replace(/\\/g, "/") : path;
 
 		const isPosixAbs = normalPath.charCodeAt(0) === 47;
 		const isWinAbs = /^[A-Za-z]:[/]/.test(normalPath);
@@ -183,11 +183,11 @@ export default class BrowserPath implements IPath {
 
 		let result: string;
 		if (normalized.length === 0 && !isAbs) {
-			result = '.';
+			result = ".";
 		} else {
 			result = normalized;
 			if (result.length > 0 && trailingSeparator) {
-				result += '/';
+				result += "/";
 			}
 		}
 
@@ -196,7 +196,7 @@ export default class BrowserPath implements IPath {
 		}
 
 		if (hasBackslash) {
-			result = result.replace(/\//g, '\\');
+			result = result.replace(/\//g, "\\");
 		}
 
 		return result;
@@ -208,16 +208,16 @@ export default class BrowserPath implements IPath {
 	}
 
 	join(...paths: string[]): string {
-		if (paths.length === 0) return '.';
+		if (paths.length === 0) return ".";
 		let joined: string | undefined;
 		let hasBackslash = false;
 		for (let i = 0; i < paths.length; ++i) {
 			let arg = paths[i];
 			assertPath(arg);
 			if (arg.length > 0) {
-				if (arg.includes('\\')) {
+				if (arg.includes("\\")) {
 					hasBackslash = true;
-					arg = arg.replace(/\\/g, '/');
+					arg = arg.replace(/\\/g, "/");
 				}
 				if (joined === undefined) {
 					joined = arg;
@@ -226,10 +226,10 @@ export default class BrowserPath implements IPath {
 				}
 			}
 		}
-		if (joined === undefined) return '.';
+		if (joined === undefined) return ".";
 		const normalized = this.normalize(joined);
 		if (hasBackslash) {
-			return normalized.replace(/\//g, '\\');
+			return normalized.replace(/\//g, "\\");
 		}
 		return normalized;
 	}
@@ -238,12 +238,12 @@ export default class BrowserPath implements IPath {
 		assertPath(from);
 		assertPath(to);
 
-		if (from === to) return '';
+		if (from === to) return "";
 
 		const resolvedFrom = this.resolve(from);
 		const resolvedTo = this.resolve(to);
 
-		if (resolvedFrom === resolvedTo) return '';
+		if (resolvedFrom === resolvedTo) return "";
 
 		let fromStart = 1;
 		for (; fromStart < resolvedFrom.length; ++fromStart) {
@@ -286,12 +286,12 @@ export default class BrowserPath implements IPath {
 			if (fromCode === 47) lastCommonSep = i;
 		}
 
-		let out = '';
+		let out = "";
 		let j = fromStart + lastCommonSep + 1;
 		for (; j <= fromEnd; ++j) {
 			if (j === fromEnd || resolvedFrom.charCodeAt(j) === 47) {
-				if (out.length === 0) out += '..';
-				else out += '/..';
+				if (out.length === 0) out += "..";
+				else out += "/..";
 			}
 		}
 
@@ -303,9 +303,9 @@ export default class BrowserPath implements IPath {
 
 	dirname(path: string): string {
 		assertPath(path);
-		if (path.length === 0) return '.';
-		const hasBackslash = path.includes('\\');
-		const normalPath = hasBackslash ? path.replace(/\\/g, '/') : path;
+		if (path.length === 0) return ".";
+		const hasBackslash = path.includes("\\");
+		const normalPath = hasBackslash ? path.replace(/\\/g, "/") : path;
 		let code = normalPath.charCodeAt(0);
 		const hasRoot = code === 47 || /^[A-Za-z]:[/]/.test(normalPath);
 		let end = -1;
@@ -322,11 +322,11 @@ export default class BrowserPath implements IPath {
 			}
 		}
 
-		if (end === -1) return hasRoot ? '/' : '.';
-		if (hasRoot && end === 1) return '//';
+		if (end === -1) return hasRoot ? "/" : ".";
+		if (hasRoot && end === 1) return "//";
 		let result = normalPath.slice(0, end);
 		if (hasBackslash) {
-			result = result.replace(/\//g, '\\');
+			result = result.replace(/\//g, "\\");
 		}
 		return result;
 	}
@@ -340,7 +340,7 @@ export default class BrowserPath implements IPath {
 		let matchedSlash = true;
 
 		if (ext !== undefined && ext.length > 0 && ext.length <= path.length) {
-			if (ext.length === path.length && ext === path) return '';
+			if (ext.length === path.length && ext === path) return "";
 			let extIdx = ext.length - 1;
 			let firstNonSlashEnd = -1;
 			for (let i = path.length - 1; i >= 0; --i) {
@@ -384,7 +384,7 @@ export default class BrowserPath implements IPath {
 			}
 		}
 
-		if (end === -1) return '';
+		if (end === -1) return "";
 		return path.slice(start, end);
 	}
 
@@ -417,28 +417,28 @@ export default class BrowserPath implements IPath {
 		}
 
 		if (startDot === -1 || end === -1 || preDotState === 0 || (preDotState === 1 && startDot === startPart && startDot === end - 1)) {
-			return '';
+			return "";
 		}
 		return path.slice(startDot, end);
 	}
 
 	format(pathObject: FormatInputPathObject): string {
-		if (pathObject === null || typeof pathObject !== 'object') {
+		if (pathObject === null || typeof pathObject !== "object") {
 			throw new TypeError(`Parameter "pathObject" must be an object, not ${typeof pathObject}`);
 		}
-		return _format('/', pathObject);
+		return _format("/", pathObject);
 	}
 
 	parse(path: string): ParsedPath {
 		assertPath(path);
 
-		const ret: ParsedPath = { root: '', dir: '', base: '', ext: '', name: '' };
+		const ret: ParsedPath = { root: "", dir: "", base: "", ext: "", name: "" };
 		if (path.length === 0) return ret;
 		let code = path.charCodeAt(0);
 		const isAbsolute = code === 47;
 		const start = isAbsolute ? 1 : 0;
 		if (isAbsolute) {
-			ret.root = '/';
+			ret.root = "/";
 		}
 		let startDot = -1;
 		let startPart = 0;
@@ -490,7 +490,7 @@ export default class BrowserPath implements IPath {
 		if (startPart > 0) {
 			ret.dir = path.slice(0, startPart - 1);
 		} else if (isAbsolute) {
-			ret.dir = '/';
+			ret.dir = "/";
 		}
 
 		return ret;

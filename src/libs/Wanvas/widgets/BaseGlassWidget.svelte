@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { Snippet } from 'svelte';
+import type { Snippet } from "svelte";
 
 let {
 	disableGlassBackground = false,
-	baseColor = 'rgba(30, 30, 35, 0.7)',
-	borderRadius = '12px',
-	class: className = '',
-	style = '',
+	baseColor = "rgba(30, 30, 35, 0.7)",
+	borderRadius = "12px",
+	class: className = "",
+	style = "",
 	children,
 	...restProps
 }: {
@@ -19,7 +19,7 @@ let {
 	[key: string]: unknown;
 } = $props();
 
-const radiusValue = $derived(typeof borderRadius === 'number' ? `${borderRadius}px` : borderRadius);
+const radiusValue = $derived(typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius);
 </script>
 
 <!-- ponytail: reusable glass wrapper component -->

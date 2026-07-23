@@ -1,17 +1,17 @@
 <script lang="ts" generics="ComponentsMap extends GoldenLayoutRegistry">
-import { GoldenLayout, LayoutConfig, Stack } from 'golden-layout';
-import { type Component, mount, onMount, unmount } from 'svelte';
+import { GoldenLayout, LayoutConfig, Stack } from "golden-layout";
+import { type Component, mount, onMount, unmount } from "svelte";
 import type {
 	CSSProperties,
 	GoldenLayoutComponentStylesOverrides,
 	GoldenLayoutContent,
 	GoldenLayoutRegistry,
 	GoldenLayoutThemeCssColorsOverrides,
-} from './GoldenLayout.types';
+} from "./GoldenLayout.types";
 
-import './goldenlayout-base.css';
-import './predefined/goldenlayout-dark-theme.css';
-import { Log_Info } from '../Logger';
+import "./goldenlayout-base.css";
+import "./predefined/goldenlayout-dark-theme.css";
+import { Log_Info } from "../Logger";
 
 // PUBLIC-PROPS
 type Props = {
@@ -39,7 +39,7 @@ let {
 	overrideComponentStyles = {},
 	theme = {},
 	defaultComponent,
-	persistence = { localStorageKey: 'main-layout' },
+	persistence = { localStorageKey: "main-layout" },
 }: Props = $props();
 
 // INTERNAL VARIABLES
@@ -57,24 +57,24 @@ const cssVariables = $derived(
 	Object.entries(theme)
 		.filter(([_, val]) => val)
 		.map(([key, val]) => `--gl-${key}:${val}`)
-		.join(';'),
+		.join(";"),
 );
 
 function kebabCase(str: string): string {
-	return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+	return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
 function styleObjectToString(styles?: CSSProperties): string {
-	if (!styles) return '';
+	if (!styles) return "";
 	return Object.entries(styles)
 		.map(([key, val]) => {
-			if (val === undefined || val === null || typeof val === 'function') return '';
-			const cssKey = key.startsWith('--') ? key : kebabCase(key);
-			const cssVal = typeof val === 'number' && val !== 0 ? `${val}px` : String(val);
+			if (val === undefined || val === null || typeof val === "function") return "";
+			const cssKey = key.startsWith("--") ? key : kebabCase(key);
+			const cssVal = typeof val === "number" && val !== 0 ? `${val}px` : String(val);
 			return `${cssKey}:${cssVal}`;
 		})
 		.filter(Boolean)
-		.join(';');
+		.join(";");
 }
 
 const containerStyles = $derived(styleObjectToString(overrideComponentStyles.container || overrideComponentStyles.rootContainer));
@@ -82,9 +82,9 @@ const containerStyles = $derived(styleObjectToString(overrideComponentStyles.con
 function applyStyles(el: HTMLElement, styles?: CSSProperties) {
 	if (!styles) return;
 	for (const [key, val] of Object.entries(styles)) {
-		if (val === undefined || val === null || typeof val === 'function') continue;
-		const cssKey = key.startsWith('--') ? key : kebabCase(key);
-		const cssVal = typeof val === 'number' && val !== 0 ? `${val}px` : String(val);
+		if (val === undefined || val === null || typeof val === "function") continue;
+		const cssKey = key.startsWith("--") ? key : kebabCase(key);
+		const cssVal = typeof val === "number" && val !== 0 ? `${val}px` : String(val);
 		el.style.setProperty(cssKey, cssVal);
 	}
 }
@@ -95,11 +95,11 @@ function applyComponentStyles(root: HTMLElement) {
 	mutationObserver?.disconnect();
 
 	const selectors: Record<string, string> = {
-		layout: '.lm_goldenlayout',
-		content: '.lm_content',
-		header: '.lm_header',
-		splitter: '.lm_splitter',
-		dragProxy: '.lm_dragProxy',
+		layout: ".lm_goldenlayout",
+		content: ".lm_content",
+		header: ".lm_header",
+		splitter: ".lm_splitter",
+		dragProxy: ".lm_dragProxy",
 	};
 
 	for (const [part, selector] of Object.entries(selectors)) {
@@ -111,16 +111,16 @@ function applyComponentStyles(root: HTMLElement) {
 		});
 	}
 
-	root.querySelectorAll('.lm_tab').forEach((el) => {
+	root.querySelectorAll(".lm_tab").forEach((el) => {
 		const tabEl = el as HTMLElement;
-		const isAct = tabEl.classList.contains('lm_active');
+		const isAct = tabEl.classList.contains("lm_active");
 
 		const addStyles = isAct ? overrideComponentStyles.activeTab : overrideComponentStyles.tab;
 		const removeStyles = isAct ? overrideComponentStyles.tab : overrideComponentStyles.activeTab;
 
 		if (removeStyles) {
 			for (const key of Object.keys(removeStyles)) {
-				const cssKey = key.startsWith('--') ? key : kebabCase(key);
+				const cssKey = key.startsWith("--") ? key : kebabCase(key);
 				tabEl.style.removeProperty(cssKey);
 			}
 		}
@@ -135,7 +135,7 @@ function applyComponentStyles(root: HTMLElement) {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			attributeFilter: ['class'],
+			attributeFilter: ["class"],
 		});
 	}
 }
@@ -146,24 +146,24 @@ function appendPlusButton(stack: Stack) {
 	const tabsContainer = stack.header.tabsContainerElement;
 	if (!tabsContainer) return;
 
-	if (!tabsContainer.querySelector('.gl-add-tab-btn')) {
-		const btn = document.createElement('button');
-		btn.textContent = '+';
-		btn.className = 'gl-add-tab-btn lm_tab';
-		btn.style.cursor = 'pointer';
-		btn.style.padding = '0 10px';
-		btn.style.fontWeight = 'bold';
-		btn.style.border = 'none';
-		btn.style.height = '100%';
-		btn.style.display = 'inline-flex';
-		btn.style.alignItems = 'center';
-		btn.style.justifyContent = 'center';
-		btn.title = 'Add new tab';
+	if (!tabsContainer.querySelector(".gl-add-tab-btn")) {
+		const btn = document.createElement("button");
+		btn.textContent = "+";
+		btn.className = "gl-add-tab-btn lm_tab";
+		btn.style.cursor = "pointer";
+		btn.style.padding = "0 10px";
+		btn.style.fontWeight = "bold";
+		btn.style.border = "none";
+		btn.style.height = "100%";
+		btn.style.display = "inline-flex";
+		btn.style.alignItems = "center";
+		btn.style.justifyContent = "center";
+		btn.title = "Add new tab";
 
 		btn.onclick = (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			stack.newComponent('__defaultComponent', {}, 'New Tab');
+			stack.newComponent("__defaultComponent", {}, "New Tab");
 		};
 
 		tabsContainer.appendChild(btn);
@@ -175,31 +175,31 @@ function appendPlusButton(stack: Stack) {
 }
 
 function setupTabRenaming(root: HTMLElement) {
-	root.querySelectorAll('.lm_tab').forEach((tabNode) => {
+	root.querySelectorAll(".lm_tab").forEach((tabNode) => {
 		const tabEl = tabNode as HTMLElement;
-		if (tabEl.classList.contains('gl-add-tab-btn') || tabEl.dataset.renameSetup === 'true') return;
-		tabEl.dataset.renameSetup = 'true';
+		if (tabEl.classList.contains("gl-add-tab-btn") || tabEl.dataset.renameSetup === "true") return;
+		tabEl.dataset.renameSetup = "true";
 
 		const startEditing = () => {
-			const titleEl = tabEl.querySelector('.lm_title') as HTMLElement;
-			if (!titleEl || titleEl.dataset.editing === 'true') return;
+			const titleEl = tabEl.querySelector(".lm_title") as HTMLElement;
+			if (!titleEl || titleEl.dataset.editing === "true") return;
 
-			titleEl.dataset.editing = 'true';
-			const currentTitle = titleEl.textContent?.trim() || 'Tab';
+			titleEl.dataset.editing = "true";
+			const currentTitle = titleEl.textContent?.trim() || "Tab";
 
-			const input = document.createElement('input');
-			input.type = 'text';
+			const input = document.createElement("input");
+			input.type = "text";
 			input.value = currentTitle;
 			input.style.cssText =
-				'background: #18181c; color: #f1f5f9; border: 1px solid #3b82f6; border-radius: 4px; padding: 1px 4px; font-size: 11px; width: 90px; outline: none; z-index: 10;';
+				"background: #18181c; color: #f1f5f9; border: 1px solid #3b82f6; border-radius: 4px; padding: 1px 4px; font-size: 11px; width: 90px; outline: none; z-index: 10;";
 
 			const finish = (save: boolean) => {
-				if (titleEl.dataset.editing !== 'true') return;
-				titleEl.dataset.editing = 'false';
+				if (titleEl.dataset.editing !== "true") return;
+				titleEl.dataset.editing = "false";
 				const newTitle = input.value.trim();
 				if (save && newTitle) {
 					titleEl.textContent = newTitle;
-					LAYOUT?.emit('stateChanged');
+					LAYOUT?.emit("stateChanged");
 				} else {
 					titleEl.textContent = currentTitle;
 				}
@@ -207,10 +207,10 @@ function setupTabRenaming(root: HTMLElement) {
 
 			input.onkeydown = (e) => {
 				e.stopPropagation();
-				if (e.key === 'Enter') {
+				if (e.key === "Enter") {
 					e.preventDefault();
 					finish(true);
-				} else if (e.key === 'Escape') {
+				} else if (e.key === "Escape") {
 					e.preventDefault();
 					finish(false);
 				}
@@ -218,13 +218,13 @@ function setupTabRenaming(root: HTMLElement) {
 
 			input.onblur = () => finish(true);
 
-			titleEl.textContent = '';
+			titleEl.textContent = "";
 			titleEl.appendChild(input);
 			input.focus();
 			input.select();
 		};
 
-		tabEl.addEventListener('dblclick', (e) => {
+		tabEl.addEventListener("dblclick", (e) => {
 			e.preventDefault();
 			e.stopPropagation();
 			startEditing();
@@ -237,17 +237,17 @@ onMount(() => {
 	let cleanupFn: (() => void) | null = null;
 
 	const handleF2Key = (e: KeyboardEvent) => {
-		if (e.key === 'F2') {
-			const activeTab = layoutContainerEl?.querySelector('.lm_tab.lm_active:not(.gl-add-tab-btn)') as HTMLElement;
+		if (e.key === "F2") {
+			const activeTab = layoutContainerEl?.querySelector(".lm_tab.lm_active:not(.gl-add-tab-btn)") as HTMLElement;
 			if (activeTab) {
-				const titleEl = activeTab.querySelector('.lm_title') as HTMLElement;
-				if (titleEl && titleEl.dataset.editing !== 'true') {
-					activeTab.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+				const titleEl = activeTab.querySelector(".lm_title") as HTMLElement;
+				if (titleEl && titleEl.dataset.editing !== "true") {
+					activeTab.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
 				}
 			}
 		}
 	};
-	window.addEventListener('keydown', handleF2Key);
+	window.addEventListener("keydown", handleF2Key);
 
 	const init = async () => {
 		try {
@@ -255,29 +255,29 @@ onMount(() => {
 			// biome-ignore lint/suspicious/noExplicitAny: Needed for global window check
 			if (!(window as any).$) {
 				await new Promise<void>((resolve, reject) => {
-					const script = document.createElement('script');
-					script.src = new URL('./jquery_1.11.1.min.js', import.meta.url).href;
+					const script = document.createElement("script");
+					script.src = new URL("./jquery_1.11.1.min.js", import.meta.url).href;
 					script.onload = () => resolve();
-					script.onerror = () => reject(new Error('Failed to load jQuery'));
+					script.onerror = () => reject(new Error("Failed to load jQuery"));
 					document.head.appendChild(script);
 				});
 			}
 
-			Log_Info('GoldenLayout Wrapper: Mounting Svelte Component...');
+			Log_Info("GoldenLayout Wrapper: Mounting Svelte Component...");
 
 			if (!layoutContainerEl) {
-				console.error('Layout HTML element not found to inject Golden-Layout dependency.');
+				console.error("Layout HTML element not found to inject Golden-Layout dependency.");
 				return;
 			}
 
 			function parseDimension(val: any, containerSize: number): number | undefined {
 				if (val === undefined || val === null) return undefined;
-				if (typeof val === 'number') return val;
-				if (typeof val === 'string') {
-					if (val.endsWith('%')) {
+				if (typeof val === "number") return val;
+				if (typeof val === "string") {
+					if (val.endsWith("%")) {
 						return parseFloat(val);
 					}
-					if (val.endsWith('px')) {
+					if (val.endsWith("px")) {
 						return (parseFloat(val) / containerSize) * 100;
 					}
 					const num = parseFloat(val);
@@ -294,25 +294,25 @@ onMount(() => {
 					return item.map(preprocessLayoutContent);
 				}
 
-				if (typeof item === 'object') {
+				if (typeof item === "object") {
 					const containerWidth = layoutContainerEl?.clientWidth || 800;
 					const containerHeight = layoutContainerEl?.clientHeight || 600;
 
 					const processed = { ...item };
-					if ('width' in processed) {
+					if ("width" in processed) {
 						processed.width = parseDimension(processed.width, containerWidth);
 					}
-					if ('height' in processed) {
+					if ("height" in processed) {
 						processed.height = parseDimension(processed.height, containerHeight);
 					}
 
-					if (processed.type && processed.type !== 'row' && processed.type !== 'column' && processed.type !== 'stack') {
+					if (processed.type && processed.type !== "row" && processed.type !== "column" && processed.type !== "stack") {
 						return {
-							type: 'component',
+							type: "component",
 							componentType: processed.type,
 							componentState: processed.props || {},
 							title: processed.title || processed.type,
-							...Object.fromEntries(Object.entries(processed).filter(([k]) => k !== 'type' && k !== 'props' && k !== 'title')),
+							...Object.fromEntries(Object.entries(processed).filter(([k]) => k !== "type" && k !== "props" && k !== "title")),
 						};
 					}
 
@@ -331,7 +331,7 @@ onMount(() => {
 
 			const processedContent = preprocessLayoutContent(Content);
 
-			Log_Info('GoldenLayout Wrapper: Initializing raw GoldenLayout...');
+			Log_Info("GoldenLayout Wrapper: Initializing raw GoldenLayout...");
 			LAYOUT = new GoldenLayout(layoutContainerEl);
 
 			// Register Svelte components from components registry prop
@@ -351,12 +351,12 @@ onMount(() => {
 									...componentState,
 									onStateChange: (partialState: any) => {
 										componentState = { ...componentState, ...partialState };
-										LAYOUT?.emit('stateChanged');
+										LAYOUT?.emit("stateChanged");
 									},
 								},
 							});
 
-							container.on('destroy', () => {
+							container.on("destroy", () => {
 								unmount(componentInstance);
 							});
 						} catch (err) {
@@ -367,10 +367,10 @@ onMount(() => {
 			}
 
 			// Register the mandatory default Svelte component
-			Log_Info('GoldenLayout Wrapper: Registering default component');
-			LAYOUT.registerComponentFactoryFunction('__defaultComponent', (container, state) => {
+			Log_Info("GoldenLayout Wrapper: Registering default component");
+			LAYOUT.registerComponentFactoryFunction("__defaultComponent", (container, state) => {
 				try {
-					Log_Info('GoldenLayout Wrapper: Factory function called for defaultComponent');
+					Log_Info("GoldenLayout Wrapper: Factory function called for defaultComponent");
 					let componentState = { ...((state as Record<string, unknown>) || {}) };
 					container.stateRequestEvent = () => componentState;
 
@@ -380,21 +380,21 @@ onMount(() => {
 							...componentState,
 							onStateChange: (partialState: any) => {
 								componentState = { ...componentState, ...partialState };
-								LAYOUT?.emit('stateChanged');
+								LAYOUT?.emit("stateChanged");
 							},
 						},
 					});
 
-					container.on('destroy', () => {
+					container.on("destroy", () => {
 						unmount(componentInstance);
 					});
 				} catch (err) {
-					console.error('GoldenLayout Wrapper: Error mounting defaultComponent:', err);
+					console.error("GoldenLayout Wrapper: Error mounting defaultComponent:", err);
 				}
 			});
 
 			// Bind event to track and store stack references on headers for self-healing "+" button
-			LAYOUT.on('itemCreated', (event) => {
+			LAYOUT.on("itemCreated", (event) => {
 				const item = event.target;
 				if (item instanceof Stack) {
 					setTimeout(() => {
@@ -404,24 +404,24 @@ onMount(() => {
 								appendPlusButton(item);
 							}
 						} catch (err) {
-							console.error('GoldenLayout Wrapper: Error in stack itemCreated handler:', err);
+							console.error("GoldenLayout Wrapper: Error in stack itemCreated handler:", err);
 						}
 					}, 50);
 				}
 			});
 
-			Log_Info('GoldenLayout Wrapper: Loading layout structure...');
+			Log_Info("GoldenLayout Wrapper: Loading layout structure...");
 			const storedPreviousLayout = localStorage.getItem(persistence.localStorageKey);
 			let loadedFromCache = false;
 
-			if (storedPreviousLayout && storedPreviousLayout !== '') {
+			if (storedPreviousLayout && storedPreviousLayout !== "") {
 				try {
 					const resolvedConfig = JSON.parse(storedPreviousLayout);
 					const previousLayout = LayoutConfig.fromResolved(resolvedConfig);
 					LAYOUT.loadLayout(previousLayout);
 					loadedFromCache = true;
 				} catch (err) {
-					console.error('GoldenLayout Wrapper: Error loading stored layout, falling back to default:', err);
+					console.error("GoldenLayout Wrapper: Error loading stored layout, falling back to default:", err);
 					localStorage.removeItem(persistence.localStorageKey);
 				}
 			}
@@ -437,23 +437,23 @@ onMount(() => {
 					},
 					dimensions: {
 						borderWidth: 4,
-						defaultMinItemHeight: '50px',
-						defaultMinItemWidth: '50px',
+						defaultMinItemHeight: "50px",
+						defaultMinItemWidth: "50px",
 						headerHeight: 28,
 						dragProxyWidth: 300,
 						dragProxyHeight: 200,
 					},
 					header: {
-						show: 'top',
-						popout: 'Open in new window',
-						maximise: 'Maximise',
-						close: 'Close',
+						show: "top",
+						popout: "Open in new window",
+						maximise: "Maximise",
+						close: "Close",
 					},
 					root: processedContent,
 				});
 			}
 
-			Log_Info('GoldenLayout Wrapper: Layout loaded successfully.');
+			Log_Info("GoldenLayout Wrapper: Layout loaded successfully.");
 
 			if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
 				applyComponentStyles(layoutContainerEl);
@@ -469,9 +469,9 @@ onMount(() => {
 						const shouldSync = mutations.some(
 							(m) =>
 								m.addedNodes.length > 0 ||
-								(m.type === 'attributes' &&
+								(m.type === "attributes" &&
 									m.target instanceof HTMLElement &&
-									['lm_goldenlayout', 'lm_content', 'lm_header', 'lm_splitter', 'lm_dragProxy', 'lm_tab'].some((cls) =>
+									["lm_goldenlayout", "lm_content", "lm_header", "lm_splitter", "lm_dragProxy", "lm_tab"].some((cls) =>
 										(m.target as HTMLElement).classList.contains(cls),
 									)),
 						);
@@ -481,7 +481,7 @@ onMount(() => {
 						}
 					}
 
-					layoutContainerEl.querySelectorAll('.lm_header').forEach((headerEl) => {
+					layoutContainerEl.querySelectorAll(".lm_header").forEach((headerEl) => {
 						if (headerEl instanceof HTMLElement) {
 							const stack = headerStackMap.get(headerEl);
 							if (stack) {
@@ -494,7 +494,7 @@ onMount(() => {
 						setupTabRenaming(layoutContainerEl);
 					}
 				} catch (err) {
-					console.error('GoldenLayout Wrapper: Error in mutationObserver callback:', err);
+					console.error("GoldenLayout Wrapper: Error in mutationObserver callback:", err);
 				}
 			});
 
@@ -502,7 +502,7 @@ onMount(() => {
 				childList: true,
 				subtree: true,
 				attributes: true,
-				attributeFilter: ['class'],
+				attributeFilter: ["class"],
 			});
 
 			resizeObserver = new ResizeObserver(() => {
@@ -512,22 +512,22 @@ onMount(() => {
 			});
 			resizeObserver.observe(layoutContainerEl);
 
-			LAYOUT.on('stateChanged', () => {
+			LAYOUT.on("stateChanged", () => {
 				if (!LAYOUT) {
-					throw new Error('Strange error: stateChanged but layout undefined, not expected');
+					throw new Error("Strange error: stateChanged but layout undefined, not expected");
 				}
 				var layoutState = JSON.stringify(LAYOUT.saveLayout());
 				localStorage.setItem(persistence.localStorageKey, layoutState);
 			});
 
 			cleanupFn = () => {
-				window.removeEventListener('keydown', handleF2Key);
+				window.removeEventListener("keydown", handleF2Key);
 				if (resizeObserver) resizeObserver.disconnect();
 				if (mutationObserver) mutationObserver.disconnect();
 				if (LAYOUT) LAYOUT.destroy();
 			};
 		} catch (err) {
-			console.error('GoldenLayout Wrapper: Fatal error in onMount:', err);
+			console.error("GoldenLayout Wrapper: Fatal error in onMount:", err);
 		}
 	};
 

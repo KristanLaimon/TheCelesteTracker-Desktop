@@ -1,9 +1,9 @@
 // UNIVERSAL COMPATIBILITY
-import { inject, injectable } from 'tsyringe';
-import { IFileSystem_Token, IPath_Token } from '../interfaces/DependencyInjectionTokens';
-import type { IFileSystem } from '../interfaces/IFileSystem';
-import type { IPath } from '../interfaces/IPath';
-import type { StorageAdapter } from './Storage';
+import { inject, injectable } from "tsyringe";
+import { IFileSystem_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../interfaces/IFileSystem";
+import type { IPath } from "../interfaces/IPath";
+import type { StorageAdapter } from "./Storage";
 
 /**
  * Configuration for {@link Storage_JsonFileAdapter}.

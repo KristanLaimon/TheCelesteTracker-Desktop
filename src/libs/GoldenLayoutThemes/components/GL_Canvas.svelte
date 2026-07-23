@@ -1,18 +1,18 @@
 <script lang="ts">
 // import { onMount } from 'svelte';
-import CenteredLayout from '../../../layouts/CenteredLayout.svelte';
-import BrowserPath from '../../BrowserPath';
+import CenteredLayout from "../../../layouts/CenteredLayout.svelte";
+import BrowserPath from "../../BrowserPath";
 
 const Path = new BrowserPath();
 
-import { Log_Info } from '../../Logger';
-import { NeutralinoFileSystem } from '../../NeutralinoFileSystem';
+import { Log_Info } from "../../Logger";
+import { NeutralinoFileSystem } from "../../NeutralinoFileSystem";
 // import { SQLiteExtension } from '../libs/CSqliteExtension';
-import Canvas from '../../Wanvas/Canvas.svelte';
-import type { CanvasNodeData, CanvasRegistry } from '../../Wanvas/Canvas.types';
-import ImgCaptionWidget from '../../Wanvas/widgets/ImgCaptionWidget.svelte';
-import ImgWidget from '../../Wanvas/widgets/ImgWidget.svelte';
-import TextWidget from '../../Wanvas/widgets/TextWidget.svelte';
+import Canvas from "../../Wanvas/Canvas.svelte";
+import type { CanvasNodeData, CanvasRegistry } from "../../Wanvas/Canvas.types";
+import ImgCaptionWidget from "../../Wanvas/widgets/ImgCaptionWidget.svelte";
+import ImgWidget from "../../Wanvas/widgets/ImgWidget.svelte";
+import TextWidget from "../../Wanvas/widgets/TextWidget.svelte";
 
 type Props = {
 	localStorageKey: string;
@@ -28,49 +28,49 @@ const registry = {
 
 let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([]);
 
-function AddNewTextWidget(text: string = '') {
+function AddNewTextWidget(text: string = "") {
 	defaultNodes.push({
 		x: 100,
 		y: 150,
 		height: 150,
 		width: 150,
-		type: 'textWidget',
+		type: "textWidget",
 		props: {
 			rawTextContent: text,
 		},
 	});
 }
 
-async function AddNewImgWidget(srcUrl: string = '') {
+async function AddNewImgWidget(srcUrl: string = "") {
 	defaultNodes.push({
 		x: 150,
 		y: 200,
 		height: 200,
 		width: 300,
-		type: 'imgWidget',
+		type: "imgWidget",
 		props: {
 			srcUrl: srcUrl,
 			size: {
-				mode: 'keep-aspect-ratio-always',
+				mode: "keep-aspect-ratio-always",
 			},
 		},
 	});
 }
 
-function AddNewImgCaptionWidget(srcUrl: string = '', text: string = '') {
+function AddNewImgCaptionWidget(srcUrl: string = "", text: string = "") {
 	defaultNodes.push({
 		x: 200,
 		y: 250,
 		height: 350,
 		width: 300,
-		type: 'imgCaptionWidget',
+		type: "imgCaptionWidget",
 		props: {
 			srcUrl: srcUrl,
 			size: {
-				mode: 'keep-aspect-ratio-always',
+				mode: "keep-aspect-ratio-always",
 			},
 			rawTextContent: text,
-			displayMode: 'markdown-rendered',
+			displayMode: "markdown-rendered",
 		},
 	});
 }

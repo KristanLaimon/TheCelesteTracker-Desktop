@@ -6,11 +6,11 @@
  * @license MIT
  */
 
-import type { CanvasPersistence, CanvasProps } from './Canvas.types';
-import { calculateZoomOffset, clampZoom } from './CanvasMath';
-import CanvasWhiteboard from './CanvasWhiteboard.svelte';
+import type { CanvasPersistence, CanvasProps } from "./Canvas.types";
+import { calculateZoomOffset, clampZoom } from "./CanvasMath";
+import CanvasWhiteboard from "./CanvasWhiteboard.svelte";
 
-export type { CanvasNodeData, CanvasPersistence, CanvasProps } from './Canvas.types';
+export type { CanvasNodeData, CanvasPersistence, CanvasProps } from "./Canvas.types";
 
 let {
 	x = $bindable(0),
@@ -28,19 +28,19 @@ let {
 	showControls = true,
 	resizable = true,
 	nodes = $bindable([]),
-	dragHandleClass = '',
+	dragHandleClass = "",
 	onNodeChange,
 	classNames = {},
-	class: className = '',
-	style = '',
-	bgColor = '#242424',
-	dotColor = 'rgb(58, 58, 58)',
+	class: className = "",
+	style = "",
+	bgColor = "#242424",
+	dotColor = "rgb(58, 58, 58)",
 	dotSize = 1.5,
 	showDots = true,
-	mode = 'normal',
+	mode = "normal",
 	children,
 	registry = {},
-	persistence = $bindable({ key: 'canvas-persistence-default' } as CanvasPersistence | null),
+	persistence = $bindable({ key: "canvas-persistence-default" } as CanvasPersistence | null),
 }: CanvasProps = $props();
 
 let canvasWrapperEl = $state<HTMLDivElement | null>(null);

@@ -10,20 +10,20 @@ import type {
 	PermissionsMode,
 	Stats,
 	Watcher,
-} from '@neutralinojs/lib';
-import { filesystem, server } from '@neutralinojs/lib';
-import { container, inject, injectable } from 'tsyringe';
-import { IPath_Token } from '../interfaces/DependencyInjectionTokens';
-import type { CreateDirectoryOptions, IFileSystem, PathParts } from '../interfaces/IFileSystem';
-import type { IPath } from '../interfaces/IPath';
-import { Log_Info } from './Logger';
+} from "@neutralinojs/lib";
+import { filesystem, server } from "@neutralinojs/lib";
+import { container, inject, injectable } from "tsyringe";
+import { IPath_Token } from "../interfaces/DependencyInjectionTokens";
+import type { CreateDirectoryOptions, IFileSystem, PathParts } from "../interfaces/IFileSystem";
+import type { IPath } from "../interfaces/IPath";
+import { Log_Info } from "./Logger";
 
 export enum OperatingSystem {
-	Linux = 'Linux',
-	Windows = 'Windows',
-	Darwin = 'Darwin',
-	FreeBSD = 'FreeBSD',
-	Unknown = 'Unknown',
+	Linux = "Linux",
+	Windows = "Windows",
+	Darwin = "Darwin",
+	FreeBSD = "FreeBSD",
+	Unknown = "Unknown",
 }
 
 /**
@@ -34,12 +34,12 @@ export enum OperatingSystem {
 export class NeutralinoFileSystem implements IFileSystem {
 	constructor(@inject(IPath_Token) private path: IPath) {}
 	/** If *null*, local folders hasn't been mounted by neutralino. Mount using {@link NeutralinoFileSystem.MountLocalFolders()} function  */
-	public static ResourcesFolderNameOnly: string = 'data';
+	public static ResourcesFolderNameOnly: string = "data";
 	public static ResourcesFolderPath_Backend: string | null = null;
 	public static ResourcesFolderPath_Frontend = `/${NeutralinoFileSystem.ResourcesFolderNameOnly}`;
 	public static async MountLocalFolders(): Promise<void> {
 		if (NeutralinoFileSystem.ResourcesFolderPath_Backend === null) {
-			const currentExePath: string = await filesystem.getAbsolutePath('.');
+			const currentExePath: string = await filesystem.getAbsolutePath(".");
 			const path = container.resolve<IPath>(IPath_Token);
 			const resourcesFolderPath = path.join(currentExePath, NeutralinoFileSystem.ResourcesFolderNameOnly);
 			const resourcesFolderExists = await (async () => {
@@ -47,7 +47,7 @@ export class NeutralinoFileSystem implements IFileSystem {
 					await filesystem.getStats(resourcesFolderPath);
 					return true;
 				} catch (e: unknown) {
-					if (e && typeof e === 'object' && 'code' in e && (e as { code: unknown }).code === 'NE_FS_NOPATHE') {
+					if (e && typeof e === "object" && "code" in e && (e as { code: unknown }).code === "NE_FS_NOPATHE") {
 						return false;
 					}
 					console.error(e);
@@ -56,20 +56,20 @@ export class NeutralinoFileSystem implements IFileSystem {
 			})();
 			if (!resourcesFolderExists) {
 				await filesystem.createDirectory(resourcesFolderPath);
-				Log_Info('NeutralinoFileSystem:', "Resources folder not found, creating empty directory at exe's path.");
+				Log_Info("NeutralinoFileSystem:", "Resources folder not found, creating empty directory at exe's path.");
 			}
 			NeutralinoFileSystem.ResourcesFolderPath_Backend = resourcesFolderPath;
 			const res = await server.getMounts();
 			if (Object.keys(res).length > 0) {
 				if (res[NeutralinoFileSystem.ResourcesFolderPath_Frontend]) {
-					Log_Info('NeutralinoFileSystem:', '| Already Mounted Paths.. Skiping the following remounts |', res);
+					Log_Info("NeutralinoFileSystem:", "| Already Mounted Paths.. Skiping the following remounts |", res);
 				} else {
 					await server.mount(NeutralinoFileSystem.ResourcesFolderPath_Frontend, NeutralinoFileSystem.ResourcesFolderPath_Backend);
-					Log_Info('NeutralinoFileSystem:', 'Mounted and loaded local folder:', NeutralinoFileSystem.ResourcesFolderPath_Backend);
+					Log_Info("NeutralinoFileSystem:", "Mounted and loaded local folder:", NeutralinoFileSystem.ResourcesFolderPath_Backend);
 				}
 			} else {
 				await server.mount(NeutralinoFileSystem.ResourcesFolderPath_Frontend, NeutralinoFileSystem.ResourcesFolderPath_Backend);
-				Log_Info('NeutralinoFileSystem:', 'Mounted and loaded local folder:', NeutralinoFileSystem.ResourcesFolderPath_Backend);
+				Log_Info("NeutralinoFileSystem:", "Mounted and loaded local folder:", NeutralinoFileSystem.ResourcesFolderPath_Backend);
 			}
 		}
 	}
@@ -86,17 +86,17 @@ export class NeutralinoFileSystem implements IFileSystem {
 
 		if (options?.recursive) {
 			const resolved = await this.resolveNeutralinoPath(path);
-			const normalized = this.path.normalize(resolved).replace(/\\/g, '/');
-			const segments = normalized.split('/').filter(Boolean);
+			const normalized = this.path.normalize(resolved).replace(/\\/g, "/");
+			const segments = normalized.split("/").filter(Boolean);
 
-			let current = '.';
+			let current = ".";
 			let startIndex = 0;
 
 			if (segments.length > 0 && /^[A-Za-z]:$/.test(segments[0])) {
 				current = `${segments[0]}/`;
 				startIndex = 1;
-			} else if (normalized.startsWith('/')) {
-				current = '/';
+			} else if (normalized.startsWith("/")) {
+				current = "/";
 				startIndex = 0;
 			}
 
@@ -287,7 +287,7 @@ export class NeutralinoFileSystem implements IFileSystem {
 			await filesystem.getStats(path);
 			return true;
 		} catch (e: unknown) {
-			if (e && typeof e === 'object' && 'code' in e && (e as { code: unknown }).code === 'NE_FS_NOPATHE') {
+			if (e && typeof e === "object" && "code" in e && (e as { code: unknown }).code === "NE_FS_NOPATHE") {
 				return false;
 			}
 			console.error(e);
@@ -335,7 +335,7 @@ export class NeutralinoFileSystem implements IFileSystem {
 	 * @param mode Permission replacement mode (ADD, REPLACE, REMOVE).
 	 */
 	public async setPermissions(path: string, permissions: Permissions, mode?: PermissionsMode): Promise<void> {
-		return filesystem.setPermissions(path, permissions, mode ?? 'REPLACE');
+		return filesystem.setPermissions(path, permissions, mode ?? "REPLACE");
 	}
 
 	/**

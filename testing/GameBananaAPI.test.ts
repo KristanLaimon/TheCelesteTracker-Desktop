@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'bun:test';
-import { GB_AllowedFields } from '../src/libs/GameBananaAPI';
+import { describe, expect, test } from "bun:test";
+import { GB_AllowedFields } from "../src/libs/GameBananaAPI";
 
-describe('GameBananaApi', () => {
-	test('GB_AllowedFields has Mod and Member schema definitions', () => {
-		expect(GB_AllowedFields.Mod.Name).toBe('name');
-		expect(GB_AllowedFields.Mod.Authors).toBe('authors');
-		expect(GB_AllowedFields.Member.Name).toBe('name');
+describe("GameBananaApi", () => {
+	test("GB_AllowedFields has Mod and Member schema definitions", () => {
+		expect(GB_AllowedFields.Mod.Name).toBe("name");
+		expect(GB_AllowedFields.Mod.Authors).toBe("authors");
+		expect(GB_AllowedFields.Member.Name).toBe("name");
 	});
 
 	// test(

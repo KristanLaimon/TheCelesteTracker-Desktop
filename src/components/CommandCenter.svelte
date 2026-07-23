@@ -1,6 +1,6 @@
 <script lang="ts">
-import { onMount } from 'svelte';
-import { fade, fly } from 'svelte/transition';
+import { onMount } from "svelte";
+import { fade, fly } from "svelte/transition";
 
 type Props = {
 	onClose?: () => void;
@@ -13,12 +13,12 @@ export type CommandCenterCommand = {
 	id: string;
 	title: string;
 	description: string;
-	category: 'Navigation' | 'Actions' | 'Celeste';
+	category: "Navigation" | "Actions" | "Celeste";
 	shortcut?: string;
 	action: () => void;
 };
 
-let searchQuery = $state('');
+let searchQuery = $state("");
 let selectedIndex = $state(0);
 let inputEl = $state<HTMLInputElement | null>(null);
 const filteredCommands = $derived.by(() => {
@@ -46,30 +46,30 @@ function handleBackdropClick() {
 
 function scrollToSelected() {
 	setTimeout(() => {
-		const activeEl = document.querySelector('.command-item.active');
+		const activeEl = document.querySelector(".command-item.active");
 		if (activeEl) {
-			activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+			activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
 		}
 	}, 10);
 }
 
 function handleKeyDown(event: KeyboardEvent) {
-	if (event.key === 'Escape') {
+	if (event.key === "Escape") {
 		event.preventDefault();
 		onClose();
-	} else if (event.key === 'ArrowDown') {
+	} else if (event.key === "ArrowDown") {
 		event.preventDefault();
 		if (filteredCommands.length > 0) {
 			selectedIndex = (selectedIndex + 1) % filteredCommands.length;
 			scrollToSelected();
 		}
-	} else if (event.key === 'ArrowUp') {
+	} else if (event.key === "ArrowUp") {
 		event.preventDefault();
 		if (filteredCommands.length > 0) {
 			selectedIndex = (selectedIndex - 1 + filteredCommands.length) % filteredCommands.length;
 			scrollToSelected();
 		}
-	} else if (event.key === 'Enter') {
+	} else if (event.key === "Enter") {
 		event.preventDefault();
 		const activeCmd = filteredCommands[selectedIndex];
 		if (activeCmd) {

@@ -1,13 +1,13 @@
 <h1> Installed mods </h1>
 <!-- <script lang="ts">
-import { onMount } from 'svelte';
-import CenteredLayout from '../layouts/CenteredLayout.svelte';
-import type { EverestModInfo } from '../libs/Everest';
-import Everest from '../libs/Everest';
-import { Log_Info } from '../libs/Logger';
-import type { MaddiesApi_ModInfo } from '../libs/MaddiesAPI';
-import MaddiesApi from '../libs/MaddiesAPI';
-import { GetDependency } from '../setup';
+import { onMount } from "svelte";
+import CenteredLayout from "../layouts/CenteredLayout.svelte";
+import type { EverestModInfo } from "../libs/Everest";
+import Everest from "../libs/Everest";
+import { Log_Info } from "../libs/Logger";
+import type { MaddiesApi_ModInfo } from "../libs/MaddiesAPI";
+import MaddiesApi from "../libs/MaddiesAPI";
+import { GetDependency } from "../setup";
 
 const EVEREST = GetDependency(Everest);
 const MaddiesAPI = GetDependency(MaddiesApi);
@@ -15,7 +15,7 @@ const MaddiesAPI = GetDependency(MaddiesApi);
 let mods: EverestModInfo[] = $state([]);
 let modsWithInfo: MaddiesApi_ModInfo[] = $state([]);
 let unmatchedMods: EverestModInfo[] = $state([]);
-let searchQuery: string = $state('');
+let searchQuery: string = $state("");
 let isLoading: boolean = $state(false);
 let error: string | null = $state(null);
 
@@ -29,7 +29,7 @@ let filteredUnmatched = $derived.by(() => {
 	if (!searchQuery.trim()) return unmatchedMods;
 	const q = searchQuery.toLowerCase();
 	return unmatchedMods.filter((mod) => {
-		const metaName = mod.metadata.name ?? '';
+		const metaName = mod.metadata.name ?? "";
 		return mod.name.toLowerCase().includes(q) || metaName.toLowerCase().includes(q);
 	});
 });
@@ -43,10 +43,10 @@ async function GetModsInfo() {
 	error = null;
 	try {
 		mods = await EVEREST.GetModsInstalled({ modsCountScanningLimit: 150 });
-		Log_Info('InstalledMods:', 'Found Mods:', mods);
+		Log_Info("InstalledMods:", "Found Mods:", mods);
 		const results = await Promise.allSettled(
 			mods.map(async (modInfo) => {
-				const apiRes = (await MaddiesAPI.SearchModByName(modInfo.name.replace('.zip', '')))[0];
+				const apiRes = (await MaddiesAPI.SearchModByName(modInfo.name.replace(".zip", "")))[0];
 				return { modInfo, apiRes: apiRes ?? null } as const;
 			}),
 		);
@@ -54,7 +54,7 @@ async function GetModsInfo() {
 		const unmatched: EverestModInfo[] = [];
 		for (let i = 0; i < mods.length; i++) {
 			const r = results[i];
-			if (r.status === 'fulfilled' && r.value.apiRes) {
+			if (r.status === "fulfilled" && r.value.apiRes) {
 				matched.push(r.value.apiRes);
 			} else {
 				unmatched.push(mods[i]);
@@ -62,9 +62,9 @@ async function GetModsInfo() {
 		}
 		modsWithInfo = matched.filter((mod, i, arr) => arr.findIndex((m) => m.GameBananaId === mod.GameBananaId) === i);
 		unmatchedMods = unmatched;
-		Log_Info('InstalledMods:', 'Found Mods with maddiesapi:', modsWithInfo);
+		Log_Info("InstalledMods:", "Found Mods with maddiesapi:", modsWithInfo);
 	} catch (e) {
-		error = e instanceof Error ? e.message : 'Failed to fetch mods';
+		error = e instanceof Error ? e.message : "Failed to fetch mods";
 	} finally {
 		isLoading = false;
 	}
@@ -76,7 +76,7 @@ function LimitText(desc: string, limitCharsCount: number): string {
 }
 
 function GetCoverUrl(mod: MaddiesApi_ModInfo): string {
-	return mod.Screenshots?.[0] ?? mod.MirroredScreenshots?.[0] ?? '';
+	return mod.Screenshots?.[0] ?? mod.MirroredScreenshots?.[0] ?? "";
 }
 
 function FormatDownloads(n: number): string {

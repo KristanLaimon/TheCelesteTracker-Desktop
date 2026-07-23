@@ -1,11 +1,11 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { injectable } from 'tsyringe';
-import Generic_Go from './Generic_Go';
+import { injectable } from "tsyringe";
+import Generic_Go from "./Generic_Go";
 
-const windows_name = 'zip_utils-win_x64.exe';
-const macos_name = 'zip_utils-mac_x64';
-const linux_name = 'zip_utils-linux_x64';
+const windows_name = "zip_utils-win_x64.exe";
+const macos_name = "zip_utils-mac_x64";
+const linux_name = "zip_utils-linux_x64";
 
 @injectable()
 export default class Zip_Go extends Generic_Go {
@@ -18,20 +18,20 @@ export default class Zip_Go extends Generic_Go {
 
 		const util_file_name: string = (() => {
 			switch (this.os.getCurrentOS()) {
-				case 'windows':
+				case "windows":
 					return windows_name;
-				case 'macos':
+				case "macos":
 					return macos_name;
-				case 'linux':
+				case "linux":
 					return linux_name;
-				case 'freebsd':
-				case 'unknown':
+				case "freebsd":
+				case "unknown":
 					throw new Error(`Zip_Go: Current os '${this.os.getCurrentOS()}' not supported`);
 			}
 		})();
 
-		const currentExePath = await this.fs.getAbsolutePath('.');
-		const possibleParentFolders = ['./', './bin'];
+		const currentExePath = await this.fs.getAbsolutePath(".");
+		const possibleParentFolders = ["./", "./bin"];
 		for (const folder of possibleParentFolders) {
 			const pathToSearchOn = this.path.join(currentExePath, folder, util_file_name);
 			if (await this.fs.exists(pathToSearchOn)) {
@@ -52,8 +52,8 @@ export default class Zip_Go extends Generic_Go {
 		if (response.exitCode !== 0) {
 			try {
 				const parsed = JSON.parse(response.stdOut);
-				if (parsed && typeof parsed === 'object' && 'success' in parsed && !parsed.success) {
-					throw new Error(parsed.error || 'Zip operation failed');
+				if (parsed && typeof parsed === "object" && "success" in parsed && !parsed.success) {
+					throw new Error(parsed.error || "Zip operation failed");
 				}
 			} catch {}
 			throw new Error(response.stdErr || `Zip helper exited with code ${response.exitCode}`);
@@ -61,7 +61,7 @@ export default class Zip_Go extends Generic_Go {
 
 		const parsed = JSON.parse(response.stdOut);
 		if (!parsed.success) {
-			throw new Error(parsed.error || 'Zip operation failed');
+			throw new Error(parsed.error || "Zip operation failed");
 		}
 		return parsed as R;
 	}

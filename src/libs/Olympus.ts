@@ -1,13 +1,13 @@
 // UNIVERSAL COMPATIBILITY
-import { serializeError } from 'serialize-error';
-import { inject, injectable } from 'tsyringe';
-import { IFileSystem_Token, IOs_Token, IPath_Token } from '../interfaces/DependencyInjectionTokens';
-import type { IFileSystem } from '../interfaces/IFileSystem';
-import type { IOS } from '../interfaces/IOs';
-import type { IPath } from '../interfaces/IPath';
-import { Log_Error } from './Logger';
+import { serializeError } from "serialize-error";
+import { inject, injectable } from "tsyringe";
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../interfaces/IFileSystem";
+import type { IOS } from "../interfaces/IOs";
+import type { IPath } from "../interfaces/IPath";
+import { Log_Error } from "./Logger";
 
-export const OlympusModCategory = ['Maps', 'Helpers', 'Tools', 'Assets', 'Skins', 'UI', 'Other/Misc', 'Mechanics', 'Dialog', 'WiPs'] as const;
+export const OlympusModCategory = ["Maps", "Helpers", "Tools", "Assets", "Skins", "UI", "Other/Misc", "Mechanics", "Dialog", "WiPs"] as const;
 export type OlympusModCategory = (typeof OlympusModCategory)[number];
 
 export type OlympusModToCategoryRegistry = Readonly<Record<string, OlympusModCategory>>;
@@ -41,17 +41,17 @@ export default class Olympus {
 		const path: string | null = await this.GetInstallationPath();
 		if (path === null) return null;
 
-		const infoJsonPath: string = this.path.join(path, 'cached-mod-ids-to-categories.json');
+		const infoJsonPath: string = this.path.join(path, "cached-mod-ids-to-categories.json");
 		if (!(await this.fs.exists(infoJsonPath))) return null;
 
 		const infoJsonContent: string = await this.fs.readFile(infoJsonPath);
-		if (infoJsonContent === '') return null;
+		if (infoJsonContent === "") return null;
 
 		let parsed: OlympusModToCategoryRegistry = {};
 		try {
 			parsed = JSON.parse(infoJsonContent);
 		} catch (e: unknown) {
-			Log_Error('Olympus:', '| Error when trying to parse cached-mod-ids-to-categories.json from olympus path |', serializeError(e));
+			Log_Error("Olympus:", "| Error when trying to parse cached-mod-ids-to-categories.json from olympus path |", serializeError(e));
 			return null;
 		}
 
@@ -64,7 +64,7 @@ export default class Olympus {
 		}
 
 		const found: string | null = parsed[modEverestIdentiifier] ?? null;
-		if (typeof found === 'string' && found === '') return null;
+		if (typeof found === "string" && found === "") return null;
 		return found;
 	}
 
@@ -79,19 +79,19 @@ export default class Olympus {
 		const path: string | null = await this.GetInstallationPath();
 		if (path === null) return null;
 
-		const infoJsonPath: string = this.path.join(path, 'cached-mod-ids-to-names.json');
+		const infoJsonPath: string = this.path.join(path, "cached-mod-ids-to-names.json");
 		// "C:\Users\Kristan\AppData\Local\Olympus\cached-mod-ids-to-names.json" //real path
 		// C:\\Users\\Kristan\\AppData\\local\\Olympus\\cached-mod-ids-to-names.json //path being returned by Path.join()
 		if (!(await this.fs.exists(infoJsonPath))) return null;
 
 		const infoJsonContent: string = await this.fs.readFile(infoJsonPath);
-		if (infoJsonContent === '') return null;
+		if (infoJsonContent === "") return null;
 
 		let parsed: OlympusModtoPrettyNameRegistry = {};
 		try {
 			parsed = JSON.parse(infoJsonContent);
 		} catch (e: unknown) {
-			Log_Error('Olympus:', '| Error when trying to parse cached-mod-ids-to-names.json from olympus path |', serializeError(e));
+			Log_Error("Olympus:", "| Error when trying to parse cached-mod-ids-to-names.json from olympus path |", serializeError(e));
 			return null;
 		}
 
@@ -104,7 +104,7 @@ export default class Olympus {
 		}
 
 		const found: string | null = parsed[modEverestIdentifier] ?? null;
-		if (typeof found === 'string' && found === '') return null;
+		if (typeof found === "string" && found === "") return null;
 		return found;
 	}
 
@@ -112,15 +112,15 @@ export default class Olympus {
 	//but code says: C:\\Users\\Kristan\\local\\Olympus\\config.json
 	private async _findPath(): Promise<string | null> {
 		const osName = this.os.getCurrentOS();
-		let configPath = '';
+		let configPath = "";
 
 		try {
-			if (osName === 'windows') {
-				const data = await this.os.getPath('home');
-				configPath = this.path.join(data, 'AppData', 'Local', 'Olympus', 'config.json');
+			if (osName === "windows") {
+				const data = await this.os.getPath("home");
+				configPath = this.path.join(data, "AppData", "Local", "Olympus", "config.json");
 			} else {
-				const home = await this.os.getPath('home');
-				if (osName === 'macos') {
+				const home = await this.os.getPath("home");
+				if (osName === "macos") {
 					//TODO: Test if real path in macos
 					configPath = `${home}/Library/Application Support/Olympus/config.json`;
 				} else {
@@ -129,7 +129,7 @@ export default class Olympus {
 				}
 			}
 		} catch (e) {
-			console.error('Failed to resolve Olympus config path:', e);
+			console.error("Failed to resolve Olympus config path:", e);
 			return null;
 		}
 

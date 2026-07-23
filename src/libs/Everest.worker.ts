@@ -13,7 +13,7 @@
  *   { mods: EverestModInfo[], taskId: number }
  */
 
-import * as yaml from 'js-yaml';
+import * as yaml from "js-yaml";
 
 type RawDep = { Name?: string; name?: string; Version?: string | number; version?: string | number; [key: string]: unknown };
 type RawMeta = {
@@ -34,20 +34,20 @@ type ModDependency = { name: string; version: string };
 type EverestModInfo = { fileName: string; isZip: boolean; modPath: string; metadata: any; humanName: string };
 
 function normalizeDep(d: RawDep): ModDependency {
-	return { name: d.Name || d.name || '', version: String(d.Version ?? d.version ?? '') };
+	return { name: d.Name || d.name || "", version: String(d.Version ?? d.version ?? "") };
 }
 
 function parseEverestYaml(content: string, _fileName: string): any {
 	try {
-		const cleaned = content.replace(/^\uFEFF/, '');
+		const cleaned = content.replace(/^\uFEFF/, "");
 		const parsed = yaml.load(cleaned) as RawMeta | RawMeta[] | null | undefined;
-		if (!parsed) return { name: '', version: '', dependencies: [], isLobby: false };
+		if (!parsed) return { name: "", version: "", dependencies: [], isLobby: false };
 		const item = Array.isArray(parsed) ? parsed[0] : parsed;
 		const { Name, Version, DLL, Dependencies, OptionalDependencies, ...rest } = item;
 		return {
 			...rest,
-			name: Name || rest.name || '',
-			version: String(Version ?? rest.version ?? ''),
+			name: Name || rest.name || "",
+			version: String(Version ?? rest.version ?? ""),
 			dll: DLL || rest.dll || undefined,
 			dependencies: (Dependencies || rest.dependencies || []).map(normalizeDep),
 			optionalDependencies: (OptionalDependencies || rest.optionalDependencies || []).map(normalizeDep),
@@ -56,15 +56,15 @@ function parseEverestYaml(content: string, _fileName: string): any {
 			campaigns: [],
 		};
 	} catch {
-		return { name: '', version: '', dependencies: [], isLobby: false, chapters: [], campaigns: [] };
+		return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
 	}
 }
 
 function normalizeModName(filename: string): string {
-	let name = filename.replace(/\.(zip|txt)$/i, '');
-	name = name.replace(/^(\d+\.)+\d+[-]+/, '');
-	name = name.replace(/_/g, ' ');
-	name = name.replace(/([a-z])([A-Z])/g, '$1 $2');
+	let name = filename.replace(/\.(zip|txt)$/i, "");
+	name = name.replace(/^(\d+\.)+\d+[-]+/, "");
+	name = name.replace(/_/g, " ");
+	name = name.replace(/([a-z])([A-Z])/g, "$1 $2");
 	return name.trim();
 }
 
@@ -79,7 +79,7 @@ self.onmessage = (
 	for (const { entry, type, modPath, yamlContent, collabContent } of entries) {
 		const metadata = parseEverestYaml(yamlContent, entry);
 		const name = normalizeModName(entry);
-		const isZip = type === 'FILE';
+		const isZip = type === "FILE";
 
 		if (collabContent) {
 			metadata.isLobby = true;

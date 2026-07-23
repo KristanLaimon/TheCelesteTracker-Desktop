@@ -1,10 +1,14 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
-import { injectable } from 'tsyringe';
-import ImageCacheService from './ImageCacheService';
+import { injectable } from "tsyringe";
+import Configuration from "./Configuration";
+import ImageCacheService from "./ImageCacheService";
 
 @injectable()
 export default class MaddiesApi {
-	constructor(private imageCache: ImageCacheService) {}
+	constructor(
+		private imageCache: ImageCacheService,
+		private config: Configuration,
+	) {}
 
 	public async SearchModByName(modName: string): Promise<MaddiesApiModInfo[]> {
 		const res = await fetch(`https://maddie480.ovh/celeste/gamebanana-search?q=${this.normalizeTextForUrls(modName)}`);
@@ -17,9 +21,10 @@ export default class MaddiesApi {
 		const modId = modInfo.GameBananaId;
 		const sanitizedName = this.imageCache.sanitizeFilename(modInfo.Name);
 
+		const modScreenshotsCachePath = await this.config.getModScreenshotsCachePath();
 		const opts = {
-			baseDiskDir: './data/cache/modsscreenshots',
-			baseWebDir: '/data/cache/modsscreenshots',
+			baseDiskDir: modScreenshotsCachePath,
+			baseWebDir: `/data/cache/modsscreenshots`,
 			getFilename: (index: number, ext: string) => `${modId}-${sanitizedName}-${index}.${ext}`,
 		};
 

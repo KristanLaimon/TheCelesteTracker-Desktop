@@ -1,5 +1,5 @@
 <script lang="ts">
-import CenteredLayout from '../../layouts/CenteredLayout.svelte';
+import CenteredLayout from "../../layouts/CenteredLayout.svelte";
 
 type Props = {
 	ModId?: string | null;

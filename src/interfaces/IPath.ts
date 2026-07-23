@@ -27,5 +27,5 @@ export interface IPath {
 	parse(path: string): ParsedPath;
 	sep: string;
 	delimiter: string;
-	posix: Omit<IPath, 'posix'>;
+	posix: Omit<IPath, "posix">;
 }
