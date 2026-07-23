@@ -1,99 +1,28 @@
-# GEMINI.md
+# AGENTS.md
 
 TheCelesteTracker Desktop
 
 TheCelesteTracker Desktop is *the* desktop all-in-one companion for Celeste PC Players (Modded and Vanilla players), the place-to-go to see all its local celeste info and stats.
 
-# CORE FEATURES (Non-negottiable but there are missing of implementation, so the program is done when app can do all of these features, this program is in early dev for now...)
-  - *Celeste + Priority Mod Support Gameplay Statistics*: 
-    - _Real time statistics_: Shows current progress with graphs/tables/(or any way to show visually) history-runs about, with scoped stats (per campaign, chapter, room (#See '#Celeste Domain' for more info)) or global stats of the following.
-      - Deaths
-      - Dashes
-      - Jumps
-      - Minimum deaths
-      - PlayTime
-      - Content played: celeste vanilla campaign and mods campaigns (Full metadata, icons,
-        images/screenshots/final screens)
-      - Red Strawberries collected and pending (got/max)
-      - Special Strawberries collected and pending to collect (got/max)
-        (#See '#Celeste Domain' for more info):
-        - Winged Golden Strawberry
-        - Golden Strawberry / Silvers Strawberries
-        - Platinum Strawberry
-        - Moon strawberry
-        - Timers Strawberries
-          - Bronze timer strawberry
-          - Silver timer strawberry
-          - Gold timer strawberry
-      - Hearts collected and pending to collect (got/max)
-      - MiniHearts collected and pending to collect (got/max)
-  - *Celeste & Priority Mods (campaigns && full-chapter) support visualization*:
-    - _Pretty showcase of your installed mods and the ones you played at least one time (not currently installed, per campaign and per campaign/chapter):
-      - Essential (offline mode):
-        - Statistics (See previous point)
-      - Not-so-essential-but-strongly-try-to-fech-desirable (online mode):
-        - Cover image (1 or 0 images)
-        - Additional screenshots (0..n images)
-        - Description
-        - Authors info:
-          - Name
-          - AvaterImage
-          - Installed/Played mods related section (all the mods he created that you played once or currently installed)
-  - *Common essential features*:
-    - Search through your mods list (no matter if offline or online)
-    - See current installed mods installed
-      - Essential (whoule work at least in offline mode)
-        - Filter by name
-        - Filter by category
-        - Filter by a specific stat (see Previous Stats point)
-      - Not-so-essential-but-strongly-try-to-fech-desirable
-        - Filter by author
-        - Search throug mods with gallery view (using their cover img)
+# Features & Roadmap
+For the detailed roadmap of pending features to implement, see [TODO.md](TODO.md).
 
+# Custom Generic Libraries & Encapsulation
+For unique features, custom generic libraries are encapsulated cleanly from the Celeste domain logic (so they could be published as standalone npm packages with generic public APIs):
+- `Wanvas/Canvas`: Free-Canvas pan & zoom widget system (`src/libs/Wanvas/`)
+- `GoldenLayoutWrapper`: Dashboard with customizable layouts (`src/libs/GoldenLayoutThemes/`)
 
-## Non-CORE features but STRONGLY IMPORTANT
-  - *Unique feature: Free-Canvas (Custom-Made library for this proyect)*: 
-    A canvas to pan and zoom with a widget-system, with the purpose to let the user
-    to organize freely their stats in persistence different canvas, so they can insert images
-    or have the satisfaction to see their stats in different ways than the rigid/customizable layouts
-    imposed by the normal pages when displaying info from the last section:
-      - *Celeste + Priority Mod Support Gameplay Statistics*
-      - *Celeste & Priority Mods (campaigns && full-chapter) support visualization*
-      - *Common essential features*
-    With the following subfeatures in this unique feature:
-      - Widgets:
-        - Common/Generic:
-          - Images
-          - Texts
-          - Wiring widget with arrows or lines
-        - CelesteSpecific that derives from Common/Generic:
-          - Mod info widget (with or without stats below section)
-          - Mod Only Stats 
-          - Mod Search bar
-    All these with responsive-design. 
-  - *Dashboard with highly customizable layouts (GoldenLayout but with custom-made svelte 5 wrapper)*:
-    This allows user to have multiple subpages/tabs in the same global rendered pages, so user can have:
-      - Canvas on the left
-      - Mod statitics on the right-top
-      - See all mods installed page on right-bottom
-      - And so on
+Keep these encapsulated with generic public APIs.
 
-So for each unique feature, theres a custom-generic-library totally encapsulated from the app-celeste nature. They could
-literally be published as npm packages, only generic public api, and usage in the rest of application. 
-Currently the libs i've made is with:
-  - Wanvas/Canvas -> *Unique feature: Free-Canvas (Custom-Made library for this proyect)*
-  - GoldenLayoutWrapper -> *Dashboard with highly customizable layouts*
-
-Keep them encapsulated with generic api, with ponytail skill if neccesary.
 
 # Users Profile
 Always assume Users could be: 
 1. Celeste players with modding playing experience 
 2. Celeste players with some experience (kinda new ones).
-Do not assuem users are complete new to the game, its rare to a newbie to install this compannion app in first place.
+Do not assume users are complete new to the game, its rare for a newbie to install this companion app in the first place.
 
 # Architecture and Optional-Dependencies
-This companion app uses third-party well known software that could or not could be available in differente envs:
+This companion app uses third-party well known software that could or not could be available in different envs:
 (Globally installed)
 - Everest 
 - Olympus
@@ -103,8 +32,8 @@ This companion app uses third-party well known software that could or not could 
 (Mod Installed)
 - TheCelesteTrackerMod (other project of mine that creates a db in saves celeste folder)
 
-that normally assumes is installled in user, but if not
-installed, we need to handle it and show msg to user (any way, that, if the want a better experience in this compannion app the should have them installed), but app should not crash.
+that normally assumes is installed in user, but if not
+installed, we need to handle it and show msg to user (any way, that, if the want a better experience in this companion app the should have them installed), but app should not crash.
 
 
 # Celeste Domain (Specifics)
@@ -141,7 +70,7 @@ app resources folder ResourcesFolder/cache folder, to avoid re-scannings.
           - modpresets.txt
           - updaterblacklist.txt
       To see how everest stores metadata, LAZY-LOAD-ONLY IF NEEDED the documentation in: `./docs/Everest/**.md` files, only read them if needed, do not read them NOW for now but the TL;DR is:
-      Everest stores very basic data as (note that DLL, and Optional Dependencies could or could not be there, load the everest docs with layz-load-only as specified before):
+      Everest stores very basic data as (note that DLL, and Optional Dependencies could or could not be there, load the everest docs with lazy-load-only as specified before):
       ```yaml
       - Name: StrawberryJam2021
         Version: 1.0.12
@@ -185,7 +114,7 @@ app resources folder ResourcesFolder/cache folder, to avoid re-scannings.
       I currently haven't found documentation about where is being installed in MacOS and linux, in windows, installation path is in:
       - `C:\Users\Kristan\AppData\Roaming\Olympus` only exes, no info
       And the information and important retrieving info is in:
-      - `C:\Users\Kristan\AppData\Local\Olympus` with the folliwing important files:
+      - `C:\Users\Kristan\AppData\Local\Olympus` with the following important files:
         - config.json
         - cached-mod-ids-to-names.json
         - cached-mod-ids-to-categories.json
@@ -202,7 +131,7 @@ app resources folder ResourcesFolder/cache folder, to avoid re-scannings.
       this API ASK ME EXPLICITLY to give you the documentation you need, then create or append to `./src/docs/GameBananaAPI.docs.md` the info you learn about the api and/or the documentation I gave you.
       Currently this is used to get mods author FULL INFO only, and as a fallback for full mod metadata in case we have the modID (thanks to maddies api) and maddies api unavailable.
     
-  So these are the online metadata scrappers available to improve mod metadata and even get images, author info an so on, because olympus/everest mods only is the mod itself, doesn't have much usefull metadata. ALWAYS make caching of this metadata when possible, we can't relay 100% in this apis ddue to user could be offline or reliability in APIs (and avoid over-using the apis and being banned or something). Resiliance and caching.
+  So these are the online metadata scrappers available to improve mod metadata and even get images, author info an so on, because olympus/everest mods only is the mod itself, doesn't have much usefull metadata. ALWAYS make caching of this metadata when possible, we can't rely 100% on these apis due to user could be offline or reliability in APIs (and avoid over-using the apis and being banned or something). Resiliance and caching.
 
 
 
@@ -222,15 +151,15 @@ app resources folder ResourcesFolder/cache folder, to avoid re-scannings.
                         (*https://github.com/KristanLaimon/TheCelesteTracker-Mod*)
       Features
       - A real-time gameplay tracking mod for Celeste (Everest). It monitors your progress, deaths, dashes, and level completions, storing everything in a local SQLite database and streaming events via WebSockets. 
-      - Works for generic use, but built to feed this compannion app (Aka 'TheCelesteTracker') client.
+      - Works for generic use, but built to feed this companion app (Aka 'TheCelesteTracker') client.
 
       TL;DR:
         - 📊 Has SQLite Persistence: Stores detailed run history, including per-room death counts and much info.
         - 🌐 Real-time WebSocket API: Streams gameplay events (dashes, deaths, transitions) to port 50500 (auto-hunting up to 50600).
         - 🍓 Berry Tracking: Tracks strawberry counts per run.
-        - 🗺️ Mod Support: Iddentify different campaigns (LevelSets) and custom maps.
+        - 🗺️ Mod Support: Identify different campaigns (LevelSets) and custom maps.
 
-      ¿How do we know if its available?
+      How do we know if its available?
       If in *\*/Celeste\Saves* folder theres a database called `TheCelesteTracker_DB.db` (sqlite db).  (Fixed name)
 
       Backups
@@ -243,7 +172,7 @@ app resources folder ResourcesFolder/cache folder, to avoid re-scannings.
       If db is not available in #/Celeste/Saves/ folder && we do not have backup folder:
         1. We ask user to <optionally> install it, 2 ways:
           1.1 Manual install (giver full instructions in modal window or something) with steps to download it from github releases
-          1.2 Automatic install (this app downloads it from github releases and put it in /Celeste/Mods folder) then ask to start celeste once, to initialize the db. (this app should be able to detect it in creation with a fileWatcher, only if user decided to install this, if cancels, fileWater out)
+          1.2 Automatic install (this app downloads it from github releases and put it in /Celeste/Mods folder) then ask to start celeste once, to initialize the db. (this app should be able to detect it in creation with a fileWatcher, only if user decided to install this, if cancels, stop the fileWatcher)
 
 Player has one or more datasaves; a datasave tracks progress per campaign (vanilla Celeste counts as one campaign/mod). Campaign has 1..n chapters; collab-style mods (built on Collab Utils 2 — see `Collab Utils 2.docs.md`) additionally nest lobbies containing chapters. Vanilla static stats come from `.celeste` XML save files under Celeste's `Saves/` folder. Live/real-time stats (deaths, dashes, transitions per run) come from the companion mod [TheCelesteTracker-Mod](https://github.com/KristanLaimon/TheCelesteTracker-Mod), which writes its own SQLite DB into Celeste's `Saves/` folder and streams events over WebSocket (port 50500, scanning up to 50600) — this app reads/copies that DB rather than re-implementing tracking.
 
@@ -273,11 +202,10 @@ A mod could be any type of mod like:
     - Mini Hearts
     - Mini Heart Doors
     - Silver Berries
-    - Speed Berries
-    - Speed Berries
+    - Speedberries
   Prefer this: Local documentation downloaded in: `./src/docs/EverestSpecificModsSupport/Collab Utils2.docs.md` ONLY LAZY-LOAD IT WHEN YOU NEEDED, DO NOT LOAD IT BY NOW.
   In case of heavy doubts -> OnlineLink: https://github.com/EverestAPI/CelesteCollabUtils2
-  In case of heayv doubts -> OnlineDocumentation: https://raw.githubusercontent.com/EverestAPI/CelesteCollabUtils2/refs/heads/master/DOCUMENTATION.md
+  In case of heavy doubts -> OnlineDocumentation: https://raw.githubusercontent.com/EverestAPI/CelesteCollabUtils2/refs/heads/master/DOCUMENTATION.md
 
 2. Alt Sides Helper
    TL;DR: It's a mod that allows you to add: 
@@ -287,10 +215,9 @@ A mod could be any type of mod like:
       - CC-Sides
       - Gyms
       and display them in the same way as vanilla's B and C sides. It also provides some assets for D-Sides.
-  Prefer this: Local documentation downloaded in `./src/docs/EverestSpecificModsSupport/Alt Sides Helper.docs.md`ONLY LAZY-LOAD IT WHEN YOU NEEDED, DO NOT LOAD IT BY NOW.
-  LLocal documentation downloaded in: `
-  OnlineLink: https://github.com/l-Luna/AltSidesHelper
-  OnlineDocumentation: https://raw.githubusercontent.com/l-Luna/AltSidesHelper/refs/heads/interrim/DOCUMENTATION.md
+  Prefer this: Local documentation downloaded in `./src/docs/EverestSpecificModsSupport/Alt Sides Helper.docs.md`. ONLY LAZY-LOAD IT WHEN YOU NEEDED, DO NOT LOAD IT BY NOW.
+  In case of heavy doubts -> OnlineLink: https://github.com/l-Luna/AltSidesHelper
+  In case of heavy doubts -> OnlineDocumentation: https://raw.githubusercontent.com/l-Luna/AltSidesHelper/refs/heads/interrim/DOCUMENTATION.md
 
 # CODING
 
@@ -361,10 +288,10 @@ The frontend deliberately borrows C# OOP conventions rather than idiomatic funct
 | Constants | `UPPER_SNAKE_CASE` | `CODE_LENGTH` |
 
 More conventions:
-- | Interfaces | `I` prefix  (`IFileSystem`, `IOS`)
+- Interfaces: `I` prefix (`IFileSystem`, `IOS`)
 - `_Token` suffix — DI token symbols (`IFileSystem_Token`)
-- Indent: tabs, width 2 | Source of truth config hierarchy:(.editorconfig > biome.json (configured to use .editorconfig))
-- Quotes: doube. 
+- Indent: tabs, width 2 | Source of truth config hierarchy: .editorconfig > biome.json (configured to use .editorconfig)
+- Quotes: double. 
 - Semicolons: required. 
 - Line width: 160. 
 - Trailing newline: yes.
