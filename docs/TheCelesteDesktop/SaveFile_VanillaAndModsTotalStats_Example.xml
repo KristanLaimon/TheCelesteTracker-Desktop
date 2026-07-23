@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Trimmed real example from `Celeste/Saves/0.celeste` (Windows Steam path, but same
+  format/name no matter the OS, see GEMINI.md "Celeste installation"). This is a plain
+  XML file despite the .celeste extension, one per save slot (0.celeste, 1.celeste, ...).
+
+  This single file is the source for BOTH halves of "Vanilla + Mods (ever played) total
+  statistics": vanilla campaign stats live at the top under <Areas>, and every mod
+  campaign the player ever unlocked/played lives under <LevelSets> (still installed) or
+  <LevelSetRecycleBin> (mod since uninstalled, stats kept). No per-mod modsave-*.celeste
+  file needed for this, those are for mod-specific extra data (flags, blacklists,
+  in-progress session state), not totals.
+
+  Every tag below is documented inline: what it holds, and OPTIONAL (can be missing or
+  self-closing/empty, eg untouched chapter/side) vs ALWAYS-PRESENT (game always writes it,
+  even if zero/false/empty). Repeated/near-identical blocks are collapsed with comments,
+  real tag/attribute names are untouched.
+-->
+<SaveData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- ALWAYS-PRESENT. Save file format version, not the game version, don't confuse the two. -->
+  <Version>1.4.0.0</Version>
+  <!-- ALWAYS-PRESENT. Player-chosen save file name, shown on the file-select screen. -->
+  <Name>Krischan</Name>
+  <!-- ALWAYS-PRESENT. Total playtime across ALL content (vanilla + every mod), in .NET
+       ticks (1 tick = 100ns, so seconds = value / 10,000,000). -->
+  <Time>8436297700000</Time>
+  <!-- ALWAYS-PRESENT. Real-world timestamp of the last save. 0001-01-01T00:00:00 here
+       just means "never written this run" / default .NET DateTime, not a real date. -->
+  <LastSave>0001-01-01T00:00:00</LastSave>
+  <!-- ALWAYS-PRESENT. "Cheat Mode" toggle from the debug/cheat menu (grants all chapters
+       + gems). false for a normal save. -->
+  <CheatMode>false</CheatMode>
+  <!-- ALWAYS-PRESENT. Whether Assist Mode has EVER been turned on for this file (sticky,
+       shows the assist-mode icon on the file select screen once true, even if all
+       individual <Assists> below are back to default). -->
+  <AssistMode>false</AssistMode>
+  <!-- ALWAYS-PRESENT. Same idea as AssistMode but for Variant Mode (the individual
+       gameplay-variant toggles inside <Assists>, eg game speed, no grabbing, etc). -->
+  <VariantMode>true</VariantMode>
+  <!-- ALWAYS-PRESENT. Every individual assist/variant toggle, always all present with
+       their current value, defaults shown below (none of these are actually enabled). -->
+  <Assists>
+    <GameSpeed>10</GameSpeed>              <!-- int 5..10, 10 = normal 100% speed, 5 = 50% -->
+    <Invincible>false</Invincible>          <!-- can't die -->
+    <DashMode>Normal</DashMode>            <!-- Normal | Two | Infinite -->
+    <DashAssist>false</DashAssist>          <!-- dash direction assist -->
+    <InfiniteStamina>false</InfiniteStamina> <!-- no stamina drain on climb/hang -->
+    <MirrorMode>false</MirrorMode>          <!-- level flipped horizontally -->
+    <ThreeSixtyDashing>false</ThreeSixtyDashing> <!-- dash in 360 degrees instead of 8-way -->
+    <InvisibleMotion>false</InvisibleMotion> <!-- player sprite invisible while moving -->
+    <NoGrabbing>false</NoGrabbing>          <!-- can't grab walls/ledges -->
+    <LowFriction>false</LowFriction>        <!-- ice-like friction everywhere -->
+    <SuperDashing>false</SuperDashing>      <!-- dash speed boosted -->
+    <Hiccups>false</Hiccups>                <!-- random screen-shake/hiccup effect -->
+    <PlayAsBadeline>false</PlayAsBadeline>  <!-- reskins player as Badeline -->
+  </Assists>
+  <!-- OPTIONAL-ish, ALWAYS-PRESENT in practice: the name given to Theo's sister in
+       Chapter 5, cosmetic only, unrelated to stats. -->
+  <TheoSisterName>Alex</TheoSisterName>
+  <!-- ALWAYS-PRESENT. VANILLA-ONLY count of unlocked chapters (0-indexed, so 10 = every
+       vanilla chapter including Core unlocked). Mod campaigns have their own
+       <UnlockedAreas> inside each <LevelSetStats>, see below. -->
+  <UnlockedAreas>10</UnlockedAreas>
+  <!-- ALWAYS-PRESENT, VANILLA-ONLY. Same for all 6 Total* fields below: they never
+       count mod content, only the base Celeste campaign. Mod totals have to be summed
+       by hand from <LevelSets>/<LevelSetRecycleBin>. -->
+  <TotalDeaths>45566</TotalDeaths>
+  <TotalStrawberries>198</TotalStrawberries>       <!-- red strawberries, vanilla max is 175 + 20 moonberries excluded, real cap depends on which are counted -->
+  <TotalGoldenStrawberries>45</TotalGoldenStrawberries> <!-- counts EVERY golden death-reset run attempt tracked, not "goldens owned" -->
+  <TotalJumps>341936</TotalJumps>
+  <TotalWallJumps>87492</TotalWallJumps>
+  <TotalDashes>378534</TotalDashes>
+
+  <!-- OPTIONAL: self-closes to <Flags /> on a brand new file. Freeform strings, one per
+       flag ever set, grows forever. Story flags (eg "MetTheo") and mod-set flags both
+       live here mixed together, no namespacing beyond whatever prefix a mod chooses to
+       use in the flag string itself (eg "BreezeContest2024/1-Submissions/tobyaaa:autumnSA"). -->
+  <Flags>
+    <string>MetTheo</string>
+    <string>TheoKnowsName</string>
+  </Flags>
+
+  <!-- OPTIONAL: self-closes to <Poem /> when no heart ever collected on this campaign.
+       One <string> gets appended EVERY time ANY heart (vanilla or mod) is collected,
+       each string is a short internal code for that heart's poem word/line (looked up
+       against Dialog strings to render the actual poem text on the journal/Poem page
+       later). It's a running collection LOG in collection order, not a computed stat,
+       treat it as "which hearts have I ever gotten" rather than something to graph. -->
+  <Poem>
+    <string>mc</string>
+    <string>cr</string>
+    <string>fc</string>
+  </Poem>
+
+  <!-- OPTIONAL: self-closes to <SummitGems /> if none collected. Exactly 6 <boolean>,
+       one per Chapter 7 (Summit) golden gem, FIXED order = gem 1..6 by altitude, true =
+       collected. Vanilla-only, no mod equivalent tag. -->
+  <SummitGems>
+    <boolean>true</boolean>
+    <boolean>true</boolean>
+    <boolean>true</boolean>
+    <boolean>true</boolean>
+    <boolean>true</boolean>
+    <boolean>true</boolean>
+  </SummitGems>
+
+  <!-- ALWAYS-PRESENT. Whether Chapter 9 (Farewell) has been unlocked/revealed on the
+       chapter select screen. -->
+  <RevealedChapter9>true</RevealedChapter9>
+
+  <!-- ALWAYS-PRESENT. Where the player currently stands on the chapter-select screen
+       (which chapter/side is highlighted), NOT "last played" in a stats sense.
+       ID = vanilla AreaStats ID (see <AreaStats> below). Mode = "Normal"|"BSide"|"CSide".
+       SID = the map's Story/Session ID, "{Campaign}/{ChapterFolder}", globally unique,
+       this is the real cross-file key to match an area against, ID alone is only
+       unique WITHIN one campaign/LevelSet, not globally. -->
+  <LastArea ID="7" Mode="BSide" SID="Celeste/7-Summit" />
+
+  <!-- ALWAYS-PRESENT (self-closes to <Areas /> only in the extreme case of a file with
+       zero vanilla progress). VANILLA campaign, one <AreaStats> per chapter, ID 0..10,
+       in fixed vanilla order (0=Prologue, 1=Forsaken City, ... 10=Farewell). -->
+  <Areas>
+    <!--
+      AreaStats attributes:
+        ID       int, index into Everest's GLOBAL AreaData.Areas list, vanilla always
+                 takes 0..10, so the first mod area loaded that session gets 11, next 12,
+                 etc, in mod-load order. NOT STABLE: rebuilt from scratch every Celeste
+                 boot from whatever mods happen to be installed/loaded that run, so
+                 install/remove a mod (or just change load order) and every ID after it
+                 shifts. Proof in this same file: totally unrelated, never-co-installed
+                 LevelSets ("AliceQuasar/Binary", "2021MapCollection", "Into The Jungle",
+                 a dozen more) each independently start at ID="11" for their first
+                 chapter, because each was (at some point) the first/only mod loaded
+                 after vanilla in whatever session last wrote that entry. Treat ID as
+                 disposable, NEVER persist/match on it, always use SID instead.
+        Cassette bool, whether the cassette tape has been collected in THIS chapter
+                 (unlocks the B-Side). false forever for chapters with no cassette.
+        SID      string, "{Campaign}/{ChapterFolder}", stable globally-unique map id,
+                 THE key to persist/match areas across saves, sessions, and app restarts.
+    -->
+    <AreaStats ID="0" Cassette="false" SID="Celeste/0-Intro">
+      <Modes>
+        <!--
+          One <AreaModeStats> per side, ALWAYS EXACTLY 3 entries in fixed order, even if
+          that side doesn't exist for this chapter (a nonexistent side just stays at
+          these same all-zero/false defaults forever): [0]=A-Side [1]=B-Side [2]=C-Side.
+
+          AreaModeStats attributes:
+            TotalStrawberries  int, how many red strawberries collected in THIS side
+                               (not the campaign total, that's the top-level Total*).
+            Completed          bool, chapter beaten at least once (reached the end).
+            SingleRunCompleted bool, beaten in one continuous run without returning to
+                               the chapter-select screen mid-run.
+            FullClear          bool, every strawberry in this side collected AND done in
+                               one clean run (implies Completed/SingleRunCompleted true).
+            Deaths             int, total deaths accumulated on this side, all-time.
+            TimePlayed         .NET ticks (100ns units) spent on this side, all-time.
+            BestTime           .NET ticks, fastest Completed run (not necessarily a
+                               FullClear run). 0 = never completed.
+            BestFullClearTime  .NET ticks, fastest FullClear run specifically. 0 = never
+                               full-cleared.
+            BestDashes         int, fewest dashes used in a Completed run. 0 = n/a yet.
+            BestDeaths         int, fewest deaths in a Completed run (0 deaths = a
+                               "no-death" clear if BestDeaths is 0 AND Completed true).
+            HeartGem           bool, crystal heart collected on this side.
+        -->
+        <AreaModeStats TotalStrawberries="0" Completed="true" SingleRunCompleted="true" FullClear="false" Deaths="5" TimePlayed="5761000000" BestTime="308210000" BestFullClearTime="0" BestDashes="0" BestDeaths="0" HeartGem="false">
+          <!-- OPTIONAL: self-closes to <Strawberries /> if none collected on this side. -->
+          <Strawberries />
+          <!-- OPTIONAL: self-closes to <Checkpoints /> if none reached on this side. -->
+          <Checkpoints />
+        </AreaModeStats>
+        <!-- unplayed/nonexistent B-Side and C-Side: same all-zero/false shape as above -->
+      </Modes>
+    </AreaStats>
+
+    <!-- Chapter 1, real filled example with all 3 sides played: A-Side (index 0),
+         B-Side (index 1, unlocked by the cassette), C-Side (index 2, unlocked by an
+         A-Side FullClear). Shows what "filled" actually looks like. -->
+    <AreaStats ID="1" Cassette="true" SID="Celeste/1-ForsakenCity">
+      <Modes>
+        <!-- A-Side: FullClear=true, HeartGem=true (crystal heart collected). -->
+        <AreaModeStats TotalStrawberries="22" Completed="true" SingleRunCompleted="true" FullClear="true" Deaths="1550" TimePlayed="259204790000" BestTime="819060000" BestFullClearTime="0" BestDashes="0" BestDeaths="0" HeartGem="true">
+          <!-- One <EntityID/> per red strawberry collected on this side, straight from
+               Celeste's own EntityID struct (Level + ":" + ID). Key format is
+               "{RoomName}:{EntityID}":
+                 RoomName  the map room the berry spawns in (map-editor room name,
+                           NOT a checkpoint name, though they sometimes match). Confirmed
+                           against Forsaken City's real room names ("2", "3", "5z", "9z",
+                           "8b" below are actual Ahorn/Lönn room codes for this map, not
+                           made up ids).
+                 EntityID  the integer id the map editor (Ahorn/Lönn) assigned that
+                           specific entity instance, unique within its ROOM only (two
+                           different rooms can both have an EntityID "9"), this comes
+                           straight from the map's own .bin data, it's not something
+                           this app computes, just a foreign key back into the map, you
+                           need the map data loaded to resolve it to anything more than
+                           a raw id (eg an actual X/Y position). -->
+          <Strawberries>
+            <EntityID Key="2:11" />
+            <EntityID Key="3:9" />
+            <!-- ...20 more <EntityID/> entries, one per red strawberry in this side... -->
+          </Strawberries>
+          <!-- One <string> per mid-level checkpoint reached at least once (by the
+               checkpoint's flag/room name), used to offer "resume from checkpoint"
+               instead of restarting the whole side from the beginning. -->
+          <Checkpoints>
+            <string>6</string>
+            <string>9b</string>
+          </Checkpoints>
+        </AreaModeStats>
+        <!-- B-Side: only 1 strawberry exists on this side, not a FullClear
+             (SingleRunCompleted=true just means "beaten"; FullClear additionally
+             needs every collectible + one clean run). -->
+        <AreaModeStats TotalStrawberries="1" Completed="true" SingleRunCompleted="true" FullClear="false" Deaths="175" TimePlayed="27606980000" BestTime="1644580000" BestFullClearTime="0" BestDashes="45" BestDeaths="0" HeartGem="true">
+          <Strawberries>
+            <EntityID Key="00:25" />
+          </Strawberries>
+          <Checkpoints>
+            <string>04</string>
+            <string>08</string>
+          </Checkpoints>
+        </AreaModeStats>
+        <!-- C-Side: no checkpoints reached this-side-ever -> empty self-closing tag,
+             same shape as an untouched side, just because nothing was reached, this
+             side itself has definitely been played (HeartGem=true, strawberry got). -->
+        <AreaModeStats TotalStrawberries="1" Completed="true" SingleRunCompleted="true" FullClear="false" Deaths="127" TimePlayed="16741090000" BestTime="448290000" BestFullClearTime="0" BestDashes="16" BestDeaths="0" HeartGem="true">
+          <Strawberries>
+            <EntityID Key="00:50" />
+          </Strawberries>
+          <Checkpoints />
+        </AreaModeStats>
+      </Modes>
+    </AreaStats>
+    <!-- ...AreaStats ID="2" through ID="10" follow the same shape... -->
+  </Areas>
+
+  <!-- OPTIONAL: self-closes to <LevelSets /> if no mod campaign ever unlocked/played.
+       Every mod campaign (LevelSet) currently INSTALLED that has ever been played, one
+       <LevelSetStats> per campaign.
+         Name  the mod's LevelSet name (usually the campaign folder name from the map's
+               SID, can be nested like "BreezeContest2024/0-Lobbies" for sub-campaigns). -->
+  <LevelSets>
+    <!-- "Celeste" itself also shows up here as its own LevelSetStats, mirroring the
+         top-level vanilla totals (<Areas /> stays empty here, real vanilla area data
+         only lives in the top-level <Areas> above, this entry is basically a summary). -->
+    <LevelSetStats Name="Celeste">
+      <Areas />
+      <Poem />
+      <UnlockedAreas>10</UnlockedAreas>
+      <TotalStrawberries>198</TotalStrawberries>
+    </LevelSetStats>
+    <!-- A real mod campaign: same <Areas>/<AreaStats>/<AreaModeStats>/<Strawberries>/
+         <Checkpoints> shape as vanilla above, just scoped to this LevelSet's own chapters.
+         <Poem> here is the same "hearts collected" log as top-level Poem but scoped to
+         hearts collected within THIS campaign only. <UnlockedAreas>/<TotalStrawberries>
+         are this campaign's own totals, same meaning as the vanilla top-level ones. -->
+    <LevelSetStats Name="BreezeContest2024/0-Lobbies">
+      <Areas>
+        <AreaStats ID="11" Cassette="false" SID="BreezeContest2024/0-Lobbies/0-Prologue">
+          <Modes>
+            <AreaModeStats TotalStrawberries="0" Completed="true" SingleRunCompleted="true" FullClear="false" Deaths="0" TimePlayed="2696370000" BestTime="2662200000" BestFullClearTime="0" BestDashes="18" BestDeaths="0" HeartGem="false">
+              <Strawberries />
+              <Checkpoints />
+            </AreaModeStats>
+            <!-- B/C-Side AreaModeStats omitted, all zero here -->
+          </Modes>
+        </AreaStats>
+        <!-- more AreaStats for this campaign's other maps -->
+      </Areas>
+      <Poem />
+      <UnlockedAreas>1</UnlockedAreas>
+      <TotalStrawberries>0</TotalStrawberries>
+    </LevelSetStats>
+    <!-- one <LevelSetStats> per other installed mod campaign ever played -->
+  </LevelSets>
+
+  <!-- OPTIONAL: self-closes/absent if no mod was ever uninstalled after being played.
+       Mods the player played at some point but has since UNINSTALLED, this is the
+       "ever played" part of the section title, Everest moves the LevelSetStats here
+       instead of deleting it when it notices the mod is gone. Exact same shape as
+       <LevelSets> above, same tag/attribute meanings. -->
+  <LevelSetRecycleBin>
+    <LevelSetStats Name="AliceQuasar/Binary">
+      <Areas>
+        <AreaStats ID="11" Cassette="false" SID="AliceQuasar/Binary/1-Light">
+          <Modes>
+            <AreaModeStats TotalStrawberries="0" Completed="false" SingleRunCompleted="false" FullClear="false" Deaths="11" TimePlayed="1349460000" BestTime="0" BestFullClearTime="0" BestDashes="0" BestDeaths="0" HeartGem="false">
+              <Strawberries />
+              <Checkpoints />
+            </AreaModeStats>
+          </Modes>
+        </AreaStats>
+      </Areas>
+      <Poem />
+      <UnlockedAreas>0</UnlockedAreas>
+      <TotalStrawberries>0</TotalStrawberries>
+    </LevelSetStats>
+    <!-- can be a LOT of these, every uninstalled-but-ever-played mod campaign piles up here -->
+  </LevelSetRecycleBin>
+
+  <!-- ALWAYS-PRESENT. true once ANY mod content has ever touched this save (mod area
+       played, mod flag set, etc), lets the game/tooling skip scanning <LevelSets>/
+       <LevelSetRecycleBin> entirely for a pure-vanilla file. -->
+  <HasModdedSaveData>true</HasModdedSaveData>
+  <!-- ALWAYS-PRESENT. Same shape/meaning as <LastArea> above, but the last KNOWN-SAFE
+       area (used to recover to if the game crashed or got interrupted mid-session
+       instead of resuming into a broken state). -->
+  <LastArea_Safe ID="7" Mode="BSide" SID="Celeste/7-Summit" />
+</SaveData>

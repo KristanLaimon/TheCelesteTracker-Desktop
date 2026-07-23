@@ -6,12 +6,11 @@
 	"scripts": {
 		"start": "neu run -- --window-enable-inspector",
 		"build:frontend": "vite build",
-		"build:windows": "bun run build --skip-linux",
-		"build:noextensions": "neu build --embed-resources",
 		"build": "bun build.js",
 		"check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.vite.json",
 		"test": "bun test",
-		"lint": "biome check . --write --unsafe"
+    "lint": "biome check .",
+		"lint:fix": "biome check . --write --unsafe"
 	},
 	"dependencies": {
 		"@neutralinojs/lib": "6.8.0",
