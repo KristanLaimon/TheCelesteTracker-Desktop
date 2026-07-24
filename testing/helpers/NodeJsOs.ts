@@ -24,7 +24,7 @@ import type {
 	SpawnedProcessAction,
 	SpawnedProcessOptions,
 	TrayOptions,
-} from "../src/interfaces/IOs";
+} from "../../src/interfaces/IOs";
 
 @injectable()
 export default class NodeJsOS implements IOS {

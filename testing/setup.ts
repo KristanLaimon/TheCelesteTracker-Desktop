@@ -19,9 +19,9 @@ import ImageCacheService from "../src/libs/ImageCacheService";
 import Olympus from "../src/libs/Olympus";
 import Sqlite_Go from "../src-utils/Sqlite_Go";
 import Zip_Go from "../src-utils/Zip_Go";
-import NodeJsFileSystem from "./NodeJsFileSystem";
-import NodeJsOS from "./NodeJsOs";
-import NodeJsPath from "./NodeJsPath";
+import NodeJsFileSystem from "./helpers/NodeJsFileSystem";
+import NodeJsOS from "./helpers/NodeJsOs";
+import NodeJsPath from "./helpers/NodeJsPath";
 
 export const TEST_FOLDER = join(import.meta.dir);
 export const TEST_TEMP_FOLDER = join(TEST_FOLDER, "./temp");

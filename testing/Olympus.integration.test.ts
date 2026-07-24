@@ -5,7 +5,7 @@ import { IFileSystem_Token, IPath_Token } from "../src/interfaces/DependencyInje
 import type { IFileSystem } from "../src/interfaces/IFileSystem";
 import type { IPath } from "../src/interfaces/IPath";
 import Olympus from "../src/libs/Olympus";
-import { FakeOsPathOverride } from "./FakeOsPathOverride";
+import { FakeOsPathOverride } from "./helpers/FakeOsPathOverride";
 import { GetDependency, TEST_FOLDER, TEST_OLYMPUS_PATH } from "./setup";
 
 describe("Olympus Integration Tests", () => {

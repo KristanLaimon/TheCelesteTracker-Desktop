@@ -15,7 +15,7 @@ import type {
 	PathParts,
 	Stats,
 	Watcher,
-} from "../src/interfaces/IFileSystem";
+} from "../../src/interfaces/IFileSystem";
 
 @injectable()
 export default class NodeJsFileSystem implements IFileSystem {

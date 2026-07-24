@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { IPath } from "../src/interfaces/IPath";
+import type { IPath } from "../../src/interfaces/IPath";
 
 export default class NodeJsPath implements IPath {
 	resolve = path.posix.resolve;

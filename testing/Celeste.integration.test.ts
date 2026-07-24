@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { IFileSystem_Token } from "../src/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../src/interfaces/IFileSystem";
 import Celeste from "../src/libs/Celeste";
-import { FakeOsPathOverride } from "./FakeOsPathOverride";
+import { FakeOsPathOverride } from "./helpers/FakeOsPathOverride";
 import { GetDependency, TEST_CELESTE_PATH } from "./setup";
 
 describe("Celeste Integration Tests", () => {
