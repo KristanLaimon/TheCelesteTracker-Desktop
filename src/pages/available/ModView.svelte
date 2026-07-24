@@ -8,10 +8,11 @@ import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.typ
 import type { ModSimplified } from "../../libs/LocalMods";
 import type { MaddiesApiModInfo } from "../../libs/MaddiesAPI";
 import { Construct_LocalMods } from "../../setup.DI.helpers";
+import ModViewSteering from "./ModView.steering.svelte";
 
-type Props = { searchQuery: string };
+type Props = { searchQuery: string; __tabId?: string };
 
-let { searchQuery = $bindable(""), onStateChange }: WithGLState<Props> = $props();
+let { searchQuery = $bindable(""), __tabId, onStateChange }: WithGLState<Props> = $props();
 
 const localMods = Construct_LocalMods({
 	filePath: "./data/BROWSER-LOCAL-MODS.json",
@@ -104,6 +105,11 @@ $effect(() => {
 	if (searchQuery) {
 		onStateChange?.({ searchQuery });
 	}
+});
+
+$effect(() => {
+	const steered = __tabId ? ModViewSteering.steeredModIdByTabId[__tabId] : undefined;
+	if (steered) selectedName = steered;
 });
 </script>
 
