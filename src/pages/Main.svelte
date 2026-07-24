@@ -42,7 +42,7 @@ const customLayoutStyles: GoldenLayoutComponentStylesOverrides = {
 		border: "1px solid var(--apptheme-accent-secondary)",
 		borderRadius: "4px 4px 0 0",
 		margin: "0 2px",
-		padding: "4px 12px",
+		padding: "4px 28px 4px 12px",
 	},
 	activeTab: {
 		background: "var(--apptheme-accent-primary)",
@@ -50,6 +50,7 @@ const customLayoutStyles: GoldenLayoutComponentStylesOverrides = {
 		fontWeight: "600",
 		border: "1px solid var(--apptheme-accent-primary-hover)",
 		boxShadow: "0 0 12px rgba(232, 74, 95, 0.35)",
+		padding: "4px 28px 4px 12px",
 	},
 	splitter: {
 		background: "var(--apptheme-accent-secondary)",

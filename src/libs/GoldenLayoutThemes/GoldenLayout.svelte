@@ -1,5 +1,5 @@
 <script lang="ts" generics="ComponentsMap extends GoldenLayoutRegistry">
-import { GoldenLayout, LayoutConfig, Stack } from "golden-layout";
+import { GoldenLayout, LayoutConfig, RowOrColumn, Stack } from "golden-layout";
 import { type Component, mount, onMount, unmount } from "svelte";
 import type {
 	CSSProperties,
@@ -12,6 +12,72 @@ import type {
 import "./goldenlayout-base.css";
 import "./predefined/goldenlayout-dark-theme.css";
 import { Log_Info } from "../Logger";
+
+// Enable real-time live resizing during splitter drag without compound feedback loop or dragStop jumps
+// biome-ignore lint/suspicious/noExplicitAny: Needed to patch internal methods
+const rowOrColumnProto = RowOrColumn?.prototype as any;
+if (rowOrColumnProto && !rowOrColumnProto.__liveResizePatched) {
+	rowOrColumnProto.__liveResizePatched = true;
+
+	const originalDragStart = rowOrColumnProto.onSplitterDragStart;
+	const originalDrag = rowOrColumnProto.onSplitterDrag;
+	const originalDragStop = rowOrColumnProto.onSplitterDragStop;
+
+	rowOrColumnProto.onSplitterDragStart = function (splitter: any) {
+		if (originalDragStart) originalDragStart.call(this, splitter);
+		const items = this.getSplitItems(splitter);
+		if (items?.before && items?.after) {
+			const dimension = this._isColumn ? "height" : "width";
+			const sizeBefore = parseFloat(items.before.element.style[dimension]) || 0;
+			const sizeAfter = parseFloat(items.after.element.style[dimension]) || 0;
+			splitter.__liveDragState = {
+				initialPixelBefore: sizeBefore,
+				initialPixelAfter: sizeAfter,
+				initialRelativeBefore: items.before.size,
+				initialRelativeAfter: items.after.size,
+			};
+		}
+	};
+
+	rowOrColumnProto.onSplitterDrag = function (splitter: any, offsetX: number, offsetY: number) {
+		if (originalDrag) originalDrag.call(this, splitter, offsetX, offsetY);
+
+		const state = splitter.__liveDragState;
+		if (state && this._splitterPosition !== null) {
+			const items = this.getSplitItems(splitter);
+			if (items?.before && items?.after) {
+				const offset = this._isColumn ? offsetY : offsetX;
+				const totalPixels = state.initialPixelBefore + state.initialPixelAfter;
+				if (totalPixels > 0) {
+					const minBefore = this.calculateContentItemsTotalMinSize(items.before.contentItems);
+					const minAfter = this.calculateContentItemsTotalMinSize(items.after.contentItems);
+
+					let newPixelBefore = state.initialPixelBefore + offset;
+					newPixelBefore = Math.max(minBefore, Math.min(totalPixels - minAfter, newPixelBefore));
+
+					const fraction = newPixelBefore / totalPixels;
+					const totalRelative = state.initialRelativeBefore + state.initialRelativeAfter;
+
+					items.before.size = fraction * totalRelative;
+					items.after.size = (1 - fraction) * totalRelative;
+
+					splitter.element.style.top = "0px";
+					splitter.element.style.left = "0px";
+
+					this.updateSize(false);
+				}
+			}
+		}
+	};
+
+	rowOrColumnProto.onSplitterDragStop = function (splitter: any) {
+		this._splitterPosition = 0;
+		if (splitter.__liveDragState) {
+			delete splitter.__liveDragState;
+		}
+		if (originalDragStop) originalDragStop.call(this, splitter);
+	};
+}
 
 // PUBLIC-PROPS
 type Props = {
@@ -601,5 +667,20 @@ onMount(() => {
   .container-wrapper.has-custom-theme :global(.lm_dragProxy) {
     background: var(--gl-dragProxyBg) !important;
     border: var(--gl-dragProxyBorder) !important;
+  }
+
+  .container-wrapper :global(.lm_header .lm_tab) {
+    padding-right: 28px !important;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .container-wrapper :global(.lm_header .lm_tab .lm_close_tab) {
+    position: absolute !important;
+    right: 8px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    margin: 0 !important;
   }
 </style>
