@@ -17,7 +17,9 @@
  *   └── *.altsideshelper.meta.yaml — Alt Sides Helper per-map config
  */
 
+import { XMLParser } from "fast-xml-parser";
 import * as yaml from "js-yaml";
+import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
 import Zip_Go from "../../src-utils/Zip_Go";
 import { IFileSystem_Token, IThreadConstructor_Token } from "../interfaces/DependencyInjectionTokens";
@@ -27,6 +29,14 @@ import Celeste from "./Celeste";
 import { ALT_SIDES_META_EXT, type AltSidesHelperMeta } from "./Everest.altsideshelper";
 import { type CollabUtils2LazyLoadingYaml, CollabUtils2Scanner } from "./Everest.collabutils2";
 import { DialogReader, sidToDialogKey } from "./Everest.dialog";
+import { Log_Error } from "./Logger";
+
+/** Parses `<LevelSets>`/`<LevelSetRecycleBin>` blocks from `.celeste` save XML — `LevelSetStats` is forced to always be an array, even when a save has exactly one entry. */
+const saveFileXmlParser = new XMLParser({
+	ignoreAttributes: false,
+	attributeNamePrefix: "@_",
+	isArray: (tagName) => tagName === "LevelSetStats",
+});
 
 /** A dependency declared in the mod's `everest.yaml` (`Dependencies` / `dependencies` array). */
 export type ModDependency = { name: string; version: string };
@@ -118,7 +128,33 @@ export type EverestModInfo = {
 	modPath: string;
 	metadata: ModMetadata;
 	humanName: string;
+	/** Zip file size in bytes, captured during `GetModsInstalledFull`. `null` for folder mods (no reliable recursive size) or on stat failure. `undefined` if never scanned via the full path. */
+	sizeBytes?: number | null;
 };
+
+/** Per-mod-slot save-file LevelSet identifiers found across all save slots. */
+export type EverestHistoricalLevelSets = {
+	/** `<LevelSets><LevelSetStats Name="...">` — informational only, already covered accurately by the Mods/ folder scan. */
+	installedLevelSetNames: string[];
+	/** `<LevelSetRecycleBin><LevelSetStats Name="...">` — campaigns played before, since uninstalled. */
+	recycledLevelSetNames: string[];
+};
+
+/**
+ * A mod's save-file `LevelSetStats Name`(s) — its "second unique id", alongside `metadata.name`.
+ * Derived from data `GetModsInstalledFull` already scans, no extra scan needed:
+ * - Standalone mods: `campaigns[].campaignNameId` (already in the same `"<author>/<campaign>"` shape saves use).
+ * - Collab mods: `${collabId}/${lobbies[].lobbyId}` — `lobbyId` alone is just the last SID segment, the save file's
+ *   `LevelSetStats Name` needs the collab id prefix put back (e.g. `"BreezeContest2024/0-Lobbies"`).
+ */
+export function GetLevelSetNamesForMod(mod: EverestModInfo): string[] {
+	const meta = mod.metadata;
+	if (!meta) return [];
+	if (meta.isLobby) {
+		return (meta.lobbies ?? []).map((l) => (meta.collabId ? `${meta.collabId}/${l.lobbyId}` : l.lobbyId));
+	}
+	return (meta.campaigns ?? []).map((c) => c.campaignNameId);
+}
 
 /**
  * A lobby discovered inside a collab mod.
@@ -431,6 +467,42 @@ export default class Everest {
 		return install ? `${install.foundPath}/Mods` : null;
 	}
 
+	/** Single-slot read of the mod/LevelSet side of one `.celeste` save file — see `EverestHistoricalLevelSets`. */
+	public async ReadHistoricalLevelSetNames(fileAbsolutePath: string): Promise<EverestHistoricalLevelSets> {
+		try {
+			const content = await this.fs.readFile(fileAbsolutePath);
+			const parsed = saveFileXmlParser.parse(content)?.SaveData;
+			const extractNames = (block: unknown): string[] => {
+				const list = (block as { LevelSetStats?: { "@_Name"?: string }[] } | undefined)?.LevelSetStats;
+				if (!Array.isArray(list)) return [];
+				return list.map((entry) => entry?.["@_Name"]).filter((name): name is string => typeof name === "string" && name !== "");
+			};
+
+			return {
+				installedLevelSetNames: extractNames(parsed?.LevelSets),
+				recycledLevelSetNames: extractNames(parsed?.LevelSetRecycleBin),
+			};
+		} catch (e: unknown) {
+			Log_Error("Everest:", `| Failed to read/parse historical LevelSets from "${fileAbsolutePath}" |`, serializeError(e));
+			return { installedLevelSetNames: [], recycledLevelSetNames: [] };
+		}
+	}
+
+	/** Unions + dedupes `ReadHistoricalLevelSetNames` across every save slot (`Celeste.GetAllSaveSlots`). */
+	public async GetAllHistoricalLevelSetNames(): Promise<EverestHistoricalLevelSets> {
+		const slots = await this.celesteDep.GetAllSaveSlots();
+		const settled = await Promise.allSettled(slots.map((slot) => this.ReadHistoricalLevelSetNames(slot.fileAbsolutePath)));
+
+		const installed = new Set<string>();
+		const recycled = new Set<string>();
+		for (const r of settled) {
+			if (r.status !== "fulfilled") continue;
+			for (const name of r.value.installedLevelSetNames) installed.add(name);
+			for (const name of r.value.recycledLevelSetNames) recycled.add(name);
+		}
+		return { installedLevelSetNames: [...installed], recycledLevelSetNames: [...recycled] };
+	}
+
 	/** Read a file from a mod — either from a .zip archive or a loose folder. */
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
 		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
@@ -493,6 +565,23 @@ export default class Everest {
 	 */
 	public async GetModsInstalledFull(opts?: ScanOptions): Promise<EverestModInfo[]> {
 		const mods = await this.scanModsBase(opts);
+
+		// Size capture — one lightweight stat pass, cached alongside everything else this
+		// scan produces (see LocalMods.ts), so ModsSearch never has to stat files itself.
+		await Promise.allSettled(
+			mods.map(async (mod) => {
+				if (!mod.isZip) {
+					mod.sizeBytes = null; // folder mods: fs.getStats gives the OS directory-entry size, not a real recursive size
+					return;
+				}
+				try {
+					mod.sizeBytes = (await this.fs.getStats(mod.modPath)).size;
+				} catch {
+					mod.sizeBytes = null;
+				}
+			}),
+		);
+
 		const batchCount = Math.max(1, opts?.batchCount ?? 5);
 		const chunks: EverestModInfo[][] = Array.from({ length: batchCount }, () => []);
 		mods.forEach((m, i) => chunks[i % batchCount].push(m));
