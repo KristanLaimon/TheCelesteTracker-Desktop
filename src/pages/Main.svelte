@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { ComponentProps } from "svelte";
 import Canvas from "../libs/GoldenLayoutThemes/components/GL_Canvas.svelte";
-import RawHtml from "../libs/GoldenLayoutThemes/components/GL_RawHtml.svelte";
+import RawHtml from "./available/RawHtml.svelte";
 import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import type {
 	GoldenLayoutComponentStylesOverrides,
@@ -9,7 +9,7 @@ import type {
 	GoldenLayoutRegistry,
 	GoldenLayoutThemeCssColorsOverrides,
 } from "../libs/GoldenLayoutThemes/GoldenLayout.types";
-import ModView from "../pages/ModView.svelte";
+import ModView from "./available/ModView.svelte";
 
 const registry = {
 	canvas: Canvas,

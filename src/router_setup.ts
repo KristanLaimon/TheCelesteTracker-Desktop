@@ -1,7 +1,8 @@
 // UNIVERSAL COMPATIBILITY
+
+import ModView from "./pages/available/ModView.svelte";
 import InstalledMods from "./pages/InstalledMods.svelte";
 import GlobalWindow from "./pages/Main.svelte";
-import ModView from "./pages/ModView.svelte";
 import { router } from "./router.svelte";
 
 router.register([
