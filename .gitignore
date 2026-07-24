@@ -34,7 +34,8 @@ neutralino.js
 src-utils/temp
 src-utils/build
 testing/temp
-
+testing/Data-Temp/*
+!testing/Data-Temp/.gitkeep
 
 # Specific apps folder to store all data and info
 data/

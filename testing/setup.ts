@@ -25,8 +25,15 @@ import NodeJsPath from "./NodeJsPath";
 
 export const TEST_FOLDER = join(import.meta.dir);
 export const TEST_TEMP_FOLDER = join(TEST_FOLDER, "./temp");
+export const TEST_CELESTE_PATH = join(TEST_FOLDER, "Celeste");
+export const TEST_OLYMPUS_PATH = join(TEST_FOLDER, "Olympus");
+export const TEST_DATA_TEMP_PATH = join(TEST_FOLDER, "Data-Temp");
 export const ROOT_FOLDER = join(TEST_FOLDER, "..");
 export const ROOT_BIN = join(ROOT_FOLDER, "bin");
+
+process.env.CTD_TEST_CELESTE_PATH = TEST_CELESTE_PATH;
+process.env.CTD_TEST_OLYMPUS_PATH = TEST_OLYMPUS_PATH;
+process.env.CTD_TEST_DATA_FOLDER = TEST_DATA_TEMP_PATH;
 
 container.registerSingleton(IFileSystem_Token, NodeJsFileSystem);
 container.registerSingleton(IOs_Token, NodeJsOS);
