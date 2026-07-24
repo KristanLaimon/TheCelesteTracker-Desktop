@@ -341,6 +341,7 @@ More conventions:
 - `interface` for object shapes with methods/extendable APIs; 
 - `type` for unions, intersections, mapped types, simple aliases.
 - Prefer `import type` unless DI decorators need the value at runtime (then `// biome-ignore-all lint/style/useImportType: <Explanation>` at top of the file command).
+- **Options Object Pattern**: Never use raw positional boolean flags in function/method signatures (e.g. `get(forceRefresh?: boolean)`). Always use a named options object parameter (e.g. `get(opts?: { forceRefresh?: boolean })`) for self-documenting, extensible code.
 
 ## PREFERRED Component Patterns (Svelte 5)
 

@@ -283,6 +283,7 @@ function normalizeDep(d: RawDep): ModDependency {
 
 /** Parse a YAML string; return `undefined` on failure (with console error). */
 function parseYaml<T>(content: string, fileName: string): T | undefined {
+	if (content.includes("\0")) return undefined;
 	try {
 		return (yaml.load(content.replace(/^\uFEFF/, "")) as T | null | undefined) ?? undefined;
 	} catch (err) {
@@ -529,8 +530,9 @@ export default class Everest {
 	 */
 	private async tryReadMeta<T>(modInfo: EverestModInfo, binPath: string, ext: string): Promise<T | undefined> {
 		try {
-			const content = await this.readModFile(modInfo.modPath, modInfo.isZip, binPath.replace(/\.bin$/i, ext));
-			return parseYaml<T>(content, binPath);
+			const metaPath = binPath.replace(/\.bin$/i, ext);
+			const content = await this.readModFile(modInfo.modPath, modInfo.isZip, metaPath);
+			return parseYaml<T>(content, metaPath);
 		} catch {
 			return undefined;
 		}

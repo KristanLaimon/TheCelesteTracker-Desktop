@@ -2,6 +2,7 @@ MANDATORY READ @CLAUDE.md
 
 ## User Defined Rules
 - Always execute `bun run check` synchronously (never in background) after making changes to `.ts` or `.svelte` files, inspect the output, and fix any type/compilation errors immediately.
+- **API Design (Options Object Pattern)**: Never use raw positional boolean flags as parameters in function/method signatures (e.g. `get(forceRefresh?: boolean)`). Always use a named options object parameter (e.g. `get(opts?: { forceRefresh?: boolean })`) for self-documenting, extensible code.
 
 ## Post-Flow Verification Commands
 After implementing changes, run the following verification flow sequentially:
