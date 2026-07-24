@@ -42,6 +42,33 @@
   --font-lato: "lato";
   --font-montserrat: "montserrat", sans-serif;
   --font-silkscreen: "silkscreen", cursive;
+
+  /* Global Prefixed Brand Color Palette (DESIGN.md) */
+  --color-apptheme-bg-app: #121216;
+  --color-apptheme-bg-card: #1A1A20;
+  --color-apptheme-accent-primary: #E84A5F;
+  --color-apptheme-accent-primary-hover: #FF5E7E;
+  --color-apptheme-accent-secondary: #2A2A35;
+  --color-apptheme-text-primary: #FFFFFF;
+  --color-apptheme-text-secondary: #8B8B99;
+
+  --color-apptheme-status-success: #4CAF50;
+  --color-apptheme-status-update: #2196F3;
+  --color-apptheme-status-warning: #FFC107;
+}
+
+:root {
+  --apptheme-bg-app: #121216;
+  --apptheme-bg-card: #1A1A20;
+  --apptheme-accent-primary: #E84A5F;
+  --apptheme-accent-primary-hover: #FF5E7E;
+  --apptheme-accent-secondary: #2A2A35;
+  --apptheme-text-primary: #FFFFFF;
+  --apptheme-text-secondary: #8B8B99;
+
+  --apptheme-status-success: #4CAF50;
+  --apptheme-status-update: #2196F3;
+  --apptheme-status-warning: #FFC107;
 }
 
 html, body {
@@ -53,7 +80,8 @@ html, body {
 }
 
 body {
-  background: #05070f; 
-  color: #f1f5f9;
+  background: var(--apptheme-bg-app); 
+  color: var(--apptheme-text-primary);
 }
+
 
