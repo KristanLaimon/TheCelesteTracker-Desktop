@@ -6,7 +6,16 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"includes": ["**", "!!**/dist", "!**/*.css", "!src/dependencies/*", "!documentation/*", "!**/*.min.js", "!testing/fixtures/olympus-corrupt", "!testing/Olympus/**"]
+		"includes": [
+			"**",
+			"!!**/dist",
+			"!**/*.css",
+			"!src/dependencies/*",
+			"!documentation/*",
+			"!**/*.min.js",
+			"!testing/fixtures/olympus-corrupt",
+			"!testing/Olympus"
+		]
 	},
 	"formatter": {
 		"enabled": true,

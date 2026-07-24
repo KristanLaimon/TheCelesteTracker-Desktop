@@ -2,8 +2,7 @@
 import { onMount } from "svelte";
 import type { WithGLState } from "../../../libs/GoldenLayoutThemes/GoldenLayout.types";
 import { CATEGORY_COLORS } from "./ModsSearch.categoryColors";
-import ModsSearchRowsCache from "./ModsSearch.rowsCache.store.svelte";
-import ModsSearchStore, { type ModsSearchCategory, ModsSearchCategoryList } from "./ModsSearch.store.svelte";
+import { type ModsSearchCategory, ModsSearchCategoryList, ModsSearchRowsCache, ModsSearchStore } from "./ModsSearch.store.svelte";
 
 type Props = { searchQuery?: string; categories?: ModsSearchCategory[] };
 

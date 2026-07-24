@@ -165,6 +165,58 @@ function findItemByTabId(root: any, tabId: string): any | null {
 	return null;
 }
 
+type MountedComponentEntry = {
+	instance: Record<string, unknown> | undefined;
+	componentName: string;
+	state: Record<string, unknown>;
+};
+
+// Per-container record of what's currently mounted. Lets focusTab(tabId, newProps) find and
+// unmount the live instance for an arbitrary tab, and lets container.stateRequestEvent keep
+// working across remounts by delegating to entry.state instead of closing over one fixed box.
+const mountedByContainer = new WeakMap<ComponentContainer, MountedComponentEntry>();
+
+/**
+ * Mounts `component` into `container.element` with `initialProps`/`initialState` merged in,
+ * wires `replaceThisTab`/`createNewTab`/`focusTab`/`onStateChange`, and records the result in
+ * `mountedByContainer`. Shared by the initial factory-function mount and focusTab's remount —
+ * does not unmount any previous instance, callers do that first via `unmountContainerEntry`.
+ */
+// biome-ignore lint/suspicious/noExplicitAny: matches existing Component<any, any, any> usage
+function mountIntoContainer(
+	container: ComponentContainer,
+	componentName: string,
+	component: Component<any, any, any>,
+	initialProps: Record<string, unknown>,
+	initialState: Record<string, unknown>,
+): void {
+	const entry: MountedComponentEntry = { instance: undefined, componentName, state: { ...initialState } };
+	mountedByContainer.set(container, entry);
+	container.stateRequestEvent = () => mountedByContainer.get(container)?.state ?? {};
+
+	const { replaceThisTab, createNewTab, focusTab } = makeGLStateHelpers(container);
+	entry.instance = mount(component, {
+		target: container.element,
+		props: {
+			...initialProps,
+			...entry.state,
+			replaceThisTab,
+			createNewTab,
+			focusTab,
+			onStateChange: (partialState: any) => {
+				entry.state = { ...entry.state, ...partialState };
+				LAYOUT?.emit("stateChanged");
+			},
+		},
+	});
+}
+
+function unmountContainerEntry(container: ComponentContainer): void {
+	const entry = mountedByContainer.get(container);
+	if (entry?.instance) unmount(entry.instance);
+	mountedByContainer.delete(container);
+}
+
 /**
  * Per-component-instance GoldenLayout capabilities exposed via `WithGLState`.
  * Shared by every registered component's factory function (and the default
@@ -213,13 +265,29 @@ function makeGLStateHelpers(container: ComponentContainer) {
 		return newTabId;
 	};
 
-	const focusTab = (tabId: string): boolean => {
+	const focusTab = (tabId: string, newProps?: Record<string, unknown>): boolean => {
 		const existing = findItemByTabId(LAYOUT?.rootItem, tabId);
-		if (existing?.parent && typeof existing.parent.setActiveComponentItem === "function") {
-			existing.parent.setActiveComponentItem(existing);
-			return true;
+		if (!existing?.parent || typeof existing.parent.setActiveComponentItem !== "function") return false;
+
+		if (newProps) {
+			const targetContainer: ComponentContainer = existing.container;
+			const componentName: string = existing.componentType;
+			const targetComponent = componentName === "__defaultComponent" ? defaultComponent : components?.[componentName];
+			const entry = mountedByContainer.get(targetContainer);
+
+			if (targetComponent && entry) {
+				const mergedState = { ...entry.state, ...newProps };
+				unmountContainerEntry(targetContainer);
+				const initialProps = componentName === "__defaultComponent" ? defaultComponentProps : {};
+				mountIntoContainer(targetContainer, componentName, targetComponent, initialProps, mergedState);
+				LAYOUT?.emit("stateChanged");
+			} else {
+				console.error(`GoldenLayout Wrapper: focusTab could not apply newProps for tab "${tabId}" — component "${componentName}" not registered.`);
+			}
 		}
-		return false;
+
+		existing.parent.setActiveComponentItem(existing);
+		return true;
 	};
 
 	return { replaceThisTab, createNewTab, focusTab };
@@ -751,27 +819,10 @@ onMount(() => {
 					LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
 						try {
 							Log_Info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
-							let componentState = { ...((state as Record<string, unknown>) || {}) };
-							container.stateRequestEvent = () => componentState;
-
-							const { replaceThisTab, createNewTab, focusTab } = makeGLStateHelpers(container);
-
-							const componentInstance = mount(component, {
-								target: container.element,
-								props: {
-									...componentState,
-									replaceThisTab,
-									createNewTab,
-									focusTab,
-									onStateChange: (partialState: any) => {
-										componentState = { ...componentState, ...partialState };
-										LAYOUT?.emit("stateChanged");
-									},
-								},
-							});
+							mountIntoContainer(container, name, component, {}, (state as Record<string, unknown>) || {});
 
 							container.on("destroy", () => {
-								unmount(componentInstance);
+								unmountContainerEntry(container);
 								setTimeout(() => {
 									checkAndSelfHealEmptyLayout();
 								}, 20);
@@ -788,28 +839,10 @@ onMount(() => {
 			LAYOUT.registerComponentFactoryFunction("__defaultComponent", (container, state) => {
 				try {
 					Log_Info("GoldenLayout Wrapper: Factory function called for defaultComponent");
-					let componentState = { ...((state as Record<string, unknown>) || {}) };
-					container.stateRequestEvent = () => componentState;
-
-					const { replaceThisTab, createNewTab, focusTab } = makeGLStateHelpers(container);
-
-					const componentInstance = mount(defaultComponent, {
-						target: container.element,
-						props: {
-							...defaultComponentProps,
-							...componentState,
-							replaceThisTab,
-							createNewTab,
-							focusTab,
-							onStateChange: (partialState: any) => {
-								componentState = { ...componentState, ...partialState };
-								LAYOUT?.emit("stateChanged");
-							},
-						},
-					});
+					mountIntoContainer(container, "__defaultComponent", defaultComponent, defaultComponentProps, (state as Record<string, unknown>) || {});
 
 					container.on("destroy", () => {
-						unmount(componentInstance);
+						unmountContainerEntry(container);
 						setTimeout(() => {
 							checkAndSelfHealEmptyLayout();
 						}, 20);

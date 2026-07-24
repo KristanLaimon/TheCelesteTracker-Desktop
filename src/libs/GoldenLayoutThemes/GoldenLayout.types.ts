@@ -12,8 +12,14 @@ export type WithGLState<TState extends Record<string, unknown> = Record<string, 
 	replaceThisTab?: (newType: string, title?: string, state?: Record<string, unknown>) => void;
 	/** Always creates a new sibling tab next to the caller's own, returns its new `__tabId`. */
 	createNewTab?: (newType: string, title?: string, state?: Record<string, unknown>) => string;
-	/** Focuses an existing tab by `__tabId` if it's still in the layout. Returns whether it was found — never creates anything. */
-	focusTab?: (tabId: string) => boolean;
+	/**
+	 * Focuses an existing tab by `__tabId` if it's still in the layout. Returns whether it was
+	 * found — never creates anything. When `newProps` is given, unmounts and re-mounts a fresh
+	 * instance of the SAME registered component into the SAME underlying container (preserving
+	 * `__tabId`, tab position/order/size), merging `newProps` into its existing state, before
+	 * focusing it.
+	 */
+	focusTab?: (tabId: string, newProps?: Record<string, unknown>) => boolean;
 } & Partial<TState>;
 
 /**

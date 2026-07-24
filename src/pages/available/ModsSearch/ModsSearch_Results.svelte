@@ -1,10 +1,8 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import type { WithGLState } from "../../../libs/GoldenLayoutThemes/GoldenLayout.types";
-import ModViewSteering from "../ModView.steering.svelte";
 import { CATEGORY_COLORS } from "./ModsSearch.categoryColors";
-import ModsSearchRowsCache, { type ModsSearchRow } from "./ModsSearch.rowsCache.store.svelte";
-import ModsSearchStore from "./ModsSearch.store.svelte";
+import { type ModsSearchRow, ModsSearchRowsCache, ModsSearchStore } from "./ModsSearch.store.svelte";
 
 type Props = { ownedModViewTabId?: string };
 
@@ -57,15 +55,13 @@ function onRowClick(row: ModsSearchRow) {
 	// scanned it) — nothing real to look up, ModView's search still works off row.humanName
 	const lookupId = row.modNameId ?? row.humanName;
 
-	if (ownedModViewTabId && focusTab?.(ownedModViewTabId)) {
-		ModViewSteering.SetSteeredMod(ownedModViewTabId, lookupId);
+	if (ownedModViewTabId && focusTab?.(ownedModViewTabId, { searchQuery: lookupId })) {
 		return;
 	}
 
 	const newTabId = createNewTab?.("modView", row.humanName, { searchQuery: lookupId });
 	if (newTabId) {
 		ownedModViewTabId = newTabId;
-		ModViewSteering.SetSteeredMod(newTabId, lookupId);
 	}
 }
 </script>
