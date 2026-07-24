@@ -10,6 +10,10 @@ export type GoldenLayoutRegistry = Record<string, Component<any, any, any>>;
 export type WithGLState<TState extends Record<string, unknown> = Record<string, unknown>> = {
 	onStateChange?: (state: Partial<TState>) => void;
 	replaceThisTab?: (newType: string, title?: string, state?: Record<string, unknown>) => void;
+	/** Always creates a new sibling tab next to the caller's own, returns its new `__tabId`. */
+	createNewTab?: (newType: string, title?: string, state?: Record<string, unknown>) => string;
+	/** Focuses an existing tab by `__tabId` if it's still in the layout. Returns whether it was found — never creates anything. */
+	focusTab?: (tabId: string) => boolean;
 } & Partial<TState>;
 
 /**

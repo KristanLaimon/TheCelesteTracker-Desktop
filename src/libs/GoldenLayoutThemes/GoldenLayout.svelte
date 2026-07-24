@@ -1,5 +1,5 @@
 <script lang="ts" generics="ComponentsMap extends GoldenLayoutRegistry">
-import { GoldenLayout, LayoutConfig, RowOrColumn, Stack } from "golden-layout";
+import { type ComponentContainer, GoldenLayout, LayoutConfig, RowOrColumn, Stack } from "golden-layout";
 import { type Component, mount, onMount, unmount } from "svelte";
 import type {
 	CSSProperties,
@@ -150,6 +150,79 @@ function getTabId(item: any): string | null {
 	const conf = getItemConfig(item);
 	const state = conf?.componentState;
 	return state && typeof state === "object" && typeof state.__tabId === "string" ? state.__tabId : null;
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item tree traversal has no exported public tree-node type
+function findItemByTabId(root: any, tabId: string): any | null {
+	if (!root) return null;
+	if (getTabId(root) === tabId) return root;
+	if (Array.isArray(root.contentItems)) {
+		for (const child of root.contentItems) {
+			const found = findItemByTabId(child, tabId);
+			if (found) return found;
+		}
+	}
+	return null;
+}
+
+/**
+ * Per-component-instance GoldenLayout capabilities exposed via `WithGLState`.
+ * Shared by every registered component's factory function (and the default
+ * `__defaultComponent` factory) so the three capabilities are defined once.
+ */
+function makeGLStateHelpers(container: ComponentContainer) {
+	const replaceThisTab = (newType: string, title?: string, newState?: Record<string, unknown>) => {
+		// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout item structure
+		const item: any = container.parent;
+		if (!item) return;
+		const stack = item.parent;
+		if (!stack || typeof stack.newComponent !== "function") return;
+
+		const index = Array.isArray(stack.contentItems) ? stack.contentItems.indexOf(item) : -1;
+		const insertIndex = index !== -1 ? index : undefined;
+		const finalState = { __tabId: generateTabId(), ...(newState || {}) };
+		const displayTitle = title || newType;
+
+		const newItem = stack.newComponent(newType, finalState, displayTitle, insertIndex);
+		item.remove();
+		if (newItem && typeof stack.setActiveComponentItem === "function") {
+			stack.setActiveComponentItem(newItem);
+		}
+		LAYOUT?.emit("stateChanged");
+	};
+
+	const createNewTab = (newType: string, title?: string, newState?: Record<string, unknown>): string => {
+		// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout item structure
+		const myItem: any = container.parent;
+		const myStack = myItem?.parent;
+		const rowOrColumn = myStack?.parent;
+		const newTabId = generateTabId();
+		const finalState = { __tabId: newTabId, ...(newState || {}) };
+		const displayTitle = title || newType;
+
+		if (rowOrColumn && typeof rowOrColumn.newComponent === "function" && Array.isArray(rowOrColumn.contentItems)) {
+			const myIndex = rowOrColumn.contentItems.indexOf(myStack);
+			rowOrColumn.newComponent(newType, finalState, displayTitle, myIndex === -1 ? undefined : myIndex + 1);
+		} else if (myStack && typeof myStack.newComponent === "function") {
+			// ponytail: no RowOrColumn parent (single-stack root) — no spatial "right" exists yet,
+			// degrade to a new tab in the same stack instead of throwing. Upgrade to a manual
+			// LAYOUT.addItem({type:"row",...}) restructure if this proves to matter in practice.
+			myStack.newComponent(newType, finalState, displayTitle);
+		}
+		LAYOUT?.emit("stateChanged");
+		return newTabId;
+	};
+
+	const focusTab = (tabId: string): boolean => {
+		const existing = findItemByTabId(LAYOUT?.rootItem, tabId);
+		if (existing?.parent && typeof existing.parent.setActiveComponentItem === "function") {
+			existing.parent.setActiveComponentItem(existing);
+			return true;
+		}
+		return false;
+	};
+
+	return { replaceThisTab, createNewTab, focusTab };
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item type
@@ -681,31 +754,15 @@ onMount(() => {
 							let componentState = { ...((state as Record<string, unknown>) || {}) };
 							container.stateRequestEvent = () => componentState;
 
-							const replaceThisTab = (newType: string, title?: string, newState?: Record<string, unknown>) => {
-								// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout item structure
-								const item: any = container.parent;
-								if (!item) return;
-								const stack = item.parent;
-								if (!stack || typeof stack.newComponent !== "function") return;
-
-								const index = Array.isArray(stack.contentItems) ? stack.contentItems.indexOf(item) : -1;
-								const insertIndex = index !== -1 ? index : undefined;
-								const finalState = { __tabId: generateTabId(), ...(newState || {}) };
-								const displayTitle = title || newType;
-
-								const newItem = stack.newComponent(newType, finalState, displayTitle, insertIndex);
-								item.remove();
-								if (newItem && typeof stack.setActiveComponentItem === "function") {
-									stack.setActiveComponentItem(newItem);
-								}
-								LAYOUT?.emit("stateChanged");
-							};
+							const { replaceThisTab, createNewTab, focusTab } = makeGLStateHelpers(container);
 
 							const componentInstance = mount(component, {
 								target: container.element,
 								props: {
 									...componentState,
 									replaceThisTab,
+									createNewTab,
+									focusTab,
 									onStateChange: (partialState: any) => {
 										componentState = { ...componentState, ...partialState };
 										LAYOUT?.emit("stateChanged");
@@ -734,25 +791,7 @@ onMount(() => {
 					let componentState = { ...((state as Record<string, unknown>) || {}) };
 					container.stateRequestEvent = () => componentState;
 
-					const replaceThisTab = (newType: string, title?: string, newState?: Record<string, unknown>) => {
-						// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout item structure
-						const item: any = container.parent;
-						if (!item) return;
-						const stack = item.parent;
-						if (!stack || typeof stack.newComponent !== "function") return;
-
-						const index = Array.isArray(stack.contentItems) ? stack.contentItems.indexOf(item) : -1;
-						const insertIndex = index !== -1 ? index : undefined;
-						const finalState = { __tabId: generateTabId(), ...(newState || {}) };
-						const displayTitle = title || newType;
-
-						const newItem = stack.newComponent(newType, finalState, displayTitle, insertIndex);
-						item.remove();
-						if (newItem && typeof stack.setActiveComponentItem === "function") {
-							stack.setActiveComponentItem(newItem);
-						}
-						LAYOUT?.emit("stateChanged");
-					};
+					const { replaceThisTab, createNewTab, focusTab } = makeGLStateHelpers(container);
 
 					const componentInstance = mount(defaultComponent, {
 						target: container.element,
@@ -760,6 +799,8 @@ onMount(() => {
 							...defaultComponentProps,
 							...componentState,
 							replaceThisTab,
+							createNewTab,
+							focusTab,
 							onStateChange: (partialState: any) => {
 								componentState = { ...componentState, ...partialState };
 								LAYOUT?.emit("stateChanged");
