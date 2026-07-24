@@ -1,2 +1,0 @@
-// NODE.JS/BUN/DENO ONLY
-
