@@ -3,7 +3,7 @@ import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { EnsureBuildAndGetPathExe, ROOT_FOLDER, TEST_FOLDER } from "./setup";
+import { EnsureBuildAndGetPathExe, ROOT_FOLDER, TEST_FOLDER } from "../setup";
 
 const UtilsExePath = EnsureBuildAndGetPathExe();
 const Db_Path = join(TEST_FOLDER, "test_with_data.db"); // Here in this folder

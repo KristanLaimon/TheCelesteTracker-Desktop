@@ -2,10 +2,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import Zip_Go from "../src-utils/Zip_Go";
-import { GetDependency } from "./setup";
+import Zip_Go from "../../src-utils/Zip_Go";
+import { GetDependency, TEST_TEMP_FOLDER } from "../setup";
 
-const TMP_DIR = join(import.meta.dir, "./temp_zip_usage");
+const TMP_DIR = join(TEST_TEMP_FOLDER, "temp_zip_usage");
 const FIXTURE_SRC = join(TMP_DIR, "fixture_src");
 const ZIP_PATH = join(TMP_DIR, "test.zip");
 

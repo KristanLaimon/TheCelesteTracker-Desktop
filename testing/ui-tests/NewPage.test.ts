@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { IndexableComponentOption } from "../src/pages/available/NewPage.pageselector.svelte";
+import type { IndexableComponentOption } from "../../src/pages/available/NewPage.pageselector.svelte";
 
 describe("NewPage and Page Selector Data Contracts", () => {
 	test("IndexableComponentOption structure validates correctly", () => {

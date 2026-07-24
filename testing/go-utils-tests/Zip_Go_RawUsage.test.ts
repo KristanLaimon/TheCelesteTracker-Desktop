@@ -3,26 +3,16 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { EnsureBuildAndGetPathExe } from "./setup";
+import { EnsureBuildAndGetPathExe, TEST_TEMP_FOLDER } from "../setup";
 
-const TMP_DIR = join(import.meta.dir, "./temp");
+const TMP_DIR = join(TEST_TEMP_FOLDER, "temp_zip_raw_usage");
 const FIXTURE_SRC = join(TMP_DIR, "fixture_src");
 const ZIP_PATH = join(TMP_DIR, "test.zip");
 const EXTRACT_DIR = join(TMP_DIR, "extracted");
 const PACK_SRC = join(TMP_DIR, "pack_src");
 const PACK_ZIP = join(TMP_DIR, "pack_result.zip");
 
-const ROOT = join(import.meta.dir, "..");
-const { platform } = process;
-
-let binaryName = "utilities-win_x64.exe";
-if (platform === "linux") {
-	binaryName = "utilities-linux_x64";
-} else if (platform === "darwin") {
-	binaryName = "utilities-mac_x64";
-}
-
-const HELPER_PATH = join(ROOT, "bin", binaryName);
+const HELPER_PATH = EnsureBuildAndGetPathExe();
 
 function runZip(args: string[]): ReturnType<typeof spawnSync> {
 	return spawnSync(HELPER_PATH, ["zip", ...args], { encoding: "utf8" });

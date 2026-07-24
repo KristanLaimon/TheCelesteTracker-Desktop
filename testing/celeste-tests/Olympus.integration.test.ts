@@ -1,12 +1,12 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { IFileSystem_Token, IPath_Token } from "../src/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../src/interfaces/IFileSystem";
-import type { IPath } from "../src/interfaces/IPath";
-import Olympus from "../src/libs/Olympus";
-import { FakeOsPathOverride } from "./helpers/FakeOsPathOverride";
-import { GetDependency, TEST_FOLDER, TEST_OLYMPUS_PATH } from "./setup";
+import { IFileSystem_Token, IPath_Token } from "../../src/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../../src/interfaces/IFileSystem";
+import type { IPath } from "../../src/interfaces/IPath";
+import Olympus from "../../src/libs/Olympus";
+import { FakeOsPathOverride } from "../helpers/FakeOsPathOverride";
+import { GetDependency, TEST_FOLDER, TEST_OLYMPUS_PATH } from "../setup";
 
 describe("Olympus Integration Tests", () => {
 	test("isInstalled returns true via override and GetInstallationPath returns TEST_OLYMPUS_PATH", async () => {
