@@ -19,6 +19,7 @@
 		"colorthief": "^3.4.0",
 		"dompurify": "^3.4.12",
 		"dotenv": "^17.4.2",
+		"fast-xml-parser": "^5.10.1",
 		"golden-layout": "2.6.0",
 		"hotkeys-js": "^4.0.4",
 		"interactjs": "1.10.27",
