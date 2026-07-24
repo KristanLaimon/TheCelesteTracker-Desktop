@@ -96,6 +96,7 @@ type Props = {
 	// 6. defaultComponent: Mandatory Svelte component class to render on new "+" tabs.
 	// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 	defaultComponent: Component<any, any, any>;
+	defaultComponentProps?: Record<string, unknown>;
 
 	persistence?: { localStorageKey: string };
 };
@@ -106,6 +107,7 @@ let {
 	overrideComponentStyles = {},
 	theme = {},
 	defaultComponent,
+	defaultComponentProps = {},
 	persistence = { localStorageKey: "main-layout" },
 }: Props = $props();
 
@@ -679,10 +681,31 @@ onMount(() => {
 							let componentState = { ...((state as Record<string, unknown>) || {}) };
 							container.stateRequestEvent = () => componentState;
 
+							const replaceThisTab = (newType: string, title?: string, newState?: Record<string, unknown>) => {
+								// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout item structure
+								const item: any = container.parent;
+								if (!item) return;
+								const stack = item.parent;
+								if (!stack || typeof stack.newComponent !== "function") return;
+
+								const index = Array.isArray(stack.contentItems) ? stack.contentItems.indexOf(item) : -1;
+								const insertIndex = index !== -1 ? index : undefined;
+								const finalState = { __tabId: generateTabId(), ...(newState || {}) };
+								const displayTitle = title || newType;
+
+								const newItem = stack.newComponent(newType, finalState, displayTitle, insertIndex);
+								item.remove();
+								if (newItem && typeof stack.setActiveComponentItem === "function") {
+									stack.setActiveComponentItem(newItem);
+								}
+								LAYOUT?.emit("stateChanged");
+							};
+
 							const componentInstance = mount(component, {
 								target: container.element,
 								props: {
 									...componentState,
+									replaceThisTab,
 									onStateChange: (partialState: any) => {
 										componentState = { ...componentState, ...partialState };
 										LAYOUT?.emit("stateChanged");
@@ -708,10 +731,32 @@ onMount(() => {
 					let componentState = { ...((state as Record<string, unknown>) || {}) };
 					container.stateRequestEvent = () => componentState;
 
+					const replaceThisTab = (newType: string, title?: string, newState?: Record<string, unknown>) => {
+						// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout item structure
+						const item: any = container.parent;
+						if (!item) return;
+						const stack = item.parent;
+						if (!stack || typeof stack.newComponent !== "function") return;
+
+						const index = Array.isArray(stack.contentItems) ? stack.contentItems.indexOf(item) : -1;
+						const insertIndex = index !== -1 ? index : undefined;
+						const finalState = { __tabId: generateTabId(), ...(newState || {}) };
+						const displayTitle = title || newType;
+
+						const newItem = stack.newComponent(newType, finalState, displayTitle, insertIndex);
+						item.remove();
+						if (newItem && typeof stack.setActiveComponentItem === "function") {
+							stack.setActiveComponentItem(newItem);
+						}
+						LAYOUT?.emit("stateChanged");
+					};
+
 					const componentInstance = mount(defaultComponent, {
 						target: container.element,
 						props: {
+							...defaultComponentProps,
 							...componentState,
+							replaceThisTab,
 							onStateChange: (partialState: any) => {
 								componentState = { ...componentState, ...partialState };
 								LAYOUT?.emit("stateChanged");

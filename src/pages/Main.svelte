@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { ComponentProps } from "svelte";
-import Canvas from "../libs/GoldenLayoutThemes/components/GL_Canvas.svelte";
-import RawHtml from "./available/RawHtml.svelte";
+import canvasThumbnail from "../assets/thumbnails/available-page-thumbnail-canvas.png";
+import modViewThumbnail from "../assets/thumbnails/available-page-thumbnail-modview.png";
 import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import type {
 	GoldenLayoutComponentStylesOverrides,
@@ -9,12 +9,34 @@ import type {
 	GoldenLayoutRegistry,
 	GoldenLayoutThemeCssColorsOverrides,
 } from "../libs/GoldenLayoutThemes/GoldenLayout.types";
+import Canvas from "./available/Canvas.svelte";
 import ModView from "./available/ModView.svelte";
+import type { IndexableComponentOption } from "./available/NewPage.pageselector.svelte";
+import NewPage from "./available/NewPage.svelte";
+import RawHtml from "./available/RawHtml.svelte";
+
+const indexableComponents: IndexableComponentOption[] = [
+	{
+		goldenLayoutKey: "canvas",
+		thumbnail: canvasThumbnail,
+		title: "Canvas",
+		description: "Free-Canvas pan & zoom workspace widget system",
+		tags: ["canvas", "editor", "workspace", "nodes", "pan", "zoom"],
+	},
+	{
+		goldenLayoutKey: "modView",
+		thumbnail: modViewThumbnail,
+		title: "Mod View",
+		description: "Browse Celeste mods, search metadata, view dependencies and details",
+		tags: ["mod", "viewer", "celeste", "everest", "maddies", "gamebanana"],
+	},
+];
 
 const registry = {
 	canvas: Canvas,
 	rawHtml: RawHtml,
 	modView: ModView,
+	newPage: NewPage,
 } satisfies GoldenLayoutRegistry;
 
 const customLayoutStyles: GoldenLayoutComponentStylesOverrides = {
@@ -114,7 +136,8 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
     <GoldenLayout
       content={Layout_InitialContent}
       components={registry}
-      defaultComponent={RawHtml}
+      defaultComponent={NewPage}
+      defaultComponentProps={{ indexableComponents }}
       persistence={{localStorageKey: "main-layout"}}
       theme={customLayoutTheme}
       overrideComponentStyles={customLayoutStyles}

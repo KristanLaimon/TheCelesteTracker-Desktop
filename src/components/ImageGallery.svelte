@@ -7,7 +7,10 @@ type Props = {
 };
 
 let { images, initialIndex = 0 }: Props = $props();
-let selectedIndex = $state(initialIndex);
+let selectedIndex = $state(0);
+$effect(() => {
+	selectedIndex = initialIndex;
+});
 let featuredSrc = $derived(images[selectedIndex] ?? images[0] ?? "");
 let featuredContainer: HTMLDivElement;
 

@@ -1,123 +1,110 @@
 <script lang="ts">
-  import { getColorSync } from "colorthief";
-  import { onMount } from "svelte";
-  import HorizontalGallery from "../../components/HorizontalGallery.svelte";
-  import SearchDynamic from "../../components/SearchDynamic.svelte";
-  import type { EverestModInfo } from "../../libs/Everest";
-  import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
-  import type { ModSimplified } from "../../libs/LocalMods";
-  import type { MaddiesApiModInfo } from "../../libs/MaddiesAPI";
-  import { Construct_LocalMods } from "../../setup.DI.helpers";
+import { getColorSync } from "colorthief";
+import { onMount } from "svelte";
+import HorizontalGallery from "../../components/HorizontalGallery.svelte";
+import SearchDynamic from "../../components/SearchDynamic.svelte";
+import type { EverestModInfo } from "../../libs/Everest";
+import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
+import type { ModSimplified } from "../../libs/LocalMods";
+import type { MaddiesApiModInfo } from "../../libs/MaddiesAPI";
+import { Construct_LocalMods } from "../../setup.DI.helpers";
 
-  type Props = { searchQuery: string };
+type Props = { searchQuery: string };
 
-  let { searchQuery = $bindable(""), onStateChange }: WithGLState<Props> =
-    $props();
+let { searchQuery = $bindable(""), onStateChange }: WithGLState<Props> = $props();
 
-  const localMods = Construct_LocalMods({
-    filePath: "./data/BROWSER-LOCAL-MODS.json",
-    indent: 2,
-  });
+const localMods = Construct_LocalMods({
+	filePath: "./data/BROWSER-LOCAL-MODS.json",
+	indent: 2,
+});
 
-  let simplifiedMods = $state<ModSimplified[]>([]);
-  let humanNamesList = $derived(simplifiedMods.map((m) => m.humanNameMod));
-  let loadingInfo = $state(false);
-  let selectedName = $state<string>(searchQuery.toString());
+let simplifiedMods = $state<ModSimplified[]>([]);
+let humanNamesList = $derived(simplifiedMods.map((m) => m.humanNameMod));
+let loadingInfo = $state(false);
+let selectedName = $state<string>(searchQuery.toString());
 
-  let selectedEverestInfo = $state<EverestModInfo | null>(null);
-  let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
+let selectedEverestInfo = $state<EverestModInfo | null>(null);
+let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
 
-  let heroImage = $state<string | null>(null);
-  let bgColor = $state<string>("#18181c");
+let heroImage = $state<string | null>(null);
+let bgColor = $state<string>("#18181c");
 
-  const selectedModId = $derived.by(() => {
-    if (!selectedName || selectedName.trim() === "") return "";
-    const match = simplifiedMods.find(
-      (m) =>
-        m.humanNameMod.toLowerCase() === selectedName.toLowerCase() ||
-        m.modId.toLowerCase() === selectedName.toLowerCase(),
-    );
-    return match ? match.modId : selectedName;
-  });
+const selectedModId = $derived.by(() => {
+	if (!selectedName || selectedName.trim() === "") return "";
+	const match = simplifiedMods.find((m) => m.humanNameMod.toLowerCase() === selectedName.toLowerCase() || m.modId.toLowerCase() === selectedName.toLowerCase());
+	return match ? match.modId : selectedName;
+});
 
-  $effect(() => {
-    if (!selectedModId || selectedModId.trim() === "") {
-      selectedEverestInfo = null;
-      selectedMaddiesInfo = null;
-      heroImage = null;
-      bgColor = "#18181c";
-      loadingInfo = false;
-      return;
-    }
-    loadingInfo = true;
-    localMods
-      .MaddiesApi_Get_ModByModId(selectedModId)
-      .then((maddiesApiResult) => {
-        selectedMaddiesInfo = maddiesApiResult;
-        if (maddiesApiResult !== null) {
-          loadingInfo = false;
-          return;
-        }
+$effect(() => {
+	if (!selectedModId || selectedModId.trim() === "") {
+		selectedEverestInfo = null;
+		selectedMaddiesInfo = null;
+		heroImage = null;
+		bgColor = "#18181c";
+		loadingInfo = false;
+		return;
+	}
+	loadingInfo = true;
+	localMods.MaddiesApi_Get_ModByModId(selectedModId).then((maddiesApiResult) => {
+		selectedMaddiesInfo = maddiesApiResult;
+		if (maddiesApiResult !== null) {
+			loadingInfo = false;
+			return;
+		}
 
-        localMods
-          .EverestMods_Get_ModByModId(selectedModId)
-          .then((everestApiResult) => {
-            selectedEverestInfo = everestApiResult;
-            if (everestApiResult !== null) {
-              loadingInfo = false;
-            }
-          });
-      });
-  });
+		localMods.EverestMods_Get_ModByModId(selectedModId).then((everestApiResult) => {
+			selectedEverestInfo = everestApiResult;
+			if (everestApiResult !== null) {
+				loadingInfo = false;
+			}
+		});
+	});
+});
 
-  $effect(() => {
-    const info = selectedMaddiesInfo;
-    const screenshots = info?.Screenshots?.length
-      ? info.Screenshots
-      : info?.MirroredScreenshots;
-    if (!screenshots?.length) {
-      heroImage = null;
-      bgColor = "#18181c";
-      return;
-    }
+$effect(() => {
+	const info = selectedMaddiesInfo;
+	const screenshots = info?.Screenshots?.length ? info.Screenshots : info?.MirroredScreenshots;
+	if (!screenshots?.length) {
+		heroImage = null;
+		bgColor = "#18181c";
+		return;
+	}
 
-    const imgUrl = screenshots[0];
-    heroImage = imgUrl;
+	const imgUrl = screenshots[0];
+	heroImage = imgUrl;
 
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => {
-      try {
-        const color = getColorSync(img);
-        if (!color) return;
-        const { r, g, b } = color.rgb();
-        bgColor = `rgb(${Math.round(r * 0.15)}, ${Math.round(g * 0.15)}, ${Math.round(b * 0.15)})`;
-      } catch {
-        bgColor = "#18181c";
-      }
-    };
-    img.onerror = () => {
-      bgColor = "#18181c";
-    };
-    img.src = imgUrl;
-  });
+	const img = new Image();
+	img.crossOrigin = "anonymous";
+	img.onload = () => {
+		try {
+			const color = getColorSync(img);
+			if (!color) return;
+			const { r, g, b } = color.rgb();
+			bgColor = `rgb(${Math.round(r * 0.15)}, ${Math.round(g * 0.15)}, ${Math.round(b * 0.15)})`;
+		} catch {
+			bgColor = "#18181c";
+		}
+	};
+	img.onerror = () => {
+		bgColor = "#18181c";
+	};
+	img.src = imgUrl;
+});
 
-  onMount(() => {
-    localMods
-      .EverestMods_Get_ListModSimplified()
-      .then((awaited: ModSimplified[]) => {
-        simplifiedMods = awaited;
-      });
-    return () => {
-      localMods.destroy();
-    };
-  });
+onMount(() => {
+	localMods.EverestMods_Get_ListModSimplified().then((awaited: ModSimplified[]) => {
+		simplifiedMods = awaited;
+	});
+	return () => {
+		localMods.destroy();
+	};
+});
 
-  $effect(() => {
-    if (searchQuery) {
-      onStateChange?.({ searchQuery });
-    }
-  });
+$effect(() => {
+	if (searchQuery) {
+		onStateChange?.({ searchQuery });
+	}
+});
 </script>
 
 <div class="h-full overflow-y-auto">

@@ -9,6 +9,7 @@ export type GoldenLayoutRegistry = Record<string, Component<any, any, any>>;
 
 export type WithGLState<TState extends Record<string, unknown> = Record<string, unknown>> = {
 	onStateChange?: (state: Partial<TState>) => void;
+	replaceThisTab?: (newType: string, title?: string, state?: Record<string, unknown>) => void;
 } & Partial<TState>;
 
 /**

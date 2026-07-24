@@ -33,7 +33,7 @@ $effect(() => {
       <img 
         src={srcUrl} 
         alt="Widget visual" 
-        class={[{"keep-aspect-ratio-always": size?.mode}, "no-draggable"]}
+        class={[{ "keep-aspect-ratio-always": size?.mode === "keep-aspect-ratio-always", custom: size?.mode === "custom" }, "no-draggable"]}
         style={size?.mode === 'custom' && size.width && size.height ? `width: ${size.width}px; height: ${size.height}px;` : ''}
         onerror={() => hasError = true}
       />

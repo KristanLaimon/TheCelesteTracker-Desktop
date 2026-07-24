@@ -1,18 +1,15 @@
 <script lang="ts">
-// import { onMount } from 'svelte';
-import CenteredLayout from "../../../layouts/CenteredLayout.svelte";
-import BrowserPath from "../../BrowserPath";
+import CenteredLayout from "../../layouts/CenteredLayout.svelte";
+import BrowserPath from "../../libs/BrowserPath";
+import { Log_Info } from "../../libs/Logger";
+import { NeutralinoFileSystem } from "../../libs/NeutralinoFileSystem";
+import Canvas from "../../libs/Wanvas/Canvas.svelte";
+import type { CanvasNodeData, CanvasRegistry } from "../../libs/Wanvas/Canvas.types";
+import ImgCaptionWidget from "../../libs/Wanvas/widgets/ImgCaptionWidget.svelte";
+import ImgWidget from "../../libs/Wanvas/widgets/ImgWidget.svelte";
+import TextWidget from "../../libs/Wanvas/widgets/TextWidget.svelte";
 
 const Path = new BrowserPath();
-
-import { Log_Info } from "../../Logger";
-import { NeutralinoFileSystem } from "../../NeutralinoFileSystem";
-// import { SQLiteExtension } from '../libs/CSqliteExtension';
-import Canvas from "../../Wanvas/Canvas.svelte";
-import type { CanvasNodeData, CanvasRegistry } from "../../Wanvas/Canvas.types";
-import ImgCaptionWidget from "../../Wanvas/widgets/ImgCaptionWidget.svelte";
-import ImgWidget from "../../Wanvas/widgets/ImgWidget.svelte";
-import TextWidget from "../../Wanvas/widgets/TextWidget.svelte";
 
 type Props = {
 	localStorageKey: string;
@@ -27,57 +24,48 @@ const registry = {
 } satisfies CanvasRegistry;
 
 let defaultNodes = $state<CanvasNodeData<typeof registry>[]>([]);
-
-function AddNewTextWidget(text: string = "") {
-	defaultNodes.push({
-		x: 100,
-		y: 150,
-		height: 150,
-		width: 150,
-		type: "textWidget",
-		props: {
-			rawTextContent: text,
-		},
-	});
-}
-
-async function AddNewImgWidget(srcUrl: string = "") {
-	defaultNodes.push({
-		x: 150,
-		y: 200,
-		height: 200,
-		width: 300,
-		type: "imgWidget",
-		props: {
-			srcUrl: srcUrl,
-			size: {
-				mode: "keep-aspect-ratio-always",
-			},
-		},
-	});
-}
-
-function AddNewImgCaptionWidget(srcUrl: string = "", text: string = "") {
-	defaultNodes.push({
-		x: 200,
-		y: 250,
-		height: 350,
-		width: 300,
-		type: "imgCaptionWidget",
-		props: {
-			srcUrl: srcUrl,
-			size: {
-				mode: "keep-aspect-ratio-always",
-			},
-			rawTextContent: text,
-			displayMode: "markdown-rendered",
-		},
-	});
-}
-
 let canvasX = $state(0);
 let canvasY = $state(0);
 let canvasZoom = $state(1);
+
+function AddNewTextWidget(text: string) {
+	defaultNodes = [
+		...defaultNodes,
+		{
+			id: `node-${Date.now()}`,
+			type: "textWidget",
+			x: Math.random() * 200,
+			y: Math.random() * 200,
+			data: { text },
+		},
+	];
+}
+
+function AddNewImgWidget(src: string) {
+	defaultNodes = [
+		...defaultNodes,
+		{
+			id: `node-${Date.now()}`,
+			type: "imgWidget",
+			x: Math.random() * 200,
+			y: Math.random() * 200,
+			data: { src },
+		},
+	];
+}
+
+function AddNewImgCaptionWidget(src: string, captionText: string) {
+	defaultNodes = [
+		...defaultNodes,
+		{
+			id: `node-${Date.now()}`,
+			type: "imgCaptionWidget",
+			x: Math.random() * 200,
+			y: Math.random() * 200,
+			data: { src, captionText },
+		},
+	];
+}
 
 function clearNodes() {
 	defaultNodes = [];
@@ -143,13 +131,15 @@ function clearAll() {
     {registry}
     persistence={{
       key: localStorageKey,
-      beforeSave: (nodes, _cancel) => {
+      // biome-ignore lint/suspicious/noExplicitAny: Canvas save callbacks
+      beforeSave: (nodes: any, _cancel: any) => {
         Log_Info(
           `Canvas with key [${localStorageKey}] is about to save nodes:`,
           nodes,
         );
       },
-      afterSave: (nodes) => {
+      // biome-ignore lint/suspicious/noExplicitAny: Canvas save callbacks
+      afterSave: (nodes: any) => {
         Log_Info(
           `Canvas with key [${localStorageKey}] saved successfully:`,
           nodes,
@@ -195,13 +185,9 @@ function clearAll() {
     border-color: rgba(255, 255, 255, 0.2);
   }
 
-  .hud-btn.danger {
-    color: #ef4444;
-    border-color: rgba(239, 68, 68, 0.2);
-  }
-
   .hud-btn.danger:hover {
-    background: rgba(239, 68, 68, 0.1);
+    background: rgba(239, 68, 68, 0.2);
     border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
   }
 </style>
