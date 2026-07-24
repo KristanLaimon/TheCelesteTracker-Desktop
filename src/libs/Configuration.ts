@@ -1,7 +1,8 @@
 // UNIVERSAL COMPATIBILITY
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../interfaces/IFileSystem";
+import type { IOS } from "../interfaces/IOs";
 import type { IPath } from "../interfaces/IPath";
 import Storage from "./Storage";
 import Storage_JsonFileAdapter from "./Storage.json";
@@ -15,6 +16,7 @@ export default class Configuration {
 	constructor(
 		@inject(IFileSystem_Token) private fs: IFileSystem,
 		@inject(IPath_Token) private path: IPath,
+		@inject(IOs_Token) private os: IOS,
 	) {
 		const adapter = new Storage_JsonFileAdapter({ filePath: CONFIG_PATH, indent: 2 }, this.fs, this.path);
 		this.storage = new Storage({ adapters: [adapter] });
@@ -28,7 +30,10 @@ export default class Configuration {
 	}
 
 	async getDataFolderPath(): Promise<string> {
-		return (await this.storage.get<string>("dataFolderPath")) ?? "./data";
+		const stored = await this.storage.get<string>("dataFolderPath");
+		if (stored) return stored;
+		const override = await this.os.getEnv("CTD_TEST_DATA_FOLDER");
+		return override || "./data";
 	}
 
 	async setDataFolderPath(value: string): Promise<void> {

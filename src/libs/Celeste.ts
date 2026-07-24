@@ -113,6 +113,14 @@ export default class Celeste {
 	}
 
 	private async findPath(): Promise<CelesteInstallation | null> {
+		const override = await this.os.getEnv("CTD_TEST_CELESTE_PATH");
+		if (override) {
+			for (const exe of ["Celeste.exe", "Celeste", "Celeste.app"]) {
+				if (await this.fs.exists(`${override}/${exe}`)) return { foundPath: override, installationType: "steam" };
+			}
+			return null;
+		}
+
 		const osName = this.os.getCurrentOS();
 		const targets: { path: string; type: "steam" | "epicgames" }[] = [];
 

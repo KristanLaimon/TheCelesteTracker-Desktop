@@ -111,26 +111,29 @@ export default class Olympus {
 	//is C:\Users\Kristan\AppData\Local\Olympus
 	//but code says: C:\\Users\\Kristan\\local\\Olympus\\config.json
 	private async _findPath(): Promise<string | null> {
-		const osName = this.os.getCurrentOS();
-		let configPath = "";
+		const override = await this.os.getEnv("CTD_TEST_OLYMPUS_PATH");
+		let configPath = override ? this.path.join(override, "config.json") : "";
 
-		try {
-			if (osName === "windows") {
-				const data = await this.os.getPath("home");
-				configPath = this.path.join(data, "AppData", "Local", "Olympus", "config.json");
-			} else {
-				const home = await this.os.getPath("home");
-				if (osName === "macos") {
-					//TODO: Test if real path in macos
-					configPath = `${home}/Library/Application Support/Olympus/config.json`;
+		if (!override) {
+			const osName = this.os.getCurrentOS();
+			try {
+				if (osName === "windows") {
+					const data = await this.os.getPath("home");
+					configPath = this.path.join(data, "AppData", "Local", "Olympus", "config.json");
 				} else {
-					//TODO: Test if real path in linux
-					configPath = `${home}/.config/Olympus/config.json`;
+					const home = await this.os.getPath("home");
+					if (osName === "macos") {
+						//TODO: Test if real path in macos
+						configPath = `${home}/Library/Application Support/Olympus/config.json`;
+					} else {
+						//TODO: Test if real path in linux
+						configPath = `${home}/.config/Olympus/config.json`;
+					}
 				}
+			} catch (e) {
+				console.error("Failed to resolve Olympus config path:", e);
+				return null;
 			}
-		} catch (e) {
-			console.error("Failed to resolve Olympus config path:", e);
-			return null;
 		}
 
 		if (await this.fs.exists(configPath)) {
