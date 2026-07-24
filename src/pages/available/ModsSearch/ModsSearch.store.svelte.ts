@@ -62,8 +62,8 @@ class ModsSearchRowsCache_ {
 			const entries = await localMods.Mods_GetAllWithHistory(
 				opts?.invalidateCache ? { invalidateCache: { ALL_EVEREST_MODS_INFO: true, HISTORICAL_UNINSTALLED_MODS: true } } : undefined,
 			);
-			this.rows = entries.map((e) => ({
-				key: e.modNameId ?? e.levelSetNames[0] ?? e.humanName,
+			this.rows = entries.map((e, index) => ({
+				key: `${e.modNameId ?? e.levelSetNames[0] ?? e.humanName}-${index}`,
 				modNameId: e.modNameId,
 				levelSetNames: e.levelSetNames,
 				humanName: e.humanName,
