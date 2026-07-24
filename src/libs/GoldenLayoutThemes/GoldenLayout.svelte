@@ -118,6 +118,47 @@ let mutationObserver: MutationObserver | null = null;
 // WeakMap to associate HTML header elements to their Stack instances cleanly
 const headerStackMap = new WeakMap<HTMLElement, Stack>();
 
+// Pinned state lives in its own storage key, independent of GoldenLayout's saveLayout/loadLayout
+// pipeline, which strips any custom (non-native) field it doesn't recognize on every reload.
+let pinsMap: Record<string, boolean | "forever"> = {};
+
+function pinsStorageKey(): string {
+	return `${persistence.localStorageKey}-pins`;
+}
+
+function loadPinsMap() {
+	try {
+		const raw = localStorage.getItem(pinsStorageKey());
+		pinsMap = raw ? JSON.parse(raw) : {};
+	} catch {
+		pinsMap = {};
+	}
+}
+
+function savePinsMap() {
+	localStorage.setItem(pinsStorageKey(), JSON.stringify(pinsMap));
+}
+
+function generateTabId(): string {
+	return crypto.randomUUID();
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item type
+function getTabId(item: any): string | null {
+	const conf = getItemConfig(item);
+	const state = conf?.componentState;
+	return state && typeof state === "object" && typeof state.__tabId === "string" ? state.__tabId : null;
+}
+
+// biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item type
+function resolveIsPinned(item: any): boolean | "forever" {
+	const conf = getItemConfig(item);
+	if (conf?.isPinned === "forever") return "forever";
+	const tabId = getTabId(item);
+	if (tabId && pinsMap[tabId] !== undefined) return pinsMap[tabId];
+	return conf?.isPinned === true;
+}
+
 // DERIVED VALUES
 const hasTheme = $derived(theme && Object.keys(theme).length > 0);
 const cssVariables = $derived(
@@ -230,7 +271,8 @@ function appendPlusButton(stack: Stack) {
 		btn.onclick = (e) => {
 			e.preventDefault();
 			e.stopPropagation();
-			stack.newComponent("__defaultComponent", {}, "New Tab");
+			stack.newComponent("__defaultComponent", { __tabId: generateTabId() }, "New Tab");
+			LAYOUT?.emit("stateChanged");
 		};
 
 		tabsContainer.appendChild(btn);
@@ -302,16 +344,19 @@ function setupTabRenaming(root: HTMLElement) {
 // biome-ignore lint/suspicious/noExplicitAny: Ensure item config object is safely accessed
 function getItemConfig(item: any): any {
 	if (!item) return {};
-	if (!item.config) {
-		if (typeof item.toConfig === "function") {
-			try {
-				item.config = item.toConfig();
-			} catch {
-				item.config = {};
-			}
-		} else {
+	if (item.config) return item.config;
+	if (item.configuration) {
+		item.config = item.configuration;
+		return item.config;
+	}
+	if (typeof item.toConfig === "function") {
+		try {
+			item.config = item.toConfig();
+		} catch {
 			item.config = {};
 		}
+	} else {
+		item.config = {};
 	}
 	return item.config;
 }
@@ -337,8 +382,7 @@ function syncTabsAndPinning(rootEl?: HTMLElement) {
 			const unpinnedItems: any[] = [];
 
 			for (const item of items) {
-				const config = getItemConfig(item);
-				const isPinned = config.isPinned;
+				const isPinned = resolveIsPinned(item);
 				if (isPinned === true || isPinned === "forever") {
 					pinnedItems.push(item);
 				} else {
@@ -369,7 +413,7 @@ function syncTabsAndPinning(rootEl?: HTMLElement) {
 				if (!tabEl) continue;
 
 				const config = getItemConfig(item);
-				const isPinned = config.isPinned;
+				const isPinned = resolveIsPinned(item);
 				const isClosable = config.isClosable !== undefined ? Boolean(config.isClosable) : true;
 
 				const isPinnedActive = isPinned === true || isPinned === "forever";
@@ -450,8 +494,7 @@ function syncTabsAndPinning(rootEl?: HTMLElement) {
 						menu.style.left = `${e.clientX}px`;
 						menu.style.top = `${e.clientY}px`;
 
-						const itemConf = getItemConfig(item);
-						const currentPin = itemConf.isPinned;
+						const currentPin = resolveIsPinned(item);
 
 						if (currentPin === "forever") {
 							const itemEl = document.createElement("div");
@@ -463,11 +506,13 @@ function syncTabsAndPinning(rootEl?: HTMLElement) {
 							itemEl.className = "w-full text-left px-3 py-1.5 hover:bg-[#27272a] rounded cursor-pointer flex items-center gap-2";
 							itemEl.textContent = "Unpin Tab";
 							itemEl.onclick = () => {
-								const conf = getItemConfig(item);
-								conf.isPinned = false;
+								const tabId = getTabId(item);
+								if (tabId) {
+									pinsMap[tabId] = false;
+									savePinsMap();
+								}
 								menu.remove();
 								syncTabsAndPinning(layoutContainerEl);
-								LAYOUT?.emit("stateChanged");
 							};
 							menu.appendChild(itemEl);
 						} else {
@@ -475,11 +520,13 @@ function syncTabsAndPinning(rootEl?: HTMLElement) {
 							itemEl.className = "w-full text-left px-3 py-1.5 hover:bg-[#27272a] rounded cursor-pointer flex items-center gap-2";
 							itemEl.textContent = "Pin Tab";
 							itemEl.onclick = () => {
-								const conf = getItemConfig(item);
-								conf.isPinned = true;
+								const tabId = getTabId(item);
+								if (tabId) {
+									pinsMap[tabId] = true;
+									savePinsMap();
+								}
 								menu.remove();
 								syncTabsAndPinning(layoutContainerEl);
-								LAYOUT?.emit("stateChanged");
 							};
 							menu.appendChild(itemEl);
 						}
@@ -588,10 +635,13 @@ onMount(() => {
 					}
 
 					if (processed.type && processed.type !== "row" && processed.type !== "column" && processed.type !== "stack") {
+						// biome-ignore lint/suspicious/noExplicitAny: componentState is a free-form JSON blob
+						const componentState: any = { ...(processed.props || {}) };
+						if (typeof componentState.__tabId !== "string") componentState.__tabId = generateTabId();
 						return {
 							type: "component",
 							componentType: processed.type,
-							componentState: processed.props || {},
+							componentState,
 							title: processed.title || processed.type,
 							isClosable: processed.isClosable !== undefined ? Boolean(processed.isClosable) : true,
 							isPinned: processed.isPinned !== undefined ? processed.isPinned : false,
@@ -612,6 +662,7 @@ onMount(() => {
 				return item;
 			}
 
+			loadPinsMap();
 			const processedContent = preprocessLayoutContent(Content);
 
 			Log_Info("GoldenLayout Wrapper: Initializing raw GoldenLayout...");
