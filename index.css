@@ -114,4 +114,14 @@ body {
   scrollbar-color: var(--apptheme-accent-secondary, #2A2A35) var(--apptheme-bg-app, #121216);
 }
 
+/* Gallery Medium Zoom Image Lightbox Overlay */
+.medium-zoom-overlay {
+  z-index: 2000 !important;
+}
+
+.medium-zoom-image--opened {
+  z-index: 2001 !important;
+}
+
+
 

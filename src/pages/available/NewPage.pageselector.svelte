@@ -55,7 +55,7 @@ onMount(() => {
 </script>
 
 <div
-	class="fixed inset-0 z-50 flex items-center justify-center bg-[#121216]/80 backdrop-blur-md p-4 sm:p-6 select-none"
+	class="fixed inset-0 z-[500] flex items-center justify-center bg-[#121216]/80 backdrop-blur-md p-4 sm:p-6 select-none"
 	role="dialog"
 	aria-modal="true"
 	aria-label="Select a page"

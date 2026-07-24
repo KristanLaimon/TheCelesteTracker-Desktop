@@ -108,7 +108,7 @@ $effect(() => {
 		<button
 			type="button"
 			aria-label="Scroll left"
-			class="absolute left-0 top-0 bottom-0 z-100 w-10 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-l-lg"
+			class="absolute left-0 top-0 bottom-0 z-10 w-10 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-l-lg"
 			onclick={() => scroll(-1)}
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -134,7 +134,7 @@ $effect(() => {
 	>
 		{#each images as src, i}
 			<img
-				class="rounded-lg object-cover shrink-0 select-none transition-transform duration-200 z-90"
+				class="rounded-lg object-cover shrink-0 select-none transition-transform duration-200"
 				style:height={imageHeight}
 				{src}
 				alt="Gallery {i + 1}"
@@ -149,7 +149,7 @@ $effect(() => {
 		<button
 			type="button"
 			aria-label="Scroll right"
-			class="absolute right-0 top-0 bottom-0 z-100 w-10 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-r-lg"
+			class="absolute right-0 top-0 bottom-0 z-10 w-10 flex items-center justify-center bg-black/60 hover:bg-black/80 text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-r-lg"
 			onclick={() => scroll(1)}
 		>
 			<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

@@ -1,0 +1,18 @@
+{
+	"extraKnownMarketplaces": {
+		"caveman": {
+			"source": { "source": "github", "repo": "JuliusBrussee/caveman" }
+		},
+		"ponytail": {
+			"source": { "source": "github", "repo": "DietrichGebert/ponytail" }
+		},
+		"trailofbits": {
+			"source": { "source": "github", "repo": "trailofbits/skills" }
+		}
+	},
+	"enabledPlugins": {
+		"caveman@caveman": true,
+		"ponytail@ponytail": true,
+		"ask-questions-if-underspecified@trailofbits": true
+	}
+}

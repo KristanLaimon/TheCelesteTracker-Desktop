@@ -109,7 +109,7 @@ $effect(() => {
 
 <div class="h-full overflow-y-auto">
   <div
-    class="pointer-events-none absolute top-4 left-1/2 z-50 w-auto max-w-[90%] -translate-x-1/2"
+    class="pointer-events-none absolute top-4 left-1/2 z-[100] w-auto max-w-[90%] -translate-x-1/2"
   >
     <SearchDynamic
       bind:selected={selectedName}
