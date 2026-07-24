@@ -17,14 +17,22 @@ These are registered in `setup.ts` via the DI container (`tsyringe`), so every s
 
 | File | Role |
 |---|---|
-| `setup.ts` | DI wiring — the entry point. Registers all test implementations + app services. Exports `GetDependency()` (resolve any DI-registered class) and `EnsureBuildAndGetPathExe()` (auto-build the Go CLI helper). |
+| `setup.ts` | DI wiring — the entry point. Registers all test implementations + app services. Configures test environment variables (`CTD_TEST_CELESTE_PATH`, `CTD_TEST_OLYMPUS_PATH`, `CTD_TEST_DATA_FOLDER`). Exports `GetDependency()` and `EnsureBuildAndGetPathExe()`. |
 | `NodeJsFileSystem.ts` | Implementation of `IFileSystem` using `node:fs/promises`. Every filesystem method the app needs (read, write, watch, copy, stat, etc.). |
 | `NodeJsOs.ts` | Implementation of `IOS` using Node APIs. Real methods for exec/spawn/env/paths; mock stores for Neutralino-only UI methods (tray, notifications, dialogs) so they don't crash. |
+| `FakeOsPathOverride.ts` | Subclass of `NodeJsOS` that overrides `getEnv` for instance-level path redirection without mutating global `process.env`. |
 | `Storage.simpleMap.ts` | A `StorageAdapter` powered by an in-memory `Map`. Used as a zero-dependency cache layer in tests. |
 
 | Test file | What it tests |
 |---|---|
-| `test.test.ts` | Smoke/integration tests for `Everest` (mod scanning: `GetModInfoByZipName`, `GetModsInstalled`). |
+| `Celeste.integration.test.ts` | `Celeste` integration: path override seam, reading save slots, parsing vanilla stats from real `.celeste` save XML. |
+| `Celeste_SaveFile.test.ts` | Unit tests for `.celeste` save file parsing logic. |
+| `Everest.integration.test.ts` | `Everest` integration: installation path resolution, mod zip scanning (`GetModsInstalled`, `GetModsInstalledFull`) against real mod zips. |
+| `Everest_HistoricalLevelSets.test.ts` | `Everest` historical level set extraction from save files. |
+| `Olympus.integration.test.ts` | `Olympus` integration: installation path override, category & human name lookup against real cached JSONs, negative path & corrupt JSON handling. |
+| `LocalMods_ModDatabase.test.ts` | `DBMods` and local mod database join logic. |
+| `GoldenLayout_Pinning.test.ts` | GoldenLayout tab pinning state tests. |
+| `NewPage.test.ts` | New page option filtering and selector contracts. |
 | `Sqlite_Go_Usage.test.ts` | `Sqlite_Go` via DI container. |
 | `Sqlite_Go_RawUsage.test.ts` | Raw Go CLI SQLite binary: flags, DML, DDL, JOINs, errors. |
 | `Zip_Go_Usage.test.ts` | `Zip_Go` (pack/read/list/unzip) via DI container. |
@@ -32,8 +40,18 @@ These are registered in `setup.ts` via the DI container (`tsyringe`), so every s
 
 | Fixture | Purpose |
 |---|---|
+| `Celeste/` | Real 4-year Celeste install fixture (`Mods/` with zips, `Saves/` with 4 save slots + mod saves, `TheCelesteTracker_DB.db`). |
+| `Olympus/` | Real Olympus config & cached JSON mappings (`cached-mod-ids-to-names.json`, `cached-mod-ids-to-categories.json`). |
+| `fixtures/olympus-corrupt/` | Corrupt JSON fixture for testing Olympus parse error handling. |
+| `fixtures/empty-dir/` | Empty directory fixture for missing path tests. |
 | `test_with_data.db` | Pre-populated SQLite (Users, Campaigns, Chapters, ChapterSides). |
 | `test.db` | Empty/secondary database. |
+
+## Environment Variable Overrides
+
+- `CTD_TEST_CELESTE_PATH`: Points `Celeste.findPath()` to `./testing/Celeste` (short-circuiting hardcoded OS paths).
+- `CTD_TEST_OLYMPUS_PATH`: Points `Olympus._findPath()` to `./testing/Olympus`.
+- `CTD_TEST_DATA_FOLDER`: Redirects `Configuration.getDataFolderPath()` default fallback to `./testing/Data-Temp`.
 
 ## Running
 
