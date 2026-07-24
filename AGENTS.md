@@ -236,6 +236,7 @@ A mod could be any type of mod like:
 | Tests | Bun test runner (`bun test`, files in `/testing/`) |
 | Package Manager | Bun (NEVER NPM, no pnpm, no yarn, NPX FORBIDDEN) |
 | Native helpers | Go CLI (JSON over stdout for SQLite + ZIP) |
+| Icons | `flowbite-svelte-icons` |
 
 ## Non-Negotiables
   - **NEVER remove `biome-ignore` comments.** They're there for a reason — ask if one looks stale.

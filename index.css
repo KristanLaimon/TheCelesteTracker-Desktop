@@ -84,4 +84,34 @@ body {
   color: var(--apptheme-text-primary);
 }
 
+/* Custom Dark Scrollbar (DESIGN.md Brand Palette) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--apptheme-bg-app, #121216);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--apptheme-accent-secondary, #2A2A35);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3F3F46;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--apptheme-bg-app, #121216);
+}
+
+/* Firefox support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--apptheme-accent-secondary, #2A2A35) var(--apptheme-bg-app, #121216);
+}
+
 

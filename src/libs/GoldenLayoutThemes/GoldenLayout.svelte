@@ -11,6 +11,7 @@ import type {
 
 import "./goldenlayout-base.css";
 import "./predefined/goldenlayout-dark-theme.css";
+import { MapPinAltSolid } from "flowbite-svelte-icons";
 import { Log_Info } from "../Logger";
 
 // Enable real-time live resizing during splitter drag without compound feedback loop or dragStop jumps
@@ -298,6 +299,220 @@ function setupTabRenaming(root: HTMLElement) {
 	});
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: Ensure item config object is safely accessed
+function getItemConfig(item: any): any {
+	if (!item) return {};
+	if (!item.config) {
+		if (typeof item.toConfig === "function") {
+			try {
+				item.config = item.toConfig();
+			} catch {
+				item.config = {};
+			}
+		} else {
+			item.config = {};
+		}
+	}
+	return item.config;
+}
+
+function syncTabsAndPinning(rootEl?: HTMLElement) {
+	if (!rootEl) return;
+
+	mutationObserver?.disconnect();
+	try {
+		rootEl.querySelectorAll(".lm_header").forEach((headerNode) => {
+			const headerEl = headerNode as HTMLElement;
+			const tabsContainer = headerEl.querySelector(".lm_tabs") as HTMLElement;
+			if (!tabsContainer) return;
+
+			const stack = headerStackMap.get(headerEl);
+			if (!stack) return;
+
+			// biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item type
+			const items: any[] = stack.contentItems || [];
+			// biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item type
+			const pinnedItems: any[] = [];
+			// biome-ignore lint/suspicious/noExplicitAny: GoldenLayout item type
+			const unpinnedItems: any[] = [];
+
+			for (const item of items) {
+				const config = getItemConfig(item);
+				const isPinned = config.isPinned;
+				if (isPinned === true || isPinned === "forever") {
+					pinnedItems.push(item);
+				} else {
+					unpinnedItems.push(item);
+				}
+			}
+
+			const desiredOrder = [...pinnedItems, ...unpinnedItems];
+			const addBtn = tabsContainer.querySelector(".gl-add-tab-btn");
+
+			for (let i = 0; i < desiredOrder.length; i++) {
+				const item = desiredOrder[i];
+				const el = item.tab?.element as HTMLElement | undefined;
+				if (!el) continue;
+
+				const targetNextSibling = i < desiredOrder.length - 1 ? desiredOrder[i + 1].tab?.element || addBtn : addBtn;
+				if (el.nextSibling !== targetNextSibling) {
+					if (targetNextSibling) {
+						tabsContainer.insertBefore(el, targetNextSibling);
+					} else {
+						tabsContainer.appendChild(el);
+					}
+				}
+			}
+
+			for (const item of items) {
+				const tabEl = item.tab?.element as HTMLElement | undefined;
+				if (!tabEl) continue;
+
+				const config = getItemConfig(item);
+				const isPinned = config.isPinned;
+				const isClosable = config.isClosable !== undefined ? Boolean(config.isClosable) : true;
+
+				const isPinnedActive = isPinned === true || isPinned === "forever";
+				const cannotClose = isPinnedActive || !isClosable;
+
+				if (cannotClose) {
+					if (!item.__originalRemove) {
+						item.__originalRemove = item.remove;
+					}
+					item.remove = () => {};
+					if (item.container) {
+						item.container.close = () => {};
+					}
+				} else if (item.__originalRemove) {
+					item.remove = item.__originalRemove;
+				}
+
+				if (cannotClose) {
+					if (!tabEl.classList.contains("gl-non-closable")) {
+						tabEl.classList.add("gl-non-closable");
+					}
+				} else {
+					if (tabEl.classList.contains("gl-non-closable")) {
+						tabEl.classList.remove("gl-non-closable");
+					}
+				}
+
+				if (isPinnedActive) {
+					if (!tabEl.classList.contains("gl-pinned-tab")) {
+						tabEl.classList.add("gl-pinned-tab");
+					}
+					let pinWrapper = tabEl.querySelector(".gl-pin-icon-wrapper") as HTMLElement;
+					if (!pinWrapper) {
+						pinWrapper = document.createElement("span");
+						pinWrapper.className = "gl-pin-icon-wrapper inline-flex items-center justify-center mr-1 text-slate-400 shrink-0";
+						const titleEl = tabEl.querySelector(".lm_title");
+						if (titleEl) {
+							tabEl.insertBefore(pinWrapper, titleEl);
+						} else {
+							tabEl.prepend(pinWrapper);
+						}
+
+						const componentInstance = mount(MapPinAltSolid, {
+							target: pinWrapper,
+							props: {
+								class: "h-3 w-3 text-slate-400 shrink-0",
+							},
+						});
+
+						// biome-ignore lint/suspicious/noExplicitAny: Attached unmount callback
+						(pinWrapper as any).__unmountIcon = () => unmount(componentInstance);
+					}
+				} else {
+					if (tabEl.classList.contains("gl-pinned-tab")) {
+						tabEl.classList.remove("gl-pinned-tab");
+					}
+					const pinWrapper = tabEl.querySelector(".gl-pin-icon-wrapper") as HTMLElement;
+					if (pinWrapper) {
+						// biome-ignore lint/suspicious/noExplicitAny: Retrieve unmount callback
+						if (typeof (pinWrapper as any).__unmountIcon === "function") {
+							// biome-ignore lint/suspicious/noExplicitAny: Execute unmount callback
+							(pinWrapper as any).__unmountIcon();
+						}
+						pinWrapper.remove();
+					}
+				}
+
+				if (tabEl.dataset.contextMenuSetup !== "true") {
+					tabEl.dataset.contextMenuSetup = "true";
+					tabEl.addEventListener("contextmenu", (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+
+						document.querySelectorAll(".gl-tab-context-menu").forEach((el) => el.remove());
+
+						const menu = document.createElement("div");
+						menu.className = "gl-tab-context-menu fixed z-50 bg-[#18181c] text-xs text-[#f1f5f9] border border-[#334155] rounded-md shadow-xl py-1 px-1";
+						menu.style.left = `${e.clientX}px`;
+						menu.style.top = `${e.clientY}px`;
+
+						const itemConf = getItemConfig(item);
+						const currentPin = itemConf.isPinned;
+
+						if (currentPin === "forever") {
+							const itemEl = document.createElement("div");
+							itemEl.className = "px-3 py-1.5 opacity-50 cursor-not-allowed flex items-center gap-2";
+							itemEl.textContent = "Pinned (Permanent)";
+							menu.appendChild(itemEl);
+						} else if (currentPin === true) {
+							const itemEl = document.createElement("button");
+							itemEl.className = "w-full text-left px-3 py-1.5 hover:bg-[#27272a] rounded cursor-pointer flex items-center gap-2";
+							itemEl.textContent = "Unpin Tab";
+							itemEl.onclick = () => {
+								const conf = getItemConfig(item);
+								conf.isPinned = false;
+								menu.remove();
+								syncTabsAndPinning(layoutContainerEl);
+								LAYOUT?.emit("stateChanged");
+							};
+							menu.appendChild(itemEl);
+						} else {
+							const itemEl = document.createElement("button");
+							itemEl.className = "w-full text-left px-3 py-1.5 hover:bg-[#27272a] rounded cursor-pointer flex items-center gap-2";
+							itemEl.textContent = "Pin Tab";
+							itemEl.onclick = () => {
+								const conf = getItemConfig(item);
+								conf.isPinned = true;
+								menu.remove();
+								syncTabsAndPinning(layoutContainerEl);
+								LAYOUT?.emit("stateChanged");
+							};
+							menu.appendChild(itemEl);
+						}
+
+						document.body.appendChild(menu);
+
+						const closeMenu = (evt: MouseEvent) => {
+							if (!menu.contains(evt.target as Node)) {
+								menu.remove();
+								window.removeEventListener("click", closeMenu);
+								window.removeEventListener("contextmenu", closeMenu);
+							}
+						};
+						setTimeout(() => {
+							window.addEventListener("click", closeMenu);
+							window.addEventListener("contextmenu", closeMenu);
+						}, 10);
+					});
+				}
+			}
+		});
+	} finally {
+		if (mutationObserver && rootEl) {
+			mutationObserver.observe(rootEl, {
+				childList: true,
+				subtree: true,
+				attributes: true,
+				attributeFilter: ["class"],
+			});
+		}
+	}
+}
+
 // LIFECYCLE
 onMount(() => {
 	let cleanupFn: (() => void) | null = null;
@@ -378,6 +593,8 @@ onMount(() => {
 							componentType: processed.type,
 							componentState: processed.props || {},
 							title: processed.title || processed.type,
+							isClosable: processed.isClosable !== undefined ? Boolean(processed.isClosable) : true,
+							isPinned: processed.isPinned !== undefined ? processed.isPinned : false,
 							...Object.fromEntries(Object.entries(processed).filter(([k]) => k !== "type" && k !== "props" && k !== "title")),
 						};
 					}
@@ -468,6 +685,9 @@ onMount(() => {
 							if (item.header?.element) {
 								headerStackMap.set(item.header.element, item);
 								appendPlusButton(item);
+								if (layoutContainerEl) {
+									syncTabsAndPinning(layoutContainerEl);
+								}
 							}
 						} catch (err) {
 							console.error("GoldenLayout Wrapper: Error in stack itemCreated handler:", err);
@@ -527,10 +747,13 @@ onMount(() => {
 
 			if (layoutContainerEl) {
 				setupTabRenaming(layoutContainerEl);
+				syncTabsAndPinning(layoutContainerEl);
 			}
 
 			mutationObserver = new MutationObserver((mutations) => {
 				try {
+					mutationObserver?.disconnect();
+
 					if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
 						const shouldSync = mutations.some(
 							(m) =>
@@ -547,20 +770,38 @@ onMount(() => {
 						}
 					}
 
-					layoutContainerEl.querySelectorAll(".lm_header").forEach((headerEl) => {
-						if (headerEl instanceof HTMLElement) {
-							const stack = headerStackMap.get(headerEl);
-							if (stack) {
-								appendPlusButton(stack);
-							}
-						}
-					});
+					const hasHeaderOrTabAddition = mutations.some(
+						(m) =>
+							m.addedNodes.length > 0 &&
+							Array.from(m.addedNodes).some(
+								(node) => node instanceof HTMLElement && (node.classList.contains("lm_header") || node.classList.contains("lm_tab")),
+							),
+					);
 
-					if (layoutContainerEl) {
+					if (hasHeaderOrTabAddition && layoutContainerEl) {
+						layoutContainerEl.querySelectorAll(".lm_header").forEach((headerEl) => {
+							if (headerEl instanceof HTMLElement) {
+								const stack = headerStackMap.get(headerEl);
+								if (stack) {
+									appendPlusButton(stack);
+								}
+							}
+						});
+
 						setupTabRenaming(layoutContainerEl);
+						syncTabsAndPinning(layoutContainerEl);
 					}
 				} catch (err) {
 					console.error("GoldenLayout Wrapper: Error in mutationObserver callback:", err);
+				} finally {
+					if (mutationObserver && layoutContainerEl) {
+						mutationObserver.observe(layoutContainerEl, {
+							childList: true,
+							subtree: true,
+							attributes: true,
+							attributeFilter: ["class"],
+						});
+					}
 				}
 			});
 
@@ -676,11 +917,50 @@ onMount(() => {
     position: relative;
   }
 
+  .container-wrapper :global(.lm_header .lm_tab.gl-non-closable),
+  .container-wrapper :global(.lm_header .lm_tab.gl-pinned-tab) {
+    padding-right: 12px !important;
+  }
+
   .container-wrapper :global(.lm_header .lm_tab .lm_close_tab) {
     position: absolute !important;
     right: 8px !important;
     top: 50% !important;
     transform: translateY(-50%) !important;
     margin: 0 !important;
+  }
+
+  .container-wrapper :global(.lm_header .lm_tab.gl-non-closable .lm_close_tab),
+  .container-wrapper :global(.lm_header .lm_tab.gl-pinned-tab .lm_close_tab) {
+    display: none !important;
+  }
+
+  .container-wrapper :global(.lm_content),
+  .container-wrapper :global(.lm_content *) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--apptheme-accent-secondary, #2A2A35) var(--apptheme-bg-app, #121216);
+  }
+
+  .container-wrapper :global(.lm_content::-webkit-scrollbar),
+  .container-wrapper :global(.lm_content *::-webkit-scrollbar) {
+    width: 10px;
+    height: 10px;
+  }
+
+  .container-wrapper :global(.lm_content::-webkit-scrollbar-track),
+  .container-wrapper :global(.lm_content *::-webkit-scrollbar-track) {
+    background: var(--apptheme-bg-app, #121216);
+  }
+
+  .container-wrapper :global(.lm_content::-webkit-scrollbar-thumb),
+  .container-wrapper :global(.lm_content *::-webkit-scrollbar-thumb) {
+    background: var(--apptheme-accent-secondary, #2A2A35);
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .container-wrapper :global(.lm_content::-webkit-scrollbar-thumb:hover),
+  .container-wrapper :global(.lm_content *::-webkit-scrollbar-thumb:hover) {
+    background: #3F3F46;
   }
 </style>

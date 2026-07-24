@@ -20,6 +20,19 @@ export type CustomComponentItemConfig<R extends GoldenLayoutRegistry = GoldenLay
 	/** Optional unique identifier(s) for the item. */
 	id?: string | string[];
 	/**
+	 * Whether the component can be closed by the user.
+	 * @default true
+	 */
+	isClosable?: boolean;
+	/**
+	 * Pinning state for the tab item.
+	 * - `false`: Unpinned (default).
+	 * - `true`: Pinned to the left, cannot be closed while pinned, can be toggled/unpinned via UI.
+	 * - `"forever"`: Permanently pinned to the left, cannot be unpinned or closed.
+	 * @default false
+	 */
+	isPinned?: boolean | "forever";
+	/**
 	 * The width of the component. Can be a percentage string (e.g. `'60%'`),
 	 * a pixel string (e.g. `'200px'`), or a relative weight number.
 	 */

@@ -99,26 +99,10 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
 						{
 							type: "modView",
 							props: { searchQuery: "Strawberry YAM" },
+							//isClosable: boolean
 						},
 					],
 				},
-				// {
-				// 	type: 'column',
-				// 	content: [
-				// 		{
-				// 			type: 'rawHtml',
-				// 			props: { htmlContent: 'Hola, default raw HTML' },
-				// 		},
-				// 		{
-				// 			type: 'rawHtml',
-				// 			props: { htmlContent: 'Hola, raw HTML 3' },
-				// 		},
-				// 		{
-				// 			type: 'canvas',
-				// 			props: { localStorageKey: 'canvas-2' },
-				// 		},
-				// 	],
-				// },
 			],
 		},
 	],
