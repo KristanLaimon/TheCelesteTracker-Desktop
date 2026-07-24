@@ -715,6 +715,9 @@ onMount(() => {
 
 							container.on("destroy", () => {
 								unmount(componentInstance);
+								setTimeout(() => {
+									checkAndSelfHealEmptyLayout();
+								}, 20);
 							});
 						} catch (err) {
 							console.error(`GoldenLayout Wrapper: Error mounting component "${name}":`, err);
@@ -766,6 +769,9 @@ onMount(() => {
 
 					container.on("destroy", () => {
 						unmount(componentInstance);
+						setTimeout(() => {
+							checkAndSelfHealEmptyLayout();
+						}, 20);
 					});
 				} catch (err) {
 					console.error("GoldenLayout Wrapper: Error mounting defaultComponent:", err);
@@ -915,10 +921,51 @@ onMount(() => {
 			});
 			resizeObserver.observe(layoutContainerEl);
 
+			function checkAndSelfHealEmptyLayout() {
+				if (!LAYOUT) return;
+
+				// biome-ignore lint/suspicious/noExplicitAny: Recursively collect ComponentItems in layout tree
+				const getAllComponentItems = (item: any): any[] => {
+					if (!item) return [];
+					if (item.isComponent || item.type === "component") return [item];
+					if (Array.isArray(item.contentItems)) {
+						return item.contentItems.flatMap(getAllComponentItems);
+					}
+					return [];
+				};
+
+				// biome-ignore lint/suspicious/noExplicitAny: Accessing GoldenLayout root layout item
+				const root: any = LAYOUT.rootItem || (LAYOUT as any).root;
+				const items = getAllComponentItems(root);
+				if (items.length === 0) {
+					Log_Info("GoldenLayout Wrapper: All tabs closed (tabs === 0). Spawning default new tab...");
+					if (root && typeof root.newComponent === "function") {
+						root.newComponent("__defaultComponent", { __tabId: generateTabId() }, "New Tab");
+					} else if (root && typeof root.addItem === "function") {
+						root.addItem({
+							type: "component",
+							componentType: "__defaultComponent",
+							title: "New Tab",
+							componentState: { __tabId: generateTabId() },
+						});
+					} else {
+						LAYOUT.loadLayout({
+							root: {
+								type: "component",
+								componentType: "__defaultComponent",
+								title: "New Tab",
+								componentState: { __tabId: generateTabId() },
+							},
+						});
+					}
+				}
+			}
+
 			LAYOUT.on("stateChanged", () => {
 				if (!LAYOUT) {
 					throw new Error("Strange error: stateChanged but layout undefined, not expected");
 				}
+				checkAndSelfHealEmptyLayout();
 				var layoutState = JSON.stringify(LAYOUT.saveLayout());
 				localStorage.setItem(persistence.localStorageKey, layoutState);
 			});
