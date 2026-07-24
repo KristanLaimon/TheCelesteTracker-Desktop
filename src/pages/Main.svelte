@@ -2,6 +2,8 @@
 import type { ComponentProps } from "svelte";
 import canvasThumbnail from "../assets/thumbnails/available-page-thumbnail-canvas.png";
 import modViewThumbnail from "../assets/thumbnails/available-page-thumbnail-modview.png";
+import modSearchSidebarThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-section.png";
+import modsSearchResultsThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-results.png";
 import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import type {
 	GoldenLayoutComponentStylesOverrides,
@@ -35,14 +37,14 @@ const indexableComponents: IndexableComponentOption[] = [
 	},
 	{
 		goldenLayoutKey: "modsSearchSidebar",
-		thumbnail: modViewThumbnail,
+		thumbnail: modSearchSidebarThumbnail,
 		title: "Mods Search — Filters",
 		description: "Search & filter installed and historically-played mods by category, size, dependencies",
 		tags: ["mod", "search", "filter", "category", "olympus"],
 	},
 	{
 		goldenLayoutKey: "modsSearchResults",
-		thumbnail: modViewThumbnail,
+		thumbnail: modsSearchResultsThumbnail,
 		title: "Mods Search — Results",
 		description: "Table of mods matching the current search/filter, click a row to open it",
 		tags: ["mod", "search", "results", "table"],
