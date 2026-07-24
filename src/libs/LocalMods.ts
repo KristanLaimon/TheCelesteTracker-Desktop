@@ -3,6 +3,7 @@ import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
 import { IFileSystem_Token } from "../interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../interfaces/IFileSystem";
+import { AsyncLazy } from "./AsyncLazy";
 import type Everest from "./Everest";
 import type { EverestModInfo } from "./Everest";
 import { GetLevelSetNamesForMod } from "./Everest";
@@ -55,20 +56,8 @@ export type ModDbEntry = {
 
 @injectable()
 export default class DBMods {
-	constructor(
-		private everest: Everest,
-		private storage: Storage,
-		private maddiesApi: MaddiesApi,
-		private gameBananaApi: GameBananaApi,
-		private olympus: Olympus,
-		@inject(IFileSystem_Token) private fs: IFileSystem,
-	) {
-		storage.configureAutoSave("turn off");
-	}
-
-	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
-		Log_Info("LocalMods.ts:", "About to load all mods full!");
-		const toReturn = await this.storage.get<Record<string, EverestModInfo>>(
+	#everestModsLazy = new AsyncLazy((opts?: LocalModsOptions) =>
+		this.storage.get<Record<string, EverestModInfo>>(
 			STORAGE_KEY_ALL_EVEREST_MODS_INFO,
 			async () => {
 				const allMods = await this.everest.GetModsInstalledFull({ workerCount: 4 });
@@ -81,41 +70,13 @@ export default class DBMods {
 				return map;
 			},
 			{ invalidateCache: opts?.invalidateCache?.ALL_EVEREST_MODS_INFO },
-		);
-		Log_Info("LocalMods.ts:", "All mods info loaded");
-		return toReturn;
-	}
+		),
+	);
 
-	public async EverestMods_Get_ModByModId(modId: string, opts?: LocalModsOptions): Promise<EverestModInfo | null> {
-		const allMods = await this.EverestMods_GetAll(opts);
-		return allMods[modId] ?? null;
-	}
-
-	public async EverestMods_Get_ListModIds(opts?: LocalModsOptions): Promise<string[]> {
-		const allMods = await this.EverestMods_GetAll(opts);
-		return Object.keys(allMods).filter((k) => k && k !== "undefined");
-	}
-
-	public async EverestMods_Get_ListModSimplified(opts?: LocalModsOptions): Promise<ModSimplified[]> {
-		const allMods = await this.EverestMods_GetAll(opts);
-		const list: ModSimplified[] = [];
-		for (const mod of Object.values(allMods)) {
-			if (mod.metadata?.name) {
-				list.push({
-					humanNameMod: mod.humanName && mod.humanName.trim() !== "" ? mod.humanName : mod.metadata.name,
-					modId: mod.metadata.name,
-				});
-			}
-		}
-		return list;
-	}
-
-	// ============ MADDIES API LOGIC ================
-
-	async #GetMap_EverestModId_MaddiesMod(opts?: LocalModsOptions) {
+	#maddiesMapLazy = new AsyncLazy((opts?: LocalModsOptions) => {
 		type Map_EverestModId_MaddiesModInfo = Record<string, MaddiesApiModInfo>;
 
-		return await this.storage.get<Map_EverestModId_MaddiesModInfo>(
+		return this.storage.get<Map_EverestModId_MaddiesModInfo>(
 			STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO,
 			async () => {
 				const allMods = await this.EverestMods_GetAll(opts);
@@ -153,6 +114,84 @@ export default class DBMods {
 			},
 			{ invalidateCache: opts?.invalidateCache?.EVERESTMODID_TO_MADDIESMODINFO },
 		);
+	});
+
+	#authorMapLazy = new AsyncLazy((opts?: LocalModsOptions) => {
+		type MapType = Record<string, GbMemberApi_Reponse>;
+		return this.storage.get<MapType>(
+			STORAGE_KEY_MAP_EVEREST_MOD_ID_TO_AUTHOR_INFO,
+			async () => {
+				const modIdToMod = await this.#GetMap_EverestModId_MaddiesMod(opts);
+				const grouped = new Map<string, string[]>();
+				for (const [modId, mod] of Object.entries(modIdToMod)) {
+					const list = grouped.get(mod.Author);
+					if (list) list.push(modId);
+					else grouped.set(mod.Author, [modId]);
+				}
+				const apiResponse = await this.gameBananaApi.GetUsersMetadataByUsernames([...grouped.keys()]);
+				const toReturn: MapType = {};
+				for (const info of apiResponse) {
+					const modIds = grouped.get(info.name);
+					if (modIds) for (const modId of modIds) toReturn[modId] = info;
+				}
+				return toReturn;
+			},
+			{ invalidateCache: opts?.invalidateCache?.EVERESTMODID_TO_AUTHORINFO },
+		);
+	});
+
+	#historicalModsLazy = new AsyncLazy((opts?: LocalModsOptions) =>
+		this.storage.get<Record<string, HistoricalModEntry>>(STORAGE_KEY_HISTORICAL_UNINSTALLED_MODS, () => this.#ComputeHistoricalMods(opts), {
+			invalidateCache: opts?.invalidateCache?.HISTORICAL_UNINSTALLED_MODS,
+		}),
+	);
+
+	constructor(
+		private everest: Everest,
+		private storage: Storage,
+		private maddiesApi: MaddiesApi,
+		private gameBananaApi: GameBananaApi,
+		private olympus: Olympus,
+		@inject(IFileSystem_Token) private fs: IFileSystem,
+	) {
+		storage.configureAutoSave("turn off");
+	}
+
+	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
+		Log_Info("LocalMods.ts:", "About to load all mods full!");
+		const toReturn = await this.#everestModsLazy.get(opts, { forceRefresh: opts?.invalidateCache?.ALL_EVEREST_MODS_INFO });
+		Log_Info("LocalMods.ts:", "All mods info loaded");
+		return toReturn;
+	}
+
+	public async EverestMods_Get_ModByModId(modId: string, opts?: LocalModsOptions): Promise<EverestModInfo | null> {
+		const allMods = await this.EverestMods_GetAll(opts);
+		return allMods[modId] ?? null;
+	}
+
+	public async EverestMods_Get_ListModIds(opts?: LocalModsOptions): Promise<string[]> {
+		const allMods = await this.EverestMods_GetAll(opts);
+		return Object.keys(allMods).filter((k) => k && k !== "undefined");
+	}
+
+	public async EverestMods_Get_ListModSimplified(opts?: LocalModsOptions): Promise<ModSimplified[]> {
+		const allMods = await this.EverestMods_GetAll(opts);
+		const list: ModSimplified[] = [];
+		for (const mod of Object.values(allMods)) {
+			if (mod.metadata?.name) {
+				list.push({
+					humanNameMod: mod.humanName && mod.humanName.trim() !== "" ? mod.humanName : mod.metadata.name,
+					modId: mod.metadata.name,
+				});
+			}
+		}
+		return list;
+	}
+
+	// ============ MADDIES API LOGIC ================
+
+	async #GetMap_EverestModId_MaddiesMod(opts?: LocalModsOptions) {
+		return await this.#maddiesMapLazy.get(opts, { forceRefresh: opts?.invalidateCache?.EVERESTMODID_TO_MADDIESMODINFO });
 	}
 
 	public async MaddiesApi_GetAll(opts?: LocalModsOptions): Promise<MaddiesApiModInfo[]> {
@@ -201,27 +240,7 @@ export default class DBMods {
 	}
 
 	async #GetMap_EverestModId_GameBananaAuthor(opts?: LocalModsOptions) {
-		type MapType = Record<string, GbMemberApi_Reponse>;
-		return await this.storage.get<MapType>(
-			STORAGE_KEY_MAP_EVEREST_MOD_ID_TO_AUTHOR_INFO,
-			async () => {
-				const modIdToMod = await this.#GetMap_EverestModId_MaddiesMod(opts);
-				const grouped = new Map<string, string[]>();
-				for (const [modId, mod] of Object.entries(modIdToMod)) {
-					const list = grouped.get(mod.Author);
-					if (list) list.push(modId);
-					else grouped.set(mod.Author, [modId]);
-				}
-				const apiResponse = await this.gameBananaApi.GetUsersMetadataByUsernames([...grouped.keys()]);
-				const toReturn: MapType = {};
-				for (const info of apiResponse) {
-					const modIds = grouped.get(info.name);
-					if (modIds) for (const modId of modIds) toReturn[modId] = info;
-				}
-				return toReturn;
-			},
-			{ invalidateCache: opts?.invalidateCache?.EVERESTMODID_TO_AUTHORINFO },
-		);
+		return await this.#authorMapLazy.get(opts, { forceRefresh: opts?.invalidateCache?.EVERESTMODID_TO_AUTHORINFO });
 	}
 
 	public async GameBananaApi_GetAuthorInfoByModId(modId: string, opts?: LocalModsOptions): Promise<GbMemberApi_Reponse | null> {
@@ -290,9 +309,7 @@ export default class DBMods {
 	 * resolution), comparatively stable, so it's remembered indefinitely until invalidated.
 	 */
 	public async HistoricalMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, HistoricalModEntry>> {
-		return await this.storage.get<Record<string, HistoricalModEntry>>(STORAGE_KEY_HISTORICAL_UNINSTALLED_MODS, () => this.#ComputeHistoricalMods(opts), {
-			invalidateCache: opts?.invalidateCache?.HISTORICAL_UNINSTALLED_MODS,
-		});
+		return await this.#historicalModsLazy.get(opts, { forceRefresh: opts?.invalidateCache?.HISTORICAL_UNINSTALLED_MODS });
 	}
 
 	/**

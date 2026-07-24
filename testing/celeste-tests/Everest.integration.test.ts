@@ -11,7 +11,7 @@ describe("Everest Integration Tests", () => {
 	});
 
 	test("parseEverestYaml handles UTF-16 LE encoded YAML content containing null bytes", () => {
-		const rawYamlWithNulls = "\uFEFF" + "Name: TestMod\nVersion: 1.0.0".split("").join("\0") + "\0";
+		const rawYamlWithNulls = `\uFEFF${"Name: TestMod\nVersion: 1.0.0".split("").join("\0")}\0`;
 		const parsed = parseEverestYaml(rawYamlWithNulls, "test.yaml");
 		expect(parsed.name).toBe("TestMod");
 		expect(parsed.version).toBe("1.0.0");
