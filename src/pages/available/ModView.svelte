@@ -14,7 +14,7 @@ type Props = { searchQuery: string };
 let { searchQuery = $bindable(""), onStateChange }: WithGLState<Props> = $props();
 
 const localMods = Construct_LocalMods({
-	filePath: "./data/BROWSER-LOCAL-MODS.json",
+	filePath: "./data/mods-dbS.json",
 	indent: 2,
 });
 

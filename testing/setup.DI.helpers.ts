@@ -12,7 +12,7 @@ import { GetDependency } from "./setup";
 
 export function Construct_LocalMods(opts?: StorageOptions) {
 	const jsonAdapterPersistent = new Storage_JsonFileAdapter(
-		{ filePath: "./data/BROWSER-LOCAL-MODS.json", indent: 2 },
+		{ filePath: "./data/mods-dbS.json", indent: 2 },
 		GetDependency<IFileSystem>(IFileSystem_Token),
 		GetDependency<IPath>(IPath_Token),
 	);
