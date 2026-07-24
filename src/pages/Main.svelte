@@ -10,11 +10,14 @@ import type {
 	GoldenLayoutThemeCssColorsOverrides,
 } from "../libs/GoldenLayoutThemes/GoldenLayout.types";
 import Canvas from "./available/Canvas.svelte";
+import ModsSearch_Results from "./available/ModsSearch/ModsSearch_Results.svelte";
+import ModsSearch_Sidebar from "./available/ModsSearch/ModsSearch_Sidebar.svelte";
 import ModView from "./available/ModView.svelte";
 import type { IndexableComponentOption } from "./available/NewPage.pageselector.svelte";
 import NewPage from "./available/NewPage.svelte";
 import RawHtml from "./available/RawHtml.svelte";
 
+// no dedicated thumbnails exist yet for the two Mods Search entries below — reusing modViewThumbnail as a placeholder
 const indexableComponents: IndexableComponentOption[] = [
 	{
 		goldenLayoutKey: "canvas",
@@ -30,6 +33,20 @@ const indexableComponents: IndexableComponentOption[] = [
 		description: "Browse Celeste mods, search metadata, view dependencies and details",
 		tags: ["mod", "viewer", "celeste", "everest", "maddies", "gamebanana"],
 	},
+	{
+		goldenLayoutKey: "modsSearchSidebar",
+		thumbnail: modViewThumbnail,
+		title: "Mods Search — Filters",
+		description: "Search & filter installed and historically-played mods by category, size, dependencies",
+		tags: ["mod", "search", "filter", "category", "olympus"],
+	},
+	{
+		goldenLayoutKey: "modsSearchResults",
+		thumbnail: modViewThumbnail,
+		title: "Mods Search — Results",
+		description: "Table of mods matching the current search/filter, click a row to open it",
+		tags: ["mod", "search", "results", "table"],
+	},
 ];
 
 const registry = {
@@ -37,6 +54,8 @@ const registry = {
 	rawHtml: RawHtml,
 	modView: ModView,
 	newPage: NewPage,
+	modsSearchSidebar: ModsSearch_Sidebar,
+	modsSearchResults: ModsSearch_Results,
 } satisfies GoldenLayoutRegistry;
 
 const customLayoutStyles: GoldenLayoutComponentStylesOverrides = {
