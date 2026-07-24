@@ -211,6 +211,15 @@ A mod could be any type of mod like:
   - WiPs
   - No category
 
+### Mod database: installed + historical (uninstalled) mods
+
+`DBMods.Mods_GetAllWithHistory()` (`src/libs/LocalMods.ts`) is the canonical "every mod this player has or has had" API — don't re-derive this join elsewhere. It combines:
+- Tier 1 (cheap, common case): mods already in the cached Everest scan (`EverestMods_GetAll`), split by a fresh `fs.exists(modPath)` check — catches uninstalls the scan cache doesn't know about yet without a full re-scan.
+- Tier 2 (fallback, Storage-cached via `HistoricalMods_GetAll`): mods the scan cache never saw at all, recovered from save files' `<LevelSetRecycleBin>`.
+
+Key domain fact: a save file's `LevelSetStats Name` is **not** guaranteed to equal the mod's real Everest id (`everest.yaml` `Name`). For an installed/cached mod it's derived via `GetLevelSetNamesForMod()` (`src/libs/Everest.ts`) — `campaigns[].campaignNameId` for standalone mods, `${collabId}/${lobbyId}` for collab mods. For a mod known *only* via the recycle bin (uninstalled before this app ever scanned it), there's nothing left to cross-check against — it's identified best-effort by the first `/`-segment of the raw `LevelSetStats Name`, with `modNameId: null` marking it as unresolved.
+
+Category resolution (`DBMods.ResolveModCategory`) is Olympus (offline) first, Maddies' online `CategoryName` as a last-resort fallback only when Olympus isn't installed at all — never per-mod-missing-entry fallback. Returns `null` (never throws) if neither resolves; callers decide what "uncategorized" means to them.
 
 ### Special Direct Support for this specific mods in this project
 
@@ -264,7 +273,7 @@ A mod could be any type of mod like:
   - No emojis — not in code, docs, or commit messages.
   - **Svelte 5 runes only.** `$state`, `$derived`, `$props`, `$effect`, `$bindable`. No Svelte 4 stores (`writable`/`readable`/`derived`). No slots — use `{#snippet}` + `{@render}`.
   - **Bun only.** No npm/pnpm/yarn/npx. `bun install`, `bun run <script>`, `bun test`.
-  - Run `bun run lint` before and after changes (Biome auto-fixes). Run `bun run check` for type checking.
+  - Run `bun run lint:fix` before and after changes (auto-fixes; `bun run lint` alone is check-only, no `--write`). Run `bun run check` for type checking.
   - PowerShell is the user's shell. WSL (Ubuntu) available for Linux-only commands.
 
 
@@ -276,7 +285,8 @@ A mod could be any type of mod like:
     bun install               # installs deps, also runs `neu update` to fetch Neutralino binaries
     bun run start              # You have no permission to start it, assume the dev is the one who can start it ONLY. UNLESS EXPLICITLY ASKED BY USER IN PROMPT.
     bun run check              # svelte-check + tsc, no emit — run after any .ts/.svelte change
-    bun run lint               # biome check . --write --unsafe — auto-fixes, run before AND after changes
+    bun run lint               # biome check . — check only, no fixes
+    bun run lint:fix           # biome check . --write --unsafe — auto-fixes, run before AND after changes
     bun test testing/Sqlite_Go_Usage.test.ts   # run a single test file
     bun test -t "test name"    # run tests matching a name
     bun run build              # full production build: Go CLI helpers -> neu build --embed-resources -> organize dist/prod/{windows,linux,mac}
