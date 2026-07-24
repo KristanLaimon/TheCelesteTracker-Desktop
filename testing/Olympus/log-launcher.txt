@@ -1,0 +1,17 @@
+Olympus Launcher 1.0.0.0
+Tried to start C:\Users\Kristan\AppData\Roaming\Olympus\main.exe but not found.
+Starting up form
+Downloader thread running
+Wiping C:\Users\Kristan\AppData\Roaming\Olympus
+System.IO.IOException: The process cannot access the file 'C:\Users\Kristan\AppData\Roaming\Olympus' because it is being used by another process.
+   at System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath)
+   at System.IO.Directory.DeleteHelper(String fullPath, String userPath, Boolean recursive, Boolean throwOnTopLevelDirectoryNotFound, WIN32_FIND_DATA& data)
+   at System.IO.Directory.Delete(String fullPath, String userPath, Boolean recursive, Boolean checkHost)
+   at Olympus.OlympusForm.RunDownloader()
+Downloading https://dev.azure.com/EverestAPI/Olympus/_apis/build/builds/5525/artifacts?artifactName=windows.main&$format=zip
+Downloaded 42983954 bytes
+Opening wrapper .zip
+Opening dist .zip
+Extracting to C:\Users\Kristan\AppData\Roaming\Olympus
+Done
+Starting up C:\Users\Kristan\AppData\Roaming\Olympus\main.exe

@@ -1,0 +1,21 @@
+[2026-07-24 14:53:16] [inf] [Program] Hey! This is Olympus.Sharp 26.05.30.01-azure-5618-0f5bc, and if you're a modding helper, I'm sorry.
+[2026-07-24 14:53:16] [dbg] [Program] root directory = C:\Users\Kristan\AppData\Roaming\Olympus
+[2026-07-24 14:53:16] [inf] [Program] New TCP connection: 127.0.0.1:53129
+[2026-07-24 14:53:16] [dbg] [Program] Executing setolympusversion
+[2026-07-24 14:53:16] [dbg] [Program] Executing getenv
+[2026-07-24 14:53:17] [dbg] [Program] Executing getversionstring
+[2026-07-24 14:53:17] [dbg] [Program] Executing getloennlatestversion
+[2026-07-24 14:53:17] [dbg] [Program] Executing win32appadd
+[2026-07-24 14:53:17] [dbg] [Program] Executing getenv
+[2026-07-24 14:53:17] [dbg] [Program] Executing getenv
+[2026-07-24 14:53:17] [dbg] [Program] Executing getmodidtocategorymap
+[2026-07-24 14:53:17] [dbg] [Program] Executing getmodidtonamemap
+[2026-07-24 14:53:17] [dbg] [CmdGetModIdMap] Cache location set to: C:\Users\Kristan\AppData\Local\Olympus\cached-mod-ids-to-categories.json
+[2026-07-24 14:53:17] [dbg] [CmdGetModIdMap] Loading mod_ids_to_categories.json from the Internet (apiMirror = False)
+[2026-07-24 14:53:17] [dbg] [CmdGetModIdMap] Cache location set to: C:\Users\Kristan\AppData\Local\Olympus\cached-mod-ids-to-names.json
+[2026-07-24 14:53:17] [dbg] [CmdGetModIdMap] Loading mod_ids_to_names.json from the Internet (apiMirror = False)
+[2026-07-24 14:53:17] [dbg] [Program] Executing getenv
+[2026-07-24 14:53:17] [dbg] [Program] Executing getenv
+[2026-07-24 14:53:18] [dbg] [Program] Executing getrunningpath
+[2026-07-24 14:53:18] [dbg] [Program] Executing getuwppackagepath
+[2026-07-24 14:53:21] [dbg] [Program] Executing getenv
