@@ -5,7 +5,7 @@ import { join } from "node:path";
 import Celeste from "../src/libs/Celeste";
 import { GetDependency, TEST_FOLDER } from "./setup";
 
-const FIXTURES_DIR = join(TEST_FOLDER, "fixtures");
+const FIXTURES_DIR = join(TEST_FOLDER, "Celeste", "fixtures");
 
 describe("Celeste.ReadVanillaSaveStats", () => {
 	test("reads a normal filled save slot", async () => {

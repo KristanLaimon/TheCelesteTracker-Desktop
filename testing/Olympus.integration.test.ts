@@ -50,7 +50,7 @@ describe("Olympus Integration Tests", () => {
 	test("GetModHumanNameByModId and GetModCategoryByModId return null when JSON is corrupt", async () => {
 		const fs = GetDependency<IFileSystem>(IFileSystem_Token);
 		const path = GetDependency<IPath>(IPath_Token);
-		const corruptPath = join(TEST_FOLDER, "fixtures", "olympus-corrupt");
+		const corruptPath = join(TEST_FOLDER, "Olympus", "fixtures", "olympus-corrupt");
 		const fakeOs = new FakeOsPathOverride({ CTD_TEST_OLYMPUS_PATH: corruptPath });
 		const olympus = new Olympus(fakeOs, fs, path);
 

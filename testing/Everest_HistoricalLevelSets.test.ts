@@ -5,7 +5,7 @@ import { join } from "node:path";
 import Everest, { type EverestModInfo, GetLevelSetNamesForMod } from "../src/libs/Everest";
 import { GetDependency, TEST_FOLDER } from "./setup";
 
-const FIXTURES_DIR = join(TEST_FOLDER, "fixtures");
+const FIXTURES_DIR = join(TEST_FOLDER, "Celeste", "fixtures");
 
 describe("Everest.ReadHistoricalLevelSetNames", () => {
 	test("reads installed + recycled LevelSets from a normal save", async () => {

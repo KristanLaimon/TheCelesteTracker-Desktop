@@ -13,7 +13,7 @@
 			"!src/dependencies/*",
 			"!documentation/*",
 			"!**/*.min.js",
-			"!testing/fixtures/olympus-corrupt",
+			"!testing/Olympus/fixtures/olympus-corrupt",
 			"!testing/Olympus"
 		]
 	},
