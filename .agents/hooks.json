@@ -1,0 +1,15 @@
+{
+	"version": "1.0",
+	"description": "Agent hooks configuration for post code change verification",
+	"hooks": {
+		"post_code_change": {
+			"description": "Sequential verification flow: bun test -> bun run check -> bun run lint:fix -> bun run check",
+			"commands": ["bun test", "bun run check", "bun run lint:fix", "bun run check"],
+			"scripts": {
+				"windows": ".agents/post-code-change.ps1",
+				"unix": ".agents/post-code-change.sh",
+				"bun": "bun .agents/post-code-change.js"
+			}
+		}
+	}
+}

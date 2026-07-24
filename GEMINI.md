@@ -14,7 +14,6 @@ After implementing changes, run the following verification flow sequentially:
 
 ## Git Commit Workflow
 - When implementing a multi-part plan (several distinct features/files), commit one logical part per feature — not one giant commit. Each commit should pass `bun run check` + relevant tests on its own.
-- Every commit made on the user's behalf ends with a `Co-Authored-By: <currentAiModel> <noreply@mail.com>` trailer (e.g. `Co-Authored-By: Gemini 3.6 Flash <noreply@google.com>`).
 - Commit body format: bullet list, one line per change, not prose paragraphs.
   ```
   feat(scope): short summary line

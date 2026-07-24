@@ -14,5 +14,21 @@
 		"caveman@caveman": true,
 		"ponytail@ponytail": true,
 		"ask-questions-if-underspecified@trailofbits": true
+	},
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"shell": "bash",
+						"command": "changed=$(git status --porcelain -- '*.ts' '*.svelte' 2>/dev/null); if [ -z \"$changed\" ]; then exit 0; fi; out=$(bun run lint:fix 2>&1 && bun run check 2>&1); rc=$?; if [ $rc -ne 0 ]; then echo \"$out\" | tail -n 80; exit 2; fi; exit 0",
+						"timeout": 180,
+						"asyncRewake": true,
+						"statusMessage": "lint:fix + check on changed ts/svelte files"
+					}
+				]
+			}
+		]
 	}
 }
