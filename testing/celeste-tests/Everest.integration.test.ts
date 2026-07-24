@@ -1,6 +1,6 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
-import Everest from "../../src/libs/Everest";
+import Everest, { parseEverestYaml } from "../../src/libs/Everest";
 import { GetDependency, TEST_CELESTE_PATH } from "../setup";
 
 describe("Everest Integration Tests", () => {
@@ -8,6 +8,13 @@ describe("Everest Integration Tests", () => {
 		const everest = GetDependency(Everest);
 		const installPath = await everest.GetInstallationPath();
 		expect(installPath).toBe(`${TEST_CELESTE_PATH}/Mods`);
+	});
+
+	test("parseEverestYaml handles UTF-16 LE encoded YAML content containing null bytes", () => {
+		const rawYamlWithNulls = "\uFEFF" + "Name: TestMod\nVersion: 1.0.0".split("").join("\0") + "\0";
+		const parsed = parseEverestYaml(rawYamlWithNulls, "test.yaml");
+		expect(parsed.name).toBe("TestMod");
+		expect(parsed.version).toBe("1.0.0");
 	});
 
 	test(

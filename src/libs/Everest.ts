@@ -283,9 +283,9 @@ function normalizeDep(d: RawDep): ModDependency {
 
 /** Parse a YAML string; return `undefined` on failure (with console error). */
 function parseYaml<T>(content: string, fileName: string): T | undefined {
-	if (content.includes("\0")) return undefined;
 	try {
-		return (yaml.load(content.replace(/^\uFEFF/, "")) as T | null | undefined) ?? undefined;
+		const cleaned = content.replace(/\0/g, "").replace(/^\uFEFF/, "");
+		return (yaml.load(cleaned) as T | null | undefined) ?? undefined;
 	} catch (err) {
 		console.error(`Yaml parse fail ${fileName}:`, err);
 		return undefined;
@@ -306,7 +306,7 @@ function parseYaml<T>(content: string, fileName: string): T | undefined {
  */
 export function parseEverestYaml(content: string, fileName: string): ModMetadata {
 	try {
-		const cleaned = content.replace(/^\uFEFF/, "");
+		const cleaned = content.replace(/\0/g, "").replace(/^\uFEFF/, "");
 		const parsed = yaml.load(cleaned) as RawMeta | RawMeta[] | null | undefined;
 		if (!parsed) return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
 		const item = Array.isArray(parsed) ? parsed[0] : parsed;
