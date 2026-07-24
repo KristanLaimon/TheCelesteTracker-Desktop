@@ -5,6 +5,7 @@ import Everest from "../src/libs/Everest";
 import GameBananaApi from "../src/libs/GameBananaAPI";
 import DBMods from "../src/libs/LocalMods";
 import MaddiesApi from "../src/libs/MaddiesAPI";
+import Olympus from "../src/libs/Olympus";
 import Storage, { type StorageOptions } from "../src/libs/Storage";
 import Storage_JsonFileAdapter from "../src/libs/Storage.json";
 import { GetDependency } from "./setup";
@@ -17,6 +18,13 @@ export function Construct_LocalMods(opts?: StorageOptions) {
 	);
 	const storage = new Storage({ adapters: [jsonAdapterPersistent], ...opts });
 
-	const myMods = new DBMods(GetDependency(Everest), storage, GetDependency(MaddiesApi), GetDependency(GameBananaApi));
+	const myMods = new DBMods(
+		GetDependency(Everest),
+		storage,
+		GetDependency(MaddiesApi),
+		GetDependency(GameBananaApi),
+		GetDependency(Olympus),
+		GetDependency<IFileSystem>(IFileSystem_Token),
+	);
 	return myMods;
 }

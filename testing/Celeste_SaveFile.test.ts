@@ -1,6 +1,7 @@
 // NODE.JS/BUN/DENO ONLY
-import { join } from "node:path";
+
 import { describe, expect, test } from "bun:test";
+import { join } from "node:path";
 import Celeste from "../src/libs/Celeste";
 import { GetDependency, TEST_FOLDER } from "./setup";
 

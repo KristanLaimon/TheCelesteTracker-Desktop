@@ -1,7 +1,8 @@
 // NODE.JS/BUN/DENO ONLY
-import { join } from "node:path";
+
 import { describe, expect, test } from "bun:test";
-import Everest, { GetLevelSetNamesForMod, type EverestModInfo } from "../src/libs/Everest";
+import { join } from "node:path";
+import Everest, { type EverestModInfo, GetLevelSetNamesForMod } from "../src/libs/Everest";
 import { GetDependency, TEST_FOLDER } from "./setup";
 
 const FIXTURES_DIR = join(TEST_FOLDER, "fixtures");
