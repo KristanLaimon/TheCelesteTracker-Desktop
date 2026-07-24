@@ -28,7 +28,7 @@
 		"os.showMessageBox",
 		"os.getPath",
 		"os.execCommand",
-    "os.getEnv",
+		"os.getEnv",
 		"server.mount",
 		"server.getMounts",
 		"filesystem.getPathParts",

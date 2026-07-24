@@ -12,8 +12,8 @@ Created 2026-07-24.
   - `Configuration.getDataFolderPath()` checks `CTD_TEST_DATA_FOLDER` fallback override before returning `./data`, avoiding write pollution to repo-root `./config.json` during test runs.
 
 - **Instance Isolation (`FakeOsPathOverride`)**:
-  - `testing/FakeOsPathOverride.ts` extends `NodeJsOS` and overrides `getEnv(key)` to provide instance-level env overrides.
+  - `testing/helpers/FakeOsPathOverride.ts` extends `NodeJsOS` and overrides `getEnv(key)` to provide instance-level env overrides.
   - Used for negative/corrupt path tests (e.g., non-existent paths, corrupt JSON) without mutating global `process.env`.
 
 - **Biome Exclusions**:
-  - Deliberately corrupt test JSON files (e.g., `testing/fixtures/olympus-corrupt/cached-mod-ids-to-names.json`) must be excluded in `biome.json` under `files.includes` (`"!testing/fixtures/olympus-corrupt/**"`), otherwise `biome check .` / `bun run lint:fix` fails on syntax errors.
+  - Deliberately corrupt test JSON files (e.g., `testing/Olympus/fixtures/olympus-corrupt/cached-mod-ids-to-names.json`) must be excluded in `biome.json` under `files.includes` (`"!testing/Olympus/fixtures/olympus-corrupt/**"`), otherwise `biome check .` / `bun run lint:fix` fails on syntax errors.

@@ -287,14 +287,14 @@ Category resolution (`DBMods.ResolveModCategory`) is Olympus (offline) first, Ma
     bun run check              # svelte-check + tsc, no emit — run after any .ts/.svelte change
     bun run lint               # biome check . — check only, no fixes
     bun run lint:fix           # biome check . --write --unsafe — auto-fixes, run before AND after changes
-    bun test testing/Sqlite_Go_Usage.test.ts   # run a single test file
+    bun test testing/go-utils-tests/Sqlite_Go_Usage.test.ts   # run a single test file
     bun test -t "test name"    # run tests matching a name
     bun run build              # full production build: Go CLI helpers -> neu build --embed-resources -> organize dist/prod/{windows,linux,mac}
     bun run build:frontend     # vite build only (frontend assets, no Neutralino packaging)
   ```
 - COMMANDS TO EXECUTE AFTER CHANGES, IF WARNINGS | ERRORS, FIX ITERATE UNTIL ALL FIXED.
   ```bash
-    1. bun test                   # run all tests (Bun test runner, files in testing/*.test.ts)
+    1. bun test                   # run all tests (Bun test runner, files in testing/**/*.test.ts)
     2. bun check
     3. bun lint:fix
     4. bun check # (to check if lint:fix didn't broke anything)
@@ -376,7 +376,7 @@ More conventions:
 
 ## Testing
 
-- `bun test` — files in `testing/*.test.ts`.
+- `bun test` — files in `testing/**/*.test.ts`.
 - Separate test DI setup in `testing/setup.ts` (`NodeJsFileSystem`, `NodeJsOS`, `BunThread`) — see Architecture below.
 - `describe`/`test`/`expect` from `bun:test`. `{ timeout: N_MS }` for long-running integration tests.
 - `GetDependency()` helper for DI-resolved service instances.
