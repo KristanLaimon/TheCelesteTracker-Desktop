@@ -31,7 +31,7 @@ The Celeste community uses **spreadsheets** for pretty much everything: achievem
         <p><sub><i>This is my real Excel that I use to track my Celeste modding and vanilla progress.</i></sub></p>
       </td>
       <td align="center">
-        <img src=".github/beta2_screenshot.png" alt="Beta Screenshot" width="100%">
+        <img src=".github/screenshot-neutralinoversion.jpg" alt="Beta Screenshot" width="100%">
         <p><sub><i>Automating with a dedicated app, including support for "Celeste Skill Rating" maps (planned feature).</i></sub></p>
       </td>
     </tr>
@@ -40,35 +40,29 @@ The Celeste community uses **spreadsheets** for pretty much everything: achievem
 
 Note: While there are mods to track this info, they are all in-game, limited by the interface, and sometimes have a learning curve that makes them hard to use.
 
-<!-- ## Key Features
 
-- **🔄 Real-time Sync**: Auto-connect to Everest WebSocket server.
-- **🔍 Auto-Port Scanning**: Instant discovery (ports `50500`-`50600`).
-- **🎭 Live Overlay**: Immersive HUD triggers on level entry.
-- **📊 Deep Stats**: Track `Deaths`, `Dashes`, `AreaCompletion`, and `Personal Bests`.
-- **🐹 Go-Backed**: Fast and reliable event handling via Wails. -->
-
-## Preview
-
-https://github.com/user-attachments/assets/b3583abc-d71b-4a0a-a61a-d4abebb43749
-<p><i>Live gameplay event tracking in action.</i></p>
+## Early-dev screenshots
 
 <div align="center">
-  <img src=".github/beta_run_history.png" alt="Run History Beta" width="80%">
-  <p><i>History tracking for recent runs and PB attempts.</i></p>
+  <img src=".github/screenshot-neutralinoversion.jpg" alt="Run History Beta" width="80%">
+  <p><i>Current UI</i></p>
 </div>
 
 *Current UI is subject to change during beta.*
+But I expect to implement:
+
+- full mod tracking in real time
+- canvas-like to accomodate your stats
+- beautiful mods searching and looking (kinda implemented)
+- and much more
 
 ## Tech Stack
 - **Framework**: [Neutralinojs](https://neutralino.js.org/) (Lightweight portable desktop application framework)
 - **Frontend**: [Svelte 5](https://svelte.dev/) + [Vite](https://vite.dev/) + TypeScript
 - **Package Manager**: [Bun](https://bun.sh/) (Runner + Dev tooling)
+- **Cli Helper**: Golang 
 
-## Why are you using C and Go as separated extensions?
-For fun. I wanted to learn how to package and code very small-easy (except C) programs. Also, gaining a little performance in
-final binary size and speed. Perfectly the C extension could be written in Go or Rust + sqlitelib or direct sqlite .h-.c files.
-Just wanted to challenge myself
+Note: We're using neutralino but not neutralino extensions, I went to the easy way to create a small golang helper CLI.
 
 ## Getting Started
 
@@ -104,10 +98,5 @@ bun run build
 ```
 The final executable packages and `resources.neu` will be generated in the `dist/myapp/` directory.
 
-## Architecture
-- `neutralino.config.json`: Configuration for the Neutralinojs app runtime, build settings, and permission list.
-- `vite.config.ts`: Configuration for Vite bundler, configured to output client builds to the `resources/` directory to avoid colliding with Neutralino's `dist/` directory.
-- `src/`: Svelte 5 + TypeScript source code for the frontend UI.
-
 ## License
-MIT License. Created for the Celeste community.
+MIT License. Created by and for the Celeste community.
