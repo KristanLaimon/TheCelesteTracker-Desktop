@@ -1,12 +1,12 @@
 <script lang="ts">
 import type { MaddiesApiModInfo } from "@api/MaddiesAPI";
-import HorizontalGallery from "@components/HorizontalGallery.svelte";
-import SearchDynamic from "@components/SearchDynamic.svelte";
 import type { EverestModInfo } from "@domain/Everest";
 import type { ModSimplified } from "@domain/LocalMods";
 import type { WithGLState } from "@libs/GoldenLayoutThemes/GoldenLayout.types";
 import { getColorSync } from "colorthief";
 import { onMount } from "svelte";
+import HorizontalGallery from "../../components/HorizontalGallery.svelte";
+import SearchDynamic from "../../components/SearchDynamic.svelte";
 import { Construct_LocalMods } from "../../setup.DI.helpers";
 
 type Props = { searchQuery: string };

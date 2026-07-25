@@ -3,7 +3,6 @@ import canvasThumbnail from "@assets/thumbnails/available-page-thumbnail-canvas.
 import modsSearchResultsThumbnail from "@assets/thumbnails/available-page-thumbnail-modsearch-results.png";
 import modSearchSidebarThumbnail from "@assets/thumbnails/available-page-thumbnail-modsearch-section.png";
 import modViewThumbnail from "@assets/thumbnails/available-page-thumbnail-modview.png";
-import GoldenLayout from "@libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import type {
 	GoldenLayoutComponentStylesOverrides,
 	GoldenLayoutContent,
@@ -11,6 +10,7 @@ import type {
 	GoldenLayoutThemeCssColorsOverrides,
 } from "@libs/GoldenLayoutThemes/GoldenLayout.types";
 import type { ComponentProps } from "svelte";
+import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import Canvas from "./panes/Canvas.svelte";
 import ModsSearch_Results from "./panes/ModsSearch/ModsSearch_Results.svelte";
 import ModsSearch_Sidebar from "./panes/ModsSearch/ModsSearch_Sidebar.svelte";

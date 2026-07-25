@@ -2,7 +2,7 @@
 // biome-ignore-all assist/source/organizeImports: Imports are organized by usage
 import neutralino from "@neutralinojs/lib";
 import { mount, unmount } from "svelte";
-import Loading from "@components/Loading.svelte";
+import Loading from "./components/Loading.svelte";
 import App from "./index.svelte";
 import BrowserPath from "@core/BrowserPath";
 import Configuration from "@domain/Configuration";

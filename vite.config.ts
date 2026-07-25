@@ -4,7 +4,13 @@ import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 
-/** Mirrors `compilerOptions.paths` in tsconfig.json — Vite does not read those on its own. */
+/**
+ * Mirrors `compilerOptions.paths` in tsconfig.json — Vite does not read those on its own.
+ *
+ * Applies to `.ts` and asset imports only: a `.svelte` file imported through an alias makes
+ * vite-plugin-svelte miss its compiled-CSS cache, so `@tailwindcss/vite` then parses the raw
+ * component source as CSS and the build dies with `CssSyntaxError`. Import components relatively.
+ */
 const aliases = {
 	"@core": "./src/core",
 	"@domain": "./src/domain",
