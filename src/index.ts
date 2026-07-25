@@ -4,10 +4,10 @@ import neutralino from "@neutralinojs/lib";
 import { mount, unmount } from "svelte";
 import Loading from "./components/Loading.svelte";
 import App from "./index.svelte";
-import BrowserPath from "@core/BrowserPath";
-import Configuration from "@domain/Configuration";
-import { Log_Info } from "@utils/Logger";
-import { NeutralinoFileSystem } from "@core/NeutralinoFileSystem";
+import BrowserPath from "./core/BrowserPath";
+import Configuration from "./domain/Configuration";
+import { Log_Info } from "./utils/Logger";
+import { NeutralinoFileSystem } from "./core/NeutralinoFileSystem";
 import { get } from "./setup";
 
 neutralino.init();

@@ -441,12 +441,9 @@ New native-helper features should follow the same shape: one Go subcommand, one 
 - `src/libs/` — generic libraries only, publishable as standalone npm packages: `Wanvas/` (custom infinite canvas/whiteboard widget system, own math/persistence/widget types) and `GoldenLayoutThemes/` (Svelte wrapper/theming around `golden-layout` for the multi-pane window UI). Nothing Celeste-specific goes here.
 - `src/pages/panes/` — the components `NewPage.pageselector.svelte` offers as golden-layout panes; `src/pages/Main.svelte` is the window that hosts them.
 
-### Path aliases
+### Imports
 
-`tsconfig.json` `compilerOptions.paths` (read natively by `tsc` and `bun test`) and `vite.config.ts` `resolve.alias` (Vite does not read tsconfig paths) declare one alias per bucket: `@core`, `@domain`, `@api`, `@db`, `@utils`, `@libs`, `@pages`, `@components`, `@layouts`, `@assets`, `@go` (-> `src-utils/`). Adding a bucket means adding the alias in **both** files.
-
-- Cross-bucket imports use the alias; imports within the same bucket stay relative (`./Everest.dialog`).
-- **`.svelte` imports must stay relative even across buckets.** An alias-imported component makes vite-plugin-svelte miss its compiled-CSS cache, so `@tailwindcss/vite` parses the raw component source as CSS and the build fails with `CssSyntaxError`. `bun run check` does not catch this — only `bun run build:frontend` does.
+All internal imports in the codebase use standard relative paths (e.g. `./` or `../`). Path aliases (`@core`, `@domain`, `@utils`, etc.) and `compilerOptions.paths` / `vite.config.ts` alias entries are completely removed to maintain clean, unambiguous resolution across `tsc`, `bun test`, Vite, and Svelte plugins.
 
 
 

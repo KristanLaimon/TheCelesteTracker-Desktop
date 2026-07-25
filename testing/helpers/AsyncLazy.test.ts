@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { AsyncLazy } from "@utils/AsyncLazy";
+import { AsyncLazy } from "../../src/utils/AsyncLazy";
 
 describe("AsyncLazy", () => {
 	test("should evaluate lazily on first get call", async () => {

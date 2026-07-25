@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import Everest, { type EverestModInfo, GetLevelSetNamesForMod } from "@domain/Everest";
+import Everest, { type EverestModInfo, GetLevelSetNamesForMod } from "../../src/domain/Everest";
 import { GetDependency, TEST_FOLDER } from "../setup";
 
 const FIXTURES_DIR = join(TEST_FOLDER, "Celeste", "fixtures");

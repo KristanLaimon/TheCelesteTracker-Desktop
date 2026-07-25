@@ -1,8 +1,8 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
-import { IFileSystem_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "@core/interfaces/IFileSystem";
-import Celeste from "@domain/Celeste";
+import { IFileSystem_Token } from "../../src/core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../../src/core/interfaces/IFileSystem";
+import Celeste from "../../src/domain/Celeste";
 import { FakeOsPathOverride } from "../helpers/FakeOsPathOverride";
 import { GetDependency, TEST_CELESTE_PATH } from "../setup";
 

@@ -16,11 +16,11 @@
  * and full structural scanning (lobbies, gyms, prologue).
  */
 
-import { IFileSystem_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { DirectoryEntry, IFileSystem } from "@core/interfaces/IFileSystem";
-import Zip_Go from "@go/Zip_Go";
 import * as yaml from "js-yaml";
 import { inject, injectable } from "tsyringe";
+import Zip_Go from "../../src-utils/Zip_Go";
+import { IFileSystem_Token } from "../core/interfaces/DependencyInjectionTokens";
+import type { DirectoryEntry, IFileSystem } from "../core/interfaces/IFileSystem";
 import type { DiscoveredLobby, DiscoveredMap, EverestModInfo, MapMetaYaml } from "./Everest";
 
 /**

@@ -1,16 +1,16 @@
 // UNIVERSAL COMPATIBILITY
 
-import type GameBananaApi from "@api/GameBananaAPI";
-import type { GbMemberApi_Reponse } from "@api/GameBananaAPI";
-import type MaddiesApi from "@api/MaddiesAPI";
-import type { MaddiesApiModInfo } from "@api/MaddiesAPI";
-import { IFileSystem_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "@core/interfaces/IFileSystem";
-import { AsyncLazy } from "@utils/AsyncLazy";
-import { Log_Error, Log_Info } from "@utils/Logger";
-import type Storage from "@utils/Storage";
 import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
+import type GameBananaApi from "../api/GameBananaAPI";
+import type { GbMemberApi_Reponse } from "../api/GameBananaAPI";
+import type MaddiesApi from "../api/MaddiesAPI";
+import type { MaddiesApiModInfo } from "../api/MaddiesAPI";
+import { IFileSystem_Token } from "../core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../core/interfaces/IFileSystem";
+import { AsyncLazy } from "../utils/AsyncLazy";
+import { Log_Error, Log_Info } from "../utils/Logger";
+import type Storage from "../utils/Storage";
 import type Everest from "./Everest";
 import type { EverestModInfo } from "./Everest";
 import { GetLevelSetNamesForMod } from "./Everest";

@@ -1,20 +1,20 @@
 // UNIVERSAL COMPATIBILITY
 
-import ImageCacheService from "@api/ImageCacheService";
-import Path from "@core/BrowserPath";
-import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { IPath } from "@core/interfaces/IPath";
-import { NeutralinoFileSystem } from "@core/NeutralinoFileSystem";
-import { NeutralinoOS } from "@core/NeutralinoOS";
-import { ThreadBrowser } from "@core/ThreadBrowser";
-import { CreateTrackerDb } from "@db/SqliteGoDialect";
-import Celeste from "@domain/Celeste";
-import Configuration from "@domain/Configuration";
-import Everest from "@domain/Everest";
-import Olympus from "@domain/Olympus";
-import Sqlite_Go from "@go/Sqlite_Go";
-import Zip_Go from "@go/Zip_Go";
 import { container } from "tsyringe";
+import Sqlite_Go from "../src-utils/Sqlite_Go";
+import Zip_Go from "../src-utils/Zip_Go";
+import ImageCacheService from "./api/ImageCacheService";
+import Path from "./core/BrowserPath";
+import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "./core/interfaces/DependencyInjectionTokens";
+import type { IPath } from "./core/interfaces/IPath";
+import { NeutralinoFileSystem } from "./core/NeutralinoFileSystem";
+import { NeutralinoOS } from "./core/NeutralinoOS";
+import { ThreadBrowser } from "./core/ThreadBrowser";
+import { CreateTrackerDb } from "./db/SqliteGoDialect";
+import Celeste from "./domain/Celeste";
+import Configuration from "./domain/Configuration";
+import Everest from "./domain/Everest";
+import Olympus from "./domain/Olympus";
 
 container.registerSingleton(IFileSystem_Token, NeutralinoFileSystem);
 container.registerSingleton(IOs_Token, NeutralinoOS);

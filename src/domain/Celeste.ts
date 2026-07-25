@@ -1,12 +1,12 @@
 // UNIVERSAL COMPATIBILITY
 
-import { IFileSystem_Token, IOs_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "@core/interfaces/IFileSystem";
-import type { IOS } from "@core/interfaces/IOs";
-import { Log_Error } from "@utils/Logger";
 import { XMLParser } from "fast-xml-parser";
 import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
+import { IFileSystem_Token, IOs_Token } from "../core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../core/interfaces/IFileSystem";
+import type { IOS } from "../core/interfaces/IOs";
+import { Log_Error } from "../utils/Logger";
 
 export interface CelesteInstallation {
 	foundPath: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { WithGLState } from "@libs/GoldenLayoutThemes/GoldenLayout.types";
+import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
 import NewPagePageselector, { type IndexableComponentOption } from "./NewPage.pageselector.svelte";
 
 type Props = {

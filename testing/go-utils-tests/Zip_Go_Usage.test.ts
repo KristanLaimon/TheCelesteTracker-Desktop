@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import Zip_Go from "@go/Zip_Go";
+import Zip_Go from "../../src-utils/Zip_Go";
 import { GetDependency, TEST_TEMP_FOLDER } from "../setup";
 
 const TMP_DIR = join(TEST_TEMP_FOLDER, "temp_zip_usage");

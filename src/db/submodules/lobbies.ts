@@ -1,10 +1,10 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 
-import { CTDB_Token } from "@core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "@utils/Logger";
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
+import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
+import { Log_Error } from "../../utils/Logger";
 import type { Database, Lobby } from "../db.types";
 import TableSubmodule from "./_base";
 

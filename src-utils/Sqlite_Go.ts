@@ -2,11 +2,11 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 /** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
 
-import type { IFileSystem } from "@core/interfaces/IFileSystem";
-import type { IOS } from "@core/interfaces/IOs";
-import type { IPath } from "@core/interfaces/IPath";
-import { Log_Info, Log_Throw } from "@utils/Logger";
 import { injectable } from "tsyringe";
+import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
+import type { IOS } from "../src/core/interfaces/IOs";
+import type { IPath } from "../src/core/interfaces/IPath";
+import { Log_Info, Log_Throw } from "../src/utils/Logger";
 import Generic_Go from "./Generic_Go";
 
 export type SQLiteQueryResult<T> =

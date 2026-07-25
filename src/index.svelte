@@ -3,9 +3,9 @@
 import "reflect-metadata";
 import { router } from "./router.svelte";
 import "./router_setup";
-import "@utils/Hotkeys";
-import { Hotkeys_RegisterHotkey } from "@utils/Hotkeys";
+import "./utils/Hotkeys";
 import CommandCenter, { type CommandCenterCommand } from "./components/CommandCenter.svelte";
+import { Hotkeys_RegisterHotkey } from "./utils/Hotkeys";
 
 let SHOW_COMMAND_CENTER = $state<boolean>(false);
 Hotkeys_RegisterHotkey("ctrl+shift+z", "global", () => {

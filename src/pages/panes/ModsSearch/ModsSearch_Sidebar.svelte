@@ -1,6 +1,6 @@
 <script lang="ts">
-import type { WithGLState } from "@libs/GoldenLayoutThemes/GoldenLayout.types";
 import { onMount } from "svelte";
+import type { WithGLState } from "../../../libs/GoldenLayoutThemes/GoldenLayout.types";
 import { CATEGORY_COLORS } from "./ModsSearch.categoryColors";
 import { type ModsSearchCategory, ModsSearchCategoryList, ModsSearchRowsCache, ModsSearchStore } from "./ModsSearch.store.svelte";
 

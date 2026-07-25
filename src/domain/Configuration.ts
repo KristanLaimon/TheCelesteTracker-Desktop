@@ -1,12 +1,12 @@
 // UNIVERSAL COMPATIBILITY
 
-import { IFileSystem_Token, IOs_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "@core/interfaces/IFileSystem";
-import type { IOS } from "@core/interfaces/IOs";
-import type { IPath } from "@core/interfaces/IPath";
-import Storage from "@utils/Storage";
-import Storage_JsonFileAdapter from "@utils/Storage.json";
 import { inject, injectable } from "tsyringe";
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "../core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../core/interfaces/IFileSystem";
+import type { IOS } from "../core/interfaces/IOs";
+import type { IPath } from "../core/interfaces/IPath";
+import Storage from "../utils/Storage";
+import Storage_JsonFileAdapter from "../utils/Storage.json";
 
 const CONFIG_PATH = "./config.json";
 

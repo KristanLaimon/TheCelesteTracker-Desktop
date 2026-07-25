@@ -1,9 +1,6 @@
 // BROWSER ONLY
 // biome-ignore-all lint/style/useImportType: DI Needed
 
-import { IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { CreateDirectoryOptions, IFileSystem, PathParts } from "@core/interfaces/IFileSystem";
-import type { IPath } from "@core/interfaces/IPath";
 import type {
 	CopyOptions,
 	DirectoryEntry,
@@ -16,8 +13,11 @@ import type {
 	Watcher,
 } from "@neutralinojs/lib";
 import { filesystem, server } from "@neutralinojs/lib";
-import { Log_Info } from "@utils/Logger";
 import { container, inject, injectable } from "tsyringe";
+import { Log_Info } from "../utils/Logger";
+import { IPath_Token } from "./interfaces/DependencyInjectionTokens";
+import type { CreateDirectoryOptions, IFileSystem, PathParts } from "./interfaces/IFileSystem";
+import type { IPath } from "./interfaces/IPath";
 
 export enum OperatingSystem {
 	Linux = "Linux",

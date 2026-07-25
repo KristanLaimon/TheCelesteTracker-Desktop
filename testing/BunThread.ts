@@ -1,5 +1,5 @@
 // NODE.JS/BUN/DENO ONLY
-import type { IThread } from "@core/interfaces/IThread";
+import type { IThread } from "../src/core/interfaces/IThread";
 
 export class BunThread implements IThread {
 	private worker: Worker | null = null;

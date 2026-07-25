@@ -1,5 +1,5 @@
 // BROWSER ONLY
-import { OlympusModCategory } from "@domain/Olympus";
+import { OlympusModCategory } from "../../../domain/Olympus";
 import { Construct_LocalMods } from "../../../setup.DI.helpers";
 
 export type ModsSearchCategory = OlympusModCategory | "Uncategorized";

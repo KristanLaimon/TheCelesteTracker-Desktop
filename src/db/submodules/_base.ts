@@ -1,8 +1,8 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/complexity/noBannedTypes: Kysely spells "nothing selected yet" as {}
 
-import { Log_Error } from "@utils/Logger";
 import type { Kysely, Selectable, SelectQueryBuilder } from "kysely";
+import { Log_Error } from "../../utils/Logger";
 import type { Database } from "../db.types";
 
 /**

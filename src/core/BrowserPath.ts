@@ -11,7 +11,7 @@
  * @copyright Same as Node.js
  */
 
-import type { IPath } from "@core/interfaces/IPath";
+import type { IPath } from "./interfaces/IPath";
 
 export interface FormatInputPathObject {
 	dir?: string;

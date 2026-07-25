@@ -1,9 +1,9 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: SqliteAdapter and friends are values, Sqlite_Go is used as a DI token
 
-import Sqlite_Go from "@go/Sqlite_Go";
 import type { CompiledQuery, DatabaseConnection, DatabaseIntrospector, Dialect, Driver, QueryCompiler, QueryResult } from "kysely";
 import { Kysely, SqliteAdapter, SqliteIntrospector, SqliteQueryCompiler } from "kysely";
+import Sqlite_Go from "../../src-utils/Sqlite_Go";
 import type { Database } from "./db.types";
 
 const TRANSACTIONS_UNSUPPORTED =

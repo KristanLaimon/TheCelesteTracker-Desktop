@@ -1,10 +1,10 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { IFileSystem_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "@core/interfaces/IFileSystem";
-import type { IPath } from "@core/interfaces/IPath";
-import Olympus from "@domain/Olympus";
+import { IFileSystem_Token, IPath_Token } from "../../src/core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../../src/core/interfaces/IFileSystem";
+import type { IPath } from "../../src/core/interfaces/IPath";
+import Olympus from "../../src/domain/Olympus";
 import { FakeOsPathOverride } from "../helpers/FakeOsPathOverride";
 import { GetDependency, TEST_FOLDER, TEST_OLYMPUS_PATH } from "../setup";
 
