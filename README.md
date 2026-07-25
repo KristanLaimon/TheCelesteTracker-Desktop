@@ -64,6 +64,8 @@ But I expect to implement:
 
 Note: We're using neutralino but not neutralino extensions, I went to the easy way to create a small golang helper CLI.
 
+
+
 ## Getting Started
 
 ### Prerequisites
@@ -97,6 +99,13 @@ To bundle the frontend assets and package the executable binaries:
 bun run build
 ```
 The final executable packages and `resources.neu` will be generated in the `dist/myapp/` directory.
+
+
+## AI?
+The usage of AI could be kinda problematic when not used propertly.
+The AI used in this project is always done using plan and *100% Human-Reviewing*, every new line of code is being read and questioned by me (at the time of writing this). Its a tool that's here to stay.
+
+_*No VIBE-CODED contributions are allowed.*_
 
 ## License
 MIT License. Created by and for the Celeste community.
