@@ -48,7 +48,7 @@ export default defineConfig({
 		// neutralinoBuildPlugin(),
 	],
 	resolve: {
-		alias: Object.fromEntries(Object.entries(aliases).map(([key, dir]) => [key, fileURLToPath(new URL(dir, import.meta.url))])),
+		alias: Object.fromEntries(Object.entries(aliases).map(([key, dir]) => [key, fileURLToPath(new URL(dir, import.meta.url)).replace(/\\/g, "/")])),
 	},
 	build: {
 		outDir: "dist/vite-temp-build",
