@@ -59,7 +59,7 @@ function onRowClick(row: ModsSearchRow) {
 		return;
 	}
 
-	const newTabId = createNewTab?.("modView", row.humanName, { searchQuery: lookupId });
+	const newTabId = createNewTab?.("modView", row.humanName, { searchQuery: lookupId, showSearchBar: false });
 	if (newTabId) {
 		ownedModViewTabId = newTabId;
 	}

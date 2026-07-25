@@ -9,9 +9,9 @@ import type { ModSimplified } from "../../domain/LocalMods";
 import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
 import { Construct_LocalMods } from "../../setup.DI.helpers";
 
-type Props = { searchQuery: string };
+type Props = { searchQuery: string, showSearchBar: boolean };
 
-let { searchQuery = $bindable(""), onStateChange }: WithGLState<Props> = $props();
+let { searchQuery = $bindable(""), onStateChange, showSearchBar = true }: WithGLState<Props> = $props();
 
 const localMods = Construct_LocalMods({
 	filePath: "./data/mods-dbS.json",
@@ -111,16 +111,18 @@ $effect(() => {
   <div
     class="pointer-events-none absolute top-4 left-1/2 z-[100] w-auto max-w-[90%] -translate-x-1/2"
   >
-    <SearchDynamic
-      bind:selected={selectedName}
-      limit={1000}
-      searchOptions={{ caseSensitive: false, trimWhitespace: true }}
-      bind:inputValue={searchQuery}
-      placeholder="Busca el mod"
-      bind:items={humanNamesList}
-      class="w-full max-w-lg pointer-events-auto"
-      overrideStyles={{ results: "mt-4 max-h-80 overflow-y-auto" }}
-    />
+		{#if showSearchBar}
+			<SearchDynamic
+				bind:selected={selectedName}
+				limit={1000}
+				searchOptions={{ caseSensitive: false, trimWhitespace: true }}
+				bind:inputValue={searchQuery}
+				placeholder="Busca el mod"
+				bind:items={humanNamesList}
+				class="w-full max-w-lg pointer-events-auto"
+				overrideStyles={{ results: "mt-4 max-h-80 overflow-y-auto" }}
+			/>
+		{/if}
   </div>
 
   {#if selectedName}
