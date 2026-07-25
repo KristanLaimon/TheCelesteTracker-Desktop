@@ -1,7 +1,8 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
-// Custom plugin to ensure production build uses the relative Neutralino globals path
+
+// Custom plugin to ensure production build uses the relative Neutralino globals path. Not currently used.
 /*
 function _neutralinoBuildPlugin() {
   return {
