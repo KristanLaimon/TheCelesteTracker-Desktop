@@ -363,6 +363,10 @@ export default class DBMods {
 			.concat(historicalRows);
 	}
 
+	public async GetStatisticsByModId(_modIdName: string): Promise<any> {
+		this.everest.GetAllHistoricalLevelSetNames();
+	}
+
 	public async destroy() {
 		await this.storage.triggerSave();
 		this.storage.destroy();

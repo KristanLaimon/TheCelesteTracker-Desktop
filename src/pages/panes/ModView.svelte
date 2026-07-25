@@ -9,7 +9,7 @@ import type { ModSimplified } from "../../domain/LocalMods";
 import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
 import { Construct_LocalMods } from "../../setup.DI.helpers";
 
-type Props = { searchQuery: string, showSearchBar: boolean };
+type Props = { searchQuery: string; showSearchBar: boolean };
 
 let { searchQuery = $bindable(""), onStateChange, showSearchBar = true }: WithGLState<Props> = $props();
 
