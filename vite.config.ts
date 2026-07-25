@@ -40,15 +40,21 @@ function _neutralinoBuildPlugin() {
 }
 */
 
+import tsconfigPaths from "vite-tsconfig-paths";
+
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [
+		tsconfigPaths(),
 		tailwindcss(),
 		svelte(),
 		// neutralinoBuildPlugin(),
 	],
 	resolve: {
 		alias: Object.fromEntries(Object.entries(aliases).map(([key, dir]) => [key, fileURLToPath(new URL(dir, import.meta.url)).replace(/\\/g, "/")])),
+	},
+	optimizeDeps: {
+		exclude: Object.keys(aliases),
 	},
 	build: {
 		outDir: "dist/vite-temp-build",
