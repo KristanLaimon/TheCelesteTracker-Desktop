@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, test } from "bun:test";
 import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { IFileSystem_Token, IOs_Token, IPath_Token, Kysely_Token } from "@core/interfaces/DependencyInjectionTokens";
+import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "@core/interfaces/IFileSystem";
 import type { IOS } from "@core/interfaces/IOs";
 import type { IPath } from "@core/interfaces/IPath";
@@ -13,7 +13,7 @@ import type { Kysely } from "kysely";
 import type { Database } from "../../src/db/db.types";
 import { GetDependency, TEST_FOLDER, TEST_TEMP_FOLDER } from "../setup";
 
-const db = GetDependency<Kysely<Database>>(Kysely_Token);
+const db = GetDependency<Kysely<Database>>(CTDB_Token);
 
 describe("SqliteGoDialect reads", () => {
 	test("selects all rows of a table, typed", async () => {

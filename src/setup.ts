@@ -2,7 +2,7 @@
 
 import ImageCacheService from "@api/ImageCacheService";
 import Path from "@core/BrowserPath";
-import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token, Kysely_Token } from "@core/interfaces/DependencyInjectionTokens";
+import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "@core/interfaces/DependencyInjectionTokens";
 import type { IPath } from "@core/interfaces/IPath";
 import { NeutralinoFileSystem } from "@core/NeutralinoFileSystem";
 import { NeutralinoOS } from "@core/NeutralinoOS";
@@ -37,7 +37,7 @@ container.registerInstance(
 		container.resolve<IPath>(IPath_Token),
 	),
 );
-container.registerInstance(Kysely_Token, CreateTrackerDb(container.resolve(Sqlite_Go)));
+container.registerInstance(CTDB_Token, CreateTrackerDb(container.resolve(Sqlite_Go)));
 
 const GetDependency = container.resolve.bind(container);
 

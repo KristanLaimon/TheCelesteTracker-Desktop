@@ -1,7 +1,7 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 
-import { Kysely_Token } from "@core/interfaces/DependencyInjectionTokens";
+import { CTDB_Token } from "@core/interfaces/DependencyInjectionTokens";
 import { Log_Error } from "@utils/Logger";
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
@@ -10,7 +10,7 @@ import TableSubmodule from "./_base";
 
 @injectable()
 export default class _submodule_service_GameSessions extends TableSubmodule<"GameSessions"> {
-	constructor(@inject(Kysely_Token) db: Kysely<Database>) {
+	constructor(@inject(CTDB_Token) db: Kysely<Database>) {
 		super(db, "GameSessions");
 	}
 

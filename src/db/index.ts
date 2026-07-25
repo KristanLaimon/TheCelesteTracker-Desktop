@@ -1,7 +1,7 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: tsrynge and dependency injection needed
 
-import { Kysely_Token } from "@core/interfaces/DependencyInjectionTokens";
+import { CTDB_Token } from "@core/interfaces/DependencyInjectionTokens";
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import type { Database } from "./db.types";
@@ -37,6 +37,6 @@ export default class CTDB {
 		public Lobbies: _submodule_service_Lobbies,
 		public Collections: _submodule_service_Collections,
 		public CollectionCampaigns: _submodule_service_CollectionCampaigns,
-		@inject(Kysely_Token) public Query: Kysely<Database>,
+		@inject(CTDB_Token) public Query: Kysely<Database>,
 	) {}
 }

@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import ImageCacheService from "@api/ImageCacheService";
-import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token, Kysely_Token } from "@core/interfaces/DependencyInjectionTokens";
+import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "@core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "@core/interfaces/IFileSystem";
 import type { IOS } from "@core/interfaces/IOs";
 import type { IPath } from "@core/interfaces/IPath";
@@ -54,7 +54,7 @@ container.registerInstance(
 	Sqlite_Go,
 	new Sqlite_Go(join(TEST_FOLDER, "test_with_data.db"), os_, container.resolve<IFileSystem>(IFileSystem_Token), container.resolve<IPath>(IPath_Token)),
 );
-container.registerInstance(Kysely_Token, CreateTrackerDb(container.resolve(Sqlite_Go)));
+container.registerInstance(CTDB_Token, CreateTrackerDb(container.resolve(Sqlite_Go)));
 
 export const GetDependency = container.resolve.bind(container);
 
