@@ -1,4 +1,4 @@
-<img width="399" height="215" alt="image" src="https://github.com/user-attachments/assets/64917999-ea8a-432b-b33e-8d009bc59707" /># TheCelesteTracker Desktop
+# TheCelesteTracker Desktop
 
 <div align="center">
   <img src=".github/banner.png" alt="TheCelesteTracker_Desktop_Banner" width="100%">
