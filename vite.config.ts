@@ -1,7 +1,23 @@
 // UNIVERSAL COMPATIBILITY
+import { fileURLToPath } from "node:url";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
+
+/** Mirrors `compilerOptions.paths` in tsconfig.json — Vite does not read those on its own. */
+const aliases = {
+	"@core": "./src/core",
+	"@domain": "./src/domain",
+	"@api": "./src/api",
+	"@db": "./src/db",
+	"@utils": "./src/utils",
+	"@libs": "./src/libs",
+	"@pages": "./src/pages",
+	"@components": "./src/components",
+	"@layouts": "./src/layouts",
+	"@assets": "./src/assets",
+	"@go": "./src-utils",
+};
 
 // Custom plugin to ensure production build uses the relative Neutralino globals path
 /*
@@ -25,6 +41,9 @@ export default defineConfig({
 		svelte(),
 		// neutralinoBuildPlugin(),
 	],
+	resolve: {
+		alias: Object.fromEntries(Object.entries(aliases).map(([key, dir]) => [key, fileURLToPath(new URL(dir, import.meta.url))])),
+	},
 	build: {
 		outDir: "dist/vite-temp-build",
 		emptyOutDir: true,

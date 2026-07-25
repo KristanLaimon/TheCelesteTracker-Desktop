@@ -1,18 +1,19 @@
 // UNIVERSAL COMPATIBILITY
+
+import ImageCacheService from "@api/ImageCacheService";
+import Path from "@core/BrowserPath";
+import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IPath } from "@core/interfaces/IPath";
+import { NeutralinoFileSystem } from "@core/NeutralinoFileSystem";
+import { NeutralinoOS } from "@core/NeutralinoOS";
+import { ThreadBrowser } from "@core/ThreadBrowser";
+import Celeste from "@domain/Celeste";
+import Configuration from "@domain/Configuration";
+import Everest from "@domain/Everest";
+import Olympus from "@domain/Olympus";
+import Sqlite_Go from "@go/Sqlite_Go";
+import Zip_Go from "@go/Zip_Go";
 import { container } from "tsyringe";
-import Sqlite_Go from "../src-utils/Sqlite_Go";
-import Zip_Go from "../src-utils/Zip_Go";
-import { IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "./interfaces/DependencyInjectionTokens";
-import type { IPath } from "./interfaces/IPath";
-import Path from "./libs/BrowserPath";
-import Celeste from "./libs/Celeste";
-import Configuration from "./libs/Configuration";
-import Everest from "./libs/Everest";
-import ImageCacheService from "./libs/ImageCacheService";
-import { NeutralinoFileSystem } from "./libs/NeutralinoFileSystem";
-import { NeutralinoOS } from "./libs/NeutralinoOS";
-import Olympus from "./libs/Olympus";
-import { ThreadBrowser } from "./libs/ThreadBrowser";
 
 container.registerSingleton(IFileSystem_Token, NeutralinoFileSystem);
 container.registerSingleton(IOs_Token, NeutralinoOS);

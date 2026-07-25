@@ -11,8 +11,8 @@ import type {
 
 import "./goldenlayout-base.css";
 import "./predefined/goldenlayout-dark-theme.css";
+import { Log_Info } from "@utils/Logger";
 import { MapPinAltSolid } from "flowbite-svelte-icons";
-import { Log_Info } from "../Logger";
 
 // Enable real-time live resizing during splitter drag without compound feedback loop or dragStop jumps
 // biome-ignore lint/suspicious/noExplicitAny: Needed to patch internal methods

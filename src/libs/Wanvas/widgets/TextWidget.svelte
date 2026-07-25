@@ -1,8 +1,8 @@
 <script lang="ts">
+import { Log_Info } from "@utils/Logger";
 import DomPurify from "dompurify";
 import { marked } from "marked";
 import { onDestroy } from "svelte";
-import { Log_Info } from "../../Logger";
 import type { ICanvasWidgetProps } from "../Canvas.types";
 import BaseGlassWidget from "./BaseGlassWidget.svelte";
 

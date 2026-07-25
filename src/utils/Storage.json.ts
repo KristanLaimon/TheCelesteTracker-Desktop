@@ -1,8 +1,9 @@
 // UNIVERSAL COMPATIBILITY
+
+import { IFileSystem_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import type { IPath } from "@core/interfaces/IPath";
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../interfaces/IFileSystem";
-import type { IPath } from "../interfaces/IPath";
 import type { StorageAdapter } from "./Storage";
 
 /**

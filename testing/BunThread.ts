@@ -1,7 +1,7 @@
-// UNIVERSAL COMPATIBILITY
-import type { IThread } from "../interfaces/IThread";
+// NODE.JS/BUN/DENO ONLY
+import type { IThread } from "@core/interfaces/IThread";
 
-export class ThreadBrowser implements IThread {
+export class BunThread implements IThread {
 	private worker: Worker | null = null;
 
 	constructor(url?: string | URL, _options?: { type?: string }) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { type SearchOptions, type SearchResult, StringSimilarity_SearchThroughList } from "../libs/StringSimilarity";
+import { type SearchOptions, type SearchResult, StringSimilarity_SearchThroughList } from "@utils/StringSimilarity";
 
 type OverrideStyles = {
 	input?: string;

@@ -2,7 +2,6 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { injectable } from "tsyringe";
 // Type-only imports for the interfaces
 import type {
 	CopyOptions,
@@ -15,7 +14,8 @@ import type {
 	PathParts,
 	Stats,
 	Watcher,
-} from "../../src/interfaces/IFileSystem";
+} from "@core/interfaces/IFileSystem";
+import { injectable } from "tsyringe";
 
 @injectable()
 export default class NodeJsFileSystem implements IFileSystem {

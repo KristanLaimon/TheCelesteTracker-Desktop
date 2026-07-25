@@ -1,13 +1,13 @@
-import { IFileSystem_Token, IPath_Token } from "./interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "./interfaces/IFileSystem";
-import type { IPath } from "./interfaces/IPath";
-import Everest from "./libs/Everest";
-import GameBananaApi from "./libs/GameBananaAPI";
-import DBMods from "./libs/LocalMods";
-import MaddiesApi from "./libs/MaddiesAPI";
-import Olympus from "./libs/Olympus";
-import Storage, { type StorageOptions } from "./libs/Storage";
-import Storage_JsonFileAdapter, { type JsonFileAdapterOptions } from "./libs/Storage.json";
+import GameBananaApi from "@api/GameBananaAPI";
+import MaddiesApi from "@api/MaddiesAPI";
+import { IFileSystem_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import type { IPath } from "@core/interfaces/IPath";
+import Everest from "@domain/Everest";
+import DBMods from "@domain/LocalMods";
+import Olympus from "@domain/Olympus";
+import Storage, { type StorageOptions } from "@utils/Storage";
+import Storage_JsonFileAdapter, { type JsonFileAdapterOptions } from "@utils/Storage.json";
 import { GetDependency } from "./setup";
 
 export function Construct_LocalMods(jsonParams: JsonFileAdapterOptions, storageParams?: Omit<StorageOptions, "adapters">) {

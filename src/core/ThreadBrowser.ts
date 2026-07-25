@@ -1,7 +1,7 @@
 // UNIVERSAL COMPATIBILITY
-import type { IThread } from "../interfaces/IThread";
+import type { IThread } from "@core/interfaces/IThread";
 
-export class BunThread implements IThread {
+export class ThreadBrowser implements IThread {
 	private worker: Worker | null = null;
 
 	constructor(url?: string | URL, _options?: { type?: string }) {

@@ -1,11 +1,12 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
+
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import type { IOS } from "@core/interfaces/IOs";
+import type { IPath } from "@core/interfaces/IPath";
+import { Log_Error } from "@utils/Logger";
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token, IOs_Token, IPath_Token } from "../interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../interfaces/IFileSystem";
-import type { IOS } from "../interfaces/IOs";
-import type { IPath } from "../interfaces/IPath";
-import { Log_Error } from "./Logger";
 
 export type SingleCacheImageOptions = {
 	baseDiskDir: string;

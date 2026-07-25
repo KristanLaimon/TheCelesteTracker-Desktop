@@ -1,8 +1,9 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
+
+import Configuration from "@domain/Configuration";
+import { Log_Error } from "@utils/Logger";
 import { injectable } from "tsyringe";
-import Configuration from "./Configuration";
 import ImageCacheService from "./ImageCacheService";
-import { Log_Error } from "./Logger";
 
 export const GB_ItemType = ["Mod", "Member"] as const;
 export type GB_ItemType = (typeof GB_ItemType)[number];

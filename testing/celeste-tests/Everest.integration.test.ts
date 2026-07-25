@@ -1,6 +1,6 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
-import Everest, { parseEverestYaml } from "../../src/libs/Everest";
+import Everest, { parseEverestYaml } from "@domain/Everest";
 import { GetDependency, TEST_CELESTE_PATH } from "../setup";
 
 describe("Everest Integration Tests", () => {

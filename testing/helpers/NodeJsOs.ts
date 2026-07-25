@@ -6,7 +6,6 @@ import type { ChildProcess } from "node:child_process";
 import { exec, spawn } from "node:child_process";
 import * as os from "node:os";
 import * as path from "node:path";
-import { injectable } from "tsyringe";
 // Type-only imports
 // Value import for the abstract class
 import type {
@@ -24,7 +23,8 @@ import type {
 	SpawnedProcessAction,
 	SpawnedProcessOptions,
 	TrayOptions,
-} from "../../src/interfaces/IOs";
+} from "@core/interfaces/IOs";
+import { injectable } from "tsyringe";
 
 @injectable()
 export default class NodeJsOS implements IOS {

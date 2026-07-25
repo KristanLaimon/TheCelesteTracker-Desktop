@@ -1,6 +1,7 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
+
+import Configuration from "@domain/Configuration";
 import { injectable } from "tsyringe";
-import Configuration from "./Configuration";
 import ImageCacheService from "./ImageCacheService";
 
 @injectable()

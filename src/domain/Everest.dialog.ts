@@ -13,10 +13,10 @@
  * and other game objects from their SID-derived dialog keys.
  */
 
+import { IFileSystem_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import Zip_Go from "@go/Zip_Go";
 import { inject, injectable } from "tsyringe";
-import Zip_Go from "../../src-utils/Zip_Go";
-import { IFileSystem_Token } from "../interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../interfaces/IFileSystem";
 import type { EverestModInfo } from "./Everest";
 
 /**

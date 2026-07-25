@@ -1,5 +1,7 @@
 // BROWSER ONLY
 // biome-ignore-all lint/style/useImportType: DI Needed
+
+import type { IOS } from "@core/interfaces/IOs";
 import type {
 	Envs,
 	ExecCommandResult,
@@ -16,7 +18,6 @@ import type {
 } from "@neutralinojs/lib";
 import { os } from "@neutralinojs/lib";
 import { injectable } from "tsyringe";
-import type { IOS } from "../interfaces/IOs";
 import { OperatingSystem } from "./NeutralinoFileSystem";
 
 export interface ExecCommandOptions extends NeutralinoExecCommandOptions {

@@ -1,5 +1,5 @@
 // UNIVERSAL COMPATIBILITY
-import { Log_Warn } from "../Logger";
+import { Log_Warn } from "@utils/Logger";
 import type { CanvasNodeData } from "./Canvas.types";
 
 /**

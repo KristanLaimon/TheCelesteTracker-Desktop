@@ -1,10 +1,11 @@
 // UNIVERSAL COMPATIBILITY
 // biome-ignore-all lint/style/useImportType: DI Needed
+
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import type { IOS } from "@core/interfaces/IOs";
+import type { IPath } from "@core/interfaces/IPath";
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token, IOs_Token, IPath_Token } from "../src/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../src/interfaces/IFileSystem";
-import type { IOS } from "../src/interfaces/IOs";
-import type { IPath } from "../src/interfaces/IPath";
 
 const windows_name = "utilities-win_x64.exe";
 const macos_name = "utilities-mac_x64";

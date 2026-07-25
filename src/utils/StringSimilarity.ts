@@ -1,3 +1,5 @@
+// UNIVERSAL COMPATIBILITY
+
 export interface SimilarityOptions {
 	/**
 	 * Whether the comparison should be case-sensitive.

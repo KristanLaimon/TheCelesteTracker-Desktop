@@ -1,19 +1,20 @@
 // UNIVERSAL COMPATIBILITY
+
+import type GameBananaApi from "@api/GameBananaAPI";
+import type { GbMemberApi_Reponse } from "@api/GameBananaAPI";
+import type MaddiesApi from "@api/MaddiesAPI";
+import type { MaddiesApiModInfo } from "@api/MaddiesAPI";
+import { IFileSystem_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import { AsyncLazy } from "@utils/AsyncLazy";
+import { Log_Error, Log_Info } from "@utils/Logger";
+import type Storage from "@utils/Storage";
 import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token } from "../interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../interfaces/IFileSystem";
-import { AsyncLazy } from "./AsyncLazy";
 import type Everest from "./Everest";
 import type { EverestModInfo } from "./Everest";
 import { GetLevelSetNamesForMod } from "./Everest";
-import type GameBananaApi from "./GameBananaAPI";
-import type { GbMemberApi_Reponse } from "./GameBananaAPI";
-import { Log_Error, Log_Info } from "./Logger";
-import type MaddiesApi from "./MaddiesAPI";
-import type { MaddiesApiModInfo } from "./MaddiesAPI";
 import type Olympus from "./Olympus";
-import type Storage from "./Storage";
 
 const STORAGE_KEY_ALL_EVEREST_MODS_INFO = "localmods_allInstalled";
 const STORAGE_KEY_MAP_EVERESTMODID_TO_MADDIESMODINFO = "LocalMods_Map_ModId_To_MaddiesInfo";

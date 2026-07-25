@@ -1,11 +1,11 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
-import type { IFileSystem } from "../../src/interfaces/IFileSystem";
-import type Everest from "../../src/libs/Everest";
-import type { EverestHistoricalLevelSets, EverestModInfo } from "../../src/libs/Everest";
-import DBMods from "../../src/libs/LocalMods";
-import type Olympus from "../../src/libs/Olympus";
-import Storage from "../../src/libs/Storage";
+import type { IFileSystem } from "@core/interfaces/IFileSystem";
+import type Everest from "@domain/Everest";
+import type { EverestHistoricalLevelSets, EverestModInfo } from "@domain/Everest";
+import DBMods from "@domain/LocalMods";
+import type Olympus from "@domain/Olympus";
+import Storage from "@utils/Storage";
 
 function makeMod(name: string, campaignNameId: string, modPath: string): EverestModInfo {
 	return {

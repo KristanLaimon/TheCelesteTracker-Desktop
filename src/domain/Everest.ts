@@ -17,19 +17,19 @@
  *   └── *.altsideshelper.meta.yaml — Alt Sides Helper per-map config
  */
 
+import { IFileSystem_Token, IThreadConstructor_Token } from "@core/interfaces/DependencyInjectionTokens";
+import type { DirectoryEntry, IFileSystem } from "@core/interfaces/IFileSystem";
+import type { IThreadConstructor } from "@core/interfaces/IThread";
+import Zip_Go from "@go/Zip_Go";
+import { Log_Error } from "@utils/Logger";
 import { XMLParser } from "fast-xml-parser";
 import * as yaml from "js-yaml";
 import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
-import Zip_Go from "../../src-utils/Zip_Go";
-import { IFileSystem_Token, IThreadConstructor_Token } from "../interfaces/DependencyInjectionTokens";
-import type { DirectoryEntry, IFileSystem } from "../interfaces/IFileSystem";
-import type { IThreadConstructor } from "../interfaces/IThread";
 import Celeste from "./Celeste";
 import { ALT_SIDES_META_EXT, type AltSidesHelperMeta } from "./Everest.altsideshelper";
 import { type CollabUtils2LazyLoadingYaml, CollabUtils2Scanner } from "./Everest.collabutils2";
 import { DialogReader, sidToDialogKey } from "./Everest.dialog";
-import { Log_Error } from "./Logger";
 
 /** Parses `<LevelSets>`/`<LevelSetRecycleBin>` blocks from `.celeste` save XML — `LevelSetStats` is forced to always be an array, even when a save has exactly one entry. */
 const saveFileXmlParser = new XMLParser({

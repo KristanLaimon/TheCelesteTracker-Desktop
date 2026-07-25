@@ -1,23 +1,23 @@
 <script lang="ts">
-import type { ComponentProps } from "svelte";
-import canvasThumbnail from "../assets/thumbnails/available-page-thumbnail-canvas.png";
-import modsSearchResultsThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-results.png";
-import modSearchSidebarThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-section.png";
-import modViewThumbnail from "../assets/thumbnails/available-page-thumbnail-modview.png";
-import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
+import canvasThumbnail from "@assets/thumbnails/available-page-thumbnail-canvas.png";
+import modsSearchResultsThumbnail from "@assets/thumbnails/available-page-thumbnail-modsearch-results.png";
+import modSearchSidebarThumbnail from "@assets/thumbnails/available-page-thumbnail-modsearch-section.png";
+import modViewThumbnail from "@assets/thumbnails/available-page-thumbnail-modview.png";
+import GoldenLayout from "@libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import type {
 	GoldenLayoutComponentStylesOverrides,
 	GoldenLayoutContent,
 	GoldenLayoutRegistry,
 	GoldenLayoutThemeCssColorsOverrides,
-} from "../libs/GoldenLayoutThemes/GoldenLayout.types";
-import Canvas from "./available/Canvas.svelte";
-import ModsSearch_Results from "./available/ModsSearch/ModsSearch_Results.svelte";
-import ModsSearch_Sidebar from "./available/ModsSearch/ModsSearch_Sidebar.svelte";
-import ModView from "./available/ModView.svelte";
-import type { IndexableComponentOption } from "./available/NewPage.pageselector.svelte";
-import NewPage from "./available/NewPage.svelte";
-import RawHtml from "./available/RawHtml.svelte";
+} from "@libs/GoldenLayoutThemes/GoldenLayout.types";
+import type { ComponentProps } from "svelte";
+import Canvas from "./panes/Canvas.svelte";
+import ModsSearch_Results from "./panes/ModsSearch/ModsSearch_Results.svelte";
+import ModsSearch_Sidebar from "./panes/ModsSearch/ModsSearch_Sidebar.svelte";
+import ModView from "./panes/ModView.svelte";
+import type { IndexableComponentOption } from "./panes/NewPage.pageselector.svelte";
+import NewPage from "./panes/NewPage.svelte";
+import RawHtml from "./panes/RawHtml.svelte";
 
 // no dedicated thumbnails exist yet for the two Mods Search entries below — reusing modViewThumbnail as a placeholder
 const indexableComponents: IndexableComponentOption[] = [

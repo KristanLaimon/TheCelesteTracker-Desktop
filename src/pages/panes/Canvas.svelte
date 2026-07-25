@@ -1,13 +1,13 @@
 <script lang="ts">
-import CenteredLayout from "../../layouts/CenteredLayout.svelte";
-import BrowserPath from "../../libs/BrowserPath";
-import { Log_Info } from "../../libs/Logger";
-import { NeutralinoFileSystem } from "../../libs/NeutralinoFileSystem";
-import Canvas from "../../libs/Wanvas/Canvas.svelte";
-import type { CanvasNodeData, CanvasRegistry } from "../../libs/Wanvas/Canvas.types";
-import ImgCaptionWidget from "../../libs/Wanvas/widgets/ImgCaptionWidget.svelte";
-import ImgWidget from "../../libs/Wanvas/widgets/ImgWidget.svelte";
-import TextWidget from "../../libs/Wanvas/widgets/TextWidget.svelte";
+import BrowserPath from "@core/BrowserPath";
+import { NeutralinoFileSystem } from "@core/NeutralinoFileSystem";
+import CenteredLayout from "@layouts/CenteredLayout.svelte";
+import Canvas from "@libs/Wanvas/Canvas.svelte";
+import type { CanvasNodeData, CanvasRegistry } from "@libs/Wanvas/Canvas.types";
+import ImgCaptionWidget from "@libs/Wanvas/widgets/ImgCaptionWidget.svelte";
+import ImgWidget from "@libs/Wanvas/widgets/ImgWidget.svelte";
+import TextWidget from "@libs/Wanvas/widgets/TextWidget.svelte";
+import { Log_Info } from "@utils/Logger";
 
 const Path = new BrowserPath();
 
