@@ -24,6 +24,7 @@
 		"hotkeys-js": "^4.0.4",
 		"interactjs": "1.10.27",
 		"js-yaml": "^5.2.1",
+		"kysely": "^0.29.4",
 		"marked": "^18.0.6",
 		"medium-zoom": "^1.1.0",
 		"reflect-metadata": "^0.2.2",
