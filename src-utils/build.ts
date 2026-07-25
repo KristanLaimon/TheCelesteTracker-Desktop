@@ -21,14 +21,18 @@ async function copyBinary(srcFile: string, destFilename: string) {
 	console.log(`   ✅ Copied to: ${destFile}`);
 }
 
-async function buildTarget(name: string, tag: string, goos: string, goarch: string, ext: string) {
-	const binaryName = `${name}-${goos}_${goarch}${ext}`;
+/** Binary-name slugs ("win", "mac") are not Go's GOOS values ("windows", "darwin"). */
+const goosBySlug: Record<string, string> = { win: "windows", mac: "darwin", linux: "linux" };
+const goarchBySlug: Record<string, string> = { x64: "amd64", arm64: "arm64" };
+
+async function buildTarget(name: string, tag: string, osSlug: string, archSlug: string, ext: string) {
+	const binaryName = `${name}-${osSlug}_${archSlug}${ext}`;
 	const buildPath = `build/${binaryName}`;
-	const buildTarget = tag ? `-tags ${tag}` : "";
-	const env = { ...process.env, GOOS: goos, GOARCH: goarch };
+	const tagFlags = tag ? ["-tags", tag] : [];
+	const env = { ...process.env, GOOS: goosBySlug[osSlug], GOARCH: goarchBySlug[archSlug] };
 
 	try {
-		await $`go build ${buildTarget} -ldflags "-s -w" -o ${buildPath}`.cwd(SRC).env(env);
+		await $`go build ${tagFlags} -ldflags "-s -w" -o ${buildPath}`.cwd(SRC).env(env);
 		const source = join(BUILD_DIR, binaryName);
 		if (existsSync(source)) {
 			await copyBinary(source, binaryName);
@@ -51,7 +55,7 @@ buildTarget("utilities", "", "win", "x64", ".exe");
 if (!skipLinux) {
 	buildTarget("utilities", "", "linux", "x64", "");
 }
-buildTarget("utilities", "", "darwin", "x64", "");
+buildTarget("utilities", "", "mac", "x64", "");
 
 // Build zip_utils binary (zip only, stdlib only — no libc, no console panic)
 console.log("  Building zip_utils binaries (no libc)...");
@@ -60,6 +64,6 @@ buildTarget("zip_utils", "zip_utils", "win", "x64", ".exe");
 if (!skipLinux) {
 	buildTarget("zip_utils", "zip_utils", "linux", "x64", "");
 }
-buildTarget("zip_utils", "zip_utils", "darwin", "x64", "");
+buildTarget("zip_utils", "zip_utils", "mac", "x64", "");
 
 console.log("  Go CLI helper build process complete.");

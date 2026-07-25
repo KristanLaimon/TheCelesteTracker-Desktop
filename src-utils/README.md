@@ -29,7 +29,7 @@ Two separate binaries because the SQLite variant pulls in a larger dependency tr
 | File | Role |
 |---|---|
 | `Generic_Go.ts` | Base class. Resolves the Go binary path on the current platform (`utilities-*`), searches `./` and `./bin/`. DI-injectable. |
-| `Sqlite_Go.ts` | Extends `Generic_Go`. Methods: `Query<T>()` (SELECT), `Exec()` (INSERT/UPDATE/DELETE). Validates the DB file exists on construction. |
+| `Sqlite_Go.ts` | Extends `Generic_Go`. Methods: `Execute<T>(sql, params)` (any statement, `?` placeholders bound by SQLite), plus the `Query<T>()`/`Exec()` wrappers over it. Validates the DB file exists on construction. |
 | `Zip_Go.ts` | Extends `Generic_Go` but routes to `zip_utils-*` binary. Methods: `readTextFile()`, `list()`, `unzip()`, `zip()`. |
 | `NodePath.ts` | Pure `IPath` implementation wrapping `node:path` — the only wrapper that doesn't shell out. Registered as a DI value. |
 
@@ -60,6 +60,14 @@ All Go commands output a single JSON line to stdout:
 ```
 
 On failure the binary exits with code 1. The TS wrappers parse the JSON and throw on `success: false`.
+
+The `sqlite` subcommand reads its statement from stdin in one of two forms:
+
+```json
+{"sql": "SELECT * FROM Campaigns WHERE id = ?", "params": [3]}
+```
+
+or a raw SQL string (anything not starting with `{`, also what `--query` takes). Values in `params` are bound by SQLite, never interpolated — this is the path `Sqlite_Go.Execute()` and the Kysely dialect use. Each invocation is its own process and connection, so transactions, temp tables and PRAGMA state cannot span calls.
 
 ## Building
 

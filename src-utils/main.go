@@ -3,12 +3,20 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 )
+
+type sqliteStdinPayload struct {
+	Sql    string `json:"sql"`
+	Params []any  `json:"params"`
+}
 
 func main() {
 	rootCmd := &cobra.Command{Use: "utilities", Short: "Celeste Tracker CLI"}
@@ -20,18 +28,30 @@ func main() {
 			if dbPath == "" {
 				failStr("--db is required")
 			}
+			var params []any
 			if query == "" {
 				b, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					failStr(fmt.Sprintf("failed to read query: %v", err))
 				}
-				query = strings.TrimSpace(string(b))
+				query = strings.TrimSpace(strings.TrimPrefix(string(b), "\ufeff")) // some shells prepend a UTF-8 BOM when piping
+				// JSON envelope {"sql":...,"params":[...]} when parameters are bound, raw SQL otherwise.
+				if strings.HasPrefix(query, "{") {
+					var payload sqliteStdinPayload
+					dec := json.NewDecoder(bytes.NewReader([]byte(query)))
+					dec.UseNumber()
+					if err := dec.Decode(&payload); err != nil {
+						failStr(fmt.Sprintf("failed to parse query payload: %v", err))
+					}
+					query = strings.TrimSpace(payload.Sql)
+					params = payload.Params
+				}
 			}
 			if query == "" {
 				failStr("query is empty")
 			}
 
-			res := executeSqliteQuery(dbPath, query)
+			res := executeSqliteQuery(dbPath, query, params)
 			send(res)
 			// ponytail: assume res has Success bool field based on original logic
 			if !res.Success {
