@@ -403,11 +403,11 @@ Nearly every file in `src/`, `src-utils/`, and `testing/` opens with one of:
 ```
 
 States which runtime the file may run in. 
-- `UNIVERSAL COMPATIBILITY` files (most business logic, e.g. `src/libs/Everest.ts`, `src/CTDB/**`) must never import a browser-only or Neutralino-only API directly — they take platform capabilities through the `IFileSystem`/`IOS`/`IPath`/`IThread` interfaces instead. Keep this comment accurate when adding/moving files; it's what makes the DI-swap pattern below safe.
+- `UNIVERSAL COMPATIBILITY` files (most business logic, e.g. `src/domain/Everest.ts`, `src/db/**`) must never import a browser-only or Neutralino-only API directly — they take platform capabilities through the `IFileSystem`/`IOS`/`IPath`/`IThread` interfaces instead. Keep this comment accurate when adding/moving files; it's what makes the DI-swap pattern below safe.
 
 ### Two DI containers, one interface set
 
-Wired through `tsyringe`, with **two separate composition roots** registering the same interface tokens (`IFileSystem_Token`, `IOs_Token`, `IPath_Token`, `IThreadConstructor_Token` from `src/interfaces/DependencyInjectionTokens.ts`) against different concrete implementations:
+Wired through `tsyringe`, with **two separate composition roots** registering the same interface tokens (`IFileSystem_Token`, `IOs_Token`, `IPath_Token`, `IThreadConstructor_Token` from `src/core/interfaces/DependencyInjectionTokens.ts`) against different concrete implementations:
 
 - `src/setup.ts` — production root. Registers `NeutralinoFileSystem`, `NeutralinoOS`, `BrowserPath`, `ThreadBrowser`. Loaded only from `src/index.ts` (browser entry).
 - `testing/setup.ts` — test root. Registers `NodeJsFileSystem`, `NodeJsOS`, `NodeJsPath`, `BunThread`. Loaded only from test files.
@@ -428,15 +428,25 @@ New native-helper features should follow the same shape: one Go subcommand, one 
 
 ### Frontend structure
 
+`src/` is bucketed by layer, and the bucket a file sits in declares its runtime constraint. `src/domain/`, `src/api/`, `src/db/`, `src/utils/` are UNIVERSAL COMPATIBILITY only — anything BROWSER ONLY belongs in `src/core/`, `src/components/`, `src/pages/`, `src/layouts/` or `src/libs/`. (`src/utils/Storage.localStorage.ts` is the single BROWSER ONLY exception living in `utils/`.)
+
 - `src/index.ts` — real entry point: `neutralino.init()`, mounts `Loading.svelte`, waits for `ready` event, ensures `./data` exists and local folders mounted, runs `Configuration.initialize()`, then mounts `src/index.svelte` (root component: router outlet + `CommandCenter`).
 - `src/router.svelte.ts` / `router_setup.ts` — custom client-side router (no library), reactive via `$state`/`$derived.by`, persists last visited URL to `localStorage`.
-- `src/CTDB/` — app's own SQLite-backed data layer. `CTDB` (`src/CTDB/index.ts`) is a thin facade composed of injectable submodules (`src/CTDB/submodules/*.ts`, e.g. `campaigns.ts`), each owning one table and talking to `Sqlite_Go` directly. New tables = new submodules, not growing an existing one.
-- `src/libs/Everest*.ts` — mod-scanning domain logic (parses `everest.yaml`, `Meta.yaml`, `Dialog/English.txt`, collab-utils2 lobby structures, alt-sides-helper meta) from a mod folder or zip. Split by concern: `Everest.ts` (orchestration/types), `Everest.collabutils2.ts`, `Everest.dialog.ts`, `Everest.altsideshelper.ts`, `Everest.worker.ts`.
-- `src/libs/Olympus.ts`, `LocalMods.ts` — reads locally-installed mod metadata (Olympus/Everest install) as offline metadata source.
-- `src/libs/GameBananaAPI.ts`, `MaddiesAPI.ts` — online metadata/image enrichment sources; results cached (`ImageCacheService.ts`, `Storage*.ts`) since the app must stay usable offline and these APIs aren't guaranteed reliable.
-- `src/libs/Storage.ts` + `Storage.json.ts` / `Storage.localStorage.ts` — small adapter-based key-value storage abstraction (pluggable persistence backends), not a state-management library.
-- `src/libs/Wanvas/` and `Wanvas-Tabs/` — custom infinite canvas/whiteboard widget system (own math, persistence, widget types).
-- `src/libs/GoldenLayoutThemes/` — Svelte wrapper/theming around `golden-layout` for the multi-pane window UI.
+- `src/core/` — the DI seam. `core/interfaces/` holds `IFileSystem`/`IOs`/`IPath`/`IThread` + `DependencyInjectionTokens.ts`; alongside them sit the production implementations `NeutralinoFileSystem`, `NeutralinoOS`, `BrowserPath`, `ThreadBrowser`. The Node/Bun implementations live in `testing/`.
+- `src/db/` — app's own SQLite-backed data layer. `CTDB` (`src/db/index.ts`) is a thin facade composed of injectable submodules (`src/db/submodules/*.ts`, e.g. `campaigns.ts`), each owning one table and talking to `Sqlite_Go` directly. New tables = new submodules, not growing an existing one.
+- `src/domain/Everest*.ts` — mod-scanning domain logic (parses `everest.yaml`, `Meta.yaml`, `Dialog/English.txt`, collab-utils2 lobby structures, alt-sides-helper meta) from a mod folder or zip. Split by concern: `Everest.ts` (orchestration/types), `Everest.collabutils2.ts`, `Everest.dialog.ts`, `Everest.altsideshelper.ts`, `Everest.worker.ts`.
+- `src/domain/Olympus.ts`, `LocalMods.ts`, `Celeste.ts`, `Configuration.ts` — reads locally-installed mod metadata (Olympus/Everest install) and Celeste save data as offline sources.
+- `src/api/GameBananaAPI.ts`, `MaddiesAPI.ts` — online metadata/image enrichment sources; results cached (`src/api/ImageCacheService.ts`, `src/utils/Storage*.ts`) since the app must stay usable offline and these APIs aren't guaranteed reliable.
+- `src/utils/Storage.ts` + `Storage.json.ts` / `Storage.localStorage.ts` — small adapter-based key-value storage abstraction (pluggable persistence backends), not a state-management library. `Logger`, `AsyncLazy`, `StringSimilarity`, `Hotkeys` share the bucket: domain-free helpers only.
+- `src/libs/` — generic libraries only, publishable as standalone npm packages: `Wanvas/` (custom infinite canvas/whiteboard widget system, own math/persistence/widget types) and `GoldenLayoutThemes/` (Svelte wrapper/theming around `golden-layout` for the multi-pane window UI). Nothing Celeste-specific goes here.
+- `src/pages/panes/` — the components `NewPage.pageselector.svelte` offers as golden-layout panes; `src/pages/Main.svelte` is the window that hosts them.
+
+### Path aliases
+
+`tsconfig.json` `compilerOptions.paths` (read natively by `tsc` and `bun test`) and `vite.config.ts` `resolve.alias` (Vite does not read tsconfig paths) declare one alias per bucket: `@core`, `@domain`, `@api`, `@db`, `@utils`, `@libs`, `@pages`, `@components`, `@layouts`, `@assets`, `@go` (-> `src-utils/`). Adding a bucket means adding the alias in **both** files.
+
+- Cross-bucket imports use the alias; imports within the same bucket stay relative (`./Everest.dialog`).
+- **`.svelte` imports must stay relative even across buckets.** An alias-imported component makes vite-plugin-svelte miss its compiled-CSS cache, so `@tailwindcss/vite` parses the raw component source as CSS and the build fails with `CssSyntaxError`. `bun run check` does not catch this — only `bun run build:frontend` does.
 
 
 
