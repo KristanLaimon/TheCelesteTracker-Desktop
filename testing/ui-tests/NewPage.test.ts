@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import type { IndexableComponentOption } from "../../src/pages/available/NewPage.pageselector.svelte";
+
+type IndexableComponentOption = {
+	goldenLayoutKey: string;
+	thumbnail: string;
+	title?: string;
+	description?: string;
+	tags?: string[];
+};
 
 describe("NewPage and Page Selector Data Contracts", () => {
 	test("IndexableComponentOption structure validates correctly", () => {
@@ -52,7 +59,7 @@ describe("NewPage and Page Selector Data Contracts", () => {
 				const titleMatch = (item.title || item.goldenLayoutKey).toLowerCase().includes(q);
 				const descMatch = (item.description || "").toLowerCase().includes(q);
 				const keyMatch = item.goldenLayoutKey.toLowerCase().includes(q);
-				const tagsMatch = item.tags?.some((t) => t.toLowerCase().includes(q)) ?? false;
+				const tagsMatch = item.tags?.some((t: string) => t.toLowerCase().includes(q)) ?? false;
 				return titleMatch || descMatch || keyMatch || tagsMatch;
 			});
 		};

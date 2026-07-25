@@ -1,9 +1,9 @@
 <script lang="ts">
 import type { ComponentProps } from "svelte";
 import canvasThumbnail from "../assets/thumbnails/available-page-thumbnail-canvas.png";
-import modViewThumbnail from "../assets/thumbnails/available-page-thumbnail-modview.png";
-import modSearchSidebarThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-section.png";
 import modsSearchResultsThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-results.png";
+import modSearchSidebarThumbnail from "../assets/thumbnails/available-page-thumbnail-modsearch-section.png";
+import modViewThumbnail from "../assets/thumbnails/available-page-thumbnail-modview.png";
 import GoldenLayout from "../libs/GoldenLayoutThemes/GoldenLayout.svelte";
 import type {
 	GoldenLayoutComponentStylesOverrides,

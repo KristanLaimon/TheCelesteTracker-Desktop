@@ -23,7 +23,7 @@
 		"indentWidth": 2,
 		"lineWidth": 160,
 		"trailingNewline": true,
-    "useEditorconfig":true
+		"useEditorconfig": true
 	},
 	"linter": {
 		"enabled": true,

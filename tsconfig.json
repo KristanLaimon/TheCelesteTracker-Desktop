@@ -6,6 +6,7 @@
 		"module": "esnext",
 		"types": ["svelte", "vite/client", "node", "bun" /* for internal scripts, dev responsabilitie to notice frontend vs test code */],
 		"allowArbitraryExtensions": true,
+		"noEmit": true,
 		"composite": true,
 		/**
 		 * Typecheck JS in `.svelte` and `.js` files by default.
