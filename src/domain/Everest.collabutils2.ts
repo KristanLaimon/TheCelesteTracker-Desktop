@@ -206,4 +206,99 @@ export class CollabUtils2Scanner {
 
 		return { lobbies, gyms, prologue };
 	}
+
+	/**
+	 * Instant in-memory scan of collab structure using pre-scanned map files from Go batch scan.
+	 */
+	scanCollabFromBatchFiles(
+		modInfo: EverestModInfo,
+		collabName: string,
+		dialog: Map<string, string>,
+		mapFiles: Array<{ path: string; metaYaml?: string }>,
+		buildMapFromBatch: (_modInfo: EverestModInfo, binPath: string, sid: string, dialog: Map<string, string>, metaYaml?: string) => DiscoveredMap,
+	): { lobbies: DiscoveredLobby[]; gyms: DiscoveredMap[]; prologue?: DiscoveredMap } {
+		const baseDir = `Maps/${collabName}`;
+		const bins = mapFiles.map((m) => m.path).filter((f) => f.replace(/\\/g, "/").toLowerCase().endsWith(".bin"));
+		const metaMap = new Map<string, string>();
+		for (const m of mapFiles) {
+			if (m.metaYaml) {
+				metaMap.set(m.path.replace(/\\/g, "/").toLowerCase(), m.metaYaml);
+			}
+		}
+
+		const lobbyBins = bins.filter((f) => f.replace(/\\/g, "/").startsWith(`${baseDir}/0-Lobbies/`));
+		const gymBins = bins.filter((f) => f.replace(/\\/g, "/").startsWith(`${baseDir}/0-Gyms/`));
+		const levelBins = bins.filter((f) => {
+			const norm = f.replace(/\\/g, "/");
+			if (norm.startsWith(`${baseDir}/0-`)) return false;
+			const rest = norm.slice(`${baseDir}/`.length);
+			return rest.includes("/") && !rest.startsWith("0-");
+		});
+
+		const levelsByLobby = new Map<string, string[]>();
+		for (const lb of levelBins) {
+			const norm = lb.replace(/\\/g, "/");
+			const lid = norm.slice(`${baseDir}/`.length).split("/")[0];
+			const group = levelsByLobby.get(lid) ?? [];
+			group.push(lb);
+			levelsByLobby.set(lid, group);
+		}
+
+		const lobbies: DiscoveredLobby[] = [];
+		let prologue: DiscoveredMap | undefined;
+
+		for (const binPath of lobbyBins) {
+			const sid = deriveSid(binPath);
+			if (!sid) continue;
+			const lobbyId = sid.split("/").pop()!;
+
+			const normBin = binPath.replace(/\\/g, "/");
+			const metaYamlStr = metaMap.get(normBin.replace(/\.bin$/i, ".meta.yaml").toLowerCase());
+
+			if (/^0-Prologue/i.test(lobbyId)) {
+				prologue = buildMapFromBatch(modInfo, binPath, sid, dialog, metaYamlStr);
+				continue;
+			}
+
+			const levelPaths = levelsByLobby.get(lobbyId) ?? [];
+			const levels: DiscoveredMap[] = [];
+			for (const lb of levelPaths) {
+				const lsid = deriveSid(lb);
+				if (lsid) {
+					const lMeta = metaMap.get(
+						lb
+							.replace(/\\/g, "/")
+							.replace(/\.bin$/i, ".meta.yaml")
+							.toLowerCase(),
+					);
+					levels.push(buildMapFromBatch(modInfo, lb, lsid, dialog, lMeta));
+				}
+			}
+
+			let meta: MapMetaYaml | undefined;
+			if (metaYamlStr) {
+				try {
+					meta = (yaml.load(metaYamlStr.replace(/^\uFEFF/, "")) as MapMetaYaml | null | undefined) ?? undefined;
+				} catch {}
+			}
+
+			lobbies.push({ lobbyId, maps: levels, meta });
+		}
+
+		const gyms: DiscoveredMap[] = [];
+		for (const binPath of gymBins) {
+			const sid = deriveSid(binPath);
+			if (sid) {
+				const gMeta = metaMap.get(
+					binPath
+						.replace(/\\/g, "/")
+						.replace(/\.bin$/i, ".meta.yaml")
+						.toLowerCase(),
+				);
+				gyms.push(buildMapFromBatch(modInfo, binPath, sid, dialog, gMeta));
+			}
+		}
+
+		return { lobbies, gyms, prologue };
+	}
 }

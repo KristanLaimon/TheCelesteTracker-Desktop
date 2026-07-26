@@ -38,6 +38,39 @@ export class DialogReader {
 	}
 
 	/**
+	 * Parse key=value text string into Map<dialogKey, displayText>.
+	 */
+	parseDialogContent(text: string): Map<string, string> {
+		const map = new Map<string, string>();
+		for (const line of text.split(/\r?\n/)) {
+			const eq = line.indexOf("=");
+			if (eq > 0) map.set(line.slice(0, eq).trim(), line.slice(eq + 1).trim());
+		}
+		return map;
+	}
+
+	/**
+	 * Parse dialog files map (from batch Go scan) into Map<dialogKey, displayText>.
+	 */
+	parseDialogFromMap(dialogFiles?: Record<string, string>, lang = "English.txt"): Map<string, string> {
+		if (!dialogFiles) return new Map();
+		const targetSuffix = `/${lang.toLowerCase()}`;
+		for (const [filePath, content] of Object.entries(dialogFiles)) {
+			const lower = filePath.toLowerCase();
+			if (lower.endsWith(targetSuffix) || lower === lang.toLowerCase()) {
+				return this.parseDialogContent(content);
+			}
+		}
+		const map = new Map<string, string>();
+		for (const content of Object.values(dialogFiles)) {
+			for (const [k, v] of this.parseDialogContent(content)) {
+				map.set(k, v);
+			}
+		}
+		return map;
+	}
+
+	/**
 	 * Read a dialog file for the given language and return a `Map<dialogKey, displayText>`.
 	 *
 	 * Tries `Dialog/<lang>` first, then `dialog/<lang>` as a fallback.
@@ -53,11 +86,7 @@ export class DialogReader {
 		for (const p of paths) {
 			try {
 				const text = await this.readModFile(modInfo.modPath, modInfo.isZip, p);
-				for (const line of text.split("\n")) {
-					const eq = line.indexOf("=");
-					if (eq > 0) map.set(line.slice(0, eq).trim(), line.slice(eq + 1).trim());
-				}
-				break;
+				return this.parseDialogContent(text);
 			} catch {
 				/* try next path */
 			}

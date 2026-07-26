@@ -584,6 +584,98 @@ export default class Everest {
 	 * within each batch mods are scanned sequentially to control I/O concurrency.
 	 */
 	public async GetModsInstalledFull(opts?: ScanOptions): Promise<EverestModInfo[]> {
+		const modsPath = await this.GetInstallationPath();
+		if (modsPath && (await this.fs.exists(modsPath))) {
+			try {
+				const batch = await this.zip.scanModsBatch(modsPath);
+				if (batch?.success && Array.isArray(batch.mods) && batch.mods.length > 0) {
+					console.log(`⚡ High-speed Go batch scanned ${batch.mods.length} mods across ${batch.threads} CPU threads!`);
+					const result: EverestModInfo[] = [];
+
+					for (const raw of batch.mods) {
+						try {
+							const metadata = parseEverestYaml(raw.yamlContent, raw.fileName);
+							const modInfo: EverestModInfo = {
+								fileName: raw.fileName,
+								isZip: raw.isZip,
+								modPath: raw.modPath,
+								sizeBytes: raw.isZip ? raw.sizeBytes : null,
+								metadata,
+								humanName: this.NormalizeCelesteModName(raw.fileName),
+							};
+
+							const dialog = this.dialogReader.parseDialogFromMap(raw.dialogFiles);
+							const collabId = raw.collabId || undefined;
+
+							if (collabId) {
+								let lazyLoadingCfg: CollabUtils2LazyLoadingYaml | undefined;
+								if (raw.lazyLoadYaml) {
+									try {
+										lazyLoadingCfg = (yaml.load(raw.lazyLoadYaml.replace(/^\uFEFF/, "")) as CollabUtils2LazyLoadingYaml | null | undefined) ?? undefined;
+									} catch {}
+								}
+
+								const scan = this.collabUtils2.scanCollabFromBatchFiles(modInfo, collabId, dialog, raw.mapFiles ?? [], this.buildMapFromBatch.bind(this));
+
+								modInfo.metadata = {
+									...modInfo.metadata,
+									isLobby: true,
+									lobbyChapters: scan.lobbies.map((l) => ({
+										lobbyId: l.lobbyId,
+										lobbyLevels: l.maps.map((m) => ({ chapterId: m.sid })),
+									})),
+									collabId,
+									lazyLoadingCfg,
+									lobbies: scan.lobbies,
+									gyms: scan.gyms,
+									prologue: scan.prologue,
+								};
+							} else {
+								const mapFiles = raw.mapFiles ?? [];
+								const campaignMap = new Map<string, DiscoveredMap[]>();
+
+								for (const mf of mapFiles) {
+									const sid = mf.path
+										.replace(/\\/g, "/")
+										.replace(/^Maps\//i, "")
+										.replace(/\.bin$/i, "");
+									const parts = sid.split("/");
+									if (parts.length >= 3) {
+										const campaignId = parts.slice(0, -1).join("/");
+										const mapObj = this.buildMapFromBatch(modInfo, mf.path, sid, dialog, mf.metaYaml);
+										const list = campaignMap.get(campaignId) ?? [];
+										list.push(mapObj);
+										campaignMap.set(campaignId, list);
+									}
+								}
+
+								const campaigns = Array.from(campaignMap.entries()).map(([campaignNameId, maps]) => ({ campaignNameId, maps }));
+								const chapters: ModChapter[] = [];
+								for (const c of campaigns) {
+									for (const m of c.maps) chapters.push({ chapterId: m.sid });
+								}
+
+								modInfo.metadata = {
+									...modInfo.metadata,
+									isLobby: false,
+									chapters,
+									campaigns,
+								};
+							}
+
+							result.push(modInfo);
+						} catch {
+							/* skip mod on parse error */
+						}
+					}
+
+					return result;
+				}
+			} catch (e) {
+				console.warn("Batch Go scan fallback due to:", e);
+			}
+		}
+
 		const mods = await this.scanModsBase(opts);
 
 		// Size capture — one lightweight stat pass, cached alongside everything else this
@@ -960,6 +1052,29 @@ export default class Everest {
 			binPath,
 			meta,
 			altSidesHelperMeta,
+		};
+
+		const dk = sidToDialogKey(sid);
+		if (dialog.has(dk)) (map as Record<string, unknown>).name = dialog.get(dk);
+
+		return map;
+	}
+
+	private buildMapFromBatch(_modInfo: EverestModInfo, binPath: string, sid: string, dialog: Map<string, string>, metaYamlStr?: string): DiscoveredMap {
+		let meta: MapMetaYaml | undefined;
+		if (metaYamlStr) {
+			try {
+				meta = (yaml.load(metaYamlStr.replace(/^\uFEFF/, "")) as MapMetaYaml | null | undefined) ?? undefined;
+			} catch {}
+		}
+
+		const map: DiscoveredMap = {
+			sid,
+			side: detectMapSide(sid),
+			baseSid: baseSid(sid),
+			binFileName: binPath.split("/").pop() ?? "",
+			binPath,
+			meta,
 		};
 
 		const dk = sidToDialogKey(sid);
