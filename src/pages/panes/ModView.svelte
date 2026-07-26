@@ -34,6 +34,7 @@ let heroImage = $state<string | null>(null);
 let bgColor = $state<string>("#18181c");
 
 let modStats = $state<ModStatisticsResult | null>(null);
+$inspect(modStats);
 let loadingStats = $state(false);
 
 const selectedModId = $derived.by(() => {
