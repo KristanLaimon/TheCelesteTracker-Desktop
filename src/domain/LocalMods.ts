@@ -1,4 +1,6 @@
 import { inject, injectable } from "tsyringe";
+// biome-ignore lint/style/useImportType: DI token needed at runtime
+import Zip_Go from "../../src-utils/Zip_Go";
 import type GameBananaApi from "../api/GameBananaAPI";
 import type { GbMemberApi_Reponse } from "../api/GameBananaAPI";
 import type MaddiesApi from "../api/MaddiesAPI";
@@ -33,13 +35,14 @@ export default class DBMods {
 		olympus: Olympus,
 		@inject(IFileSystem_Token) fs: IFileSystem,
 		celeste: Celeste,
+		@inject(Zip_Go) zip: Zip_Go,
 	) {
 		storage.configureAutoSave("turn off");
 
 		this.scanner = new LocalModsScanner(everest, storage);
 		this.enricher = new LocalModsMetadataEnricher(this.scanner, storage, maddiesApi, gameBananaApi);
 		this.history = new LocalModsHistoryManager(this.scanner, this.enricher, everest, olympus, storage, fs);
-		this.stats = new LocalModsStatsCalculator(this.scanner, celeste, everest, fs);
+		this.stats = new LocalModsStatsCalculator(this.scanner, celeste, everest, fs, zip, storage);
 	}
 
 	// ============ EVEREST MOD SCANNING ================

@@ -1,3 +1,4 @@
+import Zip_Go from "../src-utils/Zip_Go";
 import GameBananaApi from "./api/GameBananaAPI";
 import MaddiesApi from "./api/MaddiesAPI";
 import { IFileSystem_Token, IPath_Token } from "./core/interfaces/DependencyInjectionTokens";
@@ -23,6 +24,7 @@ export function Construct_LocalMods(jsonParams: JsonFileAdapterOptions, storageP
 		GetDependency(Olympus),
 		GetDependency<IFileSystem>(IFileSystem_Token),
 		GetDependency(Celeste),
+		GetDependency(Zip_Go),
 	);
 	return myMods;
 }

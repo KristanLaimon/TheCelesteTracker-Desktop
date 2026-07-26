@@ -1,7 +1,10 @@
 import { XMLParser } from "fast-xml-parser";
 import { serializeError } from "serialize-error";
+import type Zip_Go from "../../../src-utils/Zip_Go";
+import type { MapCollectibleCounts } from "../../../src-utils/Zip_Go";
 import type { IFileSystem } from "../../core/interfaces/IFileSystem";
 import { modScannerLogger } from "../../utils/Logger";
+import type Storage from "../../utils/Storage";
 import type Celeste from "../Celeste";
 import type { CelesteSaveSlot } from "../Celeste";
 import type Everest from "../Everest";
@@ -27,13 +30,50 @@ const saveFileXmlParser = new XMLParser({
 	isArray: (tagName) => tagName === "LevelSetStats" || tagName === "AreaStats" || tagName === "AreaModeStats" || tagName === "EntityID" || tagName === "string",
 });
 
+const STORAGE_KEY_COLLECTIBLE_TOTALS_PREFIX = "localmods_collectibletotals:";
+
+/** Per-SID collectible maximums for one mod, plus the mod size the counts were computed from. */
+type CachedModCollectibleTotals = {
+	sizeBytes: number | null;
+	maps: Record<string, MapCollectibleCounts>;
+};
+
 export class LocalModsStatsCalculator {
 	constructor(
 		private scanner: LocalModsScanner,
 		private celeste: Celeste,
 		private everest: Everest,
 		private fs: IFileSystem,
+		private zip: Zip_Go,
+		private storage: Storage,
 	) {}
+
+	/**
+	 * Collectible maximums per SID, parsed out of the mod's map `.bin` files.
+	 *
+	 * Save files only ever record what was *collected*, so totals have to come from the maps themselves.
+	 * Results are cached per mod and recomputed when the mod's zip size changes.
+	 * Returns an empty map on any failure — totals then stay `0` and the UI falls back to showing `?`.
+	 */
+	async #GetCollectibleTotals(modInfo: EverestModInfo | null): Promise<Record<string, MapCollectibleCounts>> {
+		if (!modInfo?.modPath) return {};
+
+		const storageKey = `${STORAGE_KEY_COLLECTIBLE_TOTALS_PREFIX}${modInfo.metadata?.name ?? modInfo.fileName}`;
+		const sizeBytes = modInfo.sizeBytes ?? null;
+
+		try {
+			const cached = await this.storage.get<CachedModCollectibleTotals>(storageKey);
+			if (cached && cached.sizeBytes === sizeBytes) return cached.maps;
+
+			const result = await this.zip.countCollectibles(modInfo.modPath);
+			const maps = result.maps ?? {};
+			await this.storage.set<CachedModCollectibleTotals>(storageKey, { sizeBytes, maps });
+			return maps;
+		} catch (e: unknown) {
+			modScannerLogger.error(`LocalModsStatsCalculator: Failed to count collectibles in maps of '${modInfo.modPath}'`, serializeError(e));
+			return {};
+		}
+	}
 
 	/**
 	 * Retrieve all global and campaign/lobby/chapter gameplay statistics for a mod.
@@ -113,6 +153,34 @@ export class LocalModsStatsCalculator {
 		}
 
 		return await this.#GetStandaloneModStatistics(modId, humanName, modInfo, slot);
+	}
+
+	/**
+	 * Write map-derived maximums into `global.*.total` and each played side's `berriesAvailable`.
+	 *
+	 * Global totals sum every map of the mod, including chapters never played — those still count as
+	 * available. Per-side numbers are only filled where a map SID matches a played chapter exactly, so
+	 * B/C-side `.bin` files (separate SIDs the save file folds into one chapter) contribute to the
+	 * global totals but not to any single side.
+	 */
+	#ApplyCollectibleTotals(global: ModBasicStats, chaptersMap: Record<string, ChapterStatsSummary>, totals: Record<string, MapCollectibleCounts>): void {
+		for (const counts of Object.values(totals)) {
+			global.redStrawberries.total += counts.red;
+			global.hearts.total += counts.hearts;
+			global.miniHearts.total += counts.miniHearts;
+			global.specialStrawberries.golden.total += counts.golden;
+			global.specialStrawberries.wingedGolden.total += counts.wingedGolden;
+			global.specialStrawberries.moon.total += counts.moon;
+			global.specialStrawberries.silver.total += counts.silver;
+			global.specialStrawberries.rainbow.total += counts.rainbow;
+			global.specialStrawberries.platinum.total += counts.platinum;
+		}
+
+		for (const [sid, summary] of Object.entries(chaptersMap)) {
+			const counts = totals[sid];
+			if (!counts || !summary.sides.A) continue;
+			summary.sides.A.berriesAvailable = counts.red;
+		}
 	}
 
 	async #GetVanillaStatistics(slot: CelesteSaveSlot): Promise<VanillaModStatisticsResult> {
@@ -411,8 +479,7 @@ export class LocalModsStatsCalculator {
 			}
 		}
 		global.minimumDeaths = minDeathsSum;
-		global.specialStrawberries.rainbow.total = lobbiesList.length;
-		global.miniHearts.total = Object.keys(chaptersMap).length;
+		this.#ApplyCollectibleTotals(global, chaptersMap, await this.#GetCollectibleTotals(modInfo));
 
 		return {
 			modId,
@@ -535,6 +602,7 @@ export class LocalModsStatsCalculator {
 			}
 		}
 		global.minimumDeaths = minDeathsSum;
+		this.#ApplyCollectibleTotals(global, chaptersMap, await this.#GetCollectibleTotals(modInfo));
 
 		return {
 			modId,

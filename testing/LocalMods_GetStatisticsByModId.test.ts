@@ -7,6 +7,7 @@ import Everest from "../src/domain/Everest";
 import DBMods from "../src/domain/LocalMods";
 import Olympus from "../src/domain/Olympus";
 import Storage from "../src/utils/Storage";
+import Zip_Go from "../src-utils/Zip_Go";
 import { GetDependency } from "./setup";
 
 describe("DBMods.GetStatisticsByModId (Real Data Tests)", () => {
@@ -17,7 +18,7 @@ describe("DBMods.GetStatisticsByModId (Real Data Tests)", () => {
 		const fs = GetDependency<IFileSystem>(IFileSystem_Token);
 		const storage = new Storage({ adapters: [] });
 
-		const db = new DBMods(everest, storage, {} as any, {} as any, olympus, fs, celeste);
+		const db = new DBMods(everest, storage, {} as any, {} as any, olympus, fs, celeste, GetDependency(Zip_Go));
 
 		const result = await db.GetStatisticsByModId("Celeste", { saveSlot: 0 });
 
@@ -80,7 +81,7 @@ describe("DBMods.GetStatisticsByModId (Real Data Tests)", () => {
 		const fs = GetDependency<IFileSystem>(IFileSystem_Token);
 		const storage = new Storage({ adapters: [] });
 
-		const db = new DBMods(everest, storage, {} as any, {} as any, olympus, fs, celeste);
+		const db = new DBMods(everest, storage, {} as any, {} as any, olympus, fs, celeste, GetDependency(Zip_Go));
 
 		const result = await db.GetStatisticsByModId("SpringCollab2020", { saveSlot: 0 });
 
@@ -103,7 +104,7 @@ describe("DBMods.GetStatisticsByModId (Real Data Tests)", () => {
 		const fs = GetDependency<IFileSystem>(IFileSystem_Token);
 		const storage = new Storage({ adapters: [] });
 
-		const db = new DBMods(everest, storage, {} as any, {} as any, olympus, fs, celeste);
+		const db = new DBMods(everest, storage, {} as any, {} as any, olympus, fs, celeste, GetDependency(Zip_Go));
 
 		const slot0 = await db.GetStatisticsByModId("Celeste", { saveSlot: 0 });
 		const slot1 = await db.GetStatisticsByModId("Celeste", { saveSlot: 1 });

@@ -42,7 +42,7 @@ function buildDbMods(opts: { mods: EverestModInfo[]; historical: EverestHistoric
 
 	const storage = new Storage({ adapters: [] });
 	// biome-ignore lint/suspicious/noExplicitAny: test-only stubs for unused constructor deps
-	return new DBMods(fakeEverest, storage, {} as any, {} as any, fakeOlympus, fakeFs, {} as any);
+	return new DBMods(fakeEverest, storage, {} as any, {} as any, fakeOlympus, fakeFs, {} as any, {} as any);
 }
 
 describe("DBMods.Mods_GetAllHistorical", () => {
