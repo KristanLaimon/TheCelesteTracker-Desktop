@@ -194,7 +194,7 @@ app resources folder ResourcesFolder/cache folder, to avoid re-scannings.
 
 Player has one or more datasaves; a datasave tracks progress per campaign (vanilla Celeste counts as one campaign/mod). Campaign has 1..n chapters; collab-style mods (built on Collab Utils 2 — see `Collab Utils 2.docs.md`) additionally nest lobbies containing chapters. Vanilla static stats come from `.celeste` XML save files under Celeste's `Saves/` folder. Live/real-time stats (deaths, dashes, transitions per run) come from the companion mod [TheCelesteTracker-Mod](https://github.com/KristanLaimon/TheCelesteTracker-Mod), which writes its own SQLite DB into Celeste's `Saves/` folder and streams events over WebSocket (port 50500, scanning up to 50600) — this app reads/copies that DB rather than re-implementing tracking.
 
-Reference docs worth checking before touching mod-parsing code: `docs/Database_TheCelesteDesktop.md` (schema), `docs/features/*.md` (feature specs), `Everest.docs.md`, `Collab Utils 2.docs.md`, `Alt Sides Helper.docs.md`.
+Reference docs worth checking before touching mod-parsing code: `docs/Database_TheCelesteDesktop.md` (schema), `docs/features/*.md` (feature specs), `Everest.docs.md`, `Collab Utils 2.docs.md`, `Alt Sides Helper.docs.md`, `docs/TheCelesteDesktop/CelesteMapBin_Format.md` (map `.bin` BinaryPacker layout — the only source of collectible *maximums*, since saves record only what was collected) and `docs/TheCelesteDesktop/CelesteMapBin_Quirks_And_ModPatterns.md` (what real mods put in their maps: entity-name census, deny list, trailing-byte quirk).
 
 -- HERE FINISHED MY HUMAN WRITING DO NOT MODIFY ANY PREVIOUS TEXT, ONLY FROM HERE FORWARD --
 ## Celeste Mod Domain
