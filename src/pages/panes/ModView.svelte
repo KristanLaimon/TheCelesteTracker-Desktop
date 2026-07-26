@@ -229,8 +229,11 @@ $effect(() => {
             <!-- GLOBAL MOD STATISTICS SECTION -->
             <div class="rounded-2xl bg-zinc-950/40 border border-zinc-800/80 p-5 backdrop-blur-md space-y-4 w-full">
               <div class="border-b border-zinc-800/80 pb-3">
-                <h3 class="text-lg font-bold text-white">
-                  Mod Statistics (Global)
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span>Mod Statistics (Global)</span>
                 </h3>
               </div>
 
