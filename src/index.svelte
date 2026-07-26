@@ -5,6 +5,7 @@ import { router } from "./router.svelte";
 import "./router_setup";
 import "./utils/Hotkeys";
 import CommandCenter, { type CommandCenterCommand } from "./components/CommandCenter.svelte";
+import SaveSlotFloatingSelector from "./components/SaveSlotFloatingSelector.svelte";
 import { Hotkeys_RegisterHotkey } from "./utils/Hotkeys";
 
 let SHOW_COMMAND_CENTER = $state<boolean>(false);
@@ -24,6 +25,8 @@ const commands: CommandCenterCommand[] = [
 	},
 ];
 </script>
+
+<SaveSlotFloatingSelector />
 
 {#if router.page.component}
   {#key router.url.pathname + router.url.search}
