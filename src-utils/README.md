@@ -1,6 +1,6 @@
 # src-utils/
 
-Native CLI helpers + TypeScript wrappers. This is the **backend-of-the-backend** — tiny Go binaries that do one thing well (SQLite, ZIP), invoked as child processes, communicating via JSON over stdout. Everything here runs server-side (Bun/Node), not in the Neutralino frontend.
+Native CLI helpers + TypeScript wrappers. This is the **backend-of-the-backend** — tiny Go binaries that do one thing well (SQLite, ZIP), invoked as child processes, communicating via JSON over stdout. Everything here runs outside, not the Neutralino frontend.
 
 ## Architecture
 
