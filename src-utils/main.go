@@ -138,7 +138,21 @@ func main() {
 	scanModsCmd.Flags().IntVarP(&numThreads, "threads", "t", 0, "Number of parallel threads (0 = auto)")
 	scanModsCmd.MarkFlagRequired("dir")
 
-	zipCmd.AddCommand(readCmd, listCmd, unzipCmd, packCmd, scanModsCmd)
+	var modPath string
+	countCollectiblesCmd := &cobra.Command{
+		Use: "count-collectibles",
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := CountCollectibles(modPath)
+			if err != nil {
+				fail(err)
+			}
+			send(res)
+		},
+	}
+	countCollectiblesCmd.Flags().StringVarP(&modPath, "mod", "m", "", "Mod zip or folder path")
+	countCollectiblesCmd.MarkFlagRequired("mod")
+
+	zipCmd.AddCommand(readCmd, listCmd, unzipCmd, packCmd, scanModsCmd, countCollectiblesCmd)
 	rootCmd.AddCommand(zipCmd)
 
 	if err := rootCmd.Execute(); err != nil {

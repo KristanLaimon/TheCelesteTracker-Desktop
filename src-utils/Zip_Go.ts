@@ -88,6 +88,16 @@ export default class Zip_Go extends Generic_Go {
 		const threadsArg = opts?.threads ? ` --threads ${opts.threads}` : "";
 		return this.executeInternal<ZipScanModsResult>(`zip scan-mods --dir "${modsDir}"${threadsArg}`);
 	}
+
+	/**
+	 * Count the collectibles placed in every map of one mod (zip or unpacked folder), keyed by SID.
+	 *
+	 * These are the *maximums* a player could collect; save files only ever report what was collected.
+	 * See `docs/TheCelesteDesktop/CelesteMapBin_Format.md`.
+	 */
+	public async countCollectibles(modPath: string): Promise<MapCollectiblesResult> {
+		return this.executeInternal<MapCollectiblesResult>(`zip count-collectibles --mod "${modPath}"`);
+	}
 }
 
 export interface ScannedMapRaw {
@@ -105,6 +115,28 @@ export interface ScannedModRaw {
 	dialogFiles?: Record<string, string>;
 	lazyLoadYaml?: string;
 	mapFiles?: ScannedMapRaw[];
+}
+
+export interface MapCollectibleCounts {
+	red: number;
+	golden: number;
+	wingedGolden: number;
+	moon: number;
+	hearts: number;
+	miniHearts: number;
+	silver: number;
+	speed: number;
+	rainbow: number;
+	platinum: number;
+}
+
+export interface MapCollectiblesResult {
+	success: boolean;
+	/** Per-SID counts, e.g. `"Crylone/farshore/farshore"`. */
+	maps?: Record<string, MapCollectibleCounts>;
+	/** Per-SID parse errors; one broken map never fails the whole mod. */
+	failed?: Record<string, string>;
+	error?: string;
 }
 
 export interface ZipScanModsResult {
