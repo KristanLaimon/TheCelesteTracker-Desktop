@@ -15,6 +15,7 @@ import Celeste from "./domain/Celeste";
 import Configuration from "./domain/Configuration";
 import Everest from "./domain/Everest";
 import Olympus from "./domain/Olympus";
+import { Construct_LocalMods } from "./setup.DI.helpers";
 
 container.registerSingleton(IFileSystem_Token, NeutralinoFileSystem);
 container.registerSingleton(IOs_Token, NeutralinoOS);
@@ -41,4 +42,9 @@ container.registerInstance(CTDB_Token, CreateTrackerDb(container.resolve(Sqlite_
 
 const GetDependency = container.resolve.bind(container);
 
-export { GetDependency as get, GetDependency };
+const DB_Mods = Construct_LocalMods({
+	filePath: "./data/mods-dbS.json",
+	indent: 2,
+});
+
+export { DB_Mods, GetDependency as get, GetDependency };

@@ -1,6 +1,6 @@
 // BROWSER ONLY
 import { OlympusModCategory } from "../../../domain/Olympus";
-import { Construct_LocalMods } from "../../../setup.DI.helpers";
+import { DB_Mods as localMods } from "../../../setup";
 
 export type ModsSearchCategory = OlympusModCategory | "Uncategorized";
 export const ModsSearchCategoryList: readonly ModsSearchCategory[] = [...OlympusModCategory, "Uncategorized"] as const;
@@ -57,7 +57,6 @@ class ModsSearchRowsCache_ {
 	}
 
 	async #doLoad(opts?: { invalidateCache?: boolean }): Promise<void> {
-		const localMods = Construct_LocalMods({ filePath: "./data/mods-dbS.json", indent: 2 });
 		try {
 			const entries = await localMods.Mods_GetAllHistorical(
 				opts?.invalidateCache ? { invalidateCache: { ALL_EVEREST_MODS_INFO: true, HISTORICAL_UNINSTALLED_MODS: true } } : undefined,

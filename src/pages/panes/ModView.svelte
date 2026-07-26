@@ -7,16 +7,11 @@ import SearchDynamic from "../../components/SearchDynamic.svelte";
 import type { EverestModInfo } from "../../domain/Everest";
 import type { ModSimplified } from "../../domain/LocalMods";
 import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
-import { Construct_LocalMods } from "../../setup.DI.helpers";
+import { DB_Mods as localMods } from "../../setup";
 
 type Props = { searchQuery: string; showSearchBar: boolean };
 
 let { searchQuery = $bindable(""), onStateChange, showSearchBar = true }: WithGLState<Props> = $props();
-
-const localMods = Construct_LocalMods({
-	filePath: "./data/mods-dbS.json",
-	indent: 2,
-});
 
 let simplifiedMods = $state<ModSimplified[]>([]);
 let humanNamesList = $derived(simplifiedMods.map((m) => m.humanNameMod));
