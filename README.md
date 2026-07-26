@@ -1,4 +1,4 @@
-# TheCelesteTracker Desktop
+# TheCeleste-Hub Desktop
 
 <div align="center">
   <img src=".github/banner.png" alt="TheCelesteTracker_Desktop_Banner" width="100%">
@@ -11,13 +11,15 @@
 
 ---
 
-**TheCelesteTracker** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
+**TheCelesteHub** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
 
 > ***Still under development, not ready for usage***
 
+> *Rebranding project name to `TheCelesteHub` from `TheCelesteTracker`, so if you found both names, they're the same to this project.*
+
 ## Why this exists?
 The Celeste community uses **spreadsheets** for pretty much everything: achievements, map progress, lobby stats—all manual.
-**No more.** TheCelesteTracker aims to automate the "Excel grind" so you can focus on the "Celeste grind."
+**No more.** TheCelesteHub aims to automate the "Excel grind" so you can focus on the "Celeste grind."
 
 <div align="center">
   <table style="width: 100%; border-collapse: collapse;">
@@ -44,8 +46,13 @@ Note: While there are mods to track this info, they are all in-game, limited by 
 ## Early-dev screenshots
 
 <div align="center">
+  <img src=".github/screenshot-neutralinoversion-2.png" alt="Run History Beta" width="80%">
+  <p><i>Automatic mod metadata fetching, current statistics, and multi-visualization (Currently in Alpha)</i></p>
+</div>
+
+<div align="center">
   <img src=".github/screenshot-neutralinoversion.jpg" alt="Run History Beta" width="80%">
-  <p><i>Current UI</i></p>
+  <p><i>Full customizable UI for your stats-visual-stunning needs!</i></p>
 </div>
 
 *Current UI is subject to change during beta.*
@@ -63,8 +70,6 @@ But I expect to implement:
 - **Cli Helper**: Golang 
 
 Note: We're using neutralino but not neutralino extensions, I went to the easy way to create a small golang helper CLI.
-
-
 
 ## Getting Started
 
@@ -99,6 +104,11 @@ To bundle the frontend assets and package the executable binaries:
 bun run build
 ```
 The final executable packages and `resources.neu` will be generated in the `dist/myapp/` directory.
+
+# Acknowledgments 
+
+- Thanks to [Maddies](https://maddie480.ovh) for their easy-to-use apis. Literally mods fetching metadata couldn't be possible without it. (You can't fetch gamebanana mods metadata easily by mod name, only by mod id, whose doesn't exist in olympus!, ahhh!)
+
 
 ## Some notes
 Hehe I know the repo root is kinda messy due to maddiesapi, gamebananaapi, everest testing, i need to do some chores there.

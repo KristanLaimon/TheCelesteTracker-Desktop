@@ -177,8 +177,8 @@ const Layout_InitialContent: GoldenLayoutContent<typeof registry> = {
   }
 
   .layout-wrapper {
-    width: 95%;
-    height: 95%;
+    width: 100%;
+    height: 100%;
   }
 
   :global(body) {
