@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import neutralino from "@neutralinojs/lib";
 import { mount, unmount } from "svelte";
 import Loading from "./components/Loading.svelte";

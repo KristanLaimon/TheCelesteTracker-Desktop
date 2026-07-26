@@ -67,8 +67,3 @@ logger.attachTransport((logObj) => {
 export const modScannerLogger = logger.getSubLogger({ name: "ModScanner" });
 export const dbLogger = logger.getSubLogger({ name: "Database" });
 export const apiLogger = logger.getSubLogger({ name: "API" });
-
-// Helper to create ad-hoc sub-loggers with custom names
-export function getLogger(name: string): Logger<unknown> {
-	return logger.getSubLogger({ name });
-}
