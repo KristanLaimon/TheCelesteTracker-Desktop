@@ -242,7 +242,7 @@ $effect(() => {
                   Loading gameplay statistics...
                 </div>
               {:else if modStats}
-                <!-- COMPACT HORIZONTAL BUTTON-LIKE PILLS ROW -->
+                <!-- COMPACT HORIZONTAL BUTTON-LIKE PILLS ROW (ALWAYS SHOWING CURRENT / TOTAL) -->
                 <div class="flex flex-wrap items-center gap-3 w-full">
                   <!-- PLAY TIME -->
                   <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
@@ -266,9 +266,9 @@ $effect(() => {
                     <img src={strawberryIcon} alt="Strawberries" class="h-5 w-auto object-contain" />
                     <span class="text-sm font-bold text-white">
                       {modStats.global.redStrawberries.current}
-                      {#if modStats.global.redStrawberries.total > 0}
-                        <span class="text-xs font-normal text-zinc-400">/ {modStats.global.redStrawberries.total}</span>
-                      {/if}
+                      <span class="text-xs font-normal text-zinc-400">
+                        / {modStats.global.redStrawberries.total > 0 ? modStats.global.redStrawberries.total : (modStats.isVanilla ? 175 : '?')}
+                      </span>
                     </span>
                   </div>
 
@@ -277,9 +277,9 @@ $effect(() => {
                     <img src={heartIcon} alt="Hearts" class="h-5 w-auto object-contain" />
                     <span class="text-sm font-bold text-white">
                       {modStats.global.hearts.current}
-                      {#if modStats.global.hearts.total > 0}
-                        <span class="text-xs font-normal text-zinc-400">/ {modStats.global.hearts.total}</span>
-                      {/if}
+                      <span class="text-xs font-normal text-zinc-400">
+                        / {modStats.global.hearts.total > 0 ? modStats.global.hearts.total : (modStats.isVanilla ? 24 : '?')}
+                      </span>
                     </span>
                   </div>
 
@@ -289,9 +289,9 @@ $effect(() => {
                       <img src={miniHeartIcon} alt="Mini Hearts" class="h-5 w-auto object-contain" />
                       <span class="text-sm font-bold text-white">
                         {modStats.global.miniHearts.current}
-                        {#if modStats.global.miniHearts.total > 0}
-                          <span class="text-xs font-normal text-zinc-400">/ {modStats.global.miniHearts.total}</span>
-                        {/if}
+                        <span class="text-xs font-normal text-zinc-400">
+                          / {modStats.global.miniHearts.total > 0 ? modStats.global.miniHearts.total : '?'}
+                        </span>
                       </span>
                     </div>
                   {/if}
@@ -304,9 +304,9 @@ $effect(() => {
                         <img src={goldenStrawberryIcon} alt="Golden Strawberry" class="h-5 w-auto object-contain" />
                         <span class="text-sm font-bold text-amber-200">
                           {modStats.global.specialStrawberries.golden.current}
-                          {#if modStats.global.specialStrawberries.golden.total > 0}
-                            <span class="text-xs font-normal text-amber-400/60">/ {modStats.global.specialStrawberries.golden.total}</span>
-                          {/if}
+                          <span class="text-xs font-normal text-amber-400/60">
+                            / {modStats.global.specialStrawberries.golden.total > 0 ? modStats.global.specialStrawberries.golden.total : (modStats.isVanilla ? 25 : '?')}
+                          </span>
                         </span>
                       </div>
                     {/if}
@@ -317,9 +317,9 @@ $effect(() => {
                         <span class="text-xs font-semibold text-indigo-400">Moon</span>
                         <span class="text-sm font-bold text-indigo-200">
                           {modStats.global.specialStrawberries.moon.current}
-                          {#if modStats.global.specialStrawberries.moon.total > 0}
-                            <span class="text-xs font-normal text-indigo-400/60">/ {modStats.global.specialStrawberries.moon.total}</span>
-                          {/if}
+                          <span class="text-xs font-normal text-indigo-400/60">
+                            / {modStats.global.specialStrawberries.moon.total > 0 ? modStats.global.specialStrawberries.moon.total : (modStats.isVanilla ? 1 : '?')}
+                          </span>
                         </span>
                       </div>
                     {/if}
@@ -330,9 +330,9 @@ $effect(() => {
                         <span class="text-xs font-semibold text-yellow-400">Winged</span>
                         <span class="text-sm font-bold text-yellow-200">
                           {modStats.global.specialStrawberries.wingedGolden.current}
-                          {#if modStats.global.specialStrawberries.wingedGolden.total > 0}
-                            <span class="text-xs font-normal text-yellow-400/60">/ {modStats.global.specialStrawberries.wingedGolden.total}</span>
-                          {/if}
+                          <span class="text-xs font-normal text-yellow-400/60">
+                            / {modStats.global.specialStrawberries.wingedGolden.total > 0 ? modStats.global.specialStrawberries.wingedGolden.total : (modStats.isVanilla ? 1 : '?')}
+                          </span>
                         </span>
                       </div>
                     {/if}
@@ -343,9 +343,9 @@ $effect(() => {
                         <span class="text-xs font-semibold text-slate-300">Silver</span>
                         <span class="text-sm font-bold text-slate-100">
                           {modStats.global.specialStrawberries.silver.current}
-                          {#if modStats.global.specialStrawberries.silver.total > 0}
-                            <span class="text-xs font-normal text-slate-400">/ {modStats.global.specialStrawberries.silver.total}</span>
-                          {/if}
+                          <span class="text-xs font-normal text-slate-400">
+                            / {modStats.global.specialStrawberries.silver.total > 0 ? modStats.global.specialStrawberries.silver.total : '?'}
+                          </span>
                         </span>
                       </div>
                     {/if}
@@ -356,9 +356,9 @@ $effect(() => {
                         <span class="text-xs font-semibold text-purple-400">Rainbow</span>
                         <span class="text-sm font-bold text-purple-200">
                           {modStats.global.specialStrawberries.rainbow.current}
-                          {#if modStats.global.specialStrawberries.rainbow.total > 0}
-                            <span class="text-xs font-normal text-purple-400/60">/ {modStats.global.specialStrawberries.rainbow.total}</span>
-                          {/if}
+                          <span class="text-xs font-normal text-purple-400/60">
+                            / {modStats.global.specialStrawberries.rainbow.total > 0 ? modStats.global.specialStrawberries.rainbow.total : '?'}
+                          </span>
                         </span>
                       </div>
                     {/if}
@@ -369,9 +369,9 @@ $effect(() => {
                         <span class="text-xs font-semibold text-teal-300">Platinum</span>
                         <span class="text-sm font-bold text-teal-100">
                           {modStats.global.specialStrawberries.platinum.current}
-                          {#if modStats.global.specialStrawberries.platinum.total > 0}
-                            <span class="text-xs font-normal text-teal-400/60">/ {modStats.global.specialStrawberries.platinum.total}</span>
-                          {/if}
+                          <span class="text-xs font-normal text-teal-400/60">
+                            / {modStats.global.specialStrawberries.platinum.total > 0 ? modStats.global.specialStrawberries.platinum.total : '?'}
+                          </span>
                         </span>
                       </div>
                     {/if}
