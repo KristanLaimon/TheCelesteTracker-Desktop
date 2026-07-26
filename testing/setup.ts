@@ -6,11 +6,6 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { container } from "tsyringe";
 
-// Svelte 5 rune polyfills for Bun unit test runner environment
-if (typeof (globalThis as Record<string, unknown>).$state === "undefined") {
-	(globalThis as Record<string, unknown>).$state = <T>(initialValue: T): T => initialValue;
-}
-
 import ImageCacheService from "../src/api/ImageCacheService";
 import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "../src/core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
