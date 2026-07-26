@@ -3,6 +3,7 @@ import MaddiesApi from "./api/MaddiesAPI";
 import { IFileSystem_Token, IPath_Token } from "./core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "./core/interfaces/IFileSystem";
 import type { IPath } from "./core/interfaces/IPath";
+import Celeste from "./domain/Celeste";
 import Everest from "./domain/Everest";
 import DBMods from "./domain/LocalMods";
 import Olympus from "./domain/Olympus";
@@ -21,6 +22,7 @@ export function Construct_LocalMods(jsonParams: JsonFileAdapterOptions, storageP
 		GetDependency(GameBananaApi),
 		GetDependency(Olympus),
 		GetDependency<IFileSystem>(IFileSystem_Token),
+		GetDependency(Celeste),
 	);
 	return myMods;
 }

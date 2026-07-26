@@ -221,6 +221,8 @@ Key domain fact: a save file's `LevelSetStats Name` is **not** guaranteed to equ
 
 Category resolution (`DBMods.ResolveModCategory`) is Olympus (offline) first, Maddies' online `CategoryName` as a last-resort fallback only when Olympus isn't installed at all — never per-mod-missing-entry fallback. Returns `null` (never throws) if neither resolves; callers decide what "uncategorized" means to them.
 
+`DBMods.GetStatisticsByModId(modId, opts)` (`src/domain/LocalMods.ts`) is the canonical API for retrieving all global and campaign/lobby/chapter basic statistics (deaths, playtime, red strawberries, special berries, hearts, mini-hearts) strictly from static `.celeste` XML save files for a required `opts.saveSlot` (0-indexed). It returns a discriminated union `ModStatisticsResult` (`VanillaModStatisticsResult` | `LobbyModStatisticsResult` | `StandaloneModStatisticsResult`) tagged by `isVanilla` and `isLobbyMod`. `saveWideDashes` and `saveWideJumps` live at the result root, representing total dashes and jumps across all campaigns and installed mods in that save slot (from top-level `<TotalDashes>` / `<TotalJumps>`). `ChapterSideStats.berriesCollected` reports red-only strawberries (`min(count, maxRed)`). For Vanilla Celeste (`isVanilla: true`), `specialStrawberries` strictly contains `golden`, `moon`, and `wingedGolden`. Unplayed or non-existent sides (such as B/C sides on Prologue, Epilogue, and Farewell) are omitted from `chapter.sides`. Total vanilla Celeste berries = 202 (175 red, 25 golden, 1 winged golden, 1 moonberry; 24 crystal hearts).
+
 ### Special Direct Support for this specific mods in this project
 
 1. Collab Utils 2: 

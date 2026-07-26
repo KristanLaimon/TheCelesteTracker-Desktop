@@ -42,10 +42,10 @@ function buildDbMods(opts: { mods: EverestModInfo[]; historical: EverestHistoric
 
 	const storage = new Storage({ adapters: [] });
 	// biome-ignore lint/suspicious/noExplicitAny: test-only stubs for unused constructor deps
-	return new DBMods(fakeEverest, storage, {} as any, {} as any, fakeOlympus, fakeFs);
+	return new DBMods(fakeEverest, storage, {} as any, {} as any, fakeOlympus, fakeFs, {} as any);
 }
 
-describe("DBMods.Mods_GetAllWithHistory", () => {
+describe("DBMods.Mods_GetAllHistorical", () => {
 	test("joins installed, gone-but-cached, and tier-2 fallback rows without duplicates", async () => {
 		const installedMod = makeMod("InstalledMod", "author1/installed", "/mods/installed.zip");
 		const goneMod = makeMod("GoneMod", "author2/gone", "/mods/gone.zip");
@@ -61,7 +61,7 @@ describe("DBMods.Mods_GetAllWithHistory", () => {
 			olympusInstalled: true,
 		});
 
-		const rows = await db.Mods_GetAllWithHistory();
+		const rows = await db.Mods_GetAllHistorical();
 
 		expect(rows).toHaveLength(3);
 

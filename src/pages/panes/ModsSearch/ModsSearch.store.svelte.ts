@@ -59,7 +59,7 @@ class ModsSearchRowsCache_ {
 	async #doLoad(opts?: { invalidateCache?: boolean }): Promise<void> {
 		const localMods = Construct_LocalMods({ filePath: "./data/mods-dbS.json", indent: 2 });
 		try {
-			const entries = await localMods.Mods_GetAllWithHistory(
+			const entries = await localMods.Mods_GetAllHistorical(
 				opts?.invalidateCache ? { invalidateCache: { ALL_EVEREST_MODS_INFO: true, HISTORICAL_UNINSTALLED_MODS: true } } : undefined,
 			);
 			this.rows = entries.map((e, index) => ({

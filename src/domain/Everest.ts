@@ -489,6 +489,24 @@ export default class Everest {
 		}
 	}
 
+	/**
+	 * Reads and parses an Everest mod-specific save file (`<slot>-modsave-<modName>.celeste`) as YAML.
+	 * Returns null if the file does not exist or fails to parse.
+	 */
+	public async ReadModSaveData<T = Record<string, unknown>>(slotNumber: number, modName: string): Promise<T | null> {
+		const savesPath = await this.celesteDep.GetSavesFolderPath();
+		if (!savesPath) return null;
+		const fileAbsolutePath = `${savesPath}/${slotNumber}-modsave-${modName}.celeste`;
+		try {
+			if (!(await this.fs.exists(fileAbsolutePath))) return null;
+			const content = await this.fs.readFile(fileAbsolutePath);
+			return (yaml.load(content) as T) ?? null;
+		} catch (e: unknown) {
+			Log_Error("Everest:", `| Failed to read/parse mod save "${fileAbsolutePath}" |`, serializeError(e));
+			return null;
+		}
+	}
+
 	/** Unions + dedupes `ReadHistoricalLevelSetNames` across every save slot (`Celeste.GetAllSaveSlots`). */
 	public async GetAllHistoricalLevelSetNames(): Promise<EverestHistoricalLevelSets> {
 		const slots = await this.celesteDep.GetAllSaveSlots();
