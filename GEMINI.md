@@ -3,6 +3,8 @@ MANDATORY READ @CLAUDE.md
 ## User Defined Rules
 - Always execute `bun run check` synchronously (never in background) after making changes to `.ts` or `.svelte` files, inspect the output, and fix any type/compilation errors immediately.
 - **API Design (Options Object Pattern)**: Never use raw positional boolean flags as parameters in function/method signatures (e.g. `get(forceRefresh?: boolean)`). Always use a named options object parameter (e.g. `get(opts?: { forceRefresh?: boolean })`) for self-documenting, extensible code.
+- **Global Svelte 5 Store Pattern (`*.store.svelte.ts`)**: Encapsulated unexported store class in `*.store.svelte.ts` that self-initializes in constructor (`GetDependency(...)`), uses `$state` fields & `PascalCase` mutation methods, and exports default instance (`const store = new Store(); export default store;`). Outside UI components MUST NOT initialize global stores; they only consume getters/setters.
+
 
 ## Post-Flow Verification Commands
 After implementing changes, run the following verification flow sequentially:

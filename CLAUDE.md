@@ -345,6 +345,16 @@ More conventions:
 - Prefer `import type` unless DI decorators need the value at runtime (then `// biome-ignore-all lint/style/useImportType: <Explanation>` at top of the file command).
 - **Options Object Pattern**: Never use raw positional boolean flags in function/method signatures (e.g. `get(forceRefresh?: boolean)`). Always use a named options object parameter (e.g. `get(opts?: { forceRefresh?: boolean })`) for self-documenting, extensible code.
 
+## Global Svelte 5 Store Pattern (`*.store.svelte.ts`)
+
+Global stores manage application-wide state using Svelte 5 `$state` runes:
+1. **Self-Contained Class**: Store class is defined as an unexported class within `*.store.svelte.ts` (e.g. `class SaveSlotStore`).
+2. **Self-Initializing Constructor**: The constructor automatically invokes its own async `Initialize()` method (fetching services via `GetDependency(...)`). Outside UI components MUST NOT be responsible for initializing global stores.
+3. **Reactive `$state` Fields & OOP Methods**: Public state fields use `$state` (e.g., `public selectedSaveSlot = $state<number>(0);`), and public methods use C# `PascalCase` (e.g. `SetSelectedSaveSlot(slot: number)`).
+4. **Default Export Instance**: The class is instantiated in the store file and exported as default (`const saveSlotStore = new SaveSlotStore(); export default saveSlotStore;`).
+5. **Consumption**: UI components simply import the store (`import saveSlotStore from "..."`), read properties directly, and invoke mutation methods; Svelte 5 fine-grained reactivity automatically handles updates across the app.
+
+
 ## PREFERRED Component Patterns (Svelte 5)
 
 ```svelte
