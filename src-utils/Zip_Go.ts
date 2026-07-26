@@ -83,4 +83,34 @@ export default class Zip_Go extends Generic_Go {
 	public async zip(srcPath: string, zipPath: string): Promise<void> {
 		await this.executeInternal<void>(`zip pack --src "${srcPath}" --zip "${zipPath}"`);
 	}
+
+	public async scanModsBatch(modsDir: string, opts?: { threads?: number }): Promise<ZipScanModsResult> {
+		const threadsArg = opts?.threads ? ` --threads ${opts.threads}` : "";
+		return this.executeInternal<ZipScanModsResult>(`zip scan-mods --dir "${modsDir}"${threadsArg}`);
+	}
+}
+
+export interface ScannedMapRaw {
+	path: string;
+	metaYaml?: string;
+}
+
+export interface ScannedModRaw {
+	fileName: string;
+	isZip: boolean;
+	modPath: string;
+	sizeBytes: number;
+	yamlContent: string;
+	collabId?: string;
+	dialogFiles?: Record<string, string>;
+	lazyLoadYaml?: string;
+	mapFiles?: ScannedMapRaw[];
+}
+
+export interface ZipScanModsResult {
+	success: boolean;
+	modCount: number;
+	threads: number;
+	mods: ScannedModRaw[];
+	error?: string;
 }

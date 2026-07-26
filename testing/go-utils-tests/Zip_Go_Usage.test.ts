@@ -93,6 +93,37 @@ describe("Zip_Go via DI", () => {
 		});
 	});
 
+	describe("scanModsBatch", () => {
+		test("Scans directory containing mod zip files in parallel", async () => {
+			const modsFolder = join(TMP_DIR, "mods_folder");
+			const modZipPath = join(modsFolder, "TestMod.zip");
+			const modSrc = join(TMP_DIR, "test_mod_src");
+			mkdirSync(join(modSrc, "Maps", "TestAuthor", "TestCampaign"), { recursive: true });
+			mkdirSync(join(modSrc, "Dialog"), { recursive: true });
+			mkdirSync(modsFolder, { recursive: true });
+
+			writeFileSync(join(modSrc, "everest.yaml"), "- Name: TestMod\n  Version: 1.0.0\n");
+			writeFileSync(join(modSrc, "Dialog", "English.txt"), "TestAuthor_TestCampaign_level=Test Level Name\n");
+			writeFileSync(join(modSrc, "Maps", "TestAuthor", "TestCampaign", "1-Level.bin"), "bincontent");
+			writeFileSync(join(modSrc, "Maps", "TestAuthor", "TestCampaign", "1-Level.meta.yaml"), "Title: Test Level\n");
+
+			await zip.zip(modSrc, modZipPath);
+
+			const result = await zip.scanModsBatch(modsFolder, { threads: 4 });
+			expect(result.success).toBe(true);
+			expect(result.modCount).toBe(1);
+			expect(result.mods.length).toBe(1);
+			expect(result.mods[0].fileName).toBe("TestMod.zip");
+			expect(result.mods[0].isZip).toBe(true);
+			expect(result.mods[0].yamlContent).toContain("Name: TestMod");
+			expect(result.mods[0].dialogFiles).toBeDefined();
+			expect(result.mods[0].mapFiles?.length).toBe(1);
+
+			rmSync(modSrc, { recursive: true, force: true });
+			rmSync(modsFolder, { recursive: true, force: true });
+		});
+	});
+
 	describe("Error handling", () => {
 		test("readTextFile with non-existent zip throws", async () => {
 			await expect(zip.readTextFile(join(TMP_DIR, "no_such.zip"), "file.txt")).rejects.toThrow();

@@ -68,7 +68,23 @@ func main() {
 	packCmd.MarkFlagRequired("src")
 	packCmd.MarkFlagRequired("zip")
 
-	zipCmd.AddCommand(readCmd, listCmd, unzipCmd, packCmd)
+	var modsDir string
+	var numThreads int
+	scanModsCmd := &cobra.Command{
+		Use: "scan-mods",
+		Run: func(cmd *cobra.Command, args []string) {
+			res, err := zipScanMods(modsDir, numThreads)
+			if err != nil {
+				fail(err)
+			}
+			send(res)
+		},
+	}
+	scanModsCmd.Flags().StringVarP(&modsDir, "dir", "d", "", "Mods directory path")
+	scanModsCmd.Flags().IntVarP(&numThreads, "threads", "t", 0, "Number of parallel threads (0 = auto)")
+	scanModsCmd.MarkFlagRequired("dir")
+
+	zipCmd.AddCommand(readCmd, listCmd, unzipCmd, packCmd, scanModsCmd)
 	rootCmd.AddCommand(zipCmd)
 
 	if err := rootCmd.Execute(); err != nil {
