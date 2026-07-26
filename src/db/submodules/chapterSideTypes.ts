@@ -4,13 +4,13 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { ChapterSideType, Database } from "../db.types";
 import TableSubmodule from "./_base";
 
 @injectable()
-export default class _submodule_service_ChapterSideTypes extends TableSubmodule<"ChapterSideTypes"> {
-	constructor(@inject(CTDB_Token) db: Kysely<Database>) {
+export default class Submodule_ChapterSideTypes extends TableSubmodule<"ChapterSideTypes"> {
+	public constructor(@inject(CTDB_Token) db: Kysely<Database>) {
 		super(db, "ChapterSideTypes");
 	}
 
@@ -18,7 +18,7 @@ export default class _submodule_service_ChapterSideTypes extends TableSubmodule<
 		try {
 			return (await this.db.selectFrom("ChapterSideTypes").selectAll().where("id", "=", id).executeTakeFirst()) ?? null;
 		} catch (error) {
-			Log_Error(`ChapterSideTypes.GetById failed: ${error}`);
+			dbLogger.error(`ChapterSideTypes.GetById failed: ${error}`);
 			return null;
 		}
 	}

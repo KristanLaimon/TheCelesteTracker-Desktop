@@ -1,47 +1,74 @@
-// UNIVERSAL COMPATIBILITY
-const APP_NAME: string = "TheCelesteTracker";
+import * as fs from "node:fs";
+import { filesystem } from "@neutralinojs/lib";
+import { Logger } from "tslog";
 
-const silentLogsNamespaces: string[] = ["Canvas"].map((a) => a.toLocaleLowerCase());
+const APP_NAME = "TheCelesteTracker";
+const LOG_DIR = "./logs";
+const LOG_FILE = `${LOG_DIR}/celeste-hub.log`;
 
-export function Log_Throw(throwErrorMsg: string): void {
-	console.error(`[${APP_NAME}- FATALERROR]: ${throwErrorMsg}`);
-	throw new Error(throwErrorMsg);
-}
-
-// Helper to safely check messages against banned namespaces without breaking object references
-// biome-ignore lint/suspicious/noExplicitAny: Logging could be anything
-function isSilenced(msgs: any[]): boolean {
-	const filterString = msgs
-		.map((a) => {
-			try {
-				return typeof a === "object" ? JSON.stringify(a) : String(a);
-			} catch {
-				return "[Unserializable]";
-			}
-		})
-		.join(" ")
-		.toLocaleLowerCase();
-
-	for (const bannedNamespaceLC of silentLogsNamespaces) {
-		if (filterString.includes(bannedNamespaceLC)) return true;
+// Helper function to format objects / primitives into human-readable string
+function formatArg(arg: unknown): string {
+	if (typeof arg === "string") return arg;
+	if (arg instanceof Error) return arg.stack || arg.message;
+	try {
+		return JSON.stringify(arg);
+	} catch {
+		return String(arg);
 	}
-	return false;
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Logging could be anything
-export function Log_Info(...msgs: any[]): void {
-	if (isSilenced(msgs)) return;
-	console.info(`[${APP_NAME}- INFO]:`, ...msgs);
+// Environment-aware persistent file appender
+function appendToLogFile(line: string): void {
+	// Node/Bun environment (tests, scripts, server)
+	if (typeof process !== "undefined" && process.versions && (process.versions.node || process.versions.bun)) {
+		try {
+			if (!fs.existsSync(LOG_DIR)) {
+				fs.mkdirSync(LOG_DIR, { recursive: true });
+			}
+			fs.appendFileSync(LOG_FILE, `${line}\n`);
+			return;
+		} catch {
+			// Fall back to Neutralino filesystem wrapper if Node fs fails
+		}
+	}
+
+	// Neutralino webview environment
+	if (typeof window !== "undefined") {
+		filesystem.appendFile(LOG_FILE, `${line}\n`).catch(() => {
+			// Fail silently if filesystem isn't mounted yet
+		});
+	}
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: Logging could be anything
-export function Log_Warn(...msgs: any[]): void {
-	if (isSilenced(msgs)) return;
-	console.warn(`[${APP_NAME}- WARN]:`, ...msgs);
-}
+export const logger = new Logger({
+	name: APP_NAME,
+});
 
-// biome-ignore lint/suspicious/noExplicitAny: Logging could be anything
-export function Log_Error(...msgs: any[]): void {
-	if (isSilenced(msgs)) return;
-	console.error(`[${APP_NAME}- ERROR]:`, ...msgs);
+// Attach file transport to write logs to ./logs/celeste-hub.log without deleting existing entries
+logger.attachTransport((logObj) => {
+	const meta = logObj._logMeta;
+	const dateStr = meta?.date ? new Date(meta.date).toISOString() : new Date().toISOString();
+	const level = meta?.logLevelName ?? "INFO";
+	const loggerName = meta?.name ?? APP_NAME;
+
+	// Extract numeric arguments (logObj[0], logObj[1], etc.)
+	const args: string[] = [];
+	let i = 0;
+	while (i in logObj) {
+		args.push(formatArg(logObj[i]));
+		i++;
+	}
+
+	const formattedLine = `[${dateStr}] [${level}] [${loggerName}] ${args.join(" ")}`;
+	appendToLogFile(formattedLine);
+});
+
+// Domain-specific sub-loggers
+export const modScannerLogger = logger.getSubLogger({ name: "ModScanner" });
+export const dbLogger = logger.getSubLogger({ name: "Database" });
+export const apiLogger = logger.getSubLogger({ name: "API" });
+
+// Helper to create ad-hoc sub-loggers with custom names
+export function getLogger(name: string): Logger<unknown> {
+	return logger.getSubLogger({ name });
 }

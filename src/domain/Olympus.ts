@@ -6,7 +6,7 @@ import { IFileSystem_Token, IOs_Token, IPath_Token } from "../core/interfaces/De
 import type { IFileSystem } from "../core/interfaces/IFileSystem";
 import type { IOS } from "../core/interfaces/IOs";
 import type { IPath } from "../core/interfaces/IPath";
-import { Log_Error } from "../utils/Logger";
+import { logger } from "../utils/Logger";
 
 export const OlympusModCategory = ["Maps", "Helpers", "Tools", "Assets", "Skins", "UI", "Other/Misc", "Mechanics", "Dialog", "WiPs"] as const;
 export type OlympusModCategory = (typeof OlympusModCategory)[number];
@@ -52,7 +52,7 @@ export default class Olympus {
 		try {
 			parsed = JSON.parse(infoJsonContent);
 		} catch (e: unknown) {
-			Log_Error("Olympus:", "| Error when trying to parse cached-mod-ids-to-categories.json from olympus path |", serializeError(e));
+			logger.error("Olympus: Error when trying to parse cached-mod-ids-to-categories.json from olympus path", serializeError(e));
 			return null;
 		}
 
@@ -92,7 +92,7 @@ export default class Olympus {
 		try {
 			parsed = JSON.parse(infoJsonContent);
 		} catch (e: unknown) {
-			Log_Error("Olympus:", "| Error when trying to parse cached-mod-ids-to-names.json from olympus path |", serializeError(e));
+			logger.error("Olympus: Error when trying to parse cached-mod-ids-to-names.json from olympus path", serializeError(e));
 			return null;
 		}
 
@@ -132,7 +132,7 @@ export default class Olympus {
 					}
 				}
 			} catch (e) {
-				console.error("Failed to resolve Olympus config path:", e);
+				logger.error("Failed to resolve Olympus config path:", e);
 				return null;
 			}
 		}

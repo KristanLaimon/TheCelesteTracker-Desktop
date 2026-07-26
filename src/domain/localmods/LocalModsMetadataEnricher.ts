@@ -4,7 +4,7 @@ import type { GbMemberApi_Reponse } from "../../api/GameBananaAPI";
 import type MaddiesApi from "../../api/MaddiesAPI";
 import type { MaddiesApiModInfo } from "../../api/MaddiesAPI";
 import { AsyncLazy } from "../../utils/AsyncLazy";
-import { Log_Error } from "../../utils/Logger";
+import { modScannerLogger } from "../../utils/Logger";
 import type Storage from "../../utils/Storage";
 import type { LocalModsOptions } from "./LocalMods.types";
 import type { LocalModsScanner } from "./LocalModsScanner";
@@ -38,9 +38,8 @@ export class LocalModsMetadataEnricher {
 
 							return { everestModId, maddiesInfo: bestMatch };
 						} catch (e: unknown) {
-							Log_Error(
-								"LocalModsMetadataEnricher.ts:",
-								"(Maddies MULTIPLE FETCH) | When trying to fetch maddies api info, got error | Error =>",
+							modScannerLogger.error(
+								"LocalModsMetadataEnricher: (Maddies MULTIPLE FETCH) | When trying to fetch maddies api info, got error",
 								serializeError(e),
 							);
 							throw e;
@@ -116,7 +115,7 @@ export class LocalModsMetadataEnricher {
 		try {
 			item = await options.singleFetchFn();
 		} catch (e: unknown) {
-			Log_Error("LocalModsMetadataEnricher.ts:", `| (${options.logContext}) When trying to fetch single info, got error | Error =>`, serializeError(e));
+			modScannerLogger.error(`LocalModsMetadataEnricher: (${options.logContext}) When trying to fetch single info, got error`, serializeError(e));
 		}
 
 		options.backgroundPopulateFn();

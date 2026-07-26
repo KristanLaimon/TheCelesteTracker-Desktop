@@ -6,7 +6,7 @@ import { IFileSystem_Token, IOs_Token, IPath_Token } from "../core/interfaces/De
 import type { IFileSystem } from "../core/interfaces/IFileSystem";
 import type { IOS } from "../core/interfaces/IOs";
 import type { IPath } from "../core/interfaces/IPath";
-import { Log_Error } from "../utils/Logger";
+import { apiLogger } from "../utils/Logger";
 
 export type SingleCacheImageOptions = {
 	baseDiskDir: string;
@@ -116,7 +116,7 @@ export default class ImageCacheService {
 					await this.downloadWithNativeCommand(remoteUrl, diskPath);
 				}
 			} catch (e: unknown) {
-				Log_Error("ImageCacheService:", "Failed background image cache download:", diskPath, e);
+				apiLogger.error("ImageCacheService: Failed background image cache download:", diskPath, e);
 			}
 		})().finally(() => {
 			this.inFlightDownloads.delete(diskPath);
@@ -161,7 +161,7 @@ export default class ImageCacheService {
 				}
 			}
 		} catch (e: unknown) {
-			Log_Error("ImageCacheService:", "Native download error:", diskPath, e);
+			apiLogger.error("ImageCacheService: Native download error:", diskPath, e);
 		}
 		return false;
 	}

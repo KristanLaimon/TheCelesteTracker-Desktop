@@ -4,7 +4,7 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { Campaign, Database } from "../db.types";
 import TableSubmodule from "./_base";
 
@@ -18,7 +18,7 @@ export default class _submodule_service_Campaigns extends TableSubmodule<"Campai
 		try {
 			return (await this.db.selectFrom("Campaigns").selectAll().where("id", "=", id).executeTakeFirst()) ?? null;
 		} catch (error) {
-			Log_Error(`Campaigns.GetById failed: ${error}`);
+			dbLogger.error(`Campaigns.GetById failed: ${error}`);
 			return null;
 		}
 	}

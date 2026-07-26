@@ -1,5 +1,5 @@
 import { AsyncLazy } from "../../utils/AsyncLazy";
-import { Log_Info } from "../../utils/Logger";
+import { modScannerLogger } from "../../utils/Logger";
 import type Storage from "../../utils/Storage";
 import type Everest from "../Everest";
 import type { EverestModInfo } from "../Everest";
@@ -31,9 +31,9 @@ export class LocalModsScanner {
 	) {}
 
 	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
-		Log_Info("LocalModsScanner.ts:", "About to load all mods full!");
+		modScannerLogger.info("About to load all installed Celeste mods...");
 		const toReturn = await this.#everestModsLazy.get(opts, { forceRefresh: opts?.invalidateCache?.ALL_EVEREST_MODS_INFO });
-		Log_Info("LocalModsScanner.ts:", "All mods info loaded");
+		modScannerLogger.info(`Loaded ${Object.keys(toReturn).length} installed mods into scanner cache.`);
 		return toReturn;
 	}
 

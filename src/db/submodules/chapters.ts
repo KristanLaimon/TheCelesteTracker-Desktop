@@ -4,7 +4,7 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { Chapter, Database } from "../db.types";
 import TableSubmodule from "./_base";
 
@@ -18,7 +18,7 @@ export default class _submodule_service_Chapters extends TableSubmodule<"Chapter
 		try {
 			return (await this.db.selectFrom("Chapters").selectAll().where("sid", "=", sid).executeTakeFirst()) ?? null;
 		} catch (error) {
-			Log_Error(`Chapters.GetBySid failed: ${error}`);
+			dbLogger.error(`Chapters.GetBySid failed: ${error}`);
 			return null;
 		}
 	}

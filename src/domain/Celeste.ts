@@ -6,7 +6,7 @@ import { inject, injectable } from "tsyringe";
 import { IFileSystem_Token, IOs_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../core/interfaces/IFileSystem";
 import type { IOS } from "../core/interfaces/IOs";
-import { Log_Error } from "../utils/Logger";
+import { logger } from "../utils/Logger";
 
 export interface CelesteInstallation {
 	foundPath: string;
@@ -83,7 +83,7 @@ export default class Celeste {
 				const slotName = String(parsed?.SaveData?.Name ?? "");
 				slots.push({ slotNumber, slotName, fileAbsolutePath });
 			} catch (e: unknown) {
-				Log_Error("Celeste:", `| Failed to read/parse save slot "${entry.entry}" |`, serializeError(e));
+				logger.error("Celeste: Failed to read/parse save slot", entry.entry, serializeError(e));
 			}
 		}
 		return slots.sort((a, b) => a.slotNumber - b.slotNumber);
@@ -108,7 +108,7 @@ export default class Celeste {
 				unlockedAreas: Number(parsed.UnlockedAreas ?? 0),
 			};
 		} catch (e: unknown) {
-			Log_Error("Celeste:", `| Failed to read/parse vanilla save stats from "${fileAbsolutePath}" |`, serializeError(e));
+			logger.error("Celeste: Failed to read/parse vanilla save stats from", fileAbsolutePath, serializeError(e));
 			return null;
 		}
 	}
@@ -147,7 +147,7 @@ export default class Celeste {
 				}
 			}
 		} catch (e) {
-			console.error("OS path fetch fail:", e);
+			logger.error("OS path fetch fail:", e);
 		}
 
 		for (const { path, type } of targets) {

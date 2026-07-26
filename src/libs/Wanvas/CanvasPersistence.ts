@@ -1,5 +1,5 @@
 // UNIVERSAL COMPATIBILITY
-import { Log_Warn } from "../../utils/Logger";
+import { logger } from "../../utils/Logger";
 import type { CanvasNodeData } from "./Canvas.types";
 
 /**
@@ -60,7 +60,7 @@ function parseLegacyPayload(storage: string): { nodes: CanvasNodeData<any>[]; vi
 			return { nodes, view };
 		}
 	} catch (err) {
-		Log_Warn(`Canvas -> Failed to parse fallback legacy storage: ${err}`);
+		logger.warn(`Canvas -> Failed to parse fallback legacy storage: ${err}`);
 	}
 	return null;
 }
@@ -78,7 +78,7 @@ export function loadPersistentState(key: string): { nodes: CanvasNodeData<any>[]
 		try {
 			nodes = JSON.parse(nodesStorage);
 		} catch (err) {
-			Log_Warn(`Canvas -> Failed to parse persistent nodes: ${err}`);
+			logger.warn(`Canvas -> Failed to parse persistent nodes: ${err}`);
 		}
 	}
 
@@ -94,7 +94,7 @@ export function loadPersistentState(key: string): { nodes: CanvasNodeData<any>[]
 				}
 			}
 		} catch (err) {
-			Log_Warn(`Canvas -> Failed to parse persistent view: ${err}`);
+			logger.warn(`Canvas -> Failed to parse persistent view: ${err}`);
 		}
 	}
 
@@ -126,6 +126,6 @@ export function savePersistentState(key: string, nodes: CanvasNodeData<any>[], v
 		localStorage.setItem(`${key}_view`, JSON.stringify(view));
 		localStorage.removeItem(key); // clean legacy key
 	} catch (err) {
-		Log_Warn(`Canvas -> Failed to save persistent storage: ${err}`);
+		logger.warn(`Canvas -> Failed to save persistent storage: ${err}`);
 	}
 }

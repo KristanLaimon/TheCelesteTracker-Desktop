@@ -21,6 +21,7 @@ import { inject, injectable } from "tsyringe";
 import Zip_Go from "../../src-utils/Zip_Go";
 import { IFileSystem_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { DirectoryEntry, IFileSystem } from "../core/interfaces/IFileSystem";
+import { modScannerLogger } from "../utils/Logger";
 import type { DiscoveredLobby, DiscoveredMap, EverestModInfo, MapMetaYaml } from "./Everest";
 
 /**
@@ -84,7 +85,11 @@ export class CollabUtils2Scanner {
 		const names = ["CollabUtils2CollabID.txt", "collabutils2collabid.txt"];
 		for (const name of names) {
 			try {
-				return (await this.readModFile(modInfo.modPath, modInfo.isZip, name)).trim();
+				const collabId = (await this.readModFile(modInfo.modPath, modInfo.isZip, name)).trim();
+				if (collabId) {
+					modScannerLogger.info(`Collab detected in mod "${modInfo.fileName}": collabId="${collabId}"`);
+					return collabId;
+				}
 			} catch {
 				/* try next */
 			}

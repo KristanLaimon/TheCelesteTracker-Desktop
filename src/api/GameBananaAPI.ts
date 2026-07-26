@@ -2,7 +2,7 @@
 
 import { injectable } from "tsyringe";
 import Configuration from "../domain/Configuration";
-import { Log_Error } from "../utils/Logger";
+import { apiLogger } from "../utils/Logger";
 import ImageCacheService from "./ImageCacheService";
 
 export const GB_ItemType = ["Mod", "Member"] as const;
@@ -214,7 +214,7 @@ export default class GameBananaApi {
 			const resJson = (await res.json()) as GBApiResponse_ItemExistsById;
 			return Boolean(resJson?.[0]);
 		} catch (e) {
-			Log_Error("GameBananaApi.ItemExistsById failed:", e);
+			apiLogger.error("GameBananaApi.ItemExistsById failed:", e);
 			return false;
 		}
 	}
@@ -231,7 +231,7 @@ export default class GameBananaApi {
 			// biome-ignore lint/suspicious/noExplicitAny: GameBanana API returns variable array shapes
 			return (await res.json()) as any[];
 		} catch (e) {
-			Log_Error("GameBananaApi.GetItemInfo failed:", e);
+			apiLogger.error("GameBananaApi.GetItemInfo failed:", e);
 			return [];
 		}
 	}
@@ -259,10 +259,12 @@ export default class GameBananaApi {
 						.filter((id) => !Number.isNaN(id) && id > 0);
 				}
 			} else {
-				Log_Error("GameBananaApi: GetUserMetadataByUsernames success but not code 200 (OK) | -> ", res);
+				apiLogger.error("GameBananaApi: GetUserMetadataByUsernames success but not code 200 (OK) | -> ", res);
+				return [];
 			}
 		} catch (e: unknown) {
-			Log_Error("GameBananaApi: GetUserMetadataByUsernames failed:", e);
+			apiLogger.error("GameBananaApi: GetUserMetadataByUsernames failed:", e);
+			return [];
 		}
 
 		if (matchedUserIds.length === 0) return [];
@@ -313,7 +315,7 @@ export default class GameBananaApi {
 					parsedAuthors = JSON.parse(data[0]) as GBCreditsAndGroups;
 				}
 			} catch (e) {
-				Log_Error("Failed to parse GameBanana authors JSON:", e);
+				apiLogger.error("Failed to parse GameBanana authors JSON:", e);
 			}
 
 			return {
@@ -332,7 +334,7 @@ export default class GameBananaApi {
 				views: data[12] as number,
 			};
 		} catch (e) {
-			Log_Error("GameBananaApi.GetModData failed:", e);
+			apiLogger.error("GameBananaApi.GetModData failed:", e);
 			return null;
 		}
 	}

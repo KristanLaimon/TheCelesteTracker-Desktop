@@ -14,7 +14,7 @@ import type {
 } from "@neutralinojs/lib";
 import { filesystem, server } from "@neutralinojs/lib";
 import { container, inject, injectable } from "tsyringe";
-import { Log_Info } from "../utils/Logger";
+import { logger } from "../utils/Logger";
 import { IPath_Token } from "./interfaces/DependencyInjectionTokens";
 import type { CreateDirectoryOptions, IFileSystem, PathParts } from "./interfaces/IFileSystem";
 import type { IPath } from "./interfaces/IPath";
@@ -51,26 +51,26 @@ export class NeutralinoFileSystem implements IFileSystem {
 					if (e && typeof e === "object" && "code" in e && (e as { code: unknown }).code === "NE_FS_NOPATHE") {
 						return false;
 					}
-					console.error(e);
+					logger.error("NeutralinoFileSystem:", e);
 					return false;
 				}
 			})();
 			if (!resourcesFolderExists) {
 				await filesystem.createDirectory(resourcesFolderPath);
-				Log_Info("NeutralinoFileSystem:", "Resources folder not found, creating empty directory at exe's path.");
+				logger.info("NeutralinoFileSystem: Resources folder not found, creating empty directory at exe's path.");
 			}
 			NeutralinoFileSystem.ResourcesFolderPath_Backend = resourcesFolderPath;
 			const res = await server.getMounts();
 			if (Object.keys(res).length > 0) {
 				if (res[NeutralinoFileSystem.ResourcesFolderPath_Frontend]) {
-					Log_Info("NeutralinoFileSystem:", "| Already Mounted Paths.. Skiping the following remounts |", res);
+					logger.info("NeutralinoFileSystem: Already Mounted Paths.. Skipping the following remounts", res);
 				} else {
 					await server.mount(NeutralinoFileSystem.ResourcesFolderPath_Frontend, NeutralinoFileSystem.ResourcesFolderPath_Backend);
-					Log_Info("NeutralinoFileSystem:", "Mounted and loaded local folder:", NeutralinoFileSystem.ResourcesFolderPath_Backend);
+					logger.info("NeutralinoFileSystem: Mounted and loaded local folder:", NeutralinoFileSystem.ResourcesFolderPath_Backend);
 				}
 			} else {
 				await server.mount(NeutralinoFileSystem.ResourcesFolderPath_Frontend, NeutralinoFileSystem.ResourcesFolderPath_Backend);
-				Log_Info("NeutralinoFileSystem:", "Mounted and loaded local folder:", NeutralinoFileSystem.ResourcesFolderPath_Backend);
+				logger.info("NeutralinoFileSystem: Mounted and loaded local folder:", NeutralinoFileSystem.ResourcesFolderPath_Backend);
 			}
 		}
 	}

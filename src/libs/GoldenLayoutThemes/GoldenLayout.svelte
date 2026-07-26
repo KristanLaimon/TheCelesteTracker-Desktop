@@ -12,7 +12,7 @@ import type {
 import "./goldenlayout-base.css";
 import "./predefined/goldenlayout-dark-theme.css";
 import { MapPinAltSolid } from "flowbite-svelte-icons";
-import { Log_Info } from "../../utils/Logger";
+import { logger } from "../../utils/Logger";
 
 // Enable real-time live resizing during splitter drag without compound feedback loop or dragStop jumps
 // biome-ignore lint/suspicious/noExplicitAny: Needed to patch internal methods
@@ -734,7 +734,7 @@ onMount(() => {
 				});
 			}
 
-			Log_Info("GoldenLayout Wrapper: Mounting Svelte Component...");
+			logger.info("GoldenLayout Wrapper: Mounting Svelte Component...");
 
 			if (!layoutContainerEl) {
 				console.error("Layout HTML element not found to inject Golden-Layout dependency.");
@@ -808,17 +808,17 @@ onMount(() => {
 			loadPinsMap();
 			const processedContent = preprocessLayoutContent(Content);
 
-			Log_Info("GoldenLayout Wrapper: Initializing raw GoldenLayout...");
+			logger.info("GoldenLayout Wrapper: Initializing raw GoldenLayout...");
 			LAYOUT = new GoldenLayout(layoutContainerEl);
 
 			// Register Svelte components from components registry prop
 			if (components) {
 				// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 				for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
-					Log_Info(`GoldenLayout Wrapper: Registering component "${name}"`);
+					logger.info(`GoldenLayout Wrapper: Registering component "${name}"`);
 					LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
 						try {
-							Log_Info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
+							logger.info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
 							mountIntoContainer(container, name, component, {}, (state as Record<string, unknown>) || {});
 
 							container.on("destroy", () => {
@@ -835,10 +835,10 @@ onMount(() => {
 			}
 
 			// Register the mandatory default Svelte component
-			Log_Info("GoldenLayout Wrapper: Registering default component");
+			logger.info("GoldenLayout Wrapper: Registering default component");
 			LAYOUT.registerComponentFactoryFunction("__defaultComponent", (container, state) => {
 				try {
-					Log_Info("GoldenLayout Wrapper: Factory function called for defaultComponent");
+					logger.info("GoldenLayout Wrapper: Factory function called for defaultComponent");
 					mountIntoContainer(container, "__defaultComponent", defaultComponent, defaultComponentProps, (state as Record<string, unknown>) || {});
 
 					container.on("destroy", () => {
@@ -872,7 +872,7 @@ onMount(() => {
 				}
 			});
 
-			Log_Info("GoldenLayout Wrapper: Loading layout structure...");
+			logger.info("GoldenLayout Wrapper: Loading layout structure...");
 			const storedPreviousLayout = localStorage.getItem(persistence.localStorageKey);
 			let loadedFromCache = false;
 
@@ -915,7 +915,7 @@ onMount(() => {
 				});
 			}
 
-			Log_Info("GoldenLayout Wrapper: Layout loaded successfully.");
+			logger.info("GoldenLayout Wrapper: Layout loaded successfully.");
 
 			if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
 				applyComponentStyles(layoutContainerEl);
@@ -1012,7 +1012,7 @@ onMount(() => {
 				const root: any = LAYOUT.rootItem || (LAYOUT as any).root;
 				const items = getAllComponentItems(root);
 				if (items.length === 0) {
-					Log_Info("GoldenLayout Wrapper: All tabs closed (tabs === 0). Spawning default new tab...");
+					logger.info("GoldenLayout Wrapper: All tabs closed (tabs === 0). Spawning default new tab...");
 					if (root && typeof root.newComponent === "function") {
 						root.newComponent("__defaultComponent", { __tabId: generateTabId() }, "New Tab");
 					} else if (root && typeof root.addItem === "function") {

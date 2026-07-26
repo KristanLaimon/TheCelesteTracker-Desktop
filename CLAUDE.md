@@ -387,7 +387,7 @@ More conventions:
 ## Error Handling
 
 - Try/catch with silent fallback — one mod's failure must not crash the whole scan.
-- Log error (`Log_Error(...)`) then return default (null/empty) — don't throw on non-critical paths.
+- Log error (`logger.error(...)`) then return default (null/empty) — don't throw on non-critical paths.
 - Early return on null/undefined for non-critical paths.
 - Throw only for critical precondition failures (smoke-test asserts).
 - `Promise.allSettled` for batched API calls where partial failure is acceptable.

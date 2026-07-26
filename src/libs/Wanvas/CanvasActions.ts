@@ -1,5 +1,5 @@
 // BROWSER ONLY
-import { Log_Warn } from "../../utils/Logger";
+import { logger } from "../../utils/Logger";
 import type { CanvasNodeData } from "./Canvas.types";
 
 export interface DragOptions {
@@ -182,7 +182,7 @@ export function resizeNode(handleEl: HTMLElement, initialOptions: ResizeOptions)
 				maxHeight = Number.MAX_VALUE;
 			}
 		} else {
-			Log_Warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
+			logger.warn("ResizeNode -> For some reason couldn't find the parent... check me pls");
 		}
 		handleEl.setPointerCapture(e.pointerId);
 		handleEl.addEventListener("pointermove", handlePointerMove);

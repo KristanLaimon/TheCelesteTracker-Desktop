@@ -1,14 +1,12 @@
-// BROWSER ONLY
-// biome-ignore-all assist/source/organizeImports: Imports are organized by usage
 import neutralino from "@neutralinojs/lib";
 import { mount, unmount } from "svelte";
 import Loading from "./components/Loading.svelte";
-import App from "./index.svelte";
 import BrowserPath from "./core/BrowserPath";
-import Configuration from "./domain/Configuration";
-import { Log_Info } from "./utils/Logger";
 import { NeutralinoFileSystem } from "./core/NeutralinoFileSystem";
+import Configuration from "./domain/Configuration";
+import App from "./index.svelte";
 import { get } from "./setup";
+import { logger } from "./utils/Logger";
 
 neutralino.init();
 
@@ -26,16 +24,16 @@ loadingInstance = mount(Loading, {
 });
 
 neutralino.events.on("ready", () => {
-	Log_Info("Neutralino: Ready");
+	logger.info("Neutralino: Ready");
 	const path = new BrowserPath();
 	const fs = new NeutralinoFileSystem(path);
 
 	//if doesnt exist only
 	fs.createDirectory("./data").then(() => {
-		Log_Info("Neutralinod:", "Ensuring ./data folder exists");
+		logger.info("Neutralino: Ensuring ./data folder exists");
 
 		NeutralinoFileSystem.MountLocalFolders().then(() => {
-			Log_Info("Neutralino: Mounted local folders");
+			logger.info("Neutralino: Mounted local folders");
 
 			const configuration = get(Configuration);
 			configuration.initialize().then(() => {

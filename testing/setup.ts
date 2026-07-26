@@ -17,7 +17,7 @@ import Everest from "../src/domain/Everest";
 import { CollabUtils2Scanner } from "../src/domain/Everest.collabutils2";
 import { DialogReader } from "../src/domain/Everest.dialog";
 import Olympus from "../src/domain/Olympus";
-
+import { Construct_LocalMods } from "../src/setup.DI.helpers";
 import Sqlite_Go from "../src-utils/Sqlite_Go";
 import Zip_Go from "../src-utils/Zip_Go";
 import { BunThread } from "./BunThread";
@@ -85,3 +85,5 @@ export function EnsureBuildAndGetPathExe(): string {
 		throw new Error("This should not happen!");
 	}
 }
+
+export const DB_Mods = Construct_LocalMods({ filePath: "./testing/Data-Temp/mods-dbS.json", indent: 2 });

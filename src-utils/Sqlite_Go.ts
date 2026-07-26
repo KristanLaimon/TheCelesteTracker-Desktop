@@ -6,7 +6,7 @@ import { injectable } from "tsyringe";
 import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
 import type { IOS } from "../src/core/interfaces/IOs";
 import type { IPath } from "../src/core/interfaces/IPath";
-import { Log_Info, Log_Throw } from "../src/utils/Logger";
+import { dbLogger } from "../src/utils/Logger";
 import Generic_Go from "./Generic_Go";
 
 export type SQLiteQueryResult<T> =
@@ -54,7 +54,9 @@ export default class Sqlite_Go extends Generic_Go {
 		this.dbPath = dbPath;
 		fs.exists(this.dbPath).then((exists) => {
 			if (!exists) {
-				Log_Throw(`Database DOESN'T EXIST!, not found. Should be in '${this.dbPath}'. Creating a new empty database as default...`);
+				const errMsg = `Database DOESN'T EXIST!, not found. Should be in '${this.dbPath}'. Creating a new empty database as default...`;
+				dbLogger.fatal(errMsg);
+				throw new Error(errMsg);
 			}
 		});
 	}
@@ -63,7 +65,7 @@ export default class Sqlite_Go extends Generic_Go {
 		const utilityExecutable = await this.GetExecutablePath();
 		const cmd = `"${utilityExecutable}" sqlite --db "${this.dbPath}"`;
 
-		Log_Info(`Sqlite CLI Executing: ${cmd}`);
+		dbLogger.info(`Sqlite CLI Executing: ${cmd}`);
 		const response = await this.os.execCommand(cmd, { stdIn });
 
 		if (response.exitCode !== 0) {

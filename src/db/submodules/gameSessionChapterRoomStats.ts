@@ -4,7 +4,7 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { Database, GameSessionChapterRoomStat } from "../db.types";
 import TableSubmodule from "./_base";
 
@@ -18,7 +18,7 @@ export default class _submodule_service_GameSessionChapterRoomStats extends Tabl
 		try {
 			return (await this.db.selectFrom("GameSessionChapterRoomStats").selectAll().where("id", "=", id).executeTakeFirst()) ?? null;
 		} catch (error) {
-			Log_Error(`GameSessionChapterRoomStats.GetById failed: ${error}`);
+			dbLogger.error(`GameSessionChapterRoomStats.GetById failed: ${error}`);
 			return null;
 		}
 	}
@@ -27,7 +27,7 @@ export default class _submodule_service_GameSessionChapterRoomStats extends Tabl
 		try {
 			return await this.db.selectFrom("GameSessionChapterRoomStats").selectAll().where("gamesession_id", "=", gameSessionId).execute();
 		} catch (error) {
-			Log_Error(`GameSessionChapterRoomStats.GetByGameSession failed: ${error}`);
+			dbLogger.error(`GameSessionChapterRoomStats.GetByGameSession failed: ${error}`);
 			return [];
 		}
 	}

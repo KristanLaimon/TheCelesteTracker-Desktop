@@ -4,13 +4,13 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { Database, GameSession } from "../db.types";
 import TableSubmodule from "./_base";
 
 @injectable()
-export default class _submodule_service_GameSessions extends TableSubmodule<"GameSessions"> {
-	constructor(@inject(CTDB_Token) db: Kysely<Database>) {
+export default class Submodule_GameSessions extends TableSubmodule<"GameSessions"> {
+	public constructor(@inject(CTDB_Token) db: Kysely<Database>) {
 		super(db, "GameSessions");
 	}
 
@@ -18,7 +18,7 @@ export default class _submodule_service_GameSessions extends TableSubmodule<"Gam
 		try {
 			return (await this.db.selectFrom("GameSessions").selectAll().where("id", "=", id).executeTakeFirst()) ?? null;
 		} catch (error) {
-			Log_Error(`GameSessions.GetById failed: ${error}`);
+			dbLogger.error(`GameSessions.GetById failed: ${error}`);
 			return null;
 		}
 	}

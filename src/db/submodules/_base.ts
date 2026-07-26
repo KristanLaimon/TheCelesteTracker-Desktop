@@ -2,7 +2,7 @@
 // biome-ignore-all lint/complexity/noBannedTypes: Kysely spells "nothing selected yet" as {}
 
 import type { Kysely, Selectable, SelectQueryBuilder } from "kysely";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { Database } from "../db.types";
 
 /**
@@ -25,7 +25,7 @@ export default abstract class TableSubmodule<K extends keyof Database & string> 
 		try {
 			return (await this.db.selectFrom(this.tablename).selectAll().execute()) as Selectable<Database[K]>[];
 		} catch (error) {
-			Log_Error(`${this.tablename}.GetAll failed: ${error}`);
+			dbLogger.error(`${this.tablename}.GetAll failed: ${error}`);
 			return [];
 		}
 	}

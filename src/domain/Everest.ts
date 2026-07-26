@@ -25,7 +25,7 @@ import Zip_Go from "../../src-utils/Zip_Go";
 import { IFileSystem_Token, IThreadConstructor_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { DirectoryEntry, IFileSystem } from "../core/interfaces/IFileSystem";
 import type { IThreadConstructor } from "../core/interfaces/IThread";
-import { Log_Error } from "../utils/Logger";
+import { modScannerLogger } from "../utils/Logger";
 import Celeste from "./Celeste";
 import { ALT_SIDES_META_EXT, type AltSidesHelperMeta } from "./Everest.altsideshelper";
 import { type CollabUtils2LazyLoadingYaml, CollabUtils2Scanner } from "./Everest.collabutils2";
@@ -287,7 +287,7 @@ function parseYaml<T>(content: string, fileName: string): T | undefined {
 		const cleaned = content.replace(/\0/g, "").replace(/^\uFEFF/, "");
 		return (yaml.load(cleaned) as T | null | undefined) ?? undefined;
 	} catch (err) {
-		console.error(`Yaml parse fail ${fileName}:`, err);
+		modScannerLogger.error(`Yaml parse fail ${fileName}:`, err);
 		return undefined;
 	}
 }
@@ -323,7 +323,7 @@ export function parseEverestYaml(content: string, fileName: string): ModMetadata
 			campaigns: [],
 		};
 	} catch (err) {
-		console.error(`Yaml parse fail ${fileName}:`, err);
+		modScannerLogger.error(`Yaml parse fail ${fileName}:`, err);
 		return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
 	}
 }
@@ -484,7 +484,7 @@ export default class Everest {
 				recycledLevelSetNames: extractNames(parsed?.LevelSetRecycleBin),
 			};
 		} catch (e: unknown) {
-			Log_Error("Everest:", `| Failed to read/parse historical LevelSets from "${fileAbsolutePath}" |`, serializeError(e));
+			modScannerLogger.error(`Failed to read/parse historical LevelSets from "${fileAbsolutePath}":`, serializeError(e));
 			return { installedLevelSetNames: [], recycledLevelSetNames: [] };
 		}
 	}
@@ -502,7 +502,7 @@ export default class Everest {
 			const content = await this.fs.readFile(fileAbsolutePath);
 			return (yaml.load(content) as T) ?? null;
 		} catch (e: unknown) {
-			Log_Error("Everest:", `| Failed to read/parse mod save "${fileAbsolutePath}" |`, serializeError(e));
+			modScannerLogger.error(`Failed to read/parse mod save "${fileAbsolutePath}":`, serializeError(e));
 			return null;
 		}
 	}
@@ -589,7 +589,7 @@ export default class Everest {
 			try {
 				const batch = await this.zip.scanModsBatch(modsPath);
 				if (batch?.success && Array.isArray(batch.mods) && batch.mods.length > 0) {
-					console.log(`⚡ High-speed Go batch scanned ${batch.mods.length} mods across ${batch.threads} CPU threads!`);
+					modScannerLogger.info(`⚡ High-speed Go batch scanned ${batch.mods.length} mods across ${batch.threads} CPU threads!`);
 					const result: EverestModInfo[] = [];
 
 					for (const raw of batch.mods) {
@@ -672,7 +672,7 @@ export default class Everest {
 					return result;
 				}
 			} catch (e) {
-				console.warn("Batch Go scan fallback due to:", e);
+				modScannerLogger.warn("Batch Go scan fallback due to:", e);
 			}
 		}
 
@@ -738,7 +738,7 @@ export default class Everest {
 				}
 			}),
 		);
-		console.log("--------- FINISHED SCANNING FULL EVEREST METADATA AND LOBBY STUFF AND DIALOG --------------");
+		modScannerLogger.info("Finished scanning full Everest metadata, lobby structure, and dialog files.");
 		return mods;
 	}
 
@@ -761,7 +761,7 @@ export default class Everest {
 		const workerCount = opts?.workerCount ?? 0;
 		if (workerCount > 0) {
 			const result = await this.scanWithWorkers(entries, modsPath, workerCount);
-			console.log(" ---------- FINISHED SCAN MOD BASE -----------------");
+			modScannerLogger.info("Finished scanning mod base info via workers.");
 			if (result) return result;
 		}
 
@@ -786,7 +786,7 @@ export default class Everest {
 					const isZip = type === "FILE" && entry.toLowerCase().endsWith(".zip");
 					if (type !== "DIRECTORY" && !isZip) return null;
 
-					console.log((++no).toString(), "|SCANNING MOD:", entry);
+					modScannerLogger.debug(`Scanning mod ${++no}: ${entry}`);
 
 					const modPath = `${modsPath}/${entry}`;
 					for (const yName of YAML_NAMES) {

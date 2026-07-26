@@ -2,7 +2,7 @@
 import DomPurify from "dompurify";
 import { marked } from "marked";
 import { onDestroy } from "svelte";
-import { Log_Info } from "../../../utils/Logger";
+import { logger } from "../../../utils/Logger";
 import type { ICanvasWidgetProps } from "../Canvas.types";
 import BaseGlassWidget from "./BaseGlassWidget.svelte";
 
@@ -45,9 +45,9 @@ onDestroy(() => {
     <textarea
       bind:value={rawTextContent}
       onchange={() => onChange?.({ rawTextContent, displayMode })}
-      onfocus={()=> {isFocused = true; Log_Info('TextWidget:', 'FOCUS EVENT'); resetTypingTimer(); }}
-      onclick={() => { hasMadeClick = true; Log_Info('TextWidget:', 'CLICK EVENT'); resetTypingTimer(); }} 
-      onblur={() => {isFocused = false; hasMadeClick = false; Log_Info('TextWidget:', 'ONBLUR (OUT)');}}
+      onfocus={()=> {isFocused = true; logger.info('TextWidget:', 'FOCUS EVENT'); resetTypingTimer(); }}
+      onclick={() => { hasMadeClick = true; logger.info('TextWidget:', 'CLICK EVENT'); resetTypingTimer(); }} 
+      onblur={() => {isFocused = false; hasMadeClick = false; logger.info('TextWidget:', 'ONBLUR (OUT)');}}
       oninput={resetTypingTimer}
       onkeydown={resetTypingTimer}
       placeholder="Type here..."

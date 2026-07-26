@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { serializeError } from "serialize-error";
 import type { IFileSystem } from "../../core/interfaces/IFileSystem";
-import { Log_Error } from "../../utils/Logger";
+import { modScannerLogger } from "../../utils/Logger";
 import type Celeste from "../Celeste";
 import type { CelesteSaveSlot } from "../Celeste";
 import type Everest from "../Everest";
@@ -257,7 +257,7 @@ export class LocalModsStatsCalculator {
 				}
 			}
 		} catch (e: unknown) {
-			Log_Error("LocalModsStatsCalculator.ts:", `| Failed to parse vanilla save stats for slot ${slot.slotNumber} |`, serializeError(e));
+			modScannerLogger.error(`LocalModsStatsCalculator: Failed to parse vanilla save stats for slot ${slot.slotNumber}`, serializeError(e));
 		}
 
 		let minDeathsSum = 0;
@@ -399,7 +399,7 @@ export class LocalModsStatsCalculator {
 				}
 			}
 		} catch (e: unknown) {
-			Log_Error("LocalModsStatsCalculator.ts:", `| Failed to parse lobby mod save stats for slot ${slot.slotNumber} |`, serializeError(e));
+			modScannerLogger.error(`LocalModsStatsCalculator: Failed to parse lobby mod save stats for slot ${slot.slotNumber}`, serializeError(e));
 		}
 
 		let minDeathsSum = 0;
@@ -523,7 +523,7 @@ export class LocalModsStatsCalculator {
 				}
 			}
 		} catch (e: unknown) {
-			Log_Error("LocalModsStatsCalculator.ts:", `| Failed to parse standalone mod save stats for slot ${slot.slotNumber} |`, serializeError(e));
+			modScannerLogger.error(`LocalModsStatsCalculator: Failed to parse standalone mod save stats for slot ${slot.slotNumber}`, serializeError(e));
 		}
 
 		let minDeathsSum = 0;

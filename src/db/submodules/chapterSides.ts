@@ -4,7 +4,7 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
-import { Log_Error } from "../../utils/Logger";
+import { dbLogger } from "../../utils/Logger";
 import type { ChapterSide, Database } from "../db.types";
 import TableSubmodule from "./_base";
 
@@ -25,7 +25,7 @@ export default class _submodule_service_ChapterSides extends TableSubmodule<"Cha
 					.executeTakeFirst()) ?? null
 			);
 		} catch (error) {
-			Log_Error(`ChapterSides.GetByPk failed: ${error}`);
+			dbLogger.error(`ChapterSides.GetByPk failed: ${error}`);
 			return null;
 		}
 	}
