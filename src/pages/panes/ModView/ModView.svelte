@@ -43,7 +43,7 @@ const selectedModId = $derived.by(() => {
 	return match ? match.modId : selectedName;
 });
 
-const isMapMod = $derived<boolean>(!!selectedEverestInfo?.metadata.isMapMod);
+const isMapMod = $derived<boolean>(selectedEverestInfo?.metadata?.isMapMod === true);
 
 const hasSpecialCollectibles = $derived.by(() => {
 	if (!isMapMod) return false;
@@ -81,19 +81,13 @@ $effect(() => {
 		return;
 	}
 	loadingInfo = true;
-	localMods.MaddiesApi_Get_ModByModId(selectedModId).then((maddiesApiResult) => {
-		selectedMaddiesInfo = maddiesApiResult;
-		if (maddiesApiResult !== null) {
-			loadingInfo = false;
-			return;
-		}
-		localMods.EverestMods_Get_ModByModId(selectedModId).then((everestApiResult) => {
+	Promise.all([localMods.MaddiesApi_Get_ModByModId(selectedModId), localMods.EverestMods_Get_ModByModId(selectedModId)]).then(
+		([maddiesApiResult, everestApiResult]) => {
+			selectedMaddiesInfo = maddiesApiResult;
 			selectedEverestInfo = everestApiResult;
-			if (everestApiResult !== null) {
-				loadingInfo = false;
-			}
-		});
-	});
+			loadingInfo = false;
+		},
+	);
 });
 
 $effect(() => {
@@ -232,176 +226,178 @@ $effect(() => {
             {/if}
 
             <!-- GLOBAL MOD STATISTICS SECTION -->
-            <div class="rounded-2xl bg-zinc-950/40 border border-zinc-800/80 p-5 backdrop-blur-md space-y-4 w-full">
-              <div class="border-b border-zinc-800/80 pb-3">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                  <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  <span>Mod Statistics (Global)</span>
-                </h3>
-              </div>
-
-              {#if loadingStats}
-                <div class="py-6 text-center text-zinc-400 animate-pulse text-sm">
-                  Loading gameplay statistics...
+            {#if isMapMod}
+              <div class="rounded-2xl bg-zinc-950/40 border border-zinc-800/80 p-5 backdrop-blur-md space-y-4 w-full">
+                <div class="border-b border-zinc-800/80 pb-3">
+                  <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span>Mod Statistics (Global)</span>
+                  </h3>
                 </div>
-              {:else if modStats}
-                <!-- COMPACT HORIZONTAL BUTTON-LIKE PILLS ROW (ALWAYS SHOWING CURRENT / TOTAL) -->
-                <div class="flex flex-wrap items-center gap-3 w-full">
-                  <!-- PLAY TIME -->
-                  <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
-                    <img src={timerIcon} alt="Play time" class="h-5 w-auto object-contain" />
-                    <span class="text-sm font-bold text-white">{formatPlayTime(modStats.global.playTimeMs)}</span>
-                  </div>
 
-                  <!-- DEATHS -->
-                  <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
-                    <img src={deathsIcon} alt="Deaths" class="h-5 w-auto object-contain" />
-                    <span class="text-sm font-bold text-white">{modStats.global.deaths.toLocaleString()}</span>
-                    {#if modStats.global.minimumDeaths > 0}
-                      <span class="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
-                        Min: {modStats.global.minimumDeaths.toLocaleString()}
+                {#if loadingStats}
+                  <div class="py-6 text-center text-zinc-400 animate-pulse text-sm">
+                    Loading gameplay statistics...
+                  </div>
+                {:else if modStats}
+                  <!-- COMPACT HORIZONTAL BUTTON-LIKE PILLS ROW (ALWAYS SHOWING CURRENT / TOTAL) -->
+                  <div class="flex flex-wrap items-center gap-3 w-full">
+                    <!-- PLAY TIME -->
+                    <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
+                      <img src={timerIcon} alt="Play time" class="h-5 w-auto object-contain" />
+                      <span class="text-sm font-bold text-white">{formatPlayTime(modStats.global.playTimeMs)}</span>
+                    </div>
+
+                    <!-- DEATHS -->
+                    <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
+                      <img src={deathsIcon} alt="Deaths" class="h-5 w-auto object-contain" />
+                      <span class="text-sm font-bold text-white">{modStats.global.deaths.toLocaleString()}</span>
+                      {#if modStats.global.minimumDeaths > 0}
+                        <span class="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                          Min: {modStats.global.minimumDeaths.toLocaleString()}
+                        </span>
+                      {/if}
+                    </div>
+
+                    <!-- RED STRAWBERRIES -->
+                    <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
+                      <img src={strawberryIcon} alt="Strawberries" class="h-5 w-auto object-contain" />
+                      <span class="text-sm font-bold text-white">
+                        {modStats.global.redStrawberries.current}
+                        <span class="text-xs font-normal text-zinc-400">
+                          / {modStats.global.redStrawberries.total > 0 ? modStats.global.redStrawberries.total : (modStats.isVanilla ? 175 : '?')}
+                        </span>
                       </span>
-                    {/if}
-                  </div>
+                    </div>
 
-                  <!-- RED STRAWBERRIES -->
-                  <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
-                    <img src={strawberryIcon} alt="Strawberries" class="h-5 w-auto object-contain" />
-                    <span class="text-sm font-bold text-white">
-                      {modStats.global.redStrawberries.current}
-                      <span class="text-xs font-normal text-zinc-400">
-                        / {modStats.global.redStrawberries.total > 0 ? modStats.global.redStrawberries.total : (modStats.isVanilla ? 175 : '?')}
+                    <!-- CRYSTAL HEARTS -->
+                    <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
+                      <img src={heartIcon} alt="Hearts" class="h-5 w-auto object-contain" />
+                      <span class="text-sm font-bold text-white">
+                        {modStats.global.hearts.current}
+                        <span class="text-xs font-normal text-zinc-400">
+                          / {modStats.global.hearts.total > 0 ? modStats.global.hearts.total : (modStats.isVanilla ? 24 : '?')}
+                        </span>
                       </span>
-                    </span>
-                  </div>
+                    </div>
 
-                  <!-- CRYSTAL HEARTS -->
-                  <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
-                    <img src={heartIcon} alt="Hearts" class="h-5 w-auto object-contain" />
-                    <span class="text-sm font-bold text-white">
-                      {modStats.global.hearts.current}
-                      <span class="text-xs font-normal text-zinc-400">
-                        / {modStats.global.hearts.total > 0 ? modStats.global.hearts.total : (modStats.isVanilla ? 24 : '?')}
-                      </span>
-                    </span>
-                  </div>
-
-                  <!-- MINI HEARTS -->
-                  {#if !modStats.isVanilla}
-                    {#if modStats.isLobbyMod || modStats.global.miniHearts.current > 0 || modStats.global.miniHearts.total > 0}
-                      <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
-                        <img src={miniHeartIcon} alt="Mini Hearts" class="h-5 w-auto object-contain" />
-                        <span class="text-sm font-bold text-white">
-                          {modStats.global.miniHearts.current}
-                          <span class="text-xs font-normal text-zinc-400">
-                            / {modStats.global.miniHearts.total > 0 ? modStats.global.miniHearts.total : '?'}
-                          </span>
-                        </span>
-                      </div>
-                    {/if}
-                  {/if}
-
-                  <!-- SPECIAL COLLECTIBLES PILLS (CONDITIONAL) -->
-                  {#if hasSpecialCollectibles}
-                    <!-- GOLDEN STRAWBERRIES -->
-                    {#if modStats.isVanilla || modStats.global.specialStrawberries.golden.current > 0 || modStats.global.specialStrawberries.golden.total > 0}
-                      <div class="flex items-center gap-2.5 px-3.5 py-2 bg-amber-950/30 border border-amber-500/30 rounded-xl shadow-sm hover:border-amber-500/50 transition-all">
-                        <img src={goldenStrawberryIcon} alt="Golden Strawberry" class="h-5 w-auto object-contain" />
-                        <span class="text-sm font-bold text-amber-200">
-                          {modStats.global.specialStrawberries.golden.current}
-                          <span class="text-xs font-normal text-amber-400/60">
-                            / {modStats.global.specialStrawberries.golden.total > 0 ? modStats.global.specialStrawberries.golden.total : (modStats.isVanilla ? 25 : '?')}
-                          </span>
-                        </span>
-                      </div>
-                    {/if}
-
-                    <!-- MOON BERRY -->
-                    {#if modStats.isVanilla || modStats.global.specialStrawberries.moon.current > 0 || modStats.global.specialStrawberries.moon.total > 0}
-                      <div class="flex items-center gap-2 px-3 py-2 bg-indigo-950/30 border border-indigo-500/30 rounded-xl shadow-sm">
-                        <span class="text-xs font-semibold text-indigo-400">Moon</span>
-                        <span class="text-sm font-bold text-indigo-200">
-                          {modStats.global.specialStrawberries.moon.current}
-                          <span class="text-xs font-normal text-indigo-400/60">
-                            / {modStats.global.specialStrawberries.moon.total > 0 ? modStats.global.specialStrawberries.moon.total : (modStats.isVanilla ? 1 : '?')}
-                          </span>
-                        </span>
-                      </div>
-                    {/if}
-
-                    <!-- WINGED GOLDEN BERRY -->
-                    {#if modStats.isVanilla || modStats.global.specialStrawberries.wingedGolden.current > 0 || modStats.global.specialStrawberries.wingedGolden.total > 0}
-                      <div class="flex items-center gap-2 px-3 py-2 bg-yellow-950/30 border border-yellow-500/30 rounded-xl shadow-sm">
-                        <span class="text-xs font-semibold text-yellow-400">Winged</span>
-                        <span class="text-sm font-bold text-yellow-200">
-                          {modStats.global.specialStrawberries.wingedGolden.current}
-                          <span class="text-xs font-normal text-yellow-400/60">
-                            / {modStats.global.specialStrawberries.wingedGolden.total > 0 ? modStats.global.specialStrawberries.wingedGolden.total : (modStats.isVanilla ? 1 : '?')}
-                          </span>
-                        </span>
-                      </div>
-                    {/if}
-
+                    <!-- MINI HEARTS -->
                     {#if !modStats.isVanilla}
-                      <!-- SILVER STRAWBERRIES -->
-                      {#if modStats.global.specialStrawberries.silver.current > 0 || modStats.global.specialStrawberries.silver.total > 0}
-                        <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/80 border border-slate-700/50 rounded-xl shadow-sm">
-                          <span class="text-xs font-semibold text-slate-300">Silver</span>
-                          <span class="text-sm font-bold text-slate-100">
-                            {modStats.global.specialStrawberries.silver.current}
-                            <span class="text-xs font-normal text-slate-400">
-                              / {modStats.global.specialStrawberries.silver.total > 0 ? modStats.global.specialStrawberries.silver.total : '?'}
+                      {#if modStats.isLobbyMod || modStats.global.miniHearts.current > 0 || modStats.global.miniHearts.total > 0}
+                        <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800/80 rounded-xl shadow-sm hover:border-zinc-700/80 transition-all">
+                          <img src={miniHeartIcon} alt="Mini Hearts" class="h-5 w-auto object-contain" />
+                          <span class="text-sm font-bold text-white">
+                            {modStats.global.miniHearts.current}
+                            <span class="text-xs font-normal text-zinc-400">
+                              / {modStats.global.miniHearts.total > 0 ? modStats.global.miniHearts.total : '?'}
                             </span>
                           </span>
-                        </div>
-                      {/if}
-
-                      <!-- RAINBOW BERRIES -->
-                      {#if modStats.global.specialStrawberries.rainbow.current > 0 || modStats.global.specialStrawberries.rainbow.total > 0}
-                        <div class="flex items-center gap-2 px-3 py-2 bg-purple-950/30 border border-purple-500/30 rounded-xl shadow-sm">
-                          <span class="text-xs font-semibold text-purple-400">Rainbow</span>
-                          <span class="text-sm font-bold text-purple-200">
-                            {modStats.global.specialStrawberries.rainbow.current}
-                            <span class="text-xs font-normal text-purple-400/60">
-                              / {modStats.global.specialStrawberries.rainbow.total > 0 ? modStats.global.specialStrawberries.rainbow.total : '?'}
-                            </span>
-                          </span>
-                        </div>
-                      {/if}
-
-                      <!-- PLATINUM STRAWBERRIES -->
-                      {#if modStats.global.specialStrawberries.platinum.current > 0 || modStats.global.specialStrawberries.platinum.total > 0}
-                        <div class="flex items-center gap-2 px-3 py-2 bg-teal-950/30 border border-teal-500/30 rounded-xl shadow-sm">
-                          <span class="text-xs font-semibold text-teal-300">Platinum</span>
-                          <span class="text-sm font-bold text-teal-100">
-                            {modStats.global.specialStrawberries.platinum.current}
-                            <span class="text-xs font-normal text-teal-400/60">
-                              / {modStats.global.specialStrawberries.platinum.total > 0 ? modStats.global.specialStrawberries.platinum.total : '?'}
-                            </span>
-                          </span>
-                        </div>
-                      {/if}
-
-                      <!-- SPEEDRUN MEDALS -->
-                      {#if modStats.global.specialStrawberries.speedTimers.total > 0}
-                        <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-xl text-xs font-semibold text-zinc-300">
-                          <span>Speedberries:</span>
-                          <span class="text-amber-400">G: {modStats.global.specialStrawberries.speedTimers.gold}</span>
-                          <span class="text-slate-300">S: {modStats.global.specialStrawberries.speedTimers.silver}</span>
-                          <span class="text-amber-600">B: {modStats.global.specialStrawberries.speedTimers.bronze}</span>
                         </div>
                       {/if}
                     {/if}
-                  {/if}
-                </div>
-              {:else}
-                <div class="py-4 text-center text-zinc-500 text-sm">
-                  No save statistics found for Save Slot {saveSlotStore.selectedSaveSlot}
-                </div>
-              {/if}
-            </div>
+
+                    <!-- SPECIAL COLLECTIBLES PILLS (CONDITIONAL) -->
+                    {#if hasSpecialCollectibles}
+                      <!-- GOLDEN STRAWBERRIES -->
+                      {#if modStats.isVanilla || modStats.global.specialStrawberries.golden.current > 0 || modStats.global.specialStrawberries.golden.total > 0}
+                        <div class="flex items-center gap-2.5 px-3.5 py-2 bg-amber-950/30 border border-amber-500/30 rounded-xl shadow-sm hover:border-amber-500/50 transition-all">
+                          <img src={goldenStrawberryIcon} alt="Golden Strawberry" class="h-5 w-auto object-contain" />
+                          <span class="text-sm font-bold text-amber-200">
+                            {modStats.global.specialStrawberries.golden.current}
+                            <span class="text-xs font-normal text-amber-400/60">
+                              / {modStats.global.specialStrawberries.golden.total > 0 ? modStats.global.specialStrawberries.golden.total : (modStats.isVanilla ? 25 : '?')}
+                            </span>
+                          </span>
+                        </div>
+                      {/if}
+
+                      <!-- MOON BERRY -->
+                      {#if modStats.isVanilla || modStats.global.specialStrawberries.moon.current > 0 || modStats.global.specialStrawberries.moon.total > 0}
+                        <div class="flex items-center gap-2 px-3 py-2 bg-indigo-950/30 border border-indigo-500/30 rounded-xl shadow-sm">
+                          <span class="text-xs font-semibold text-indigo-400">Moon</span>
+                          <span class="text-sm font-bold text-indigo-200">
+                            {modStats.global.specialStrawberries.moon.current}
+                            <span class="text-xs font-normal text-indigo-400/60">
+                              / {modStats.global.specialStrawberries.moon.total > 0 ? modStats.global.specialStrawberries.moon.total : (modStats.isVanilla ? 1 : '?')}
+                            </span>
+                          </span>
+                        </div>
+                      {/if}
+
+                      <!-- WINGED GOLDEN BERRY -->
+                      {#if modStats.isVanilla || modStats.global.specialStrawberries.wingedGolden.current > 0 || modStats.global.specialStrawberries.wingedGolden.total > 0}
+                        <div class="flex items-center gap-2 px-3 py-2 bg-yellow-950/30 border border-yellow-500/30 rounded-xl shadow-sm">
+                          <span class="text-xs font-semibold text-yellow-400">Winged</span>
+                          <span class="text-sm font-bold text-yellow-200">
+                            {modStats.global.specialStrawberries.wingedGolden.current}
+                            <span class="text-xs font-normal text-yellow-400/60">
+                              / {modStats.global.specialStrawberries.wingedGolden.total > 0 ? modStats.global.specialStrawberries.wingedGolden.total : (modStats.isVanilla ? 1 : '?')}
+                            </span>
+                          </span>
+                        </div>
+                      {/if}
+
+                      {#if !modStats.isVanilla}
+                        <!-- SILVER STRAWBERRIES -->
+                        {#if modStats.global.specialStrawberries.silver.current > 0 || modStats.global.specialStrawberries.silver.total > 0}
+                          <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/80 border border-slate-700/50 rounded-xl shadow-sm">
+                            <span class="text-xs font-semibold text-slate-300">Silver</span>
+                            <span class="text-sm font-bold text-slate-100">
+                              {modStats.global.specialStrawberries.silver.current}
+                              <span class="text-xs font-normal text-slate-400">
+                                / {modStats.global.specialStrawberries.silver.total > 0 ? modStats.global.specialStrawberries.silver.total : '?'}
+                              </span>
+                            </span>
+                          </div>
+                        {/if}
+
+                        <!-- RAINBOW BERRIES -->
+                        {#if modStats.global.specialStrawberries.rainbow.current > 0 || modStats.global.specialStrawberries.rainbow.total > 0}
+                          <div class="flex items-center gap-2 px-3 py-2 bg-purple-950/30 border border-purple-500/30 rounded-xl shadow-sm">
+                            <span class="text-xs font-semibold text-purple-400">Rainbow</span>
+                            <span class="text-sm font-bold text-purple-200">
+                              {modStats.global.specialStrawberries.rainbow.current}
+                              <span class="text-xs font-normal text-purple-400/60">
+                                / {modStats.global.specialStrawberries.rainbow.total > 0 ? modStats.global.specialStrawberries.rainbow.total : '?'}
+                              </span>
+                            </span>
+                          </div>
+                        {/if}
+
+                        <!-- PLATINUM STRAWBERRIES -->
+                        {#if modStats.global.specialStrawberries.platinum.current > 0 || modStats.global.specialStrawberries.platinum.total > 0}
+                          <div class="flex items-center gap-2 px-3 py-2 bg-teal-950/30 border border-teal-500/30 rounded-xl shadow-sm">
+                            <span class="text-xs font-semibold text-teal-300">Platinum</span>
+                            <span class="text-sm font-bold text-teal-100">
+                              {modStats.global.specialStrawberries.platinum.current}
+                              <span class="text-xs font-normal text-teal-400/60">
+                                / {modStats.global.specialStrawberries.platinum.total > 0 ? modStats.global.specialStrawberries.platinum.total : '?'}
+                              </span>
+                            </span>
+                          </div>
+                        {/if}
+
+                        <!-- SPEEDRUN MEDALS -->
+                        {#if modStats.global.specialStrawberries.speedTimers.total > 0}
+                          <div class="flex items-center gap-2.5 px-3.5 py-2 bg-zinc-900/80 border border-zinc-800 rounded-xl text-xs font-semibold text-zinc-300">
+                            <span>Speedberries:</span>
+                            <span class="text-amber-400">G: {modStats.global.specialStrawberries.speedTimers.gold}</span>
+                            <span class="text-slate-300">S: {modStats.global.specialStrawberries.speedTimers.silver}</span>
+                            <span class="text-amber-600">B: {modStats.global.specialStrawberries.speedTimers.bronze}</span>
+                          </div>
+                        {/if}
+                      {/if}
+                    {/if}
+                  </div>
+                {:else}
+                  <div class="py-4 text-center text-zinc-500 text-sm">
+                    No save statistics found for Save Slot {saveSlotStore.selectedSaveSlot}
+                  </div>
+                {/if}
+              </div>
+            {/if}
 
             <!-- SQLITE SESSION ANALYTICS & CHARTS SECTION -->
 						<div class="space-y-8 w-full">
