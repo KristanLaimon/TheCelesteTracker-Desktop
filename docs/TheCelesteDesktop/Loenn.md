@@ -128,10 +128,11 @@ covered by an existing pixel-dimension regression test). This only matters
 visually for foreground tiles that are meant to overlap entities from the
 front, which is rare.
 
-## Stylegrounds — out of scope
+## Stylegrounds — parallax only
 
 Parallax backgrounds (`loenn/src/parallax.lua`) are simple texture + scroll
-offset, but several effects (`loenn/src/effects/*.lua` — `dream_stars.lua`,
-`black_hole.lua`, etc.) are bespoke procedural renderers, not texture blits.
-Not implemented in this project; the `.bin`'s `Style` element tree is parsed
-structurally only.
+offset and are now rendered — see
+`docs/TheCelesteDesktop/ModAssetsAndStylegrounds.md`. Several other effects
+(`loenn/src/effects/*.lua` — `dream_stars.lua`, `black_hole.lua`, etc.) are
+bespoke procedural renderers, not texture blits, and remain out of scope; the
+`.bin`'s `Style` element tree is parsed structurally for those, nothing more.

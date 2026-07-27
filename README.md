@@ -63,13 +63,25 @@ But I expect to implement:
 - beautiful mods searching and looking (kinda implemented)
 - and much more
 
+
+## Code Mods - Native support for:
+- DeathMarkers | https://github.com/oatmealine/DeathMarkers/
+- Collab Utils 2 | https://github.com/EverestAPI/CelesteCollabUtils2
+- Alt Sides Helper | https://github.com/l-Luna/AltSidesHelper
+
+
+## Maps Mods - Native Exclusive Support for:
+- StrawberryJam2021 | https://github.com/StrawberryJam2021/StrawberryJam2021 & https://gamebanana.com/mods/424541
+- SpringCollab | https://github.com/EverestAPI/SpringCollab2020 & https://gamebanana.com/mods/150813
+- Breeze Contest | https://gamebanana.com/mods/554453 & (I haven't found any code repo for this one.. (yet))
+
 ## Tech Stack
 - **Framework**: [Neutralinojs](https://neutralino.js.org/) (Lightweight portable desktop application framework)
 - **Frontend**: [Svelte 5](https://svelte.dev/) + [Vite](https://vite.dev/) + TypeScript
 - **Package Manager**: [Bun](https://bun.sh/) (Runner + Dev tooling)
 - **Cli Helper**: Golang 
 
-Note: We're using neutralino but not neutralino extensions, I went to the easy way to create a small golang helper CLI.
+Note: We're using neutralino but not neutralino extensions, I went to the easy way by creating a small golang helper CLI, and that's it...
 
 ## Getting Started
 
@@ -116,8 +128,7 @@ Hehe I know the repo root is kinda messy due to maddiesapi, gamebananaapi, evere
 ## AI?
 The usage of AI could be kinda problematic when not used propertly.
 The AI used in this project is always done using plan and *100% Human-Reviewing*, every new line of code is being read and questioned by me (at the time of writing this). Its a tool that's here to stay.
-
-_*No VIBE-CODED contributions are allowed.*_
+_*No VIBE-CODED contributions are allowed. (At least read what are you PR'ing (?))*_
 
 ## License
 MIT License. Created by and for the Celeste community.
