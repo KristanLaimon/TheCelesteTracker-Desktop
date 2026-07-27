@@ -18,13 +18,13 @@ func runQuery(cmd *cobra.Command, args []string) {
 	queryStr, _ := cmd.Flags().GetString("query")
 
 	if dbPath == "" {
-		failStr("--db is required")
+		failStr("--db parameter is required")
 	}
 	var params []any
 	if queryStr == "" {
 		b, err := io.ReadAll(os.Stdin)
 		if err != nil {
-			failStr(fmt.Sprintf("failed to read query: %v", err))
+			failStr(fmt.Sprintf("failed to read query from stdin: %v", err))
 		}
 		queryStr = strings.TrimSpace(strings.TrimPrefix(string(b), "\ufeff"))
 		if strings.HasPrefix(queryStr, "{") {
@@ -32,14 +32,14 @@ func runQuery(cmd *cobra.Command, args []string) {
 			dec := json.NewDecoder(bytes.NewReader([]byte(queryStr)))
 			dec.UseNumber()
 			if err := dec.Decode(&payload); err != nil {
-				failStr(fmt.Sprintf("failed to parse query payload: %v", err))
+				failStr(fmt.Sprintf("failed to parse JSON query payload: %v", err))
 			}
 			queryStr = strings.TrimSpace(payload.Sql)
 			params = payload.Params
 		}
 	}
 	if queryStr == "" {
-		failStr("query is empty")
+		failStr("SQL query is empty")
 	}
 
 	res := sqlite.ExecuteQuery(dbPath, queryStr, params)

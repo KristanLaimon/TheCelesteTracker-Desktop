@@ -11,19 +11,27 @@ export default class Zip_Go extends Generic_Go {
 
 		const response = await this.os.execCommand(cmd);
 
-		if (response.exitCode !== 0) {
+		let parsed: { success?: boolean; error?: string; [key: string]: unknown } | undefined;
+		if (response.stdOut?.trim()) {
 			try {
-				const parsed = JSON.parse(response.stdOut);
-				if (parsed && typeof parsed === "object" && "success" in parsed && !parsed.success) {
-					throw new Error(parsed.error || "Operation failed");
-				}
-			} catch {}
-			throw new Error(response.stdErr || `CLI helper '${binaryBaseName}' exited with code ${response.exitCode}`);
+				parsed = JSON.parse(response.stdOut.trim());
+			} catch {
+				// stdOut was not valid JSON
+			}
 		}
 
-		const parsed = JSON.parse(response.stdOut);
+		if (response.exitCode !== 0) {
+			const jsonError = parsed && typeof parsed === "object" && typeof parsed.error === "string" && parsed.error ? parsed.error : null;
+			const detail = jsonError || response.stdErr?.trim() || response.stdOut?.trim() || `exit code ${response.exitCode}`;
+			throw new Error(`Zip_Go CLI helper '${binaryBaseName}' failed: ${detail}`);
+		}
+
+		if (!parsed) {
+			throw new Error(`Zip_Go CLI helper '${binaryBaseName}' failed to parse response JSON. Raw stdout: "${response.stdOut}"`);
+		}
+
 		if (!parsed.success) {
-			throw new Error(parsed.error || "Operation failed");
+			throw new Error(`Zip_Go CLI helper '${binaryBaseName}' operation failed: ${parsed.error || "Unknown error"}`);
 		}
 		return parsed as R;
 	}

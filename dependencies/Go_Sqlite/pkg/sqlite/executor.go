@@ -38,7 +38,7 @@ func Counters(db *sql.DB) (int64, int64) {
 func ExecuteQuery(dbPath, query string, params []any) SqliteQueryResult {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		return SqliteQueryResult{Error: err.Error()}
+		return SqliteQueryResult{Error: fmt.Sprintf("failed to open database '%s': %v", dbPath, err)}
 	}
 	defer db.Close()
 	db.SetMaxOpenConns(1)

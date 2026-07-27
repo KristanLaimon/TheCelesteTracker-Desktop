@@ -68,19 +68,33 @@ export default class Sqlite_Go extends Generic_Go {
 		dbLogger.info(`Sqlite CLI Executing: ${cmd}`);
 		const response = await this.os.execCommand(cmd, { stdIn });
 
-		if (response.exitCode !== 0) {
+		let parsed: { success?: boolean; error?: string; [key: string]: unknown } | undefined;
+		if (response.stdOut?.trim()) {
 			try {
-				const parsed = JSON.parse(response.stdOut);
-				if (parsed && typeof parsed === "object" && "success" in parsed && !parsed.success) {
-					throw new Error(parsed.error || "Database operation failed");
-				}
-			} catch {}
-			throw new Error(response.stdErr || `SQLite helper exited with code ${response.exitCode}`);
+				parsed = JSON.parse(response.stdOut.trim());
+			} catch {
+				// stdOut was not valid JSON
+			}
 		}
 
-		const parsed = JSON.parse(response.stdOut);
+		if (response.exitCode !== 0) {
+			const jsonError = parsed && typeof parsed === "object" && typeof parsed.error === "string" && parsed.error ? parsed.error : null;
+			const detail = jsonError || response.stdErr?.trim() || response.stdOut?.trim() || `exit code ${response.exitCode}`;
+			const errMsg = `Sqlite_Go failed: ${detail}`;
+			dbLogger.error(errMsg);
+			throw new Error(errMsg);
+		}
+
+		if (!parsed) {
+			const errMsg = `Sqlite_Go failed to parse helper response JSON. Raw stdout: "${response.stdOut}"`;
+			dbLogger.error(errMsg);
+			throw new Error(errMsg);
+		}
+
 		if (!parsed.success) {
-			throw new Error(parsed.error || "Database operation failed");
+			const errMsg = `Sqlite_Go database operation failed: ${parsed.error || "Unknown error"}`;
+			dbLogger.error(errMsg);
+			throw new Error(errMsg);
 		}
 		return parsed as R;
 	}
