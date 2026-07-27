@@ -31,12 +31,7 @@ container.registerSingleton(NeutralinoOS);
 container.registerSingleton(Zip_Go);
 container.registerInstance(
 	Sqlite_Go,
-	new Sqlite_Go(
-		"./TheCelesteTrackerTestDb.db",
-		container.resolve(NeutralinoOS),
-		container.resolve(NeutralinoFileSystem),
-		container.resolve<IPath>(IPath_Token),
-	),
+	new Sqlite_Go("./TheCelesteTracker_DB.db", container.resolve(NeutralinoOS), container.resolve(NeutralinoFileSystem), container.resolve<IPath>(IPath_Token)),
 );
 container.registerInstance(CTDB_Token, CreateTrackerDb(container.resolve(Sqlite_Go)));
 
