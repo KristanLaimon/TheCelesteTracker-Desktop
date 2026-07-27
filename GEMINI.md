@@ -15,18 +15,6 @@ After implementing changes, run the following verification flow sequentially:
 4. bun run check              # verify lint:fix didn't break types
 ```
 
-## Git Commit Workflow
-- When implementing a multi-part plan (several distinct features/files), commit one logical part per feature — not one giant commit. Each commit should pass `bun run check` + relevant tests on its own.
-- Commit body format: bullet list, one line per change, not prose paragraphs.
-  ```
-  feat(scope): short summary line
-
-  - change 1: short description
-  - change 2: short description
-
-  Co-Authored-By: Gemini 3.6 Flash <noreply@google.com>
-  ```
-
 ## Second-Brain Workflow
 - **Business rules**: Celeste domain facts, save file shapes, mod structure, architecture. Fold into `CLAUDE.md` / `GEMINI.md`.
 - **Process & tooling learnings**: Process learnings, environment gotchas, dead ends. Add as numbered files under `.claude/brain/NN-name.md` (see `.claude/brain/01-second-brain-convention.md`).

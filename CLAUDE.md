@@ -304,19 +304,6 @@ Category resolution (`DBMods.ResolveModCategory`) is Olympus (offline) first, Ma
     4. bun check # (to check if lint:fix didn't broke anything)
   ```
 
-## Git Workflow
-
-- When implementing a multi-part plan (several distinct features/files), commit one logical part per feature — not one giant commit. Each commit should pass `bun run check` + relevant tests on its own.
-- Commit body format: bullet list, one line per change, not prose paragraphs.
-  ```
-  feat(scope): short summary line
-
-  - change 1: short description
-  - change 2: short description
-
-  Co-Authored-By: <currentAiModel>  <noreply@mail.com>
-  ```
-
 
 ## Code Style
 
