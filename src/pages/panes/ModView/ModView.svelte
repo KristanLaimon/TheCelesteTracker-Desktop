@@ -1,22 +1,30 @@
 <script lang="ts">
 import { getColorSync } from "colorthief";
 import { onMount } from "svelte";
-import type { MaddiesApiModInfo } from "../../api/MaddiesAPI";
-import goldenStrawberryIcon from "../../assets/interface_goldenstrawberry_icon.png";
-import deathsIcon from "../../assets/interface_SIDEA_deaths_icon.png";
-import heartIcon from "../../assets/interface_SIDEA_heart.png";
-import miniHeartIcon from "../../assets/interface_SIDEB_heart.png";
-import strawberryIcon from "../../assets/interface_strawberry_icon.png";
-import timerIcon from "../../assets/interface_timer_icon.png";
-import HorizontalGallery from "../../components/HorizontalGallery.svelte";
-import SearchDynamic from "../../components/SearchDynamic.svelte";
-import type { EverestModInfo } from "../../domain/Everest";
-import type { ModSimplified, ModStatisticsResult } from "../../domain/LocalMods";
-import type { WithGLState } from "../../libs/GoldenLayoutThemes/GoldenLayout.types";
-import { DB_Mods as localMods } from "../../setup";
-import saveSlotStore from "../../stores/SaveSlot.store.svelte";
-import { logger } from "../../utils/Logger";
-import { formatPlayTime } from "../../utils/Time";
+import type { MaddiesApiModInfo } from "../../../api/MaddiesAPI";
+import goldenStrawberryIcon from "../../../assets/interface_goldenstrawberry_icon.png";
+import deathsIcon from "../../../assets/interface_SIDEA_deaths_icon.png";
+import heartIcon from "../../../assets/interface_SIDEA_heart.png";
+import miniHeartIcon from "../../../assets/interface_SIDEB_heart.png";
+import strawberryIcon from "../../../assets/interface_strawberry_icon.png";
+import timerIcon from "../../../assets/interface_timer_icon.png";
+import HorizontalGallery from "../../../components/HorizontalGallery.svelte";
+import SearchDynamic from "../../../components/SearchDynamic.svelte";
+import CTDB from "../../../db";
+import type { GameSessionChapterRoomStat } from "../../../db/db.types";
+import type { EverestModInfo } from "../../../domain/Everest";
+import { GetLevelSetNamesForMod } from "../../../domain/Everest";
+import type { ModSimplified, ModStatisticsResult } from "../../../domain/LocalMods";
+import type { WithGLState } from "../../../libs/GoldenLayoutThemes/GoldenLayout.types";
+import { GetDependency, DB_Mods as localMods } from "../../../setup";
+import saveSlotStore from "../../../stores/SaveSlot.store.svelte";
+import { logger } from "../../../utils/Logger";
+import { formatPlayTime } from "../../../utils/Time";
+import ModGoldenBerryAnalytics from "./ModGoldenBerryAnalytics.svelte";
+import ModMovementStatsCard from "./ModMovementStatsCard.svelte";
+import ModRecentSessionsTable, { type SessionWithTotals } from "./ModRecentSessionsTable.svelte";
+import ModRoomChokePointsChart from "./ModRoomChokePointsChart.svelte";
+import ModSessionTrendChart from "./ModSessionTrendChart.svelte";
 
 type Props = { searchQuery: string; showSearchBar: boolean };
 
@@ -36,10 +44,28 @@ let bgColor = $state<string>("#18181c");
 let modStats = $state<ModStatisticsResult | null>(null);
 let loadingStats = $state(false);
 
+// SQLite Session Analytics Local State
+let sessionAnalyticsList = $state<SessionWithTotals[]>([]);
+let allRoomStatsList = $state<GameSessionChapterRoomStat[]>([]);
+let selectedSessionId = $state<string | null>(null);
+let loadingSessionAnalytics = $state(false);
+
 const selectedModId = $derived.by(() => {
 	if (!selectedName || selectedName.trim() === "") return "";
 	const match = simplifiedMods.find((m) => m.humanNameMod.toLowerCase() === selectedName.toLowerCase() || m.modId.toLowerCase() === selectedName.toLowerCase());
 	return match ? match.modId : selectedName;
+});
+
+const selectedSessionObj = $derived.by(() => {
+	if (!selectedSessionId) return null;
+	return sessionAnalyticsList.find((s) => s.id === selectedSessionId) || null;
+});
+
+const displayedRoomStats = $derived.by(() => {
+	if (selectedSessionObj) {
+		return selectedSessionObj.roomStatsList;
+	}
+	return allRoomStatsList;
 });
 
 const hasSpecialCollectibles = $derived.by(() => {
@@ -144,6 +170,89 @@ $effect(() => {
 			modStats = null;
 			loadingStats = false;
 		});
+});
+
+// Reactively load SQLite GameSessions and Room Stats for the selected mod
+$effect(() => {
+	const modId = selectedModId;
+	const everestInfo = selectedEverestInfo;
+
+	if (!modId || modId.trim() === "") {
+		sessionAnalyticsList = [];
+		allRoomStatsList = [];
+		selectedSessionId = null;
+		loadingSessionAnalytics = false;
+		return;
+	}
+
+	loadingSessionAnalytics = true;
+	const levelSetNames = everestInfo ? GetLevelSetNamesForMod(everestInfo) : [modId];
+	if (modId === "Celeste" || modId.toLowerCase() === "celeste") {
+		levelSetNames.push("Celeste");
+	}
+
+	try {
+		const ctdb = GetDependency(CTDB);
+		ctdb.GameSessions.GetSessionsByLevelSet({ levelSetNames, limit: 100 })
+			.then(async (sessions) => {
+				if (sessions.length === 0) {
+					sessionAnalyticsList = [];
+					allRoomStatsList = [];
+					loadingSessionAnalytics = false;
+					return;
+				}
+
+				const sessionIds = sessions.map((s) => s.id);
+				const roomStats = await ctdb.GameSessionChapterRoomStats.GetStatsByGameSessionIds({ gameSessionIds: sessionIds });
+				allRoomStatsList = roomStats;
+
+				const roomStatsBySession = new Map<string, GameSessionChapterRoomStat[]>();
+				for (const stat of roomStats) {
+					const list = roomStatsBySession.get(stat.gamesession_id);
+					if (list) list.push(stat);
+					else roomStatsBySession.set(stat.gamesession_id, [stat]);
+				}
+
+				const enriched: SessionWithTotals[] = sessions.map((session) => {
+					const list = roomStatsBySession.get(session.id) || [];
+					let deaths = 0;
+					let jumps = 0;
+					let dashes = 0;
+					let strawberries = 0;
+
+					for (const stat of list) {
+						deaths += stat.deaths_in_room;
+						jumps += stat.jumps_in_room;
+						dashes += stat.dashes_in_room;
+						strawberries += stat.strawberries_achieved_in_room;
+					}
+
+					return {
+						...session,
+						deaths,
+						jumps,
+						dashes,
+						strawberries,
+						chapterName: session.chapter_sid,
+						roomStatsList: list,
+					};
+				});
+
+				sessionAnalyticsList = enriched;
+				loadingSessionAnalytics = false;
+			})
+			.catch((err: unknown) => {
+				logger.error("ModView: Failed to load session analytics", err);
+				sessionAnalyticsList = [];
+				allRoomStatsList = [];
+				loadingSessionAnalytics = false;
+			});
+	} catch (err: unknown) {
+		logger.error("ModView: Failed to access CTDB", err);
+		sessionAnalyticsList = [];
+		allRoomStatsList = [];
+		loadingSessionAnalytics = false;
+	}
 });
 
 onMount(() => {
@@ -393,6 +502,39 @@ $effect(() => {
                 </div>
               {/if}
             </div>
+
+            <!-- SQLITE SESSION ANALYTICS & CHARTS SECTION -->
+            {#if loadingSessionAnalytics}
+              <div class="py-6 text-center text-zinc-400 animate-pulse text-sm">
+                Loading session analytics & room statistics from SQLite...
+              </div>
+            {:else}
+              <div class="space-y-8 w-full">
+                <!-- RECENT SESSIONS TABLE -->
+                <ModRecentSessionsTable
+                  sessions={sessionAnalyticsList}
+                  bind:selectedSessionId={selectedSessionId}
+                  onSelectSession={(id) => (selectedSessionId = id)}
+                />
+
+                <!-- ROOM CHOKE POINTS HEATMAP -->
+                <ModRoomChokePointsChart
+                  roomStats={displayedRoomStats}
+                  selectedSessionTitle={selectedSessionObj ? selectedSessionObj.chapterName : null}
+                />
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+                  <!-- SESSION PROGRESSION TREND CHART -->
+                  <ModSessionTrendChart sessions={sessionAnalyticsList} />
+
+                  <!-- MOVEMENT & MECHANICS METRICS -->
+                  <ModMovementStatsCard sessions={sessionAnalyticsList} />
+                </div>
+
+                <!-- GOLDEN BERRY ANALYTICS -->
+                <ModGoldenBerryAnalytics sessions={sessionAnalyticsList} />
+              </div>
+            {/if}
 
             {#if (selectedMaddiesInfo?.Screenshots?.length ?? 0) > 0 || (selectedMaddiesInfo?.MirroredScreenshots?.length ?? 0) > 0}
               <div>

@@ -14,7 +14,7 @@ import type {
 import Canvas from "./panes/Canvas.svelte";
 import ModsSearch_Results from "./panes/ModsSearch/ModsSearch_Results.svelte";
 import ModsSearch_Sidebar from "./panes/ModsSearch/ModsSearch_Sidebar.svelte";
-import ModView from "./panes/ModView.svelte";
+import ModView from "./panes/ModView/ModView.svelte";
 import type { IndexableComponentOption } from "./panes/NewPage.pageselector.svelte";
 import NewPage from "./panes/NewPage.svelte";
 import RawHtml from "./panes/RawHtml.svelte";
