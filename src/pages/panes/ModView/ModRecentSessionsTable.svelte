@@ -5,9 +5,9 @@ import timerIcon from "../../../assets/interface_timer_icon.png";
 import CTDB from "../../../db";
 import { formatChapterName, formatSessionDate, formatSideName } from "../../../libs/SessionHelpers";
 import { DB_Mods, GetDependency } from "../../../setup";
+import saveSlotStore from "../../../stores/SaveSlot.store.svelte";
 import { uiLogger } from "../../../utils/Logger";
 import { formatPlayTime } from "../../../utils/Time";
-	import saveSlotStore from "../../../stores/SaveSlot.store.svelte";
 
 type Props = {
 	modStringId: string;
@@ -40,34 +40,34 @@ $effect(() => {
 	});
 });
 
-//Initial loding
+// Initial loading & reactive refetch when modStringId or saveSlotStore.selectedSaveSlot changes
 $effect(() => {
-	LocalMods_DB.EverestMods_Get_ModByModId(modStringId)
-		.then((found) => {
-			if (found) {
+	const currentModId = modStringId;
+	const selectedSlot = saveSlotStore.selectedSaveSlot;
+
+	if (!currentModId) {
+		sessions = null;
+		isLoading = false;
+		return;
+	}
+
+	isLoading = true;
+	errorMsg = null;
+
+	LocalMods_DB.EverestMods_Get_ModByModId(currentModId)
+		.then(async (found) => {
+			if (found?.metadata.isMapMod && !found.metadata.isLobby) {
 				uiLogger.silly("MAP FULL INFO:", found);
-				if (found.metadata.isMapMod) {
-					if (found.metadata.isLobby) {
-						//do nothing, not currently supported (more logic)
-					} else {
-						CelesteTracker_DB.GameSessions.GetLastSessionsFromStandaloneModMap(saveSlotStore.selectedSaveSlot, found)
-							.then((foundSessions) => {
-								sessions = foundSessions;
-							})
-							.catch((err) => {
-								errorMsg = serializeError(err).message ?? "There was an error, check logs";
-								uiLogger.error("Everest fetching OK, but error when fetching from CelesteTracker_DB last sessions", serializeError(err));
-							})
-							.finally(() => {
-								isLoading = false;
-							});
-					}
-				}
+				const foundSessions = await CelesteTracker_DB.GameSessions.GetLastSessionsFromStandaloneModMap(selectedSlot, found);
+				sessions = foundSessions;
+			} else {
+				sessions = null;
 			}
 		})
 		.catch((err) => {
 			errorMsg = serializeError(err).message ?? "There was an error, check logs";
-			uiLogger.error("Error while fetching everest mod by modId", serializeError(err));
+			uiLogger.error("Error while fetching recent sessions for map mod", serializeError(err));
+			sessions = null;
 		})
 		.finally(() => {
 			isLoading = false;
