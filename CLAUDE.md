@@ -198,8 +198,8 @@ Reference docs worth checking before touching mod-parsing code: `docs/Database_T
 
 -- HERE FINISHED MY HUMAN WRITING DO NOT MODIFY ANY PREVIOUS TEXT, ONLY FROM HERE FORWARD --
 ## Celeste Mod Domain
-### Map `.bin` → PNG Rendering (Phase 1 Blueprint MVP)
-Map `.bin` files can be parsed to extract room bounds (`level` x, y, width, height), solids/bg Type 7 RLE tile grids (8x8 tile size), and entities (classified into spawn, collectible, hazard, generic). `ExportMapImages` (via CLI `zip export-map` and TS `Zip_Go.exportMap`) renders per-room PNGs (`rooms/room_<name>.png`), a full-map composite PNG (`full_map.png`), and `manifest.json`. `--grid-only`/`gridOnly` forces the flat-color fallback renderer; `--celeste-dir`/`celesteDir` points at a Celeste install for real tile/decal asset rendering (autotiling + Gameplay atlas), falling back to grid rendering automatically if assets don't resolve.
+### Map `.bin` → PNG Rendering
+Map `.bin` files can be parsed to extract room bounds (`level` x, y, width, height), solids/bg Type 7 RLE tile grids (8x8 tile size), and entities (classified into spawn, collectible, hazard, generic). `ExportMapImages` (via CLI `zip export-map` and TS `Zip_Go.exportMap`) renders per-room PNGs (`rooms/room_<name>.png`), a full-map composite PNG (`full_map.png`), and `manifest.json`. `--grid-only`/`gridOnly` forces the flat-color fallback renderer; `--celeste-dir`/`celesteDir` points at a Celeste install for real tile/decal asset rendering (autotiling via `ForegroundTiles.xml`/`BackgroundTiles.xml` + the Gameplay atlas), falling back to grid rendering automatically if assets don't resolve. See `docs/TheCelesteDesktop/Loenn.md` (tileset XML/atlas/decal format internals, current editor) and `docs/TheCelesteDesktop/Ahorn.md` (older-editor compat notes) before touching the real-asset rendering path.
 A mod could be any type of mod like:
   - Assets
   - Effects
