@@ -26,6 +26,17 @@
 		"emitDecoratorMetadata": true,
 		"forceConsistentCasingInFileNames": true
 	},
-	"include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "src-utils/**/*.ts", "testing/**/*.ts"],
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.js",
+		"src/**/*.svelte",
+		"src-utils/**/*.ts",
+		"testing/**/*.ts",
+		"dependencies/integration-tests/Sqlite_Go_RawUsage.test.ts",
+		"dependencies/integration-tests/Sqlite_Go_Usage.test.ts",
+		"dependencies/integration-tests/Zip_Go_CountCollectibles.test.ts",
+		"dependencies/integration-tests/Zip_Go_ExportMapImages.test.ts",
+		"dependencies/integration-tests/Zip_Go_Usage.test.ts"
+	],
 	"exclude": ["**/*.min.js"]
 }

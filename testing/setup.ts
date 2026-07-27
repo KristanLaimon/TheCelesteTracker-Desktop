@@ -60,31 +60,35 @@ container.registerInstance(CTDB_Token, CreateTrackerDb(container.resolve(Sqlite_
 
 export const GetDependency = container.resolve.bind(container);
 
-export function EnsureBuildAndGetPathExe(): string {
-	function getBinaryName(): string {
+export function GetDependencyBinaryPath(binaryName = "Sqlite"): string {
+	function getBinaryFilename(): string {
 		const { platform } = process;
-		if (platform === "win32") return "utilities-win_x64.exe";
-		if (platform === "linux") return "utilities-linux_x64";
-		if (platform === "darwin") return "utilities-mac_x64";
-		return "utilities-win_x64.exe";
+		if (platform === "win32") return `${binaryName}-win_x64.exe`;
+		if (platform === "linux") return `${binaryName}-linux_x64`;
+		if (platform === "darwin") return `${binaryName}-mac_x64`;
+		return `${binaryName}-win_x64.exe`;
 	}
-	let binaryPath = join(ROOT_FOLDER, "bin", getBinaryName());
+	let binaryPath = join(ROOT_FOLDER, "dependencies", getBinaryFilename());
 	if (existsSync(binaryPath)) {
 		return binaryPath;
 	}
 
 	console.log(`Building Go CLI helper (missing: ${binaryPath})...`);
-	const result = spawnSync("bun", ["run", "build"], { cwd: ROOT_FOLDER, stdio: "inherit" });
+	const result = spawnSync("bun", [join(ROOT_FOLDER, "dependencies", "build.ts")], { cwd: ROOT_FOLDER, stdio: "inherit" });
 	if (result.status !== 0) {
 		throw new Error("Go CLI helper build failed");
 	}
 
-	binaryPath = join(ROOT_FOLDER, "bin", getBinaryName());
+	binaryPath = join(ROOT_FOLDER, "dependencies", getBinaryFilename());
 	if (existsSync(binaryPath)) {
 		return binaryPath;
 	} else {
 		throw new Error("This should not happen!");
 	}
+}
+
+export function EnsureBuildAndGetPathExe(): string {
+	return GetDependencyBinaryPath("Sqlite");
 }
 
 export const DB_Mods = Construct_LocalMods({ filePath: "./testing/Data-Temp/mods-dbS.json", indent: 2 });

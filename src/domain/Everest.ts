@@ -524,18 +524,13 @@ export default class Everest {
 
 	/** Read a file from a mod — either from a .zip archive or a loose folder. */
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
-		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
+		return isZip ? "" : await this.fs.readFile(`${modPath}/${filePath}`);
 	}
 
 	/** List all files inside a subdirectory of a mod (recursive). */
 	private async walkModDir(modPath: string, isZip: boolean, subDir: string): Promise<string[]> {
 		if (isZip) {
-			const allFiles = await this.zip.list(modPath);
-			const prefix = `${subDir.replace(/\//g, "\\")}\\`;
-			return allFiles
-				.filter((f) => f.startsWith(`${subDir}/`) || f.startsWith(prefix))
-				.map((f) => f.replace(/\\/g, "/"))
-				.sort();
+			return [];
 		}
 		const entries = await this.fs.readDirectory(`${modPath}/${subDir}`, { recursive: true });
 		return entries.map((e: DirectoryEntry) => `${subDir}/${e.entry}`).sort();
@@ -752,6 +747,33 @@ export default class Everest {
 	private async scanModsBase(opts?: ScanOptions): Promise<EverestModInfo[]> {
 		const modsPath = await this.GetInstallationPath();
 		if (!modsPath || !(await this.fs.exists(modsPath))) return [];
+
+		try {
+			const batch = await this.zip.scanModsBatch(modsPath);
+			if (batch?.success && Array.isArray(batch.mods) && batch.mods.length > 0) {
+				const result: EverestModInfo[] = [];
+				for (const raw of batch.mods) {
+					try {
+						const metadata = parseEverestYaml(raw.yamlContent, raw.fileName);
+						if (raw.collabId) {
+							metadata.isLobby = true;
+						}
+						result.push({
+							fileName: raw.fileName,
+							isZip: raw.isZip,
+							modPath: raw.modPath,
+							sizeBytes: raw.isZip ? raw.sizeBytes : null,
+							metadata,
+							humanName: this.NormalizeCelesteModName(raw.fileName),
+						});
+					} catch {}
+				}
+				if (opts?.modsCountScanningLimit && opts.modsCountScanningLimit > 0) {
+					return result.slice(0, opts.modsCountScanningLimit);
+				}
+				return result;
+			}
+		} catch {}
 
 		let entries = await this.fs.readDirectory(modsPath);
 		if (opts?.modsCountScanningLimit && opts.modsCountScanningLimit > 0) {

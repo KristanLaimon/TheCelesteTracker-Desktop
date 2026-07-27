@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "neu run -- --window-enable-inspector",
 		"build:frontend": "vite build",
-		"build": "bun build.js",
+		"build": "bun scripts/build.ts",
 		"check": "tsc -p ./tsconfig.json && tsc -p tsconfig.vite.json",
 		"test": "bun test",
 		"testt": "bun ./src/test.ts",

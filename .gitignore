@@ -4,10 +4,6 @@ logs
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
-lerna-debug.log*
-.vscode
-.tmp
-.tmp/*
 
 # Neutralinojs and Svelte dependencies/builds
 node_modules
@@ -18,6 +14,12 @@ neutralino.js
 .storage
 .lite_workspace.lua
 *.local
+
+lerna-debug.log*
+.vscode
+.tmp
+.tmp/*
+preview_output/
 
 # Editor directories and files
 .vscode/*
@@ -33,6 +35,9 @@ neutralino.js
 # Extensions build and temporal files related
 src-utils/temp
 src-utils/build
+dependencies/build
+dependencies/*.exe
+dependencies/exports
 testing/temp
 testing/Data-Temp/*
 !testing/Data-Temp/.gitkeep

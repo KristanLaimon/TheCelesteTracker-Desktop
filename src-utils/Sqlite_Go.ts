@@ -62,8 +62,8 @@ export default class Sqlite_Go extends Generic_Go {
 	}
 
 	private async executeInternal<R>(stdIn: string): Promise<R> {
-		const utilityExecutable = await this.GetExecutablePath();
-		const cmd = `"${utilityExecutable}" sqlite --db "${this.dbPath}"`;
+		const utilityExecutable = await this.GetExecutablePath("Sqlite");
+		const cmd = `"${utilityExecutable}" --db "${this.dbPath}"`;
 
 		dbLogger.info(`Sqlite CLI Executing: ${cmd}`);
 		const response = await this.os.execCommand(cmd, { stdIn });

@@ -18,7 +18,6 @@
 
 import * as yaml from "js-yaml";
 import { inject, injectable } from "tsyringe";
-import Zip_Go from "../../src-utils/Zip_Go";
 import { IFileSystem_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { DirectoryEntry, IFileSystem } from "../core/interfaces/IFileSystem";
 import { modScannerLogger } from "../utils/Logger";
@@ -54,23 +53,15 @@ function deriveSid(binPath: string): string | undefined {
  */
 @injectable()
 export class CollabUtils2Scanner {
-	constructor(
-		@inject(IFileSystem_Token) private fs: IFileSystem,
-		@inject(Zip_Go) private zip: Zip_Go,
-	) {}
+	constructor(@inject(IFileSystem_Token) private fs: IFileSystem) {}
 
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
-		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
+		return isZip ? "" : await this.fs.readFile(`${modPath}/${filePath}`);
 	}
 
 	private async walkModDir(modPath: string, isZip: boolean, subDir: string): Promise<string[]> {
 		if (isZip) {
-			const allFiles = await this.zip.list(modPath);
-			const prefix = `${subDir.replace(/\//g, "\\")}\\`;
-			return allFiles
-				.filter((f) => f.startsWith(`${subDir}/`) || f.startsWith(prefix))
-				.map((f) => f.replace(/\\/g, "/"))
-				.sort();
+			return [];
 		}
 		const entries = await this.fs.readDirectory(`${modPath}/${subDir}`, { recursive: true });
 		return entries.map((e: DirectoryEntry) => `${subDir}/${e.entry}`).sort();

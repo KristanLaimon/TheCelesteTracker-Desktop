@@ -198,6 +198,8 @@ Reference docs worth checking before touching mod-parsing code: `docs/Database_T
 
 -- HERE FINISHED MY HUMAN WRITING DO NOT MODIFY ANY PREVIOUS TEXT, ONLY FROM HERE FORWARD --
 ## Celeste Mod Domain
+### Map `.bin` → PNG Rendering (Phase 1 Blueprint MVP)
+Map `.bin` files can be parsed to extract room bounds (`level` x, y, width, height), solids/bg Type 7 RLE tile grids (8x8 tile size), and entities (classified into spawn, collectible, hazard, generic). `ExportMapImages` (via CLI `zip export-map-images` and TS `Zip_Go.exportMapImages`) renders per-room PNGs (`rooms/room_<name>.png`), a full-map composite PNG (`full_map.png`), and `manifest.json`. Decals and stylegrounds are parsed structurally in Phase 1 MVP; real texture atlas decoding and autotiling rules belong to Phase 2.
 A mod could be any type of mod like:
   - Assets
   - Effects
@@ -430,13 +432,17 @@ Business logic classes (`Everest`, `Celeste`, `Olympus`, `CTDB`, etc.) are writt
 
 ### Go CLI helpers (native operations)
 
-SQLite and ZIP work delegated to small Go binaries built from `src-utils/*.go`, invoked as child processes:
+SQLite, mod ZIP parsing, and map `.bin` rendering work are delegated to 3 modular Go projects under `dependencies/`, invoked as child processes:
 
-- `src-utils/main.go` / `sqlite.go` / `zip.go` — Go source, compiled per-OS by `src-utils/build.ts` into `bin/utilities-<os>_<arch>[.exe]`.
-- `src-utils/Generic_Go.ts` — base class resolving the right binary path for the current OS via `IOS`/`IFileSystem`/`IPath`.
-- `src-utils/Sqlite_Go.ts` / `src-utils/Zip_Go.ts` — TS wrappers that shell out to the binary, feed SQL/args via stdin, parse a `{success, ...}` JSON envelope from stdout. `Sqlite_Go` sends `{"sql": ..., "params": [...]}` on stdin so values are bound by SQLite instead of interpolated; a raw SQL string on stdin still works. One call = one process = one connection, so no transactions/temp tables/PRAGMA state across statements.
+- `dependencies/CelesteMapsBinParser` — Go project: map `.bin` collectible counting & room/map image renderer (`count-collectibles`, `export-map-images`).
+- `dependencies/CelesteModsParser` — Go project: ZIP & Everest mod scanner (`read`, `list`, `unzip`, `pack`, `scan-mods`).
+- `dependencies/Sqlite` — Go project: SQLite query executor (`sqlite --db ...`).
+- `dependencies/build.ts` — compiles all 3 Go projects into `dependencies/build/` and places local dev binaries into `dependencies/`.
+- `scripts/build.ts` — full production build orchestrator: runs `dependencies/build.ts`, `neu build`, and copies binaries into `dist/prod/<os>/dependencies/`.
+- `src-utils/Generic_Go.ts` — base class resolving executable paths by binary name (`"Sqlite"`, `"CelesteModsParser"`, `"CelesteMapsBinParser"`).
+- `src-utils/Sqlite_Go.ts` / `src-utils/Zip_Go.ts` — TS wrappers that shell out to the binaries and parse `{success, ...}` JSON stdout envelopes. `Sqlite_Go` sends `{"sql": ..., "params": [...]}` on stdin.
 
-New native-helper features should follow the same shape: one Go subcommand, one JSON envelope, one thin TS wrapper class extending `Generic_Go`. `testing/setup.ts` auto-builds the binary (`bun run build`) if missing before tests that need it run.
+New native-helper features should follow the same shape: one Cobra subcommand, one JSON envelope, one thin TS wrapper class extending `Generic_Go`. `testing/setup.ts` auto-builds dependencies (`bun dependencies/build.ts`) if missing before tests run.
 
 ### Frontend structure
 

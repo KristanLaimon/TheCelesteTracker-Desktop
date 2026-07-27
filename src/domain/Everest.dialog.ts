@@ -14,7 +14,6 @@
  */
 
 import { inject, injectable } from "tsyringe";
-import Zip_Go from "../../src-utils/Zip_Go";
 import { IFileSystem_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../core/interfaces/IFileSystem";
 import type { EverestModInfo } from "./Everest";
@@ -28,13 +27,10 @@ import type { EverestModInfo } from "./Everest";
  */
 @injectable()
 export class DialogReader {
-	constructor(
-		@inject(IFileSystem_Token) private fs: IFileSystem,
-		@inject(Zip_Go) private zip: Zip_Go,
-	) {}
+	constructor(@inject(IFileSystem_Token) private fs: IFileSystem) {}
 
 	private async readModFile(modPath: string, isZip: boolean, filePath: string): Promise<string> {
-		return isZip ? await this.zip.readTextFile(modPath, filePath) : await this.fs.readFile(`${modPath}/${filePath}`);
+		return isZip ? "" : await this.fs.readFile(`${modPath}/${filePath}`);
 	}
 
 	/**
