@@ -5,7 +5,7 @@ import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../../core/interfaces/DependencyInjectionTokens";
 import type { EverestModInfo } from "../../domain/Everest";
-import { dbLogger } from "../../utils/Logger";
+import { dbLogger, logger } from "../../utils/Logger";
 import type { Database, GameSession } from "../db.types";
 import TableSubmodule from "./_base";
 
@@ -24,7 +24,7 @@ export default class Submodule_GameSessions extends TableSubmodule<"GameSessions
 		}
 	}
 
-	public async GetLastSessionsFromStandaloneModMap(modInfo: EverestModInfo) {
+	public async GetLastSessionsFromStandaloneModMap(saveSlotData: number, modInfo: EverestModInfo, opts?: { limit: number }) {
 		if (!modInfo) return null;
 		if (!modInfo.metadata.isMapMod) return null;
 		if (modInfo.metadata.isLobby) return null;
@@ -33,18 +33,23 @@ export default class Submodule_GameSessions extends TableSubmodule<"GameSessions
 		//Is normally one campaign and that's it for standalone mod maps (with multiple chapters of course, from 1..n)
 		// Campaign SID FORMAT: "BeefyUncleTorre/map" or "Crylone/farshore" for Glpyh and Farshore respectively.
 		const campaign = modInfo.metadata.campaigns[0];
-		const toReturn = await this.GetAllSessionsFromCampaignSID(campaign.campaignNameId);
+		const toReturn = await this.GetAllSessionsFromCampaignSID(saveSlotData, campaign.campaignNameId, opts);
 		return toReturn;
 	}
 
-	private async GetAllSessionsFromCampaignSID(campaignSID: string, opts?: { limit: number }) {
+	private async GetAllSessionsFromCampaignSID(saveSlotData: number, campaignSID: string, opts?: { limit: number }) {
 		try {
 			// biome-ignore format: Increases readibility this way
 			let query = this.db
 				.selectFrom("GameSessions")
 				.selectAll()
-				.orderBy("date_time_start", "desc")
-				.where('chapter_sid', "like", `%${campaignSID}%`);
+				.leftJoin("Chapters", "Chapters.sid", "GameSessions.chapter_sid")
+				.leftJoin("Campaigns", "Campaigns.id", "Chapters.campaign_id")
+				.orderBy("GameSessions.date_time_start", "desc")
+				.where('GameSessions.chapter_sid', "like", `%${campaignSID}%`)
+				.where("Campaigns.save_data_id", "=", saveSlotData);
+
+			logger.fatal({ result: await query.execute(), saveSlotData });
 
 			if (opts?.limit) query = query.limit(opts.limit);
 			return await query.execute();
