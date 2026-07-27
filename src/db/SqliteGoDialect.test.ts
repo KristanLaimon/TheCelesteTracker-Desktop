@@ -67,6 +67,14 @@ describe("SqliteGoDialect reads", () => {
 			.select((eb) => eb.fn.countAll().as("total"))
 			.executeTakeFirstOrThrow();
 		expect(Number(count.total)).toBe(campaigns.length);
+
+		const sessions = await ctdb.GameSessions.GetSessionsByLevelSet({ levelSetNames: ["StrawberryJam2021", "Celeste"], limit: 10 });
+		expect(Array.isArray(sessions)).toBe(true);
+
+		if (sessions.length > 0) {
+			const roomStats = await ctdb.GameSessionChapterRoomStats.GetStatsByGameSessionIds({ gameSessionIds: [sessions[0].id] });
+			expect(Array.isArray(roomStats)).toBe(true);
+		}
 	});
 });
 

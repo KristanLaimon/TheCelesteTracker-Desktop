@@ -31,4 +31,14 @@ export default class _submodule_service_GameSessionChapterRoomStats extends Tabl
 			return [];
 		}
 	}
+
+	public async GetStatsByGameSessionIds(opts: { gameSessionIds: string[] }): Promise<GameSessionChapterRoomStat[]> {
+		try {
+			if (!opts.gameSessionIds || opts.gameSessionIds.length === 0) return [];
+			return await this.db.selectFrom("GameSessionChapterRoomStats").selectAll().where("gamesession_id", "in", opts.gameSessionIds).execute();
+		} catch (error) {
+			dbLogger.error(`GameSessionChapterRoomStats.GetStatsByGameSessionIds failed: ${error}`);
+			return [];
+		}
+	}
 }
