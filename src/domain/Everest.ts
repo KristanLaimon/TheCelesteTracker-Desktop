@@ -610,7 +610,8 @@ export default class Everest {
 									} catch {}
 								}
 
-								const scan = this.collabUtils2.scanCollabFromBatchFiles(modInfo, collabId, dialog, raw.mapFiles ?? [], this.buildMapFromBatch.bind(this));
+								const mapFiles = raw.maps?.map((m) => m.mapFile) ?? [];
+								const scan = this.collabUtils2.scanCollabFromBatchFiles(modInfo, collabId, dialog, mapFiles, this.buildMapFromBatch.bind(this));
 
 								modInfo.metadata = {
 									...modInfo.metadata,
@@ -626,14 +627,17 @@ export default class Everest {
 									prologue: scan.prologue,
 								};
 							} else {
-								const mapFiles = raw.mapFiles ?? [];
+								const maps = raw.maps ?? [];
 								const campaignMap = new Map<string, DiscoveredMap[]>();
 
-								for (const mf of mapFiles) {
-									const sid = mf.path
-										.replace(/\\/g, "/")
-										.replace(/^Maps\//i, "")
-										.replace(/\.bin$/i, "");
+								for (const item of maps) {
+									const mf = item.mapFile;
+									const sid =
+										item.mapId ||
+										mf.path
+											.replace(/\\/g, "/")
+											.replace(/^Maps\//i, "")
+											.replace(/\.bin$/i, "");
 									const parts = sid.split("/");
 									if (parts.length >= 3) {
 										const campaignId = parts.slice(0, -1).join("/");

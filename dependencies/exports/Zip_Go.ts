@@ -66,6 +66,11 @@ export interface ScannedMapRaw {
 	metaYaml?: string;
 }
 
+export interface ScannedMapItem {
+	mapFile: ScannedMapRaw;
+	mapId: string;
+}
+
 export interface ScannedModRaw {
 	fileName: string;
 	isZip: boolean;
@@ -75,8 +80,7 @@ export interface ScannedModRaw {
 	collabId?: string;
 	dialogFiles?: Record<string, string>;
 	lazyLoadYaml?: string;
-	mapFiles?: ScannedMapRaw[];
-	mapsIds?: string[];
+	maps?: ScannedMapItem[];
 }
 
 export interface MapCollectibleCounts {

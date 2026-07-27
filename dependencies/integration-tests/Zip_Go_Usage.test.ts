@@ -38,7 +38,7 @@ describe("Zip_Go via DI (Mod Scanning)", () => {
 			expect(mauve).toBeDefined();
 			expect(mauve?.isZip).toBe(true);
 			expect(mauve?.yamlContent).toContain("Name:");
-			expect(mauve?.mapsIds).toContain("smoothee/mauve/mauve");
+			expect(mauve?.maps?.map((m) => m.mapId)).toContain("smoothee/mauve/mauve");
 		});
 
 		test("Handles empty or invalid directories gracefully", async () => {
