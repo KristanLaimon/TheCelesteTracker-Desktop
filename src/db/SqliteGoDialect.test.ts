@@ -1,5 +1,5 @@
 // NODE.JS/BUN/DENO ONLY
-import { beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import type { Kysely } from "kysely";
@@ -14,6 +14,10 @@ import CTDB from "./index";
 import { CreateTrackerDb } from "./SqliteGoDialect";
 
 const db = GetDependency<Kysely<Database>>(CTDB_Token);
+
+afterAll(() => {
+	rmSync(TEST_TEMP_FOLDER, { recursive: true, force: true });
+});
 
 describe("SqliteGoDialect reads", () => {
 	test("selects all rows of a table, typed", async () => {

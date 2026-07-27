@@ -19,8 +19,6 @@ import { logger } from "../../../utils/Logger";
 import { formatPlayTime } from "../../../utils/Time";
 import ModRecentSessionsTable from "./ModRecentSessionsTable.svelte";
 
-
-
 type Props = { searchQuery: string; showSearchBar: boolean };
 
 let { searchQuery = $bindable(""), onStateChange, showSearchBar = true }: WithGLState<Props> = $props();

@@ -7,6 +7,9 @@ TheCelesteTracker Desktop is *the* desktop all-in-one companion for Celeste PC P
 # Features & Roadmap
 For the detailed roadmap of pending features to implement, see [TODO.md](.claude/TODO.md).
 
+# Architecture
+For a structural map of how modules/DI/storage/Go-CLI helpers wire together, see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
 # Second Brain (IMPORTANT)
 Non-business-rule learnings (process, tooling gotchas, dead ends) live as numbered `.claude/brain/NN-name.md` thought files, not here. This file stays business-rules-only. See `.claude/brain/01-second-brain-convention.md` for the workflow.
 

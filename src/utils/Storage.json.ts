@@ -17,6 +17,13 @@ export interface JsonFileAdapterOptions {
 	 * Pass `0` for compact/minified output. Defaults to `0`.
 	 */
 	indent?: number;
+	/**
+	 * Optional promise awaited once, before the very first read/write of
+	 * `filePath` — lets a caller run async setup (e.g. a one-time file
+	 * migration) that must finish before this adapter ever touches disk,
+	 * without forcing adapter construction itself to be async.
+	 */
+	readyPromise?: Promise<void>;
 }
 
 /**
@@ -47,6 +54,7 @@ export interface JsonFileAdapterOptions {
 export default class Storage_JsonFileAdapter implements StorageAdapter {
 	private filePath: string;
 	private indent: number;
+	private readyPromise?: Promise<void>;
 
 	/** In-memory mirror of the JSON file's contents, once loaded. `null` until first load. */
 	private cache: Record<string, unknown> | null = null;
@@ -61,6 +69,7 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 	) {
 		this.filePath = options.filePath;
 		this.indent = options.indent ?? 0;
+		this.readyPromise = options.readyPromise;
 	}
 
 	/**
@@ -112,6 +121,10 @@ export default class Storage_JsonFileAdapter implements StorageAdapter {
 	private async load(): Promise<Record<string, unknown>> {
 		if (this.cache) {
 			return this.cache;
+		}
+
+		if (this.readyPromise) {
+			await this.readyPromise;
 		}
 
 		try {

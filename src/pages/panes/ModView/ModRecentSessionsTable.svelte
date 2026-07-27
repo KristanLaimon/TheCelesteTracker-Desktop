@@ -14,6 +14,10 @@ type Props = {
 
 let { modStringId = $bindable("") }: Props = $props();
 const modStringIdSanitized = $derived(modStringId.trim());
+/**
+ * Mod Map Ids
+ * Scrappgin
+ */
 
 const LocalMods_DB = DB_Mods;
 const CelesteTracker_DB = GetDependency(CTDB);

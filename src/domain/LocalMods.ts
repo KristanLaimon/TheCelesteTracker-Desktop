@@ -20,16 +20,25 @@ import type Olympus from "./Olympus";
 
 export * from "./localmods/LocalMods.types";
 
+/** One `Storage` per split `mods-*.json` cache file, see `Construct_LocalMods`. */
+export interface DBModsStorages {
+	installed: Storage;
+	historical: Storage;
+	enrichment: Storage;
+	collectibleTotals: Storage;
+}
+
 @injectable()
 export default class DBMods {
 	private scanner: LocalModsScanner;
 	private enricher: LocalModsMetadataEnricher;
 	private history: LocalModsHistoryManager;
 	private stats: LocalModsStatsCalculator;
+	private storages: Storage[];
 
 	constructor(
 		everest: Everest,
-		private storage: Storage,
+		storages: DBModsStorages,
 		maddiesApi: MaddiesApi,
 		gameBananaApi: GameBananaApi,
 		olympus: Olympus,
@@ -37,12 +46,13 @@ export default class DBMods {
 		celeste: Celeste,
 		@inject(Zip_Go) zip: Zip_Go,
 	) {
-		storage.configureAutoSave("turn off");
+		this.storages = [storages.installed, storages.historical, storages.enrichment, storages.collectibleTotals];
+		for (const storage of this.storages) storage.configureAutoSave("turn off");
 
-		this.scanner = new LocalModsScanner(everest, storage);
-		this.enricher = new LocalModsMetadataEnricher(this.scanner, storage, maddiesApi, gameBananaApi);
-		this.history = new LocalModsHistoryManager(this.scanner, this.enricher, everest, olympus, storage, fs);
-		this.stats = new LocalModsStatsCalculator(this.scanner, celeste, everest, fs, zip, storage);
+		this.scanner = new LocalModsScanner(everest, storages.installed);
+		this.enricher = new LocalModsMetadataEnricher(this.scanner, storages.enrichment, maddiesApi, gameBananaApi);
+		this.history = new LocalModsHistoryManager(this.scanner, this.enricher, everest, olympus, storages.historical, fs);
+		this.stats = new LocalModsStatsCalculator(this.scanner, celeste, everest, fs, zip, storages.collectibleTotals);
 	}
 
 	// ============ EVEREST MOD SCANNING ================
@@ -102,7 +112,7 @@ export default class DBMods {
 	}
 
 	public async destroy() {
-		await this.storage.triggerSave();
-		this.storage.destroy();
+		await Promise.all(this.storages.map((storage) => storage.triggerSave()));
+		for (const storage of this.storages) storage.destroy();
 	}
 }

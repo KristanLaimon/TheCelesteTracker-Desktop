@@ -10,19 +10,49 @@ import DBMods from "./domain/LocalMods";
 import Olympus from "./domain/Olympus";
 import { GetDependency } from "./setup";
 import Storage, { type StorageOptions } from "./utils/Storage";
-import Storage_JsonFileAdapter, { type JsonFileAdapterOptions } from "./utils/Storage.json";
+import Storage_JsonFileAdapter from "./utils/Storage.json";
 
-export function Construct_LocalMods(jsonParams: JsonFileAdapterOptions, storageParams?: Omit<StorageOptions, "adapters">) {
-	const jsonAdapterPersistent = new Storage_JsonFileAdapter(jsonParams, GetDependency<IFileSystem>(IFileSystem_Token), GetDependency<IPath>(IPath_Token));
-	const storage = new Storage({ adapters: [jsonAdapterPersistent], ...storageParams });
+export interface LocalModsStorageOptions {
+	/** Directory the split `mods-*.json` cache files live in, e.g. `"./data"`. */
+	dataDir: string;
+	indent?: number;
+}
+
+export function Construct_LocalMods(options: LocalModsStorageOptions, storageParams?: Omit<StorageOptions, "adapters">) {
+	const fs = GetDependency<IFileSystem>(IFileSystem_Token);
+	const path = GetDependency<IPath>(IPath_Token);
+
+	type SplitFiles = Record<"installed" | "historical" | "enrichment" | "collectibleTotals", string>;
+	const SPLIT_FILES: SplitFiles = {
+		installed: "mods-installed.json",
+		historical: "mods-historical.json",
+		enrichment: "mods-enrichment.json",
+		collectibleTotals: "mods-collectibletotals.json",
+	};
+
+	// Not awaited here so `Construct_LocalMods` can stay synchronous like before the split;
+	// each adapter awaits this same promise itself before its first real disk access (see `readyPromise`).
+
+	const makeStorage = (fileName: string) =>
+		new Storage({
+			adapters: [new Storage_JsonFileAdapter({ filePath: path.join(options.dataDir, fileName), indent: options.indent }, fs, path)],
+			...storageParams,
+		});
+
+	const storages = {
+		installed: makeStorage(SPLIT_FILES.installed),
+		historical: makeStorage(SPLIT_FILES.historical),
+		enrichment: makeStorage(SPLIT_FILES.enrichment),
+		collectibleTotals: makeStorage(SPLIT_FILES.collectibleTotals),
+	};
 
 	const myMods = new DBMods(
 		GetDependency(Everest),
-		storage,
+		storages,
 		GetDependency(MaddiesApi),
 		GetDependency(GameBananaApi),
 		GetDependency(Olympus),
-		GetDependency<IFileSystem>(IFileSystem_Token),
+		fs,
 		GetDependency(Celeste),
 		GetDependency(Zip_Go),
 	);

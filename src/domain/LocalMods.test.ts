@@ -41,8 +41,9 @@ function buildDbMods(opts: { mods: EverestModInfo[]; historical: EverestHistoric
 	} as unknown as IFileSystem;
 
 	const storage = new Storage({ adapters: [] });
+	const storages = { installed: storage, historical: storage, enrichment: storage, collectibleTotals: storage };
 	// biome-ignore lint/suspicious/noExplicitAny: test-only stubs for unused constructor deps
-	return new DBMods(fakeEverest, storage, {} as any, {} as any, fakeOlympus, fakeFs, {} as any, {} as any);
+	return new DBMods(fakeEverest, storages, {} as any, {} as any, fakeOlympus, fakeFs, {} as any, {} as any);
 }
 
 describe("DBMods.Mods_GetAllHistorical", () => {

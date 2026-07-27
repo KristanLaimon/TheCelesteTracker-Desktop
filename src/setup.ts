@@ -43,7 +43,7 @@ container.registerInstance(CTDB_Token, CreateTrackerDb(container.resolve(Sqlite_
 const GetDependency = container.resolve.bind(container);
 
 const DB_Mods = Construct_LocalMods({
-	filePath: "./data/mods-dbS.json",
+	dataDir: "./data",
 	indent: 2,
 });
 

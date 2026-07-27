@@ -90,4 +90,4 @@ export function EnsureBuildAndGetPathExe(): string {
 	return GetDependencyBinaryPath("Sqlite");
 }
 
-export const DB_Mods = Construct_LocalMods({ filePath: "./testing/Data-Temp/mods-dbS.json", indent: 2 });
+export const DB_Mods = Construct_LocalMods({ dataDir: "./testing/Data-Temp", indent: 2 });
