@@ -19,6 +19,8 @@ import { logger } from "../../../utils/Logger";
 import { formatPlayTime } from "../../../utils/Time";
 import ModRecentSessionsTable from "./ModRecentSessionsTable.svelte";
 
+
+
 type Props = { searchQuery: string; showSearchBar: boolean };
 
 let { searchQuery = $bindable(""), onStateChange, showSearchBar = true }: WithGLState<Props> = $props();
@@ -50,6 +52,7 @@ const hasSpecialCollectibles = $derived.by(() => {
 		const s = modStats.global.specialStrawberries;
 		return s.golden.current > 0 || s.moon.current > 0 || s.wingedGolden.current > 0;
 	}
+	//Is mod (standalone or lobby)!
 	const s = modStats.global.specialStrawberries;
 	return (
 		s.golden.current > 0 ||
