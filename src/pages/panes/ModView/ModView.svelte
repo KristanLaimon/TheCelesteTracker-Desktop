@@ -15,7 +15,7 @@ import type { ModSimplified, ModStatisticsResult } from "../../../domain/LocalMo
 import type { WithGLState } from "../../../libs/GoldenLayoutThemes/GoldenLayout.types";
 import { DB_Mods as localMods } from "../../../setup";
 import saveSlotStore from "../../../stores/SaveSlot.store.svelte";
-import { logger } from "../../../utils/Logger";
+import { uiLogger } from "../../../utils/Logger";
 import { formatPlayTime } from "../../../utils/Time";
 import ModRecentSessionsTable from "./ModRecentSessionsTable.svelte";
 
@@ -139,7 +139,7 @@ $effect(() => {
 			loadingStats = false;
 		})
 		.catch((err: unknown) => {
-			logger.error("ModView: Failed to load mod statistics", err);
+			uiLogger.error("ModView: Failed to load mod statistics", err);
 			modStats = null;
 			loadingStats = false;
 		});

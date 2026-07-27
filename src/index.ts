@@ -8,7 +8,7 @@ import { NeutralinoFileSystem } from "./core/NeutralinoFileSystem";
 import Configuration from "./domain/Configuration";
 import App from "./index.svelte";
 import { get } from "./setup";
-import { logger } from "./utils/Logger";
+import { coreLogger } from "./utils/Logger";
 
 neutralino.init();
 
@@ -26,16 +26,16 @@ loadingInstance = mount(Loading, {
 });
 
 neutralino.events.on("ready", () => {
-	logger.info("Neutralino: Ready");
+	coreLogger.trace("Neutralino: Ready");
 	const path = new BrowserPath();
 	const fs = new NeutralinoFileSystem(path);
 
 	//if doesnt exist only
 	fs.createDirectory("./data").then(() => {
-		logger.info("Neutralino: Ensuring ./data folder exists");
+		coreLogger.trace("Neutralino: Ensuring ./data folder exists");
 
 		NeutralinoFileSystem.MountLocalFolders().then(() => {
-			logger.info("Neutralino: Mounted local folders");
+			coreLogger.trace("Neutralino: Mounted local folders");
 
 			const configuration = get(Configuration);
 			configuration.initialize().then(() => {

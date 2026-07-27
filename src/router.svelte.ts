@@ -1,5 +1,6 @@
 // BROWSER ONLY
 import type { Component } from "svelte";
+import { coreLogger } from "./utils/Logger";
 
 export interface Route {
 	pattern: string;
@@ -22,7 +23,7 @@ function getInitialUrl(): URL {
 		// If no last page is stored, store the current one
 		localStorage.setItem(STORAGE_KEY, currentUrl.pathname + currentUrl.search + currentUrl.hash);
 	} catch (e) {
-		console.error("Failed to get or set initial URL in localStorage:", e);
+		coreLogger.error("Failed to get or set initial URL in localStorage:", e);
 	}
 	return currentUrl;
 }

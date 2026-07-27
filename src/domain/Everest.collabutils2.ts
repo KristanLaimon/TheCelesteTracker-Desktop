@@ -78,7 +78,7 @@ export class CollabUtils2Scanner {
 			try {
 				const collabId = (await this.readModFile(modInfo.modPath, modInfo.isZip, name)).trim();
 				if (collabId) {
-					modScannerLogger.info(`Collab detected in mod "${modInfo.fileName}": collabId="${collabId}"`);
+					modScannerLogger.trace(`Collab detected in mod "${modInfo.fileName}": collabId="${collabId}"`);
 					return collabId;
 				}
 			} catch {

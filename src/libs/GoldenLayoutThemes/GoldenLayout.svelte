@@ -12,7 +12,7 @@ import type {
 import "./goldenlayout-base.css";
 import "./predefined/goldenlayout-dark-theme.css";
 import { MapPinAltSolid } from "flowbite-svelte-icons";
-import { logger } from "../../utils/Logger";
+import { layoutLogger } from "../../utils/Logger";
 
 // Enable real-time live resizing during splitter drag without compound feedback loop or dragStop jumps
 // biome-ignore lint/suspicious/noExplicitAny: Needed to patch internal methods
@@ -282,7 +282,7 @@ function makeGLStateHelpers(container: ComponentContainer) {
 				mountIntoContainer(targetContainer, componentName, targetComponent, initialProps, mergedState);
 				LAYOUT?.emit("stateChanged");
 			} else {
-				console.error(`GoldenLayout Wrapper: focusTab could not apply newProps for tab "${tabId}" — component "${componentName}" not registered.`);
+				layoutLogger.warn(`GoldenLayout Wrapper: focusTab could not apply newProps for tab "${tabId}" — component "${componentName}" not registered.`);
 			}
 		}
 
@@ -734,10 +734,10 @@ onMount(() => {
 				});
 			}
 
-			logger.info("GoldenLayout Wrapper: Mounting Svelte Component...");
+			layoutLogger.trace("GoldenLayout Wrapper: Mounting Svelte Component...");
 
 			if (!layoutContainerEl) {
-				console.error("Layout HTML element not found to inject Golden-Layout dependency.");
+				layoutLogger.error("Layout HTML element not found to inject Golden-Layout dependency.");
 				return;
 			}
 
@@ -808,17 +808,17 @@ onMount(() => {
 			loadPinsMap();
 			const processedContent = preprocessLayoutContent(Content);
 
-			logger.info("GoldenLayout Wrapper: Initializing raw GoldenLayout...");
+			layoutLogger.debug("GoldenLayout Wrapper: Initializing raw GoldenLayout...");
 			LAYOUT = new GoldenLayout(layoutContainerEl);
 
 			// Register Svelte components from components registry prop
 			if (components) {
 				// biome-ignore lint/suspicious/noExplicitAny: Needed for this type only
 				for (const [name, component] of Object.entries(components) as [string, Component<any, any, any>][]) {
-					logger.info(`GoldenLayout Wrapper: Registering component "${name}"`);
+					layoutLogger.trace(`GoldenLayout Wrapper: Registering component "${name}"`);
 					LAYOUT.registerComponentFactoryFunction(name, (container, state) => {
 						try {
-							logger.info(`GoldenLayout Wrapper: Factory function called for "${name}"`);
+							layoutLogger.silly(`GoldenLayout Wrapper: Factory function called for "${name}"`);
 							mountIntoContainer(container, name, component, {}, (state as Record<string, unknown>) || {});
 
 							container.on("destroy", () => {
@@ -828,17 +828,17 @@ onMount(() => {
 								}, 20);
 							});
 						} catch (err) {
-							console.error(`GoldenLayout Wrapper: Error mounting component "${name}":`, err);
+							layoutLogger.error(`GoldenLayout Wrapper: Error mounting component "${name}":`, err);
 						}
 					});
 				}
 			}
 
 			// Register the mandatory default Svelte component
-			logger.info("GoldenLayout Wrapper: Registering default component");
+			layoutLogger.trace("GoldenLayout Wrapper: Registering default component");
 			LAYOUT.registerComponentFactoryFunction("__defaultComponent", (container, state) => {
 				try {
-					logger.info("GoldenLayout Wrapper: Factory function called for defaultComponent");
+					layoutLogger.silly("GoldenLayout Wrapper: Factory function called for defaultComponent");
 					mountIntoContainer(container, "__defaultComponent", defaultComponent, defaultComponentProps, (state as Record<string, unknown>) || {});
 
 					container.on("destroy", () => {
@@ -848,7 +848,7 @@ onMount(() => {
 						}, 20);
 					});
 				} catch (err) {
-					console.error("GoldenLayout Wrapper: Error mounting defaultComponent:", err);
+					layoutLogger.error("GoldenLayout Wrapper: Error mounting defaultComponent:", err);
 				}
 			});
 
@@ -866,13 +866,13 @@ onMount(() => {
 								}
 							}
 						} catch (err) {
-							console.error("GoldenLayout Wrapper: Error in stack itemCreated handler:", err);
+							layoutLogger.error("GoldenLayout Wrapper: Error in stack itemCreated handler:", err);
 						}
 					}, 50);
 				}
 			});
 
-			logger.info("GoldenLayout Wrapper: Loading layout structure...");
+			layoutLogger.debug("GoldenLayout Wrapper: Loading layout structure...");
 			const storedPreviousLayout = localStorage.getItem(persistence.localStorageKey);
 			let loadedFromCache = false;
 
@@ -883,7 +883,7 @@ onMount(() => {
 					LAYOUT.loadLayout(previousLayout);
 					loadedFromCache = true;
 				} catch (err) {
-					console.error("GoldenLayout Wrapper: Error loading stored layout, falling back to default:", err);
+					layoutLogger.warn("GoldenLayout Wrapper: Error loading stored layout, falling back to default:", err);
 					localStorage.removeItem(persistence.localStorageKey);
 				}
 			}
@@ -915,7 +915,7 @@ onMount(() => {
 				});
 			}
 
-			logger.info("GoldenLayout Wrapper: Layout loaded successfully.");
+			layoutLogger.info("GoldenLayout Wrapper: Layout loaded successfully.");
 
 			if (overrideComponentStyles && Object.keys(overrideComponentStyles).length > 0) {
 				applyComponentStyles(layoutContainerEl);
@@ -968,7 +968,7 @@ onMount(() => {
 						syncTabsAndPinning(layoutContainerEl);
 					}
 				} catch (err) {
-					console.error("GoldenLayout Wrapper: Error in mutationObserver callback:", err);
+					layoutLogger.error("GoldenLayout Wrapper: Error in mutationObserver callback:", err);
 				} finally {
 					if (mutationObserver && layoutContainerEl) {
 						mutationObserver.observe(layoutContainerEl, {
@@ -1012,7 +1012,7 @@ onMount(() => {
 				const root: any = LAYOUT.rootItem || (LAYOUT as any).root;
 				const items = getAllComponentItems(root);
 				if (items.length === 0) {
-					logger.info("GoldenLayout Wrapper: All tabs closed (tabs === 0). Spawning default new tab...");
+					layoutLogger.debug("GoldenLayout Wrapper: All tabs closed (tabs === 0). Spawning default new tab...");
 					if (root && typeof root.newComponent === "function") {
 						root.newComponent("__defaultComponent", { __tabId: generateTabId() }, "New Tab");
 					} else if (root && typeof root.addItem === "function") {
@@ -1051,7 +1051,7 @@ onMount(() => {
 				if (LAYOUT) LAYOUT.destroy();
 			};
 		} catch (err) {
-			console.error("GoldenLayout Wrapper: Fatal error in onMount:", err);
+			layoutLogger.fatal("GoldenLayout Wrapper: Fatal error in onMount:", err);
 		}
 	};
 

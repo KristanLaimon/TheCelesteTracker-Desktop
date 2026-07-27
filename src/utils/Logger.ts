@@ -1,6 +1,8 @@
 import * as fs from "node:fs";
 import { filesystem } from "@neutralinojs/lib";
-import { Logger } from "tslog";
+import { Logger, LogLevel } from "tslog";
+
+export { LogLevel };
 
 const APP_NAME = "TheCelesteTracker";
 const LOG_DIR = "./logs";
@@ -42,6 +44,7 @@ function appendToLogFile(line: string): void {
 
 export const logger = new Logger({
 	name: APP_NAME,
+	minLevel: LogLevel.WARN,
 });
 
 // Attach file transport to write logs to ./logs/celeste-hub.log without deleting existing entries
@@ -63,7 +66,37 @@ logger.attachTransport((logObj) => {
 	appendToLogFile(formattedLine);
 });
 
-// Domain-specific sub-loggers
-export const modScannerLogger = logger.getSubLogger({ name: "ModScanner" });
-export const dbLogger = logger.getSubLogger({ name: "Database" });
-export const apiLogger = logger.getSubLogger({ name: "API" });
+// Domain-specific sub-loggers configured with quiet default minLevel (LogLevel.WARN)
+export const coreLogger = logger.getSubLogger({ name: "Core", minLevel: LogLevel.WARN });
+export const modScannerLogger = logger.getSubLogger({ name: "ModScanner", minLevel: LogLevel.DEBUG });
+export const dbLogger = logger.getSubLogger({ name: "Database", minLevel: LogLevel.DEBUG });
+export const apiLogger = logger.getSubLogger({ name: "API", minLevel: LogLevel.WARN });
+export const celesteLogger = logger.getSubLogger({ name: "Celeste", minLevel: LogLevel.DEBUG });
+export const olympusLogger = logger.getSubLogger({ name: "Olympus", minLevel: LogLevel.DEBUG });
+export const wanvasLogger = logger.getSubLogger({ name: "Wanvas", minLevel: LogLevel.WARN });
+export const uiLogger = logger.getSubLogger({ name: "UI", minLevel: LogLevel.WARN });
+export const layoutLogger = logger.getSubLogger({ name: "GoldenLayout", minLevel: LogLevel.WARN });
+
+const allSubLoggers = [coreLogger, modScannerLogger, dbLogger, apiLogger, celesteLogger, olympusLogger, wanvasLogger, uiLogger, layoutLogger];
+
+/**
+ * Configure minimum log levels across root logger and subloggers.
+ */
+export function setLogLevels(opts?: { minLevel?: LogLevel; subloggerLevels?: Record<string, LogLevel> }): void {
+	const targetLevel = opts?.minLevel;
+	if (targetLevel !== undefined) {
+		logger.settings.minLevel = targetLevel;
+		for (const sub of allSubLoggers) {
+			sub.settings.minLevel = targetLevel;
+		}
+	}
+
+	if (opts?.subloggerLevels) {
+		for (const sub of allSubLoggers) {
+			const subName = sub.settings.name;
+			if (subName && opts.subloggerLevels[subName] !== undefined) {
+				sub.settings.minLevel = opts.subloggerLevels[subName];
+			}
+		}
+	}
+}

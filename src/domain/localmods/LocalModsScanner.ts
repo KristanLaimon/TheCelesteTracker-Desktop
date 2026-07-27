@@ -31,9 +31,9 @@ export class LocalModsScanner {
 	) {}
 
 	public async EverestMods_GetAll(opts?: LocalModsOptions): Promise<Record<string, EverestModInfo>> {
-		// modScannerLogger.info("Fetching ");
+		modScannerLogger.trace("LocalModsScanner: Fetching installed Everest mods");
 		const toReturn = await this.#everestModsLazy.get(opts, { forceRefresh: opts?.invalidateCache?.ALL_EVEREST_MODS_INFO });
-		// modScannerLogger.info(`Loaded ${Object.keys(toReturn).length} installed mods into scanner cache.`);
+		modScannerLogger.debug(`LocalModsScanner: Loaded ${Object.keys(toReturn).length} installed mods into scanner cache.`);
 		return toReturn;
 	}
 

@@ -7,7 +7,7 @@ import type { CanvasNodeData, CanvasRegistry } from "../../libs/Wanvas/Canvas.ty
 import ImgCaptionWidget from "../../libs/Wanvas/widgets/ImgCaptionWidget.svelte";
 import ImgWidget from "../../libs/Wanvas/widgets/ImgWidget.svelte";
 import TextWidget from "../../libs/Wanvas/widgets/TextWidget.svelte";
-import { logger } from "../../utils/Logger";
+import { wanvasLogger } from "../../utils/Logger";
 
 const Path = new BrowserPath();
 
@@ -133,14 +133,14 @@ function clearAll() {
       key: localStorageKey,
       // biome-ignore lint/suspicious/noExplicitAny: Canvas save callbacks
       beforeSave: (nodes: any, _cancel: any) => {
-        logger.info(
+        wanvasLogger.debug(
           `Canvas with key [${localStorageKey}] is about to save nodes:`,
           nodes,
         );
       },
       // biome-ignore lint/suspicious/noExplicitAny: Canvas save callbacks
       afterSave: (nodes: any) => {
-        logger.info(
+        wanvasLogger.debug(
           `Canvas with key [${localStorageKey}] saved successfully:`,
           nodes,
         );

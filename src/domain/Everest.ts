@@ -605,7 +605,7 @@ export default class Everest {
 			try {
 				const batch = await this.zip.scanModsBatch(modsPath);
 				if (batch?.success && Array.isArray(batch.mods) && batch.mods.length > 0) {
-					modScannerLogger.info(`⚡ High-speed Go batch scanned ${batch.mods.length} mods across ${batch.threads} CPU threads!`);
+					modScannerLogger.debug(`⚡ High-speed Go batch scanned ${batch.mods.length} mods across ${batch.threads} CPU threads!`);
 					const result: EverestModInfo[] = [];
 
 					for (const raw of batch.mods) {
@@ -778,7 +778,7 @@ export default class Everest {
 				}
 			}),
 		);
-		modScannerLogger.info("Finished scanning full Everest metadata, lobby structure, and dialog files.");
+		modScannerLogger.debug("Finished scanning full Everest metadata, lobby structure, and dialog files.");
 		return mods;
 	}
 
@@ -837,7 +837,7 @@ export default class Everest {
 		const workerCount = opts?.workerCount ?? 0;
 		if (workerCount > 0) {
 			const result = await this.scanWithWorkers(entries, modsPath, workerCount);
-			modScannerLogger.info("Finished scanning mod base info via workers.");
+			modScannerLogger.debug("Finished scanning mod base info via workers.");
 			if (result) return result;
 		}
 
@@ -862,7 +862,7 @@ export default class Everest {
 					const isZip = type === "FILE" && entry.toLowerCase().endsWith(".zip");
 					if (type !== "DIRECTORY" && !isZip) return null;
 
-					modScannerLogger.debug(`Scanning mod ${++no}: ${entry}`);
+					modScannerLogger.silly(`Scanning mod ${++no}: ${entry}`);
 
 					const modPath = `${modsPath}/${entry}`;
 					for (const yName of YAML_NAMES) {
