@@ -51,6 +51,7 @@ describe("GetLevelSetNamesForMod", () => {
 				name: "berry143",
 				version: "1.0.0",
 				dependencies: [],
+				isMapMod: true,
 				isLobby: false,
 				chapters: [],
 				campaigns: [{ campaignNameId: "bryse0n/berry143", maps: [] }],
@@ -70,6 +71,7 @@ describe("GetLevelSetNamesForMod", () => {
 				name: "BreezeContest2024",
 				version: "1.0.0",
 				dependencies: [],
+				isMapMod: true,
 				isLobby: true,
 				lobbyChapters: [],
 				collabId: "BreezeContest2024",
@@ -81,13 +83,13 @@ describe("GetLevelSetNamesForMod", () => {
 		expect(GetLevelSetNamesForMod(mod)).toEqual(["BreezeContest2024/0-Lobbies"]);
 	});
 
-	test("returns empty array when metadata has no campaigns/lobbies", () => {
+	test("returns empty array when metadata is non-map mod", () => {
 		const mod: EverestModInfo = {
 			fileName: "empty.zip",
 			isZip: true,
 			modPath: "/mods/empty.zip",
 			humanName: "Empty",
-			metadata: { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] },
+			metadata: { name: "", version: "", dependencies: [], isMapMod: false, isLobby: false },
 		};
 
 		expect(GetLevelSetNamesForMod(mod)).toEqual([]);

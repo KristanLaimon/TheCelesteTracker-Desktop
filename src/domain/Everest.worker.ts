@@ -41,7 +41,7 @@ function parseEverestYaml(content: string, _fileName: string): any {
 	try {
 		const cleaned = content.replace(/^\uFEFF/, "");
 		const parsed = yaml.load(cleaned) as RawMeta | RawMeta[] | null | undefined;
-		if (!parsed) return { name: "", version: "", dependencies: [], isLobby: false };
+		if (!parsed) return { name: "", version: "", dependencies: [], isMapMod: false, isLobby: false };
 		const item = Array.isArray(parsed) ? parsed[0] : parsed;
 		const { Name, Version, DLL, Dependencies, OptionalDependencies, ...rest } = item;
 		return {
@@ -51,12 +51,11 @@ function parseEverestYaml(content: string, _fileName: string): any {
 			dll: DLL || rest.dll || undefined,
 			dependencies: (Dependencies || rest.dependencies || []).map(normalizeDep),
 			optionalDependencies: (OptionalDependencies || rest.optionalDependencies || []).map(normalizeDep),
+			isMapMod: false,
 			isLobby: false,
-			chapters: [],
-			campaigns: [],
 		};
 	} catch {
-		return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
+		return { name: "", version: "", dependencies: [], isMapMod: false, isLobby: false };
 	}
 }
 
@@ -82,6 +81,7 @@ self.onmessage = (
 		const isZip = type === "FILE";
 
 		if (collabContent) {
+			metadata.isMapMod = true;
 			metadata.isLobby = true;
 			metadata.collabId = collabContent.trim();
 			metadata.lobbyChapters = [];

@@ -107,7 +107,7 @@ export class LocalModsStatsCalculator {
 
 			const modInfo = await this.scanner.EverestMods_Get_ModByModId(modId, opts);
 			const humanName = modInfo?.humanName || modId;
-			const isLobby = modInfo?.metadata?.isLobby === true;
+			const isLobby = modInfo?.metadata?.isMapMod === true && modInfo?.metadata?.isLobby === true;
 
 			if (isLobby) {
 				return {
@@ -146,9 +146,9 @@ export class LocalModsStatsCalculator {
 
 		const modInfo = await this.scanner.EverestMods_Get_ModByModId(modId, opts);
 		const humanName = modInfo?.humanName || modId;
-		const isLobbyMod = modInfo?.metadata?.isLobby === true;
+		const isLobbyMod = modInfo?.metadata?.isMapMod === true && modInfo?.metadata?.isLobby === true;
 
-		if (isLobbyMod && modInfo?.metadata?.isLobby) {
+		if (isLobbyMod && modInfo?.metadata?.isMapMod && modInfo?.metadata?.isLobby) {
 			return await this.#GetLobbyModStatistics(modId, humanName, modInfo, slot);
 		}
 

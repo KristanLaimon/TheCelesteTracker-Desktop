@@ -70,48 +70,70 @@ export type LobbyChapter = {
  * destructured out during parsing; only the normalized lowercase forms survive.
  * Extra YAML keys (e.g. mod-specific config) pass through via `[key: string]: unknown`.
  */
-export type ModMetadata =
-	| {
-			/** MOD UNIQUE IDENTIFIER HERE: Mod display name — from `everest.yaml` `Name`/`name` field. */
-			name: string;
-			/** Version string — from `everest.yaml` `Version`/`version`. */
-			version: string;
-			/** Path to the .dll runtime file — from `everest.yaml` `DLL`/`dll`. */
-			dll?: string;
-			/** Required dependency list — from `everest.yaml` `Dependencies` / `dependencies`. */
-			dependencies: ModDependency[];
-			/** Optional dependencies — from `everest.yaml` `OptionalDependencies`. */
-			optionalDependencies?: ModDependency[];
-			/** `true` for collab mods (has `CollabUtils2CollabID.txt`). */
-			isLobby: true;
-			/** Derived lobby chapter list (same maps as `lobbies` but flattened to ids). */
-			lobbyChapters: LobbyChapter[];
-			/** Collab identifier — contents of `CollabUtils2CollabID.txt`. */
-			collabId: string;
-			/** Lazy-loading config — contents of `CollabUtils2LazyLoading.yaml`. */
-			lazyLoadingCfg?: CollabUtils2LazyLoadingYaml;
-			/** Full lobby scan data from `Maps/<Collab>/0-Lobbies/`. */
-			lobbies: DiscoveredLobby[];
-			/** Gym maps from `Maps/<Collab>/0-Gyms/`. */
-			gyms: DiscoveredMap[];
-			/** Optional prologue map (lobby bin named `0-Prologue*`). */
-			prologue?: DiscoveredMap;
-			[key: string]: unknown;
-	  }
-	| {
-			name: string;
-			version: string;
-			dll?: string;
-			dependencies: ModDependency[];
-			optionalDependencies?: ModDependency[];
-			/** `false` for standalone (non-collab) mods. */
-			isLobby: false;
-			/** Derived chapter list (flattened from `campaigns`). */
-			chapters: ModChapter[];
-			/** Campaign data from `Maps/<Author>/<Campaign>/` folders. */
-			campaigns: DiscoveredCampaign[];
-			[key: string]: unknown;
-	  };
+export type CommonModMetadata = {
+	/** MOD UNIQUE IDENTIFIER HERE: Mod display name — from `everest.yaml` `Name`/`name` field. */
+	name: string;
+	/** Version string — from `everest.yaml` `Version`/`version`. */
+	version: string;
+	/** Path to the .dll runtime file — from `everest.yaml` `DLL`/`dll`. */
+	dll?: string;
+	/** Required dependency list — from `everest.yaml` `Dependencies` / `dependencies`. */
+	dependencies: ModDependency[];
+	/** Optional dependencies — from `everest.yaml` `OptionalDependencies`. */
+	optionalDependencies?: ModDependency[];
+	[key: string]: unknown;
+};
+
+export type NonMapModMetadata = CommonModMetadata & {
+	/** `false` for non-map mods (helper, code, audio, texture/asset mods). */
+	isMapMod: false;
+	/** `false` for non-map mods. */
+	isLobby: false;
+};
+
+export type CollabModMetadata = CommonModMetadata & {
+	/** `true` for map mods. */
+	isMapMod: true;
+	/** `true` for collab mods (has `CollabUtils2CollabID.txt`). */
+	isLobby: true;
+	/** Derived lobby chapter list (same maps as `lobbies` but flattened to ids). */
+	lobbyChapters: LobbyChapter[];
+	/** Collab identifier — contents of `CollabUtils2CollabID.txt`. */
+	collabId: string;
+	/** Lazy-loading config — contents of `CollabUtils2LazyLoading.yaml`. */
+	lazyLoadingCfg?: CollabUtils2LazyLoadingYaml;
+	/** Full lobby scan data from `Maps/<Collab>/0-Lobbies/`. */
+	lobbies: DiscoveredLobby[];
+	/** Gym maps from `Maps/<Collab>/0-Gyms/`. */
+	gyms: DiscoveredMap[];
+	/** Optional prologue map (lobby bin named `0-Prologue*`). */
+	prologue?: DiscoveredMap;
+};
+
+export type StandaloneMapModMetadata = CommonModMetadata & {
+	/** `true` for map mods. */
+	isMapMod: true;
+	/** `false` for standalone (non-collab) map mods. */
+	isLobby: false;
+	/** Derived chapter list (flattened from `campaigns`). */
+	chapters: ModChapter[];
+	/** Campaign data from `Maps/<Author>/<Campaign>/` folders. */
+	campaigns: DiscoveredCampaign[];
+};
+
+/**
+ * Fully scanned metadata for a mod.
+ *
+ * Discriminated by `isMapMod` and `isLobby`:
+ * - `isMapMod: false` & `isLobby: false` → non-map mod (helper, code, audio, texture/asset mods)
+ * - `isMapMod: true` & `isLobby: true`   → collab map mod with lobbies/gyms/prologue
+ * - `isMapMod: true` & `isLobby: false`  → standalone map mod with flat campaign folders
+ *
+ * Raw YAML fields from `everest.yaml` (e.g. `Name`, `Dependencies`) are
+ * destructured out during parsing; only the normalized lowercase forms survive.
+ * Extra YAML keys (e.g. mod-specific config) pass through via `[key: string]: unknown`.
+ */
+export type ModMetadata = NonMapModMetadata | CollabModMetadata | StandaloneMapModMetadata;
 
 /**
  * A mod discovered on disk (folder or .zip inside the Celeste `Mods/` directory).
@@ -149,7 +171,7 @@ export type EverestHistoricalLevelSets = {
  */
 export function GetLevelSetNamesForMod(mod: EverestModInfo): string[] {
 	const meta = mod.metadata;
-	if (!meta) return [];
+	if (!meta?.isMapMod) return [];
 	if (meta.isLobby) {
 		return (meta.lobbies ?? []).map((l) => (meta.collabId ? `${meta.collabId}/${l.lobbyId}` : l.lobbyId));
 	}
@@ -308,7 +330,7 @@ export function parseEverestYaml(content: string, fileName: string): ModMetadata
 	try {
 		const cleaned = content.replace(/\0/g, "").replace(/^\uFEFF/, "");
 		const parsed = yaml.load(cleaned) as RawMeta | RawMeta[] | null | undefined;
-		if (!parsed) return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
+		if (!parsed) return { name: "", version: "", dependencies: [], isMapMod: false, isLobby: false };
 		const item = Array.isArray(parsed) ? parsed[0] : parsed;
 		const { Name, Version, DLL, Dependencies, OptionalDependencies, ...rest } = item;
 		return {
@@ -318,13 +340,12 @@ export function parseEverestYaml(content: string, fileName: string): ModMetadata
 			dll: DLL || rest.dll || undefined,
 			dependencies: (Dependencies || rest.dependencies || []).map(normalizeDep),
 			optionalDependencies: (OptionalDependencies || rest.optionalDependencies || []).map(normalizeDep),
+			isMapMod: false,
 			isLobby: false,
-			chapters: [],
-			campaigns: [],
 		};
 	} catch (err) {
 		modScannerLogger.error(`Yaml parse fail ${fileName}:`, err);
-		return { name: "", version: "", dependencies: [], isLobby: false, chapters: [], campaigns: [] };
+		return { name: "", version: "", dependencies: [], isMapMod: false, isLobby: false };
 	}
 }
 
@@ -615,6 +636,7 @@ export default class Everest {
 
 								modInfo.metadata = {
 									...modInfo.metadata,
+									isMapMod: true,
 									isLobby: true,
 									lobbyChapters: scan.lobbies.map((l) => ({
 										lobbyId: l.lobbyId,
@@ -649,17 +671,26 @@ export default class Everest {
 								}
 
 								const campaigns = Array.from(campaignMap.entries()).map(([campaignNameId, maps]) => ({ campaignNameId, maps }));
-								const chapters: ModChapter[] = [];
-								for (const c of campaigns) {
-									for (const m of c.maps) chapters.push({ chapterId: m.sid });
-								}
+								if (campaigns.length > 0) {
+									const chapters: ModChapter[] = [];
+									for (const c of campaigns) {
+										for (const m of c.maps) chapters.push({ chapterId: m.sid });
+									}
 
-								modInfo.metadata = {
-									...modInfo.metadata,
-									isLobby: false,
-									chapters,
-									campaigns,
-								};
+									modInfo.metadata = {
+										...modInfo.metadata,
+										isMapMod: true,
+										isLobby: false,
+										chapters,
+										campaigns,
+									};
+								} else {
+									modInfo.metadata = {
+										...modInfo.metadata,
+										isMapMod: false,
+										isLobby: false,
+									};
+								}
 							}
 
 							result.push(modInfo);
@@ -707,6 +738,7 @@ export default class Everest {
 							const scan = await this.collabUtils2.scanCollab(modInfo, collabId, dialog, this.buildMap.bind(this));
 							modInfo.metadata = {
 								...modInfo.metadata,
+								isMapMod: true,
 								isLobby: true,
 								lobbyChapters: scan.lobbies.map((l) => ({
 									lobbyId: l.lobbyId,
@@ -720,16 +752,25 @@ export default class Everest {
 							};
 						} else {
 							const campaigns = await this.scanFlatCampaigns(modInfo);
-							const chapters: ModChapter[] = [];
-							for (const c of campaigns) {
-								for (const m of c.maps) chapters.push({ chapterId: m.sid });
+							if (campaigns.length > 0) {
+								const chapters: ModChapter[] = [];
+								for (const c of campaigns) {
+									for (const m of c.maps) chapters.push({ chapterId: m.sid });
+								}
+								modInfo.metadata = {
+									...modInfo.metadata,
+									isMapMod: true,
+									isLobby: false,
+									chapters,
+									campaigns,
+								};
+							} else {
+								modInfo.metadata = {
+									...modInfo.metadata,
+									isMapMod: false,
+									isLobby: false,
+								};
 							}
-							modInfo.metadata = {
-								...modInfo.metadata,
-								isLobby: false,
-								chapters,
-								campaigns,
-							};
 						}
 					} catch {
 						/* skip mod on scan error */
@@ -759,15 +800,24 @@ export default class Everest {
 				for (const raw of batch.mods) {
 					try {
 						const metadata = parseEverestYaml(raw.yamlContent, raw.fileName);
+						let finalMeta: ModMetadata = metadata;
 						if (raw.collabId) {
-							metadata.isLobby = true;
+							finalMeta = {
+								...metadata,
+								isMapMod: true,
+								isLobby: true,
+								collabId: raw.collabId,
+								lobbyChapters: [],
+								lobbies: [],
+								gyms: [],
+							};
 						}
 						result.push({
 							fileName: raw.fileName,
 							isZip: raw.isZip,
 							modPath: raw.modPath,
 							sizeBytes: raw.isZip ? raw.sizeBytes : null,
-							metadata,
+							metadata: finalMeta,
 							humanName: this.NormalizeCelesteModName(raw.fileName),
 						});
 					} catch {}
@@ -908,6 +958,7 @@ export default class Everest {
 				if (collabId) {
 					modInfo.metadata = {
 						...modInfo.metadata,
+						isMapMod: true,
 						isLobby: true,
 						collabId,
 						lobbyChapters: [],
@@ -960,6 +1011,7 @@ export default class Everest {
 					if (collabId) {
 						modInfo.metadata = {
 							...modInfo.metadata,
+							isMapMod: true,
 							isLobby: true,
 							collabId,
 							lobbyChapters: [],

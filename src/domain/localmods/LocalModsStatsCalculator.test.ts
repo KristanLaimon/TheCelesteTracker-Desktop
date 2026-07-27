@@ -41,6 +41,7 @@ const MOD_INFO = {
 	sizeBytes: 1234,
 	metadata: {
 		name: "FakeMod",
+		isMapMod: true,
 		isLobby: false,
 		chapters: [],
 		campaigns: [{ campaignNameId: "author/campaign" }],

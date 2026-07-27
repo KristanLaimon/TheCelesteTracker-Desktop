@@ -30,13 +30,12 @@ let selectedName = $state<string>(searchQuery.toString());
 
 let selectedEverestInfo = $state<EverestModInfo | null>(null);
 let selectedMaddiesInfo = $state<MaddiesApiModInfo | null>(null);
+let modStats = $state<ModStatisticsResult | null>(null);
 
 let heroImage = $state<string | null>(null);
 let bgColor = $state<string>("#18181c");
 
-let modStats = $state<ModStatisticsResult | null>(null);
 let loadingStats = $state(false);
-let loadingSessionAnalytics = $state(false);
 
 const selectedModId = $derived.by(() => {
 	if (!selectedName || selectedName.trim() === "") return "";
@@ -44,7 +43,10 @@ const selectedModId = $derived.by(() => {
 	return match ? match.modId : selectedName;
 });
 
+const isMapMod = $derived<boolean>(!!selectedEverestInfo?.metadata.isMapMod);
+
 const hasSpecialCollectibles = $derived.by(() => {
+	if (!isMapMod) return false;
 	if (!modStats) return false;
 	if (modStats.isVanilla) {
 		const s = modStats.global.specialStrawberries;
@@ -85,7 +87,6 @@ $effect(() => {
 			loadingInfo = false;
 			return;
 		}
-
 		localMods.EverestMods_Get_ModByModId(selectedModId).then((everestApiResult) => {
 			selectedEverestInfo = everestApiResult;
 			if (everestApiResult !== null) {
@@ -130,7 +131,7 @@ $effect(() => {
 	const modId = selectedModId;
 	const slot = saveSlotStore.selectedSaveSlot;
 
-	if (!modId || modId.trim() === "") {
+	if (!modId || modId.trim() === "" || !isMapMod) {
 		modStats = null;
 		loadingStats = false;
 		return;
@@ -403,16 +404,10 @@ $effect(() => {
             </div>
 
             <!-- SQLITE SESSION ANALYTICS & CHARTS SECTION -->
-            {#if loadingSessionAnalytics}
-              <div class="py-6 text-center text-zinc-400 animate-pulse text-sm">
-                Loading session analytics & room statistics from SQLite...
-              </div>
-            {:else}
-              <div class="space-y-8 w-full">
-                <!-- RECENT SESSIONS TABLE -->
-                <ModRecentSessionsTable modStringId={selectedModId} />
-              </div>
-            {/if}
+						<div class="space-y-8 w-full">
+							<!-- RECENT SESSIONS TABLE -->
+							<ModRecentSessionsTable modStringId={selectedModId} />
+						</div>
 
             {#if (selectedMaddiesInfo?.Screenshots?.length ?? 0) > 0 || (selectedMaddiesInfo?.MirroredScreenshots?.length ?? 0) > 0}
               <div>

@@ -18,6 +18,7 @@ function makeMod(name: string, campaignNameId: string, modPath: string): Everest
 			name,
 			version: "1.0.0",
 			dependencies: [{ name: "Everest", version: "1.0.0" }],
+			isMapMod: true,
 			isLobby: false,
 			chapters: [],
 			campaigns: [{ campaignNameId, maps: [] }],

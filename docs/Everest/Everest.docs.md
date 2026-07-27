@@ -24,11 +24,14 @@ flowchart LR
 ### Discriminated Union — `ModMetadata`
 
 ```typescript
-// lobby mod — has sub-lobbies with their own chapters
-{ isLobby: true; lobbyChapters: LobbyChapter[] }
+// non-map mod — helper, code, audio, texture/asset mods
+{ isMapMod: false; isLobby: false }
 
-// standard mod — flat chapter list
-{ isLobby: false; chapters: ModChapter[] }
+// collab map mod — has sub-lobbies with their own chapters
+{ isMapMod: true; isLobby: true; lobbyChapters: LobbyChapter[]; collabId: string; ... }
+
+// standalone map mod — flat chapter list
+{ isMapMod: true; isLobby: false; chapters: ModChapter[]; campaigns: DiscoveredCampaign[] }
 ```
 
 ### ScanMod — Branching
