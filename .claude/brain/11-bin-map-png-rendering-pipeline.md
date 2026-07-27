@@ -21,5 +21,5 @@ Phase 1 implements the full `.bin` → PNG map rendering pipeline in Go and Type
    - Each room image is composite-drawn onto the full map canvas at offset `(room.X - minX, room.Y - minY)`.
 
 4. **CLI & TS Options Object API**:
-   - Go CLI subcommand: `zip export-map-images --mod <path> --map <sid> --out <dir>`
-   - TypeScript wrapper: `Zip_Go.exportMapImages(opts: { modPath: string; mapSid: string; outputDir: string }): Promise<ExportMapImagesResult>`
+   - Go CLI subcommand: `zip export-map --mod <path> --map <sid> --out <dir> [--grid-only] [--celeste-dir <path>]`
+   - TypeScript wrapper: `Zip_Go.exportMap(opts: { modPath: string; mapSid: string; outputDir: string; gridOnly?: boolean; celesteDir?: string }): Promise<ExportMapImagesResult>`

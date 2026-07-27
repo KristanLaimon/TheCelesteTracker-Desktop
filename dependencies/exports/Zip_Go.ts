@@ -37,10 +37,18 @@ export default class Zip_Go extends Generic_Go {
 		return this.executeInternal<MapCollectiblesResult>("CelesteMapsBinParser", `count-collectibles --mod "${modPath}"`);
 	}
 
-	public async exportMapImages(opts: { modPath: string; mapSid: string; outputDir: string }): Promise<ExportMapImagesResult> {
+	public async exportMap(opts: {
+		modPath: string;
+		mapSid: string;
+		outputDir: string;
+		gridOnly?: boolean;
+		celesteDir?: string;
+	}): Promise<ExportMapImagesResult> {
+		const gridOnlyArg = opts.gridOnly ? " --grid-only" : "";
+		const celesteDirArg = opts.celesteDir ? ` --celeste-dir "${opts.celesteDir}"` : "";
 		return this.executeInternal<ExportMapImagesResult>(
 			"CelesteMapsBinParser",
-			`export-map-images --mod "${opts.modPath}" --map "${opts.mapSid}" --out "${opts.outputDir}"`,
+			`export-map --mod "${opts.modPath}" --map "${opts.mapSid}" --out "${opts.outputDir}"${gridOnlyArg}${celesteDirArg}`,
 		);
 	}
 }

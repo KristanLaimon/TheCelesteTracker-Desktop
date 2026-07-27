@@ -134,7 +134,7 @@ function buildMapBinWithRooms(rooms: FakeRoom[]): Buffer {
 	return Buffer.concat([varintString("CELESTE MAP"), varintString("test"), u16(lookup.length), ...lookup.map(varintString), root]);
 }
 
-describe("Zip_Go.exportMapImages", () => {
+describe("Zip_Go.exportMap", () => {
 	let zip: Zip_Go;
 
 	beforeAll(async () => {
@@ -183,7 +183,7 @@ describe("Zip_Go.exportMapImages", () => {
 	});
 
 	test("exports room PNGs, composite map PNG, and manifest.json from zipped mod", async () => {
-		const result = await zip.exportMapImages({ modPath: MOD_ZIP, mapSid: "author/campaign/chapter", outputDir: OUT_DIR_ZIP });
+		const result = await zip.exportMap({ modPath: MOD_ZIP, mapSid: "author/campaign/chapter", outputDir: OUT_DIR_ZIP });
 
 		expect(result.success).toBe(true);
 		expect(result.mapSid).toBe("author/campaign/chapter");
@@ -213,7 +213,7 @@ describe("Zip_Go.exportMapImages", () => {
 	});
 
 	test("exports from unpacked folder mod identical to zip", async () => {
-		const result = await zip.exportMapImages({ modPath: MOD_SRC, mapSid: "author/campaign/chapter", outputDir: OUT_DIR_FOLDER });
+		const result = await zip.exportMap({ modPath: MOD_SRC, mapSid: "author/campaign/chapter", outputDir: OUT_DIR_FOLDER });
 
 		expect(result.success).toBe(true);
 		expect(result.rooms?.length).toBe(2);
@@ -223,7 +223,7 @@ describe("Zip_Go.exportMapImages", () => {
 
 	test("exports directly from single .bin file path", async () => {
 		const binPath = join(MOD_SRC, "Maps", "author", "campaign", "chapter.bin");
-		const result = await zip.exportMapImages({ modPath: binPath, mapSid: "chapter", outputDir: OUT_DIR_BIN });
+		const result = await zip.exportMap({ modPath: binPath, mapSid: "chapter", outputDir: OUT_DIR_BIN });
 
 		expect(result.success).toBe(true);
 		expect(result.rooms?.length).toBe(2);
@@ -233,7 +233,7 @@ describe("Zip_Go.exportMapImages", () => {
 
 	test.skipIf(!existsSync(REAL_CELESTE))("exports real vanilla Celeste map 1-ForsakenCity.bin", async () => {
 		const mapPath = join(REAL_CELESTE, "Content", "Maps", "1-ForsakenCity.bin");
-		const result = await zip.exportMapImages({ modPath: mapPath, mapSid: "1-ForsakenCity", outputDir: OUT_DIR_VANILLA });
+		const result = await zip.exportMap({ modPath: mapPath, mapSid: "1-ForsakenCity", outputDir: OUT_DIR_VANILLA });
 
 		expect(result.success).toBe(true);
 		expect(result.rooms?.length).toBeGreaterThan(0);

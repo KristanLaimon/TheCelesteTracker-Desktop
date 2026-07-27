@@ -199,7 +199,7 @@ Reference docs worth checking before touching mod-parsing code: `docs/Database_T
 -- HERE FINISHED MY HUMAN WRITING DO NOT MODIFY ANY PREVIOUS TEXT, ONLY FROM HERE FORWARD --
 ## Celeste Mod Domain
 ### Map `.bin` → PNG Rendering (Phase 1 Blueprint MVP)
-Map `.bin` files can be parsed to extract room bounds (`level` x, y, width, height), solids/bg Type 7 RLE tile grids (8x8 tile size), and entities (classified into spawn, collectible, hazard, generic). `ExportMapImages` (via CLI `zip export-map-images` and TS `Zip_Go.exportMapImages`) renders per-room PNGs (`rooms/room_<name>.png`), a full-map composite PNG (`full_map.png`), and `manifest.json`. Decals and stylegrounds are parsed structurally in Phase 1 MVP; real texture atlas decoding and autotiling rules belong to Phase 2.
+Map `.bin` files can be parsed to extract room bounds (`level` x, y, width, height), solids/bg Type 7 RLE tile grids (8x8 tile size), and entities (classified into spawn, collectible, hazard, generic). `ExportMapImages` (via CLI `zip export-map` and TS `Zip_Go.exportMap`) renders per-room PNGs (`rooms/room_<name>.png`), a full-map composite PNG (`full_map.png`), and `manifest.json`. `--grid-only`/`gridOnly` forces the flat-color fallback renderer; `--celeste-dir`/`celesteDir` points at a Celeste install for real tile/decal asset rendering (autotiling + Gameplay atlas), falling back to grid rendering automatically if assets don't resolve.
 A mod could be any type of mod like:
   - Assets
   - Effects
@@ -434,7 +434,7 @@ Business logic classes (`Everest`, `Celeste`, `Olympus`, `CTDB`, etc.) are writt
 
 SQLite, mod ZIP parsing, and map `.bin` rendering work are delegated to 3 modular Go projects under `dependencies/`, invoked as child processes:
 
-- `dependencies/CelesteMapsBinParser` — Go project: map `.bin` collectible counting & room/map image renderer (`count-collectibles`, `export-map-images`).
+- `dependencies/CelesteMapsBinParser` — Go project: map `.bin` collectible counting & room/map image renderer (`count-collectibles`, `export-map`).
 - `dependencies/CelesteModsParser` — Go project: ZIP & Everest mod scanner (`read`, `list`, `unzip`, `pack`, `scan-mods`).
 - `dependencies/Sqlite` — Go project: SQLite query executor (`sqlite --db ...`).
 - `dependencies/build.ts` — compiles all 3 Go projects into `dependencies/build/` and places local dev binaries into `dependencies/`.

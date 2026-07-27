@@ -4,3 +4,9 @@
 [submodule "dependencies/CelesteModsParser"]
 	path = dependencies/CelesteModsParser
 	url = https://github.com/TheCelesteHub/ModsParser.git
+[submodule "dependencies/Go_CelesteMapsBinParser"]
+	path = dependencies/Go_CelesteMapsBinParser
+	url = https://github.com/TheCelesteHub/MapBinsParser.git
+[submodule "dependencies/Go_CelesteModsParser"]
+	path = dependencies/Go_CelesteModsParser
+	url = https://github.com/TheCelesteHub/ModsParser.git
