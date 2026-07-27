@@ -18,6 +18,17 @@ const maxDeaths = $derived.by(() => {
 const maxDurationSec = $derived.by(() => {
 	return Math.max(...chronologicalSessions.map((s) => Math.round(s.duration_ms / 1000)), 1);
 });
+
+const polylinePoints = $derived.by(() => {
+	if (chronologicalSessions.length < 2) return "";
+	return chronologicalSessions
+		.map((s, idx) => {
+			const x = (idx / (chronologicalSessions.length - 1)) * 480 + 10;
+			const y = 150 - (s.deaths / maxDeaths) * 140;
+			return `${x},${y}`;
+		})
+		.join(" ");
+});
 </script>
 
 <div class="rounded-2xl bg-zinc-950/60 border border-zinc-800/80 p-5 backdrop-blur-md space-y-4 w-full">
@@ -77,21 +88,13 @@ const maxDurationSec = $derived.by(() => {
         {/each}
 
         <!-- DEATHS LINE & POINTS -->
-        {@const points = chronologicalSessions
-          .map((s, idx) => {
-            const x = (idx / (chronologicalSessions.length - 1)) * 480 + 10;
-            const y = 150 - (s.deaths / maxDeaths) * 140;
-            return `${x},${y}`;
-          })
-          .join(" ")}
-
         <polyline
           fill="none"
           stroke="#f43f5e"
           stroke-width="3"
           stroke-linecap="round"
           stroke-linejoin="round"
-          points={points}
+          points={polylinePoints}
         />
 
         {#each chronologicalSessions as session, idx}
