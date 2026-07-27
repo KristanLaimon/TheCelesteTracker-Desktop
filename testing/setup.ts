@@ -5,7 +5,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { container } from "tsyringe";
-
+import Sqlite_Go from "../dependencies/exports/Sqlite_Go";
+import Zip_Go from "../dependencies/exports/Zip_Go";
 import ImageCacheService from "../src/api/ImageCacheService";
 import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "../src/core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
@@ -19,20 +20,18 @@ import { CollabUtils2Scanner } from "../src/domain/Everest.collabutils2";
 import { DialogReader } from "../src/domain/Everest.dialog";
 import Olympus from "../src/domain/Olympus";
 import { Construct_LocalMods } from "../src/setup.DI.helpers";
-import Sqlite_Go from "../src-utils/Sqlite_Go";
-import Zip_Go from "../src-utils/Zip_Go";
-import { BunThread } from "./BunThread";
+import { BunThread } from "./helpers/BunThread";
 import NodeJsFileSystem from "./helpers/NodeJsFileSystem";
 import NodeJsOS from "./helpers/NodeJsOs";
 import NodeJsPath from "./helpers/NodeJsPath";
 
 export const TEST_FOLDER = join(import.meta.dir);
 export const TEST_TEMP_FOLDER = join(TEST_FOLDER, "./temp");
-export const TEST_CELESTE_PATH = join(TEST_FOLDER, "Celeste");
-export const TEST_OLYMPUS_PATH = join(TEST_FOLDER, "Olympus");
-export const TEST_DATA_TEMP_PATH = join(TEST_FOLDER, "Data-Temp");
 export const ROOT_FOLDER = join(TEST_FOLDER, "..");
 export const ROOT_BIN = join(ROOT_FOLDER, "bin");
+export const TEST_CELESTE_PATH = join(ROOT_FOLDER, "dependencies/integration-tests/mocks/Celeste");
+export const TEST_OLYMPUS_PATH = join(ROOT_FOLDER, "dependencies/integration-tests/mocks/Olympus");
+export const TEST_DATA_TEMP_PATH = join(TEST_FOLDER, "Data-Temp");
 
 process.env.CTD_TEST_CELESTE_PATH = TEST_CELESTE_PATH;
 process.env.CTD_TEST_OLYMPUS_PATH = TEST_OLYMPUS_PATH;

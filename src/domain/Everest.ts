@@ -21,7 +21,7 @@ import { XMLParser } from "fast-xml-parser";
 import * as yaml from "js-yaml";
 import { serializeError } from "serialize-error";
 import { inject, injectable } from "tsyringe";
-import Zip_Go from "../../src-utils/Zip_Go";
+import Zip_Go from "../../dependencies/exports/Zip_Go";
 import { IFileSystem_Token, IThreadConstructor_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { DirectoryEntry, IFileSystem } from "../core/interfaces/IFileSystem";
 import type { IThreadConstructor } from "../core/interfaces/IThread";

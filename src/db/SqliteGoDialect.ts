@@ -3,7 +3,7 @@
 
 import type { CompiledQuery, DatabaseConnection, DatabaseIntrospector, Dialect, Driver, QueryCompiler, QueryResult } from "kysely";
 import { Kysely, SqliteAdapter, SqliteIntrospector, SqliteQueryCompiler } from "kysely";
-import Sqlite_Go from "../../src-utils/Sqlite_Go";
+import Sqlite_Go from "../../dependencies/exports/Sqlite_Go";
 import type { Database } from "./db.types";
 
 const TRANSACTIONS_UNSUPPORTED =

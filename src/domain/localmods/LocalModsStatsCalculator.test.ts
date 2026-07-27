@@ -1,6 +1,6 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
-import type Zip_Go from "../../../src-utils/Zip_Go";
+import type Zip_Go from "../../../dependencies/exports/Zip_Go";
 import type { IFileSystem } from "../../core/interfaces/IFileSystem";
 import Storage from "../../utils/Storage";
 import type Celeste from "../Celeste";

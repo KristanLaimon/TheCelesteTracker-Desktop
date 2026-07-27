@@ -37,7 +37,6 @@ src-utils/temp
 src-utils/build
 dependencies/build
 dependencies/*.exe
-dependencies/exports
 testing/temp
 testing/Data-Temp/*
 !testing/Data-Temp/.gitkeep

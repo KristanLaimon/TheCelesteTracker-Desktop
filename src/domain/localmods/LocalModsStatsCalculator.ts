@@ -1,7 +1,7 @@
 import { XMLParser } from "fast-xml-parser";
 import { serializeError } from "serialize-error";
-import type Zip_Go from "../../../src-utils/Zip_Go";
-import type { MapCollectibleCounts } from "../../../src-utils/Zip_Go";
+import type Zip_Go from "../../../dependencies/exports/Zip_Go";
+import type { MapCollectibleCounts } from "../../../dependencies/exports/Zip_Go";
 import type { IFileSystem } from "../../core/interfaces/IFileSystem";
 import { modScannerLogger } from "../../utils/Logger";
 import type Storage from "../../utils/Storage";

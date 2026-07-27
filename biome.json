@@ -14,7 +14,8 @@
 			"!documentation/*",
 			"!**/*.min.js",
 			"!testing/Olympus/fixtures/olympus-corrupt",
-			"!testing/Olympus"
+			"!testing/Olympus",
+			"!dependencies/integration-tests/mocks"
 		]
 	},
 	"formatter": {

@@ -2,10 +2,10 @@
 
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { GetDependency, TEST_FOLDER } from "../../testing/setup";
+import { GetDependency, TEST_CELESTE_PATH } from "../../testing/setup";
 import Celeste from "./Celeste";
 
-const FIXTURES_DIR = join(TEST_FOLDER, "Celeste", "fixtures");
+const FIXTURES_DIR = join(TEST_CELESTE_PATH, "fixtures");
 
 describe("Celeste.ReadVanillaSaveStats", () => {
 	test("reads a normal filled save slot", async () => {

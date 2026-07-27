@@ -44,9 +44,9 @@ async function buildTarget(projectDirName: string, binaryBaseName: string, osSlu
 }
 
 const projects = [
-	{ folder: "CelesteMapsBinParser", name: "CelesteMapsBinParser" },
-	{ folder: "CelesteModsParser", name: "CelesteModsParser" },
-	{ folder: "Sqlite", name: "Sqlite" },
+	{ folder: "Go_CelesteMapsBinParser", name: "CelesteMapsBinParser" },
+	{ folder: "Go_CelesteModsParser", name: "CelesteModsParser" },
+	{ folder: "Go_Sqlite", name: "Sqlite" },
 ];
 
 for (const proj of projects) {

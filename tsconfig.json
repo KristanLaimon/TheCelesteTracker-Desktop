@@ -36,7 +36,10 @@
 		"dependencies/integration-tests/Sqlite_Go_Usage.test.ts",
 		"dependencies/integration-tests/Zip_Go_CountCollectibles.test.ts",
 		"dependencies/integration-tests/Zip_Go_ExportMapImages.test.ts",
-		"dependencies/integration-tests/Zip_Go_Usage.test.ts"
+		"dependencies/integration-tests/Zip_Go_Usage.test.ts",
+		"dependencies/exports/Generic_Go.ts",
+		"dependencies/exports/Sqlite_Go.ts",
+		"dependencies/exports/Zip_Go.ts"
 	],
 	"exclude": ["**/*.min.js"]
 }

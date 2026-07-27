@@ -48,14 +48,14 @@ These are registered in `setup.ts` via the DI container (`tsyringe`), so every s
 
 | Fixture | Purpose |
 |---|---|
-| `Celeste/` | Real 4-year Celeste install fixture (`Mods/` with zips, `Saves/` with 4 save slots + mod saves, `TheCelesteTracker_DB.db`) + `Celeste/fixtures/` (save XML fixtures). |
-| `Olympus/` | Real Olympus config & cached JSON mappings (`cached-mod-ids-to-names.json`, `cached-mod-ids-to-categories.json`) + `Olympus/fixtures/olympus-corrupt/` (corrupt JSON fixture). |
+| `dependencies/integration-tests/mocks/Celeste/` | Real 4-year Celeste install fixture (`Mods/` with zips, `Saves/` with 4 save slots + mod saves, `TheCelesteTracker_DB.db`, `Content/Maps/1-ForsakenCity.bin`) + `fixtures/` (save XML fixtures). |
+| `dependencies/integration-tests/mocks/Olympus/` | Real Olympus config & cached JSON mappings (`cached-mod-ids-to-names.json`, `cached-mod-ids-to-categories.json`) + `fixtures/olympus-corrupt/` (corrupt JSON fixture). |
 | `test_with_data.db` | Pre-populated SQLite (Users, Campaigns, Chapters, ChapterSides). |
 
 ## Environment Variable Overrides
 
-- `CTD_TEST_CELESTE_PATH`: Points `Celeste.findPath()` to `./testing/Celeste` (short-circuiting hardcoded OS paths).
-- `CTD_TEST_OLYMPUS_PATH`: Points `Olympus._findPath()` to `./testing/Olympus`.
+- `CTD_TEST_CELESTE_PATH`: Points `Celeste.findPath()` to `./dependencies/integration-tests/mocks/Celeste` (short-circuiting hardcoded OS paths).
+- `CTD_TEST_OLYMPUS_PATH`: Points `Olympus._findPath()` to `./dependencies/integration-tests/mocks/Olympus`.
 - `CTD_TEST_DATA_FOLDER`: Redirects `Configuration.getDataFolderPath()` default fallback to `./testing/Data-Temp`.
 
 ## Running

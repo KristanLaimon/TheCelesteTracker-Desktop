@@ -2,8 +2,8 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import Zip_Go from "../../src-utils/Zip_Go";
 import { GetDependency, TEST_TEMP_FOLDER } from "../../testing/setup";
+import Zip_Go from "../exports/Zip_Go";
 
 const TMP_DIR = join(TEST_TEMP_FOLDER, "temp_zip_usage");
 
@@ -24,7 +24,7 @@ describe("Zip_Go via DI (Mod Scanning)", () => {
 
 	describe("scanModsBatch", () => {
 		test("Scans directory containing unpacked mod folder and test fixtures", async () => {
-			const testModsDir = "dependencies/CelesteModsParser/testing/Mods";
+			const testModsDir = join(__dirname, "mocks/Celeste/Mods");
 			if (!existsSync(testModsDir)) {
 				return;
 			}

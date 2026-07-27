@@ -1,8 +1,8 @@
 // UNIVERSAL COMPATIBILITY
 
 import { container } from "tsyringe";
-import Sqlite_Go from "../src-utils/Sqlite_Go";
-import Zip_Go from "../src-utils/Zip_Go";
+import Sqlite_Go from "../dependencies/exports/Sqlite_Go";
+import Zip_Go from "../dependencies/exports/Zip_Go";
 import ImageCacheService from "./api/ImageCacheService";
 import Path from "./core/BrowserPath";
 import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token, IThreadConstructor_Token } from "./core/interfaces/DependencyInjectionTokens";

@@ -3,10 +3,10 @@
 /** biome-ignore-all lint/complexity/noBannedTypes: No need for more explicit function signatures */
 
 import { injectable } from "tsyringe";
-import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
-import type { IOS } from "../src/core/interfaces/IOs";
-import type { IPath } from "../src/core/interfaces/IPath";
-import { dbLogger } from "../src/utils/Logger";
+import type { IFileSystem } from "../../src/core/interfaces/IFileSystem";
+import type { IOS } from "../../src/core/interfaces/IOs";
+import type { IPath } from "../../src/core/interfaces/IPath";
+import { dbLogger } from "../../src/utils/Logger";
 import Generic_Go from "./Generic_Go";
 
 export type SQLiteQueryResult<T> =

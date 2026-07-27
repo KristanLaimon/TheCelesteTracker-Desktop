@@ -1,4 +1,4 @@
-import Zip_Go from "../src-utils/Zip_Go";
+import Zip_Go from "../dependencies/exports/Zip_Go";
 import GameBananaApi from "./api/GameBananaAPI";
 import MaddiesApi from "./api/MaddiesAPI";
 import { IFileSystem_Token, IPath_Token } from "./core/interfaces/DependencyInjectionTokens";

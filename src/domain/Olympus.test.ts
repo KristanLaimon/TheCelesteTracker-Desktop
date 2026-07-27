@@ -2,7 +2,7 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { FakeOsPathOverride } from "../../testing/helpers/FakeOsPathOverride";
-import { GetDependency, TEST_FOLDER, TEST_OLYMPUS_PATH } from "../../testing/setup";
+import { GetDependency, TEST_OLYMPUS_PATH } from "../../testing/setup";
 import { IFileSystem_Token, IPath_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../core/interfaces/IFileSystem";
 import type { IPath } from "../core/interfaces/IPath";
@@ -50,7 +50,7 @@ describe("Olympus Integration Tests", () => {
 	test("GetModHumanNameByModId and GetModCategoryByModId return null when JSON is corrupt", async () => {
 		const fs = GetDependency<IFileSystem>(IFileSystem_Token);
 		const path = GetDependency<IPath>(IPath_Token);
-		const corruptPath = join(TEST_FOLDER, "Olympus", "fixtures", "olympus-corrupt");
+		const corruptPath = join(TEST_OLYMPUS_PATH, "fixtures", "olympus-corrupt");
 		const fakeOs = new FakeOsPathOverride({ CTD_TEST_OLYMPUS_PATH: corruptPath });
 		const olympus = new Olympus(fakeOs, fs, path);
 

@@ -3,15 +3,15 @@ import { beforeAll, describe, expect, test } from "bun:test";
 import { copyFileSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import type { Kysely } from "kysely";
-import Sqlite_Go from "../../dependencies/exports/Sqlite_Go";
-import { GetDependency, TEST_FOLDER, TEST_TEMP_FOLDER } from "../../testing/setup";
-import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token } from "../core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../core/interfaces/IFileSystem";
-import type { IOS } from "../core/interfaces/IOs";
-import type { IPath } from "../core/interfaces/IPath";
-import type { Database } from "./db.types";
-import CTDB from "./index";
-import { CreateTrackerDb } from "./SqliteGoDialect";
+import Sqlite_Go from "../dependencies/exports/Sqlite_Go";
+import { CTDB_Token, IFileSystem_Token, IOs_Token, IPath_Token } from "../src/core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
+import type { IOS } from "../src/core/interfaces/IOs";
+import type { IPath } from "../src/core/interfaces/IPath";
+import type { Database } from "../src/db/db.types";
+import CTDB from "../src/db/index";
+import { CreateTrackerDb } from "../src/db/SqliteGoDialect";
+import { GetDependency, TEST_FOLDER, TEST_TEMP_FOLDER } from "./setup";
 
 const db = GetDependency<Kysely<Database>>(CTDB_Token);
 

@@ -2,10 +2,10 @@
 // biome-ignore-all lint/style/useImportType: DI Needed
 
 import { inject, injectable } from "tsyringe";
-import { IFileSystem_Token, IOs_Token, IPath_Token } from "../src/core/interfaces/DependencyInjectionTokens";
-import type { IFileSystem } from "../src/core/interfaces/IFileSystem";
-import type { IOS } from "../src/core/interfaces/IOs";
-import type { IPath } from "../src/core/interfaces/IPath";
+import { IFileSystem_Token, IOs_Token, IPath_Token } from "../../src/core/interfaces/DependencyInjectionTokens";
+import type { IFileSystem } from "../../src/core/interfaces/IFileSystem";
+import type { IOS } from "../../src/core/interfaces/IOs";
+import type { IPath } from "../../src/core/interfaces/IPath";
 
 const possibleParentFolders = ["./dependencies", "./dependencies/build", "./", "./bin"];
 

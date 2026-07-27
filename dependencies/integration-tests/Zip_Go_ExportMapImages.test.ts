@@ -3,8 +3,8 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import Zip_Go from "../../src-utils/Zip_Go";
 import { GetDependency, TEST_TEMP_FOLDER } from "../../testing/setup";
+import Zip_Go from "../exports/Zip_Go";
 
 const TMP_DIR = join(TEST_TEMP_FOLDER, "temp_export_map_images");
 const MOD_SRC = join(TMP_DIR, "FakeMapMod");
@@ -13,7 +13,10 @@ const OUT_DIR_ZIP = join(TMP_DIR, "out_zip");
 const OUT_DIR_FOLDER = join(TMP_DIR, "out_folder");
 const OUT_DIR_BIN = join(TMP_DIR, "out_bin");
 const OUT_DIR_VANILLA = join(TMP_DIR, "out_vanilla");
-const REAL_CELESTE = "C:/Program Files (x86)/Steam/steamapps/common/Celeste";
+const MOCK_CELESTE = join(__dirname, "mocks/Celeste");
+const REAL_CELESTE = existsSync(join(MOCK_CELESTE, "Content", "Maps", "1-ForsakenCity.bin"))
+	? MOCK_CELESTE
+	: "C:/Program Files (x86)/Steam/steamapps/common/Celeste";
 
 type FakeAttrValue = boolean | number | string | { type: "rle"; data: string };
 type FakeEntity = { name: string; attrs?: Record<string, FakeAttrValue> };

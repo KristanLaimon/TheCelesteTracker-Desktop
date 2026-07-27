@@ -1,12 +1,12 @@
 // NODE.JS/BUN/DENO ONLY
 import { afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { EnsureBuildAndGetPathExe, ROOT_FOLDER, TEST_FOLDER } from "../../testing/setup";
+import { EnsureBuildAndGetPathExe, ROOT_FOLDER, TEST_FOLDER, TEST_TEMP_FOLDER } from "../../testing/setup";
 
 const UtilsExePath = EnsureBuildAndGetPathExe();
-const Db_Path = join(TEST_FOLDER, "test_with_data.db"); // Here in this folder
+const Db_Path = join(TEST_TEMP_FOLDER, "raw_sqlite_test.db");
 
 function runSqlite(args: string[], input?: string): ReturnType<typeof spawnSync> {
 	return spawnSync(UtilsExePath, ["sqlite", ...args], { input, encoding: "utf8" });
@@ -18,9 +18,12 @@ function cleanTestUsers(namePrefix: string): void {
 
 describe("SQLite via Go Utilities CLI", () => {
 	beforeAll(() => {
-		if (!existsSync(Db_Path)) {
-			throw new Error(`Test database not found at ${Db_Path}`);
+		const sourceDb = join(TEST_FOLDER, "test_with_data.db");
+		if (!existsSync(sourceDb)) {
+			throw new Error(`Test database not found at ${sourceDb}`);
 		}
+		mkdirSync(TEST_TEMP_FOLDER, { recursive: true });
+		copyFileSync(sourceDb, Db_Path);
 	});
 
 	describe("Flag combinations: --db + query source", () => {

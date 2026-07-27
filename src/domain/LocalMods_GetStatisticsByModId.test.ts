@@ -1,6 +1,6 @@
 // NODE.JS/BUN/DENO ONLY
 import { describe, expect, test } from "bun:test";
-import Zip_Go from "../../src-utils/Zip_Go";
+import Zip_Go from "../../dependencies/exports/Zip_Go";
 import { GetDependency } from "../../testing/setup";
 import { IFileSystem_Token } from "../core/interfaces/DependencyInjectionTokens";
 import type { IFileSystem } from "../core/interfaces/IFileSystem";

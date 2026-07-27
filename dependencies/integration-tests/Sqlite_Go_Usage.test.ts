@@ -1,8 +1,7 @@
 // NODE.JS/BUN/DENO ONLY
 import { expect, test } from "bun:test";
-import Sqlite_Go from "../../src-utils/Sqlite_Go";
-
 import { GetDependency } from "../../testing/setup";
+import Sqlite_Go from "../exports/Sqlite_Go";
 
 test("Sqlite_Go resolves from DI and queries Campaigns", async () => {
 	const db = GetDependency(Sqlite_Go);

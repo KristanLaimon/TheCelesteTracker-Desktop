@@ -2,10 +2,10 @@
 
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { GetDependency, TEST_FOLDER } from "../../testing/setup";
+import { GetDependency, TEST_CELESTE_PATH } from "../../testing/setup";
 import Everest, { type EverestModInfo, GetLevelSetNamesForMod } from "./Everest";
 
-const FIXTURES_DIR = join(TEST_FOLDER, "Celeste", "fixtures");
+const FIXTURES_DIR = join(TEST_CELESTE_PATH, "fixtures");
 
 describe("Everest.ReadHistoricalLevelSetNames", () => {
 	test("reads installed + recycled LevelSets from a normal save", async () => {
