@@ -39,7 +39,11 @@
 		"dependencies/integration-tests/Zip_Go_Usage.test.ts",
 		"dependencies/exports/Generic_Go.ts",
 		"dependencies/exports/Sqlite_Go.ts",
-		"dependencies/exports/Zip_Go.ts"
+		"dependencies/exports/Zip_Go.ts",
+		"src/pages/panes/ModView/ModGoldenBerryAnalytics.svelte.dissabled",
+		"src/pages/panes/ModView/ModMovementStatsCard.svelte.dissabled",
+		"src/pages/panes/ModView/ModSessionTrendChart",
+		"src/pages/panes/ModView/ModRoomChokePointsChart"
 	],
 	"exclude": ["**/*.min.js"]
 }

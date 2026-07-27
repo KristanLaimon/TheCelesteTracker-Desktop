@@ -47,14 +47,20 @@ function normalizeParameter(value: unknown): string | number | null {
 
 @injectable()
 export default class Sqlite_Go extends Generic_Go {
-	private dbPath: string;
+	#dbPath: string;
+	#dbExists: boolean;
+	public get IsDatabaseAvailable(): boolean {
+		return this.#dbExists;
+	}
 
 	public constructor(dbPath: string, os: IOS, fs: IFileSystem, path: IPath) {
 		super(os, fs, path);
-		this.dbPath = dbPath;
-		fs.exists(this.dbPath).then((exists) => {
+		this.#dbPath = dbPath;
+		this.#dbExists = false;
+		fs.exists(this.#dbPath).then((exists) => {
+			this.#dbExists = exists;
 			if (!exists) {
-				const errMsg = `Database DOESN'T EXIST!, not found. Should be in '${this.dbPath}'. Creating a new empty database as default...`;
+				const errMsg = `Database DOESN'T EXIST!, not found. Should be in '${this.#dbPath}'. Creating a new empty database just to avoid crash... (setting isDatabaseAvailable as false)`;
 				dbLogger.fatal(errMsg);
 				throw new Error(errMsg);
 			}
@@ -63,7 +69,7 @@ export default class Sqlite_Go extends Generic_Go {
 
 	private async executeInternal<R>(stdIn: string): Promise<R> {
 		const utilityExecutable = await this.GetExecutablePath("Sqlite");
-		const cmd = `"${utilityExecutable}" --db "${this.dbPath}"`;
+		const cmd = `"${utilityExecutable}" --db "${this.#dbPath}"`;
 
 		dbLogger.info(`Sqlite CLI Executing: ${cmd}`);
 		const response = await this.os.execCommand(cmd, { stdIn });

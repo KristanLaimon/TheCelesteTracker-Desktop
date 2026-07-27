@@ -76,6 +76,7 @@ export interface ScannedModRaw {
 	dialogFiles?: Record<string, string>;
 	lazyLoadYaml?: string;
 	mapFiles?: ScannedMapRaw[];
+	mapsIds?: string[];
 }
 
 export interface MapCollectibleCounts {
