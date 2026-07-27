@@ -33,6 +33,10 @@ export default class Submodule_GameSessions extends TableSubmodule<"GameSessions
 			}
 			return await query.execute();
 		} catch (error) {
+			const msg = String(error);
+			if (msg.includes("no such table")) {
+				return [];
+			}
 			dbLogger.error(`GameSessions.GetSessionsByLevelSet failed: ${error}`);
 			return [];
 		}

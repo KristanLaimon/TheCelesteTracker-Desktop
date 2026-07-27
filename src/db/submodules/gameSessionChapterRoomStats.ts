@@ -37,6 +37,10 @@ export default class _submodule_service_GameSessionChapterRoomStats extends Tabl
 			if (!opts.gameSessionIds || opts.gameSessionIds.length === 0) return [];
 			return await this.db.selectFrom("GameSessionChapterRoomStats").selectAll().where("gamesession_id", "in", opts.gameSessionIds).execute();
 		} catch (error) {
+			const msg = String(error);
+			if (msg.includes("no such table")) {
+				return [];
+			}
 			dbLogger.error(`GameSessionChapterRoomStats.GetStatsByGameSessionIds failed: ${error}`);
 			return [];
 		}

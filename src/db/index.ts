@@ -4,6 +4,7 @@
 import type { Kysely } from "kysely";
 import { inject, injectable } from "tsyringe";
 import { CTDB_Token } from "../core/interfaces/DependencyInjectionTokens";
+import { dbLogger } from "../utils/Logger";
 import type { Database } from "./db.types";
 import _submodule_service_Campaigns from "./submodules/campaigns";
 import _submodule_service_ChapterSideRooms from "./submodules/chapterSideRooms";
@@ -39,4 +40,37 @@ export default class CTDB {
 		public CollectionCampaigns: _submodule_service_CollectionCampaigns,
 		@inject(CTDB_Token) public Query: Kysely<Database>,
 	) {}
+
+	public async EnsureSchema(): Promise<void> {
+		try {
+			await this.Query.schema
+				.createTable("GameSessions")
+				.ifNotExists()
+				.addColumn("id", "text", (col) => col.primaryKey())
+				.addColumn("chapter_sid", "text", (col) => col.notNull())
+				.addColumn("side_id", "text", (col) => col.notNull())
+				.addColumn("date_time_start", "text", (col) => col.notNull())
+				.addColumn("duration_ms", "integer", (col) => col.notNull())
+				.addColumn("is_goldenberry_attempt", "integer", (col) => col.notNull())
+				.addColumn("is_goldenberry_completed", "integer", (col) => col.notNull())
+				.execute();
+
+			await this.Query.schema
+				.createTable("GameSessionChapterRoomStats")
+				.ifNotExists()
+				.addColumn("id", "integer", (col) => col.primaryKey().autoIncrement())
+				.addColumn("gamesession_id", "text", (col) => col.notNull())
+				.addColumn("chapter_sid", "text", (col) => col.notNull())
+				.addColumn("side_id", "text", (col) => col.notNull())
+				.addColumn("room_name", "text", (col) => col.notNull())
+				.addColumn("deaths_in_room", "integer", (col) => col.notNull())
+				.addColumn("dashes_in_room", "integer", (col) => col.notNull())
+				.addColumn("strawberries_achieved_in_room", "integer", (col) => col.notNull())
+				.addColumn("hearts_achieved_in_room", "integer", (col) => col.notNull())
+				.addColumn("jumps_in_room", "integer", (col) => col.notNull())
+				.execute();
+		} catch (error) {
+			dbLogger.error(`CTDB.EnsureSchema failed: ${error}`);
+		}
+	}
 }

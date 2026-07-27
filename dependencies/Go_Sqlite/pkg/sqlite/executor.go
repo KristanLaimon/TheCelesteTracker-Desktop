@@ -3,6 +3,7 @@ package sqlite
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	_ "github.com/glebarez/go-sqlite"
 )

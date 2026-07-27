@@ -193,60 +193,62 @@ $effect(() => {
 
 	try {
 		const ctdb = GetDependency(CTDB);
-		ctdb.GameSessions.GetSessionsByLevelSet({ levelSetNames, limit: 100 })
-			.then(async (sessions) => {
-				if (sessions.length === 0) {
+		ctdb.EnsureSchema().then(() => {
+			ctdb.GameSessions.GetSessionsByLevelSet({ levelSetNames, limit: 100 })
+				.then(async (sessions) => {
+					if (sessions.length === 0) {
+						sessionAnalyticsList = [];
+						allRoomStatsList = [];
+						loadingSessionAnalytics = false;
+						return;
+					}
+
+					const sessionIds = sessions.map((s) => s.id);
+					const roomStats = await ctdb.GameSessionChapterRoomStats.GetStatsByGameSessionIds({ gameSessionIds: sessionIds });
+					allRoomStatsList = roomStats;
+
+					const roomStatsBySession = new Map<string, GameSessionChapterRoomStat[]>();
+					for (const stat of roomStats) {
+						const list = roomStatsBySession.get(stat.gamesession_id);
+						if (list) list.push(stat);
+						else roomStatsBySession.set(stat.gamesession_id, [stat]);
+					}
+
+					const enriched: SessionWithTotals[] = sessions.map((session) => {
+						const list = roomStatsBySession.get(session.id) || [];
+						let deaths = 0;
+						let jumps = 0;
+						let dashes = 0;
+						let strawberries = 0;
+
+						for (const stat of list) {
+							deaths += stat.deaths_in_room;
+							jumps += stat.jumps_in_room;
+							dashes += stat.dashes_in_room;
+							strawberries += stat.strawberries_achieved_in_room;
+						}
+
+						return {
+							...session,
+							deaths,
+							jumps,
+							dashes,
+							strawberries,
+							chapterName: session.chapter_sid,
+							roomStatsList: list,
+						};
+					});
+
+					sessionAnalyticsList = enriched;
+					loadingSessionAnalytics = false;
+				})
+				.catch((err: unknown) => {
+					logger.error("ModView: Failed to load session analytics", err);
 					sessionAnalyticsList = [];
 					allRoomStatsList = [];
 					loadingSessionAnalytics = false;
-					return;
-				}
-
-				const sessionIds = sessions.map((s) => s.id);
-				const roomStats = await ctdb.GameSessionChapterRoomStats.GetStatsByGameSessionIds({ gameSessionIds: sessionIds });
-				allRoomStatsList = roomStats;
-
-				const roomStatsBySession = new Map<string, GameSessionChapterRoomStat[]>();
-				for (const stat of roomStats) {
-					const list = roomStatsBySession.get(stat.gamesession_id);
-					if (list) list.push(stat);
-					else roomStatsBySession.set(stat.gamesession_id, [stat]);
-				}
-
-				const enriched: SessionWithTotals[] = sessions.map((session) => {
-					const list = roomStatsBySession.get(session.id) || [];
-					let deaths = 0;
-					let jumps = 0;
-					let dashes = 0;
-					let strawberries = 0;
-
-					for (const stat of list) {
-						deaths += stat.deaths_in_room;
-						jumps += stat.jumps_in_room;
-						dashes += stat.dashes_in_room;
-						strawberries += stat.strawberries_achieved_in_room;
-					}
-
-					return {
-						...session,
-						deaths,
-						jumps,
-						dashes,
-						strawberries,
-						chapterName: session.chapter_sid,
-						roomStatsList: list,
-					};
 				});
-
-				sessionAnalyticsList = enriched;
-				loadingSessionAnalytics = false;
-			})
-			.catch((err: unknown) => {
-				logger.error("ModView: Failed to load session analytics", err);
-				sessionAnalyticsList = [];
-				allRoomStatsList = [];
-				loadingSessionAnalytics = false;
-			});
+		});
 	} catch (err: unknown) {
 		logger.error("ModView: Failed to access CTDB", err);
 		sessionAnalyticsList = [];
