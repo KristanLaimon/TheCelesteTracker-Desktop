@@ -124,9 +124,14 @@ bun run build
 ```
 The final executable packages and `resources.neu` will be generated in the `dist/myapp/` directory.
 
-# Acknowledgments 
+# Acknowledgments & Credits
 
 - Thanks to [Maddies](https://maddie480.ovh) for their easy-to-use apis. Literally mods fetching metadata couldn't be possible without it. (You can't fetch gamebanana mods metadata easily by mod name, only by mod id, whose doesn't exist in olympus!, ahhh!)
+- Images/Stickers and other assets were found in these links:
+
+	- https://www.reddit.com/r/celestegame/comments/1qb2l20/madeline_drawing/   |  Author: I_HaveBrainDamage (Celeste Characters Stickers) 
+
+	- https://www.reddit.com/r/celestegame/comments/1uzgea4/chibified_the_cast/ |  Author:  fudgebiscuitz (Maddie Funny Chibbified Sticker)
 
 
 ## Some notes
