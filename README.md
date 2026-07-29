@@ -143,4 +143,5 @@ The AI used in this project is always done using plan and *100% Human-Reviewing*
 _*No VIBE-CODED contributions are allowed. (At least read what are you PR'ing (?))*_
 
 ## License
-MIT License. Created by and for the Celeste community.
+MIT License. Created by and for the Celeste community. [Here](./LICENSE.md)
+
