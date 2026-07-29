@@ -397,15 +397,16 @@ $effect(() => {
                   </div>
                 {/if}
               </div>
+
+
+							      <!-- SQLITE SESSION ANALYTICS & CHARTS SECTION -->
+							<div class="space-y-8 w-full">
+								<!-- RECENT SESSIONS TABLE -->
+								<ModRecentSessionsTable modStringId={selectedModId} />
+							</div>
             {/if}
 
-            <!-- SQLITE SESSION ANALYTICS & CHARTS SECTION -->
-						<div class="space-y-8 w-full">
-							<!-- RECENT SESSIONS TABLE -->
-							<ModRecentSessionsTable modStringId={selectedModId} />
-						</div>
-
-            {#if (selectedMaddiesInfo?.Screenshots?.length ?? 0) > 0 || (selectedMaddiesInfo?.MirroredScreenshots?.length ?? 0) > 0}
+                  {#if (selectedMaddiesInfo?.Screenshots?.length ?? 0) > 0 || (selectedMaddiesInfo?.MirroredScreenshots?.length ?? 0) > 0}
               <div>
                 <h3 class="mb-3 text-lg font-semibold text-zinc-300">
                   Screenshots
