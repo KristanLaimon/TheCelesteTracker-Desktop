@@ -11,11 +11,18 @@
 
 ---
 
-**TheCelesteHub** is a high-performance desktop companion for Celeste. It captures real-time gameplay data giving you instant insights without the manual data entry.
+**TheCelesteHub** is a high-performance desktop companion for Celeste. Tracks your progress trough your vanilla + modded journey, manage your mods, statistics, golden grinding stats and performance, organize your modded/vanilla journey to the top!
 
-> ***Still under development, not ready for usage***
 
-> *Rebranding project name to `TheCelesteHub` from `TheCelesteTracker`, so if you found both names, they're the same to this project.*
+## Features
+
+![features](./.github/v2_features.png)
+
+
+
+> Note #1: *Rebranding project name to `TheCelesteHub` from `TheCelesteTracker`, so if you found both names, they're the same to this project. Before this was a simple tracker, now the scope of this project is more ambitious hehe*
+
+> Note #2: Still in early development 🚧
 
 ## Why this exists?
 The Celeste community uses **spreadsheets** for pretty much everything: achievements, map progress, lobby stats—all manual.
