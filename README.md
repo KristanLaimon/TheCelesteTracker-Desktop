@@ -1,10 +1,10 @@
 # TheCeleste-Hub Desktop
 
 <div align="center">
-  <img src=".github/banner.png" alt="TheCelesteTracker_Desktop_Banner" width="100%">
+  <img src=".github/v2_banner.png" alt="TheCelesteTracker_Desktop_Banner" width="100%">
 
-  ### **Stop tracking Celeste in Excel.**
-  *Auto-track runs, deaths, and progress with zero manual effort.*
+  ### **Ditch the spreadsheets. Master the mountain.**
+  *Your all-in-one companion for stats, mods, and zero-effort progress.*
 
   [Features](#features) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Architecture](#architecture)
 </div>
@@ -14,7 +14,7 @@
 **TheCelesteHub** is a high-performance desktop companion for Celeste. Tracks your progress trough your vanilla + modded journey, manage your mods, statistics, golden grinding stats and performance, organize your modded/vanilla journey to the top!
 
 
-## Features
+# Features
 
 ![features](./.github/v2_features.png)
 
@@ -52,6 +52,8 @@ Note: While there are mods to track this info, they are all in-game, limited by 
 
 ## Early-dev screenshots
 
+***Current UI is subject to change, working on a way-better design***
+
 <div align="center">
   <img src=".github/screenshot-neutralinoversion-2.png" alt="Run History Beta" width="80%">
   <p><i>Automatic mod metadata fetching, current statistics, and multi-visualization (Currently in Alpha)</i></p>
@@ -62,7 +64,6 @@ Note: While there are mods to track this info, they are all in-game, limited by 
   <p><i>Full customizable UI for your stats-visual-stunning needs!</i></p>
 </div>
 
-*Current UI is subject to change during beta.*
 But I expect to implement:
 
 - full mod tracking in real time
